@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data & model artifacts (large files)
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.ckpt
+*.pkl
+
+# Logs
+*.log
+wandb/
+runs/
+lightning_logs/
+
+# Environment variables
+.env
+.env.local
