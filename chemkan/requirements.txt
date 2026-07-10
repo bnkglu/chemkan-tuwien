@@ -1,0 +1,5 @@
+# ChemKAN cites Cantera 3.0.0, so this repository pins Cantera 3.0.0.
+# NumPy is pinned to a 1.x version for compatibility with Cantera 3.0.0 wheels.
+numpy==1.26.4
+scipy==1.17.1
+cantera==3.0.0

@@ -35,6 +35,9 @@ ENV/
 *.ckpt
 *.pkl
 
+# Generated datasets: regenerated from source, never committed
+*.npz
+
 # Logs
 *.log
 wandb/

@@ -4,6 +4,8 @@
 
 Welcome to the `chemkan-tuwien` project! This repository contains the source code, materials, and documentation for interdisciplinary project at TU Wien.
 
+**Current status:** ChemKAN data-generation scripts are under `chemkan/scripts/data_gen`; model/training code will be added later.
+
 ### Course Information
 * **Course:** [194.147 Interdisciplinary Project in Data Science](https://tiss.tuwien.ac.at/course/courseDetails.xhtml?dswid=6763&dsrid=17&semester=2026S&courseNr=194147)
 
