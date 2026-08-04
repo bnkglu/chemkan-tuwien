@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemKAN — Hydrogen-Air, Streamed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#080B14; --panel:#111726; --panel2:#0C111C; --line:#212C44; --line2:#2C3A57;
+    --txt:#E8EDF7; --mut:#8792AC; --dim:#5A6480;
+    --add:#3FC3F0; --mult:#F0509B; --thermo:#FF7A1A; --train:#4FE3A0; --infer:#FFC145; --wire:#7F8CA8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:
+     radial-gradient(1100px 640px at 82% -10%, #17203c 0%, transparent 58%),
+     radial-gradient(900px 560px at -5% 105%, #1c1233 0%, transparent 52%), var(--ink);
+     color:var(--txt);font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;}
+  h1,h2,h3,h4{font-family:"Space Grotesk",Inter,system-ui,sans-serif;}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 16px 70px}
+  header{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end;
+     border-bottom:1px solid var(--line);padding-bottom:15px;margin-bottom:14px}
+  .eyebrow{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--add);margin:0 0 7px}
+  h1{font-size:clamp(23px,4.3vw,38px);line-height:1.03;margin:0;font-weight:600;letter-spacing:-.015em}
+  h1 em{font-style:normal;background:linear-gradient(92deg,var(--infer),var(--thermo) 50%,var(--mult));
+     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--mut);font-size:12.5px;max-width:56ch;margin:9px 0 0;line-height:1.55}
+  .src{font-size:10px;color:#6b7692;text-align:right;line-height:1.75}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:7px;margin-bottom:14px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 9px}
+  .stat b{font-family:"Space Grotesk",sans-serif;font-size:18px;display:block;line-height:1}
+  .stat span{font-size:9px;letter-spacing:.05em;color:var(--mut);text-transform:uppercase;display:block;margin-top:5px}
+  .stat.a b{color:var(--add)} .stat.m b{color:var(--mult)} .stat.t b{color:var(--thermo)}
+  .stat.derived{border-style:dashed;border-color:var(--line2)}
+  .bar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:11px}
+  button{font-family:inherit;font-size:11.5px;color:var(--txt);background:var(--panel);
+     border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--add);color:#fff}
+  button:focus-visible{outline:2px solid var(--infer);outline-offset:2px}
+  button.play{background:linear-gradient(92deg,var(--thermo),var(--mult));border:none;color:#150803;font-weight:600}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+  .seg button{border:none;border-radius:0;background:transparent}
+  .seg button.sel{background:rgba(255,122,26,.16);color:var(--thermo)}
+  .seg.blue button.sel{background:rgba(63,195,240,.16);color:var(--add)}
+  .spacer{flex:1 1 auto}
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+  .ph{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 10px;text-align:left;color:var(--mut)}
+  .ph .n{font-size:9.5px;letter-spacing:.18em;opacity:.75}
+  .ph .t{font-family:"Space Grotesk",sans-serif;font-size:12.5px;color:var(--txt);margin-top:3px;font-weight:500}
+  .ph.active{border-color:var(--thermo);background:linear-gradient(180deg,rgba(255,122,26,.15),transparent)}
+  .ph.active .n{color:var(--infer)}
+  @media(max-width:700px){.phases{grid-template-columns:repeat(2,1fr)}}
+  /* ---- 1-COLUMN MAIN VISUAL ---- */
+  .stage{background:var(--panel2);border:1px solid var(--line);border-radius:15px;padding:6px;position:relative;overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  .tip{position:absolute;pointer-events:none;background:#04070F;border:1px solid var(--add);border-radius:7px;
+     padding:7px 9px;font-size:10.5px;max-width:230px;opacity:0;transition:opacity .12s;z-index:9;line-height:1.45}
+  .tip b{color:var(--infer);display:block;margin-bottom:3px}
+  .legend{display:flex;flex-wrap:wrap;gap:11px;margin:9px 4px 2px;font-size:10.5px;color:var(--mut)}
+  .legend i{width:16px;height:3px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:3px}
+  .narr{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 18px;margin-top:12px}
+  .narr .tag{display:inline-block;font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+     padding:3px 9px;border-radius:99px;margin-bottom:9px;font-weight:600}
+  .narr h3{margin:0 0 8px;font-size:17px}
+  .narr .cols{column-count:2;column-gap:26px}
+  @media(max-width:820px){.narr .cols{column-count:1}}
+  .narr p{font-size:12.5px;line-height:1.62;color:#C3CCDE;margin:0 0 10px;break-inside:avoid}
+  .eq{background:#050810;border:1px solid var(--line);border-left:3px solid var(--add);border-radius:7px;
+     padding:8px 10px;font-size:11px;color:#B4C0D8;margin:9px 0;overflow-x:auto;white-space:nowrap;break-inside:avoid}
+  .eq.t{border-left-color:var(--thermo)} .eq.m{border-left-color:var(--mult)}
+  .kv{font-size:10.5px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;margin-top:4px;line-height:1.6;break-inside:avoid}
+  .kv b{color:var(--txt)}
+  .roll{background:var(--panel2);border:1px solid var(--line);border-radius:15px;padding:11px 13px;margin-top:12px}
+  .roll .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:8px}
+  .roll h4{margin:0;font-size:13px}
+  .roll .meta{font-size:10.5px;color:var(--mut)} .roll .meta b{color:var(--infer)}
+  /* ---- layer anatomy ---- */
+  .lean{background:var(--panel);border:1px solid var(--line2);border-radius:15px;margin-top:12px;overflow:hidden}
+  .lean .hd{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;
+     align-items:center;justify-content:space-between}
+  .lean h3{margin:0;font-size:15px}
+  .lean h3 small{display:block;font-size:10.5px;color:var(--mut);font-weight:400;margin-top:3px;font-family:"IBM Plex Mono",monospace}
+  .lg{display:grid;grid-template-columns:1.12fr 1fr;gap:0}
+  @media(max-width:900px){.lg{grid-template-columns:1fr}}
+  .lg>div{padding:14px 15px;min-width:0}
+  .lg>div+div{border-left:1px solid var(--line)}
+  @media(max-width:900px){.lg>div+div{border-left:none;border-top:1px solid var(--line)}}
+  .ctl{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:10.5px}
+  .ctl label{color:var(--mut);flex:0 0 92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ctl input[type=range]{flex:1;accent-color:var(--add);height:3px;min-width:60px}
+  .ctl .v{flex:0 0 44px;text-align:right;color:var(--txt)}
+  .calc{font-size:11.5px;line-height:1.7}
+  .calc .row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid #1a2337}
+  .calc .row:last-child{border-bottom:none}
+  .calc .lbl{color:var(--mut)} .calc .val{font-variant-numeric:tabular-nums}
+  .grp{margin:8px 0;border-radius:8px;padding:8px 10px;border:1px solid}
+  .grp.m{border-color:rgba(240,80,155,.4);background:rgba(240,80,155,.07)}
+  .grp.a{border-color:rgba(63,195,240,.4);background:rgba(63,195,240,.07)}
+  .grp.z{border-color:rgba(255,193,69,.45);background:rgba(255,193,69,.08)}
+  .grp .t{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+  .grp.m .t{color:var(--mult)} .grp.a .t{color:var(--add)} .grp.z .t{color:var(--infer)}
+  .grp .big{font-size:13px;font-family:"Space Grotesk",sans-serif;font-variant-numeric:tabular-nums;word-break:break-word}
+  .empty{color:var(--mut);font-style:italic;font-size:11px}
+  .hidchain{font-size:10.5px;line-height:1.6;background:#050810;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0}
+  .hidchain .h{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
+  .hidchain .h span:first-child{color:var(--add)}
+  /* ---- param calculator ---- */
+  .pc{background:var(--panel);border:1px solid var(--line2);border-radius:15px;margin-top:12px;overflow:hidden}
+  .pc .hd{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .pcg{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  @media(max-width:900px){.pcg{grid-template-columns:1fr}}
+  .pcg>div{padding:14px 15px;min-width:0}
+  .pcg>div+div{border-left:1px solid var(--line)}
+  @media(max-width:900px){.pcg>div+div{border-left:none;border-top:1px solid var(--line)}}
+  .ptab{width:100%;border-collapse:collapse;font-size:11px}
+  .ptab th,.ptab td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .ptab th{color:var(--mut);font-weight:500;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase}
+  .ptab td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .ptab tr.tot td{border-top:2px solid var(--line2);border-bottom:none;font-weight:600;color:var(--txt);padding-top:8px}
+  .ptab .a{color:var(--add)} .ptab .m{color:var(--mult)} .ptab .t{color:var(--thermo)}
+  .verdict{margin-top:10px;border-radius:9px;padding:9px 11px;font-size:11.5px;border:1px solid;line-height:1.5}
+  .verdict.ok{border-color:var(--train);background:rgba(79,227,160,.09);color:var(--train)}
+  .verdict.no{border-color:var(--wire);background:rgba(127,140,168,.08);color:var(--mut)}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden}
+  summary{cursor:pointer;padding:12px 15px;font-family:"Space Grotesk",sans-serif;font-size:13.5px;
+     list-style:none;display:flex;align-items:center;gap:9px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"›";margin-left:auto;color:var(--mut);transform:rotate(90deg);transition:.2s}
+  details[open] summary::after{transform:rotate(-90deg)}
+  .chip{font-size:9.5px;padding:2px 8px;border-radius:99px;letter-spacing:.07em;border:1px solid}
+  .chip.fix{background:rgba(255,122,26,.13);color:var(--thermo);border-color:var(--thermo)}
+  .chip.ok{background:rgba(79,227,160,.11);color:var(--train);border-color:var(--train)}
+  .chip.der{background:rgba(240,80,155,.11);color:var(--mult);border-color:var(--mult)}
+  .body{padding:0 15px 15px}
+  .corr{border-top:1px solid var(--line);padding:12px 0}
+  .corr h4{margin:0 0 5px;font-size:13px}
+  .was{color:var(--thermo);font-size:11px;margin:3px 0}
+  .now{color:var(--train);font-size:11px;margin:3px 0}
+  .corr p{font-size:11.5px;line-height:1.6;color:#C0C9DB;margin:5px 0}
+  .cite{font-size:10px;color:#6b7692}
+  table.pl{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0}
+  table.pl th,table.pl td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  table.pl th{color:var(--mut);font-weight:500;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  table.pl td b{color:var(--infer)}
+  ul.map{list-style:none;padding:0;margin:0}
+  ul.map li{font-size:11.5px;line-height:1.55;color:#C0C9DB;padding:7px 0;border-top:1px solid var(--line);display:flex;gap:10px}
+  ul.map li:first-child{border-top:none}
+  ul.map .s{color:var(--add);flex:0 0 64px;font-size:10.5px}
+  .foot{color:#5d6884;font-size:10px;margin-top:16px;line-height:1.65}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">KAN-ODE · combustion chemistry surrogate</p>
+      <h1>ChemKAN, <em>streamed</em> through a<br>hydrogen-air forward pass</h1>
+      <p class="sub">A 10-D thermochemical state flows edge-by-edge through the kinetic core and the thermodynamic superstructure — then into the solver, and onward into either a <b>training loop</b> or an <b>inference loop</b>, depending on the phase.</p>
+    </div>
+    <div class="src">Koenig, Kim &amp; Deng · MIT<br>“ChemKANs for Combustion Chemistry<br>Modeling and Acceleration”<br>arXiv:2504.12580v2 · 25 Aug 2025<br><span style="color:#4a5470">LeanKAN layer: Koenig et al.,<br>Neural Networks (2025)</span></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b>344</b><span>parameters</span></div>
+    <div class="stat"><b>10</b><span>states in</span></div>
+    <div class="stat a"><b>30</b><span>AddKAN Σ edges</span></div>
+    <div class="stat m"><b>27</b><span>LeanKAN × edges</span></div>
+    <div class="stat m"><b>nμ=3</b><span>all inputs multiply</span></div>
+    <div class="stat derived"><b>N=5</b><span>gridpoints · derived</span></div>
+    <div class="stat"><b>29</b><span>reactions</span></div>
+    <div class="stat t"><b>2.0×</b><span>vs detailed</span></div>
+  </div>
+
+  <div class="bar">
+    <button class="play" id="play">► Stream</button>
+    <button id="prev">‹</button><button id="next">›</button>
+    <div class="spacer"></div>
+    <span style="font-size:10.5px;color:var(--mut)">Energy equation</span>
+    <div class="seg" id="mode">
+      <button data-m="full" class="sel">on (H₂)</button>
+      <button data-m="kin">off (kinetics only)</button>
+    </div>
+  </div>
+
+  <div class="phases" id="phases"></div>
+
+  <!-- MAIN VISUAL — single column -->
+  <div class="stage">
+    <svg id="net" viewBox="0 0 1440 880" role="img" aria-label="ChemKAN network and solver loops"></svg>
+    <div class="tip" id="tip"></div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--add)"></i>AddKAN edge — activations <b>summed</b> at the node</span>
+    <span><i style="background:var(--mult)"></i>LeanKAN edge — activations <b>multiplied</b> at the output</span>
+    <span><i style="background:var(--thermo)"></i>Thermo superstructure</span>
+    <span><i style="background:var(--train)"></i>Training loop</span>
+    <span><i style="background:var(--infer)"></i>Inference loop</span>
+  </div>
+  <div class="narr" id="narr"></div>
+
+  <div class="roll">
+    <div class="hd">
+      <h4 id="rollTitle">Integrated trajectory — what Tsit5 actually produces</h4>
+      <div class="meta" id="rollMeta"></div>
+    </div>
+    <svg id="roll" viewBox="0 0 1200 210" role="img" aria-label="Temperature and species rollout"></svg>
+    <p style="font-size:10px;color:#5d6884;margin:6px 0 0;line-height:1.6">
+      Axes are the paper's: 0.6 ms window, T₀ = 1050 K at Φ = 0.9 (a training condition from Fig. 7). Curve <b>shapes are schematic</b> — drawn to show what the loop emits and how the loss is formed, not digitized from the paper's figures.
+    </p>
+  </div>
+
+  <!-- LAYER ANATOMY -->
+  <div class="lean">
+    <div class="hd">
+      <h3>Layer anatomy — live arithmetic
+        <small id="anatSub">every parameter lives at an activation φ; connections and operators are parameter-free</small>
+      </h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="seg blue" id="anatTab">
+          <button data-t="add" class="sel">AddKAN Ψ₀</button>
+          <button data-t="lean">LeanKAN Ψ₁</button>
+          <button data-t="both">Combined core</button>
+        </div>
+        <div class="seg" id="anatCase">
+          <button data-c="h2" class="sel">H₂</button>
+          <button data-c="bd">Biodiesel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lg">
+      <div>
+        <svg id="anat" viewBox="0 0 620 460" role="img" aria-label="Layer close-up"></svg>
+        <div id="sliders"></div>
+      </div>
+      <div id="anatRight"></div>
+    </div>
+    <div style="padding:0 15px 14px">
+      <p style="font-size:10.5px;color:#5d6884;line-height:1.6;margin:0" id="anatFoot"></p>
+    </div>
+  </div>
+
+  <!-- PARAMETER CALCULATOR -->
+  <div class="pc">
+    <div class="hd">
+      <h3 style="margin:0;font-size:15px">How to count the parameters
+        <small style="display:block;font-size:10.5px;color:var(--mut);font-weight:400;margin-top:3px;font-family:'IBM Plex Mono',monospace">
+          every φ holds N basis weights · every layer holds n<sub>in</sub>×n<sub>out</sub> of them
+        </small>
+      </h3>
+      <div class="seg" id="pcCase">
+        <button data-c="h2" class="sel">H₂ → 344</button>
+        <button data-c="bd">Biodiesel → 156</button>
+      </div>
+    </div>
+    <div class="pcg">
+      <div>
+        <p style="font-size:11.5px;line-height:1.65;color:#C3CCDE;margin:0 0 8px">
+          The whole count rests on one sentence in the paper: a layer connecting n<sub>l</sub> inputs to n<sub>l+1</sub> outputs has
+          <b>n<sub>l</sub> · n<sub>l+1</sub> activation functions</b>, and <em>all</em> the network's parameters live inside those activations.
+          So counting is three steps:
+        </p>
+        <div class="eq" style="white-space:normal">
+          <b style="color:var(--add)">1.</b> activations per layer = n<sub>l</sub> × n<sub>l+1</sub><br>
+          <b style="color:var(--mult)">2.</b> params per activation = N &nbsp;(the grid size, Eq. 11)<br>
+          <b style="color:var(--thermo)">3.</b> add θ<sub>thermo</sub> = m scalars, if the energy equation is on
+        </div>
+        <div class="eq m" style="white-space:normal;font-size:11.5px">
+          <b>params = Σ<sub>layers</sub> (n<sub>l</sub> × n<sub>l+1</sub> × N) + m·[thermo]</b>
+        </div>
+        <p style="font-size:11px;line-height:1.6;color:var(--mut);margin:8px 0 0">
+          nμ does <b>not</b> enter the count. It only decides whether an activation's output is multiplied or added downstream — it adds no weights. That's the whole point of LeanKAN: MultKAN needs 20 activations where AddKAN and LeanKAN need 12 for the same 4→3 layer.
+        </p>
+        <div style="margin-top:12px">
+          <div class="ctl"><label>hidden nodes</label><input type="range" id="pcHid" min="1" max="10" step="1"><span class="v" id="pcHidV"></span></div>
+          <div class="ctl"><label>grid size N</label><input type="range" id="pcN" min="2" max="8" step="1"><span class="v" id="pcNV"></span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+            <button id="pcReset" style="font-size:10.5px;padding:6px 10px">↺ paper config</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <table class="ptab" id="pcTab"></table>
+        <div id="pcVerdict"></div>
+        <p style="font-size:10px;color:#5d6884;line-height:1.6;margin:10px 0 0" id="pcNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <details open>
+    <summary><span class="chip fix">3 fixes</span><span class="chip der">1 derivation</span> Corrections to the earlier walkthrough</summary>
+    <div class="body">
+      <div class="corr">
+        <h4>1 · 36 conditions generated, 35 used for training</h4>
+        <p class="was">Earlier: “35 different initial combinations of temperature and equivalence ratio.”</p>
+        <p class="now">Cantera generates data at all <b>36 combinations</b> of initial temperature T₀ ∈ {950, 1000, 1050, 1100, 1150, 1200} K and equivalence ratio Φ. The [1150 K, Φ=1.3] case is withheld as unseen test data → <b>35 training sets</b>. 35 is the training count, not the grid.</p>
+        <p class="cite">§II.D.2 (p.9). Note: the printed Φ list shows only five values, which conflicts with the stated “36” — an apparent typo. 6×6 matches the ChemNODE setup the authors deliberately mirror.</p>
+      </div>
+      <div class="corr">
+        <h4>2 · nμ splits the <em>inputs</em>; every output does both operations</h4>
+        <p class="was">Earlier: output nodes are “either a multiplication part or an addition part,” and hidden nodes are “pure multiplication hubs.”</p>
+        <p class="now">The paper defines nμ as “the multiplication hyperparameter that dictates the number of multiplication <b>input</b> nodes for layer l.” Each output node <b>always</b> computes both a product (Eq. 9) and a sum (Eq. 10) and adds them (Eq. 8). Here nμ = n<sub>l</sub> = 3, so the addition group is empty and each of the 9 outputs reduces to a product. Right answer, wrong reason — it's the degenerate case, not the rule. Also: the <b>product is formed at the output node</b>, over its 3 incoming activations. Flip the anatomy panel to <b>Biodiesel</b> (nμ=2) to watch both groups fire at once.</p>
+        <p class="cite">ChemKAN Eqs. 8–10 (p.5), nμ=3 at p.15 · LeanKAN §3.1–3.2</p>
+      </div>
+      <div class="corr">
+        <h4>3 · Forward sensitivity + Adam are used in <em>both</em> stages</h4>
+        <p class="was">Earlier: “forward sensitivity in Stage 1” vs “the Adam optimizer updates the network in Stage 2.”</p>
+        <p class="now">Both stages take dL/dθ through the stiff Tsit5 solve with <b>forward sensitivity analysis</b> — chosen over adjoint precisely because adjoint can fail on stiff chemistry — and <b>Adam</b> (lr = 2×10⁻³) throughout. What changes between stages is <em>which parameters are trainable</em> and <em>how many states enter the loss</em> (n* = 9, then n* = 10).</p>
+        <p class="cite">§II.C.4–5 (pp.7–8)</p>
+      </div>
+      <div class="corr">
+        <h4>4 · Grid size for H₂ — not in the paper, so derived <span class="chip der" style="margin-left:5px">mine</span></h4>
+        <p>The paper states three-point grids for biodiesel but is <b>silent on the H₂ grid</b>. Applying the counting rule above:</p>
+        <table class="pl">
+          <tr><th>Network</th><th>Activations</th><th>× N</th><th>+ θ_thermo</th><th>Paper says</th></tr>
+          <tr><td>Biodiesel, 2 hidden</td><td>7·2 + 2·6 = 26</td><td>×3 = 78</td><td>—</td><td><b>78 ✓</b></td></tr>
+          <tr><td>Biodiesel, 4 hidden</td><td>7·4 + 4·6 = 52</td><td>×3 = 156</td><td>—</td><td><b>156 ✓</b></td></tr>
+          <tr><td>H₂ (AddKAN + LeanKAN + KAN_cor)</td><td>10·3 + 3·9 + 10·1 = 67</td><td>×5 = 335</td><td>+9</td><td><b>344 ✓</b></td></tr>
+        </table>
+        <p>N=5 is the <b>unique</b> integer that lands on 344. Treat it as a well-supported inference, not a quoted fact.</p>
+        <p class="cite">Two honest wrinkles: (a) Eq. 11 makes w<sup>b</sup> learnable too, which would give N+1 per activation — but N+1 fails on both biodiesel numbers, so the reported counts appear to exclude the base weights. (b) The same paragraph that cites “78 parameters” also cites “72” for the sparsest ChemKAN; 72 fits no integer hidden-node count, so it reads as a slip.</p>
+      </div>
+      <div class="corr">
+        <h4 style="color:var(--train)">Held up on re-check <span class="chip ok" style="margin-left:5px">verified</span></h4>
+        <p>344 params · the 10-state / 9-species list · 30 AddKAN edges · 27 LeanKAN edges · 3 hidden nodes compressing 29 reactions · Tsit5 (Tsitouras 5/4) · KAN_cor as a single-layer AddKAN (Eq. 17) · the linear enthalpy sum for dT/dt (Eqs. 14–15) · PINN element-conservation term at α = 10⁻⁴ · 2.0× speedup (ChemNODE: 2.3×, but 7 networks, 637 params, missing H, HO₂, H₂O₂).</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="chip ok">coverage</span> The rest of the paper — nothing skipped</summary>
+    <div class="body">
+      <ul class="map">
+        <li><span class="s">§I</span><span>Two long-standing blockers: detailed mechanisms are large, and stiffness makes integration expensive. Prior art: CRNN and SINDy for discovery; ChemNODE and DeepONets for acceleration.</span></li>
+        <li><span class="s">§II.A</span><span>Zero-D homogeneous reactor. Eq. 1: dYᵢ/dt = Wᵢω̇ᵢ/ρ, Arrhenius-driven. Eq. 2: dT/dt = −ΣhᵢẎᵢ/c_p. Operator splitting is what lets a 0-D surrogate serve 3-D turbulent flow.</span></li>
+        <li><span class="s">§II.B</span><span>Baselines. DeepONet: branch(u₀) ⊙ trunk(t) → u, no integrator. ChemNODE: m+1 separate MLPs, each learning one gradient, trained in m+1 frozen stages with zero information sharing.</span></li>
+        <li><span class="s">§II.C</span><span>ChemKAN: AddKAN (Eq. 7) and LeanKAN (Eqs. 8–10) layers, RBF activations (Eqs. 11–12), kinetic core (Eq. 13) + thermo superstructure (Eqs. 14–15), loss (Eq. 18), two-stage training, forward sensitivity, Tsit5, Adam @ 2×10⁻³.</span></li>
+        <li><span class="s">§III.A</span><span>Case 1 — biodiesel transesterification (TG→DG→MG→GL, 3 reactions), isothermal, 30 sampled points, 10⁴ epochs. Kinetics-only core, 4 hidden nodes, nμ=2, 3-pt grids, 156 params vs a 308-param DeepONet. ChemKAN wins testing loss at <em>every</em> size and plateaus instead of overfitting. Under 15% noise its error rises ~2× vs DeepONet's 5×, ending 4.4× lower. Neural scaling: 1.0 train / 0.6 test — read as saturated, not stalled.</span></li>
+        <li><span class="s">§III.B</span><span>Case 2 — the diagram above. All 9 species incl. the H radical ChemNODE dropped; 441 conditions probed (406 unseen); ignition delay (max dT/dt) accurate across the igniting cases; 2.0× faster in Arrhenius.jl. Weak spot: below ~1000 K, ignition-sensitive cases degrade — wants denser cold-region sampling.</span></li>
+        <li><span class="s">§III.C</span><span>Limits: 2× is called a conservative floor — KAN kernels are ~1 year old and slower than MLPs; step count is unchanged, so the win comes purely from cheaper gradient evaluation.</span></li>
+      </ul>
+    </div>
+  </details>
+
+  <p class="foot">All structural claims validated line-by-line against the ChemKAN paper; LeanKAN routing cross-checked against the LeanKAN paper. Derived quantities are labeled as such. Motion respects prefers-reduced-motion; nodes are keyboard-focusable.</p>
+</div>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $=id=>document.getElementById(id);
+const CA="#3FC3F0",CM="#F0509B",CT="#FF7A1A",CG="#4FE3A0",CI="#FFC145",CW="#7F8CA8",CMUT="#8792AC";
+
+/* ============ MAIN NETWORK ============ */
+const svg=$("net"), tip=$("tip"), stageEl=svg.parentElement;
+const species=["H₂","O₂","H₂O","N₂","O","OH","H","HO₂","H₂O₂"];
+const colOf={add:CA,lean:CM,lin:CT,cor:CT,temp:CT,bus:CW,ode:CW,loss:CG,adam:CG,train:CG,data:CG,infer:CI,loop:CI};
+const THERMO=new Set(["lin","cor","temp"]);
+function col(x,n,t,b,r,g){const a=[];for(let i=0;i<n;i++)a.push({x,y:t+(b-t)*(n<2?.5:i/(n-1)),r,g});return a;}
+const P={};
+P.in=col(58,10,64,772,13,"in").map((p,i)=>({...p,label:i<9?species[i]:"T",
+  title:i<9?"Y("+species[i]+")":"T — temperature",
+  note:i<9?"mass fraction of "+species[i]+" · component "+(i+1)+" of the 10-D state u(t)":"temperature · the 10th component of u(t)"}));
+P.hid=col(336,3,320,560,20,"hid").map((p,i)=>({...p,label:"Σ",title:"Hidden node h"+(i+1),
+  note:"Sums its 10 incoming AddKAN activations. It is also one of the nμ=3 multiplication INPUT nodes for the LeanKAN layer that follows."}));
+P.spec=col(620,9,70,630,13,"spec").map((p,i)=>({...p,label:"×",title:"dY("+species[i]+")/dt",
+  note:"Product of its 3 incoming LeanKAN activations (the add group is empty here). One of the 9 species rates — kinetic core output, Eq. 13."}));
+P.lin={x:796,y:600,r:21,g:"lin",label:"Σ",title:"Linear combination — no activation",
+  note:"Enthalpy-weighted sum of the 9 species rates. θ_thermo = 9 scalars standing in for hᵢ/c_p (Eqs. 14–15)."};
+P.cor={x:796,y:742,r:19,g:"cor",label:"ε",title:"KAN_cor — single-layer AddKAN (Eq. 17)",
+  note:"Reads the full 10-D u(t) over 10 activations to correct for c_p drifting with mixture and temperature. This is the ε of Eq. 14."};
+P.temp={x:916,y:672,r:17,g:"temp",label:"dT",title:"dT/dt",note:"Linear enthalpy sum + KAN_cor correction (Eq. 15)."};
+P.bus={x:1010,y:360,r:23,g:"bus",label:"du/dt",title:"Full gradient du/dt (10-D)",
+  note:"9 species rates + dT/dt, assembled as f(u,t) for the solver."};
+P.ode={x:1160,y:360,r:28,g:"ode",label:"Tsit5",title:"Tsit5 — Tsitouras 5/4 Runge-Kutta",
+  note:"Integrates the gradient. In training it produces û_pred for the loss; in inference it emits u(t+dt) and the loop repeats."};
+P.next={x:1340,y:360,r:20,g:"infer",label:"u⁺",title:"u(t+dt) — the new state",
+  note:"INFERENCE ONLY. The stepped state loops straight back into the input layer. No loss, no optimizer."};
+P.loss={x:1160,y:565,r:24,g:"loss",label:"ℒ",title:"Loss ℒ = ℒ_MSE + ℒ_PINN (Eq. 18)",
+  note:"MSE between û_pred and û_obs over n* states (9 in Stage 1, 10 in Stage 2), plus the α=10⁻⁴ element-conservation penalty."};
+P.data={x:1340,y:565,r:18,g:"data",label:"obs",title:"û_obs — Cantera training data",
+  note:"Ground truth from Cantera / GRI-Mech 3.0, normalized to [0,1]. 35 training conditions."};
+P.adam={x:1160,y:730,r:22,g:"adam",label:"Adam",title:"Forward sensitivity → Adam",
+  note:"dL/dθ by FORWARD sensitivity analysis (adjoint is unstable on stiff chemistry). Adam steps θ at lr = 2×10⁻³."};
+const nodes=[...P.in,...P.hid,...P.spec,P.lin,P.cor,P.temp,P.bus,P.ode,P.next,P.loss,P.data,P.adam];
+function ed(a,b,g,c=.5){const x1=a.x+a.r,y1=a.y,x2=b.x-b.r,y2=b.y;
+  return{x1,y1,x2,y2,g,p1x:x1+(x2-x1)*c,p1y:y1,p2x:x1+(x2-x1)*c,p2y:y2};}
+let E=[];
+P.in.forEach(a=>P.hid.forEach(b=>E.push(ed(a,b,"add"))));
+P.hid.forEach(a=>P.spec.forEach(b=>E.push(ed(a,b,"lean"))));
+P.spec.forEach(a=>E.push(ed(a,P.lin,"lin",.55)));
+P.in.forEach(a=>E.push(ed(a,P.cor,"cor",.68)));
+E.push(ed(P.lin,P.temp,"temp"),ed(P.cor,P.temp,"temp"));
+P.spec.forEach(a=>E.push(ed(a,P.bus,"bus",.6)));
+E.push(ed(P.temp,P.bus,"bus",.55));
+E.push(ed(P.bus,P.ode,"bus"));
+E.push(ed(P.ode,P.next,"infer"));
+E.push(ed(P.ode,P.loss,"loss"));
+E.push(ed(P.loss,P.adam,"loss"));
+const ARCS=[
+ {g:"loop",d:"M "+P.next.x+" "+(P.next.y-P.next.r)+" C 1340 90, 620 40, "+P.in[0].x+" "+(P.in[0].y-P.in[0].r-4),w:1.6,dash:"6 6"},
+ {g:"train",d:"M "+(P.adam.x-P.adam.r)+" "+P.adam.y+" C 880 840, 470 850, "+P.hid[2].x+" "+(P.hid[2].y+P.hid[2].r+4),w:1.6,dash:"6 6"},
+ {g:"data",d:"M "+(P.data.x-P.data.r)+" "+P.data.y+" L "+(P.loss.x+P.loss.r)+" "+P.loss.y,w:1.4,dash:"3 4"}
+];
+svg.insertAdjacentHTML("afterbegin",'<defs>'+
+ '<radialGradient id="pkA"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="'+CA+'"/><stop offset="1" stop-color="#1a7fa8"/></radialGradient>'+
+ '<radialGradient id="pkM"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="'+CM+'"/><stop offset="1" stop-color="#9c2b63"/></radialGradient>'+
+ '<radialGradient id="pkT"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="'+CT+'"/><stop offset="1" stop-color="#a34a08"/></radialGradient>'+
+ '<radialGradient id="pkG"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="'+CG+'"/><stop offset="1" stop-color="#248f5f"/></radialGradient>'+
+ '<radialGradient id="pkI"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="'+CI+'"/><stop offset="1" stop-color="#a87a12"/></radialGradient>'+
+ '<radialGradient id="pkW"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="'+CW+'"/></radialGradient>'+
+ '<filter id="glow"><feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>');
+const pkGrad={add:"url(#pkA)",lean:"url(#pkM)",lin:"url(#pkT)",cor:"url(#pkT)",temp:"url(#pkT)",
+  bus:"url(#pkW)",loss:"url(#pkG)",train:"url(#pkG)",data:"url(#pkG)",infer:"url(#pkI)",loop:"url(#pkI)"};
+const bands=document.createElementNS(NS,"g");
+bands.innerHTML=
+ '<rect x="26" y="30" width="672" height="736" rx="18" fill="rgba(63,195,240,.05)" stroke="rgba(63,195,240,.18)"/>'+
+ '<rect x="712" y="556" width="230" height="212" rx="16" fill="rgba(255,122,26,.07)" stroke="rgba(255,122,26,.22)"/>'+
+ '<text x="40" y="54" fill="'+CA+'" font-size="11" letter-spacing="2" font-family="Space Grotesk">KINETIC CORE · Eq. 13 · θ_kin</text>'+
+ '<text x="724" y="580" fill="'+CT+'" font-size="10" letter-spacing="1.4" font-family="Space Grotesk">THERMO SUPERSTRUCTURE · Eq. 15</text>'+
+ '<text x="150" y="792" fill="'+CA+'" font-size="10">AddKAN Ψ₀ · 10→3 · 30 activations · Σ</text>'+
+ '<text x="440" y="792" fill="'+CM+'" font-size="10">LeanKAN Ψ₁ · 3→9 · 27 activations · nμ=3 → ×</text>'+
+ '<text x="1236" y="300" fill="'+CI+'" font-size="10" id="lblInfer" opacity="0">inference branch</text>'+
+ '<text x="600" y="866" fill="'+CG+'" font-size="10" id="lblTrain" opacity="0">Δθ → every activation (forward sensitivity + Adam)</text>'+
+ '<text x="700" y="70" fill="'+CI+'" font-size="10" id="lblLoop" opacity="0">u(t+dt) ↻ feeds straight back in</text>';
+svg.append(bands);
+const gE=document.createElementNS(NS,"g"),gP=document.createElementNS(NS,"g"),gN=document.createElementNS(NS,"g");
+svg.append(gE,gP,gN);
+E.forEach(e=>{const el=document.createElementNS(NS,"path");
+  el.setAttribute("d","M "+e.x1+" "+e.y1+" C "+e.p1x+" "+e.p1y+", "+e.p2x+" "+e.p2y+", "+e.x2+" "+e.y2);
+  el.setAttribute("fill","none");el.setAttribute("stroke",colOf[e.g]);el.setAttribute("stroke-width","1");
+  el.setAttribute("stroke-opacity",".18");gE.append(el);e.el=el;});
+ARCS.forEach(a=>{const el=document.createElementNS(NS,"path");
+  el.setAttribute("d",a.d);el.setAttribute("fill","none");el.setAttribute("stroke",colOf[a.g]);
+  el.setAttribute("stroke-width",a.w);el.setAttribute("stroke-opacity",".18");
+  if(a.dash)el.setAttribute("stroke-dasharray",a.dash);gE.append(el);a.el=el;a.len=el.getTotalLength();});
+const packets=[];
+E.forEach((e,i)=>{const c=document.createElementNS(NS,"circle");
+  c.setAttribute("r","3.3");c.setAttribute("fill",pkGrad[e.g]);c.setAttribute("opacity","0");
+  gP.append(c);packets.push({el:c,e,off:(i%9)/9,arc:false});});
+ARCS.forEach((a,i)=>{if(a.g==="data")return;const c=document.createElementNS(NS,"circle");
+  c.setAttribute("r","3.6");c.setAttribute("fill",pkGrad[a.g]);c.setAttribute("opacity","0");
+  gP.append(c);packets.push({el:c,arcRef:a,off:i/2,arc:true,g:a.g});});
+function cubic(e,t){const u=1-t;
+  return[u*u*u*e.x1+3*u*u*t*e.p1x+3*u*t*t*e.p2x+t*t*t*e.x2,
+         u*u*u*e.y1+3*u*u*t*e.p1y+3*u*t*t*e.p2y+t*t*t*e.y2];}
+nodes.forEach(n=>{const g=document.createElementNS(NS,"g");
+  g.setAttribute("tabindex","0");g.style.cursor="pointer";g.style.outline="none";
+  const base=THERMO.has(n.g)?CT:(n.g==="in"||n.g==="hid")?CA:n.g==="spec"?CM:
+    (n.g==="loss"||n.g==="adam"||n.g==="data")?CG:n.g==="infer"?CI:CW;
+  const c=document.createElementNS(NS,"circle");
+  c.setAttribute("cx",n.x);c.setAttribute("cy",n.y);c.setAttribute("r",n.r);
+  c.setAttribute("fill","#080d18");c.setAttribute("stroke",base);c.setAttribute("stroke-width","1.5");
+  const t=document.createElementNS(NS,"text");
+  t.setAttribute("x",n.x);t.setAttribute("y",n.y);t.setAttribute("text-anchor","middle");
+  t.setAttribute("dominant-baseline","central");t.setAttribute("fill",base);
+  t.setAttribute("font-size",n.g==="hid"?"17":n.g==="spec"?"13":n.r>21?"11":"10");
+  t.setAttribute("font-family","IBM Plex Mono, monospace");t.textContent=n.label;
+  g.append(c,t);gN.append(g);n.c=c;n.g_=g;
+  if(n.g==="spec"){const s=document.createElementNS(NS,"text");
+    s.setAttribute("x",n.x+n.r+5);s.setAttribute("y",n.y);s.setAttribute("dominant-baseline","central");
+    s.setAttribute("fill",CMUT);s.setAttribute("font-size","9");
+    s.textContent=n.title.replace("dY(","d").replace(")/dt","/dt");gN.append(s);n.side=s;}
+  const mv=ev=>{const r=stageEl.getBoundingClientRect();
+    let x=ev.clientX-r.left+12,y=ev.clientY-r.top+12;if(x>r.width-240)x-=252;
+    tip.style.left=x+"px";tip.style.top=y+"px";};
+  g.addEventListener("pointerenter",ev=>{tip.innerHTML="<b>"+n.title+"</b>"+n.note;tip.style.opacity="1";mv(ev);});
+  g.addEventListener("pointermove",mv);
+  g.addEventListener("pointerleave",()=>tip.style.opacity="0");
+  g.addEventListener("focus",()=>{const b=g.getBoundingClientRect(),r=stageEl.getBoundingClientRect();
+    tip.innerHTML="<b>"+n.title+"</b>"+n.note;tip.style.opacity="1";
+    tip.style.left=Math.min(b.left-r.left+16,r.width-240)+"px";tip.style.top=(b.top-r.top+16)+"px";
+    c.setAttribute("stroke-width","3");});
+  g.addEventListener("blur",()=>{tip.style.opacity="0";c.setAttribute("stroke-width","1.5");});
+});
+const PH=[
+ {n:"00",t:"Initialize",act:new Set(["in"]),
+  html:'<span class="tag" style="background:rgba(63,195,240,.14);color:'+CA+'">Step 0 · staging</span>'+
+   '<h3>Build the state, lay the grids</h3><div class="cols">'+
+   '<p>A zero-D homogeneous H₂-air reactor. The state is <b>u(t) = [ũ, T]</b> = nine GRI-Mech 3.0 species plus temperature.</p>'+
+   '<div class="eq">u = [Y_H₂, Y_O₂, Y_H₂O, Y_N₂, Y_O, Y_OH, Y_H, Y_HO₂, Y_H₂O₂, T]</div>'+
+   '<p>Every one of the 344 parameters lives on an <b>activation</b>, never on a connection. Each activation is an RBF sum on a 5-point grid plus a swish base, with tanh normalization at each layer input replacing periodic re-gridding.</p>'+
+   '<div class="kv"><b>Data:</b> Cantera + GRI-Mech 3.0 (9 species, 29 reactions), 0.6 ms window.<br><b>Grid:</b> 36 conditions → <b>35 train</b>, [1150 K, Φ=1.3] withheld.</div></div>'},
+ {n:"01",t:"Stage 1 — kinetic core",act:new Set(["in","add","hid","lean","spec","bus","ode","loss","adam","train","data"]),
+  html:'<span class="tag" style="background:rgba(63,195,240,.14);color:'+CA+'">Step 1 · train θ_kin only</span>'+
+   '<h3>Learn the 9 species rates</h3><div class="cols">'+
+   '<p>u(t) crosses <b style="color:'+CA+'">30 azure AddKAN edges</b> into 3 hidden nodes, each <b>summing</b> its 10 activations. Those 3 values cross <b style="color:'+CM+'">27 magenta LeanKAN edges</b>, and each of the 9 outputs takes the <b>product</b> of its 3 activations — mimicking rate ∝ [A][B].</p>'+
+   '<div class="eq">dũ/dt = KAN_kin(u, θ_kin) = (Ψ_lean ∘ Ψ_add)(u)</div>'+
+   '<p><b>Follow the green loop:</b> Tsit5 integrates the rates into trajectories → they meet the Cantera data at the loss node → <b>forward sensitivity</b> pushes dL/dθ back through the stiff solve → Adam steps θ. The thermo block is dark; temperatures are simply read from data.</p>'+
+   '<div class="kv"><b>Loss:</b> MSE only, n* = m = <b>9</b>. · <b>Trainable:</b> θ_kin.</div></div>'},
+ {n:"02",t:"Stage 2 — thermo",act:new Set(["in","add","hid","lean","spec","lin","cor","temp","bus","ode","loss","adam","train","data"]),focus:true,
+  html:'<span class="tag" style="background:rgba(255,122,26,.14);color:'+CT+'">Step 2 · train the whole network</span>'+
+   '<h3>Switch on heat release</h3><div class="cols">'+
+   '<p>With the core converged, the <b style="color:'+CT+'">thermodynamic superstructure</b> lights up. The 9 species rates fan into a plain <b>linear enthalpy sum</b> — no activation, just 9 scalars. Separately, the full u(t) runs through <b>KAN_cor</b> (a single-layer AddKAN, 10 activations) to catch c_p drifting with the mixture: the ε term.</p>'+
+   '<div class="eq t">dT/dt = Linear(dũ/dt, θ_thermo) + KAN_cor(u, θ_cor)</div>'+
+   '<p>Same green loop, bigger job: Tsit5 now integrates all 10 states, the loss adds temperature <em>and</em> an element-conservation PINN penalty, and Adam updates the <b>entire network</b> — stabilized by the already-converged core.</p>'+
+   '<div class="kv"><b>Loss:</b> MSE, n* = m+1 = <b>10</b>, + α_PINN·|element drift|, α = 10⁻⁴.<br><b>Trainable:</b> everything.</div></div>'},
+ {n:"03",t:"Inference",act:new Set(["in","add","hid","lean","spec","lin","cor","temp","bus","ode","infer","loop"]),fast:true,
+  html:'<span class="tag" style="background:linear-gradient(92deg,'+CT+','+CM+');color:#150803">Step 3 · deploy</span>'+
+   '<h3>The loop closes — no loss, no optimizer</h3><div class="cols">'+
+   '<p><b>Watch what changed:</b> the entire green training branch is <b>gone</b>. The loss node, the data node, Adam and the Δθ return arc are all switched off — nothing flows backwards any more. Weights are frozen.</p>'+
+   '<p>Instead a <b style="color:'+CI+'">gold branch</b> opens on Tsit5\'s right: one forward pass emits du/dt, Tsit5 takes one step of dt to give <b>u(t+dt)</b>, and that state arcs back over the top straight into the input layer. Watch the rollout below fill in as the loop turns — that <em>is</em> where Tsit5 goes.</p>'+
+   '<p>29 reactions compressed into 3 hidden nodes makes each gradient evaluation cheap. The step <em>count</em> is unchanged — each step is just faster — giving <b>2.0×</b> over detailed chemistry, in a surrogate that drops into 2-D/3-D turbulent flow solvers.</p>'+
+   '<div class="kv"><b>Deployed:</b> source-term surrogate · 1 network · 344 params.<br><b>vs ChemNODE:</b> 2.3×, but 7 nets, 637 params, no H / HO₂ / H₂O₂.</div></div>'}
+];
+const phBox=$("phases"),narr=$("narr");
+PH.forEach((p,i)=>{const b=document.createElement("button");b.className="ph";
+  b.innerHTML='<div class="n">PHASE '+p.n+'</div><div class="t">'+p.t+'</div>';
+  b.onclick=()=>setPhase(i);phBox.append(b);p.btn=b;});
+let cur=0,mode="full";
+function act(){const s=new Set(PH[cur].act);if(mode==="kin")["lin","cor","temp"].forEach(g=>s.delete(g));return s;}
+function setPhase(i){
+  cur=(i+PH.length)%PH.length;const p=PH[cur],s=act();
+  narr.innerHTML=p.html;
+  PH.forEach((q,k)=>q.btn.classList.toggle("active",k===cur));
+  E.forEach(e=>{const on=s.has(e.g);
+    e.el.setAttribute("stroke-opacity",on?(p.focus&&THERMO.has(e.g)?".65":".38"):".05");
+    e.el.setAttribute("stroke-width",on&&p.focus&&THERMO.has(e.g)?"1.8":"1");});
+  ARCS.forEach(a=>a.el.setAttribute("stroke-opacity",s.has(a.g)?.5:.05));
+  nodes.forEach(n=>{const on=s.has(n.g);
+    n.g_.style.opacity=on?1:.13;if(n.side)n.side.style.opacity=on?.9:.1;
+    if((p.focus&&THERMO.has(n.g))||(p.fast&&n.g==="infer"))n.c.setAttribute("filter","url(#glow)");
+    else n.c.removeAttribute("filter");});
+  $("lblInfer").setAttribute("opacity",s.has("infer")?.85:0);
+  $("lblLoop").setAttribute("opacity",s.has("loop")?.8:0);
+  $("lblTrain").setAttribute("opacity",s.has("train")?.8:0);
+  rollMode(cur);
+}
+$("mode").onclick=e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;
+  [...e.currentTarget.children].forEach(x=>x.classList.toggle("sel",x===b));setPhase(cur);};
+$("prev").onclick=()=>setPhase(cur-1);$("next").onclick=()=>setPhase(cur+1);
+
+/* ============ ROLLOUT ============ */
+const rsvg=$("roll"),RW=1200,RH=210,ml=52,mr=14,mt=12,mb=26;
+const T0=1050,TF=2600,TIGN=.26,WID=.021,TMAX=.6;
+const Tof=t=>T0+(TF-T0)/(1+Math.exp(-(t-TIGN)/WID));
+const YH2=t=>0.0283*(1-1/(1+Math.exp(-(t-TIGN)/WID)))+0.0006;
+const YOH=t=>0.010*Math.exp(-Math.pow((t-TIGN-0.012)/0.030,2))+0.0004/(1+Math.exp(-(t-TIGN)/WID));
+const sx=t=>ml+(t/TMAX)*(RW-ml-mr);
+const syT=T=>mt+(1-(T-900)/(TF+100-900))*(RH-mt-mb);
+const syY=y=>mt+(1-y/0.032)*(RH-mt-mb);
+function rpath(f,sy,t1){let d="";for(let t=0;t<=t1+1e-9;t+=TMAX/300)d+=(d?"L":"M")+sx(t).toFixed(1)+" "+sy(f(t)).toFixed(1);return d;}
+rsvg.innerHTML=
+ '<g stroke="#1c2740" stroke-width="1">'+[0,.15,.3,.45,.6].map(t=>'<line x1="'+sx(t)+'" y1="'+mt+'" x2="'+sx(t)+'" y2="'+(RH-mb)+'"/>').join("")+'</g>'+
+ '<g fill="#6b7692" font-size="9" font-family="IBM Plex Mono" text-anchor="middle">'+
+   [0,.15,.3,.45,.6].map(t=>'<text x="'+sx(t)+'" y="'+(RH-10)+'">'+t.toFixed(2)+'</text>').join("")+'</g>'+
+ '<text x="'+(RW/2)+'" y="'+(RH-1)+'" fill="#6b7692" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">t (ms)</text>'+
+ '<g fill="#6b7692" font-size="9" font-family="IBM Plex Mono"><text x="4" y="'+(syT(2600)+3)+'">2600K</text><text x="4" y="'+(syT(1050)+3)+'">1050K</text></g>'+
+ '<line x1="'+ml+'" y1="'+syT(1050)+'" x2="'+(RW-mr)+'" y2="'+syT(1050)+'" stroke="#243050" stroke-dasharray="3 5"/>'+
+ '<path id="rT" fill="none" stroke="'+CT+'" stroke-width="2.4"/>'+
+ '<path id="rH2" fill="none" stroke="'+CA+'" stroke-width="1.7"/>'+
+ '<path id="rOH" fill="none" stroke="'+CM+'" stroke-width="1.7"/><g id="rDots"></g>'+
+ '<line id="rCur" y1="'+mt+'" y2="'+(RH-mb)+'" stroke="'+CI+'" stroke-width="1.2" opacity="0"/>'+
+ '<circle id="rHead" r="4" fill="'+CI+'" opacity="0"/>'+
+ '<g font-size="9.5" font-family="IBM Plex Mono"><text x="'+(RW-160)+'" y="26" fill="'+CT+'">— T</text>'+
+ '<text x="'+(RW-120)+'" y="26" fill="'+CA+'">— Y H₂</text><text x="'+(RW-62)+'" y="26" fill="'+CM+'">— Y OH</text></g>';
+const rT=$("rT"),rH2=$("rH2"),rOH=$("rOH"),rDots=$("rDots"),rCur=$("rCur"),rHead=$("rHead");
+let rollT=TMAX,rollPlay=false;
+function drawRoll(t1){
+  rT.setAttribute("d",rpath(Tof,syT,t1));rH2.setAttribute("d",rpath(YH2,syY,t1));rOH.setAttribute("d",rpath(YOH,syY,t1));
+  if(rollPlay){rCur.setAttribute("opacity",".65");rCur.setAttribute("x1",sx(t1));rCur.setAttribute("x2",sx(t1));
+    rHead.setAttribute("opacity","1");rHead.setAttribute("cx",sx(t1));rHead.setAttribute("cy",syT(Tof(t1)));
+    $("rollMeta").innerHTML="inference loop · step <b>"+Math.round(t1/TMAX*180)+"</b> / 180 · t = <b>"+t1.toFixed(3)+" ms</b> · T = <b>"+Math.round(Tof(t1))+" K</b>";}
+  else{rCur.setAttribute("opacity","0");rHead.setAttribute("opacity","0");}}
+function rollMode(p){
+  rDots.innerHTML="";
+  if(p===3){rollPlay=true;rollT=0;
+    $("rollTitle").textContent="Inference rollout — each turn of the gold loop advances one step";
+    rT.setAttribute("stroke-opacity","1");}
+  else{rollPlay=false;rollT=TMAX;
+    if(p===0){$("rollTitle").textContent="Cantera training data — what Stage 1 will be scored against";
+      $("rollMeta").innerHTML="35 training conditions · normalized to [0,1] for the loss";}
+    else{$("rollTitle").textContent="Training — û_pred (curves) vs û_obs (dots): this gap is ℒ_MSE";
+      $("rollMeta").innerHTML=p===1?"Stage 1 · loss over <b>9 species only</b> · T is read from data, not predicted"
+                                   :"Stage 2 · loss over all <b>10 states</b> + PINN element conservation";}
+    let d="";
+    for(let t=0;t<=TMAX+1e-9;t+=TMAX/28){const jx=sx(t).toFixed(1);
+      if(p!==1)d+='<circle cx="'+jx+'" cy="'+syT(Tof(t)).toFixed(1)+'" r="2.4" fill="'+CT+'" opacity=".85"/>';
+      d+='<circle cx="'+jx+'" cy="'+syY(YH2(t)).toFixed(1)+'" r="2.2" fill="'+CA+'" opacity=".8"/>';
+      d+='<circle cx="'+jx+'" cy="'+syY(YOH(t)).toFixed(1)+'" r="2.2" fill="'+CM+'" opacity=".8"/>';}
+    rDots.innerHTML=d;rT.setAttribute("stroke-opacity",p===1?".18":"1");}
+  drawRoll(rollT);
+}
+
+/* ============ ANIMATION ============ */
+let playing=!reduce,last=performance.now();
+const pb=$("play");
+pb.textContent=playing?"❚❚ Pause":"► Stream";
+pb.onclick=()=>{playing=!playing;pb.textContent=playing?"❚❚ Pause":"► Stream";
+  if(playing){last=performance.now();requestAnimationFrame(tick);}};
+function tick(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;const s=act(),fast=PH[cur].fast;
+  packets.forEach(p=>{const g=p.arc?p.g:p.e.g;
+    if(!s.has(g)){p.el.setAttribute("opacity","0");return;}
+    p.off=(p.off+dt*(fast?.9:.42))%1;
+    let x,y;
+    if(p.arc){const pt=p.arcRef.el.getPointAtLength(p.off*p.arcRef.len);x=pt.x;y=pt.y;}
+    else{const c=cubic(p.e,p.off);x=c[0];y=c[1];}
+    p.el.setAttribute("cx",x);p.el.setAttribute("cy",y);
+    p.el.setAttribute("opacity",(.3+.7*Math.sin(p.off*Math.PI)).toFixed(2));});
+  if(rollPlay){rollT+=dt*0.20;if(rollT>TMAX)rollT=0;drawRoll(rollT);}
+  if(playing)requestAnimationFrame(tick);
+}
+
+/* ============ LAYER ANATOMY ============ */
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const CASES={
+  h2:{nin:10,nhid:3,nout:9,nmu:3,N:5,thermo:true,m:9,paper:344,seed:7,
+      inLbl:["H₂","O₂","H₂O","N₂","O","OH","H","HO₂","H₂O₂","T"],
+      outSp:["H₂","O₂","H₂O","N₂","O","OH","H","HO₂","H₂O₂"],
+      title:"H₂ · hydrogen-air (§III.B)",
+      note:"Paper: 3 hidden nodes, nμ=3, kinetic core + thermo superstructure. Grid N=5 derived from the 344-param count."},
+  bd:{nin:7,nhid:4,nout:6,nmu:2,N:3,thermo:false,m:0,paper:156,seed:23,
+      inLbl:["TG","ROH","DG","MG","GL","R'CO₂R","T"],
+      outSp:["TG","ROH","DG","MG","GL","R'CO₂R"],
+      title:"Biodiesel · transesterification (§III.A)",
+      note:"Paper: 4 hidden nodes, nμ=2, three-point grids, kinetic core only (isothermal). Both LeanKAN groups are populated."}
+};
+let AC="h2",TAB="add",XIN=[],XL=[],WA={},WL={},selH=0,selO=0;
+const asvg=$("anat");
+function buildWeights(){
+  const C=CASES[AC],r=mulberry(C.seed);WA={};WL={};
+  for(let i=0;i<C.nhid;i++)for(let j=0;j<C.nin;j++){
+    const w=[];for(let k=0;k<C.N;k++)w.push((r()*2-1)*1.2);
+    WA[i+"_"+j]={w:w,wb:(r()*2-1)*0.5};}
+  for(let i=0;i<C.nout;i++)for(let j=0;j<C.nhid;j++){
+    const w=[];for(let k=0;k<C.N;k++)w.push((r()*2-1)*1.5);
+    WL[i+"_"+j]={w:w,wb:(r()*2-1)*0.6};}
+}
+function grid(N){const c=[];for(let i=0;i<N;i++)c.push(N<2?0:-1+2*i/(N-1));return c;}
+function phiG(P,N,x){const c=grid(N),h=N>1?(c[1]-c[0]):1;let s=0;
+  for(let k=0;k<N;k++){const r=Math.abs(x-c[k]);s+=P.w[k]*Math.exp(-r*r/(2*h*h));}
+  return s+P.wb*(x/(1+Math.exp(-x)));}
+const phiA=(i,j,x)=>phiG(WA[i+"_"+j],CASES[AC].N,x);
+const phiL=(i,j,x)=>phiG(WL[i+"_"+j],CASES[AC].N,x);
+function initX(){const C=CASES[AC],r=mulberry(C.seed*3);XIN=[];XL=[];
+  for(let j=0;j<C.nin;j++)XIN.push(+((r()*1.7-0.85).toFixed(2)));
+  for(let j=0;j<C.nhid;j++)XL.push(+((r()*1.7-0.85).toFixed(2)));}
+function hidRaw(i){const C=CASES[AC];let s=0;for(let j=0;j<C.nin;j++)s+=phiA(i,j,XIN[j]);return s;}
+function leanIn(){const C=CASES[AC];
+  return TAB==="both"?Array.from({length:C.nhid},(_,i)=>Math.tanh(hidRaw(i))):XL.slice();}
+function outOf(i){const C=CASES[AC],xl=leanIn();let prod=1,sum=0,ps=[],as=[];
+  for(let j=0;j<C.nhid;j++){const v=phiL(i,j,xl[j]);
+    if(j<C.nmu){prod*=v;ps.push(v);}else{sum+=v;as.push(v);}}
+  return{prod:ps.length?prod:0,sum:sum,z:(ps.length?prod:0)+sum,ps:ps,as:as,xl:xl};}
+
+function drawAnat(){
+  const C=CASES[AC];let h="";
+  const top=52,bot=418;
+  if(TAB==="add"){
+    const ix=86,ox=440;
+    const iy=j=>C.nin<2?235:top+(bot-top)*j/(C.nin-1);
+    const oy=i=>C.nhid<2?235:top+(bot-top)*(i+.5)/C.nhid;
+    h+='<text x="86" y="26" fill="'+CMUT+'" font-size="10" text-anchor="middle">inputs x — the state u, tanh-normalized</text>'+
+       '<text x="470" y="26" fill="'+CMUT+'" font-size="10" text-anchor="middle">hidden nodes (Σ)</text>';
+    for(let j=0;j<C.nin;j++)for(let i=0;i<C.nhid;i++){const sel=i===selH;
+      h+='<path d="M '+(ix+15)+' '+iy(j)+' C 250 '+iy(j)+', 250 '+oy(i)+', '+(ox-19)+' '+oy(i)+'" fill="none" stroke="'+CA+'" stroke-width="'+(sel?1.6:1)+'" stroke-opacity="'+(sel?.75:.07)+'"/>';}
+    for(let j=0;j<C.nin;j++){const v=phiA(selH,j,XIN[j]);
+      h+='<g class="pb" data-k="'+j+'" style="cursor:pointer"><rect x="228" y="'+(iy(j)-9)+'" width="60" height="18" rx="5" fill="#080d18" stroke="'+CA+'" stroke-width="1"/>'+
+         '<text x="258" y="'+iy(j)+'" text-anchor="middle" dominant-baseline="central" fill="'+CA+'" font-size="9" font-family="IBM Plex Mono">'+v.toFixed(3)+'</text></g>';}
+    for(let j=0;j<C.nin;j++)
+      h+='<circle cx="'+ix+'" cy="'+iy(j)+'" r="15" fill="#080d18" stroke="'+CA+'" stroke-width="1.4"/>'+
+         '<text x="'+ix+'" y="'+iy(j)+'" text-anchor="middle" dominant-baseline="central" fill="'+CA+'" font-size="8.5" font-family="IBM Plex Mono">'+C.inLbl[j]+'</text>'+
+         '<text x="'+(ix-24)+'" y="'+iy(j)+'" text-anchor="end" dominant-baseline="central" fill="'+CMUT+'" font-size="8.5" font-family="IBM Plex Mono">'+XIN[j].toFixed(2)+'</text>';
+    for(let i=0;i<C.nhid;i++){const sel=i===selH,v=hidRaw(i);
+      h+='<g class="hb" data-k="'+i+'" style="cursor:pointer"><circle cx="'+ox+'" cy="'+oy(i)+'" r="'+(sel?19:14)+'" fill="'+(sel?"rgba(63,195,240,.15)":"#080d18")+'" stroke="'+CA+'" stroke-width="'+(sel?2:1)+'" opacity="'+(sel?1:.55)+'"/>'+
+         '<text x="'+ox+'" y="'+oy(i)+'" text-anchor="middle" dominant-baseline="central" fill="'+CA+'" font-size="'+(sel?13:11)+'" font-family="IBM Plex Mono">Σ</text>'+
+         '<text x="'+(ox+24)+'" y="'+(oy(i)-6)+'" fill="'+CMUT+'" font-size="8.5" font-family="IBM Plex Mono">h'+(i+1)+'</text>'+
+         '<text x="'+(ox+24)+'" y="'+(oy(i)+7)+'" fill="'+(sel?CI:CMUT)+'" font-size="8.5" font-family="IBM Plex Mono">'+v.toFixed(3)+'</text></g>';}
+    h+='<text x="310" y="446" fill="'+CA+'" font-size="9.5" text-anchor="middle" font-family="IBM Plex Mono">AddKAN: no products anywhere — just '+C.nin+' activations summed per node</text>';
+  } else if(TAB==="lean"){
+    const ix=92,ox=430;
+    const iy=j=>C.nhid<2?235:top+(bot-top)*(j+.5)/C.nhid;
+    const oy=i=>C.nout<2?235:top+(bot-top)*(i+.5)/C.nout;
+    h+='<text x="92" y="26" fill="'+CMUT+'" font-size="10" text-anchor="middle">inputs x — hidden nodes, tanh-normalized</text>'+
+       '<text x="450" y="26" fill="'+CMUT+'" font-size="10" text-anchor="middle">outputs z</text>'+
+       '<rect x="36" y="'+(iy(0)-26)+'" width="112" height="'+(iy(C.nmu-1)-iy(0)+52)+'" rx="9" fill="rgba(240,80,155,.08)" stroke="rgba(240,80,155,.35)"/>'+
+       '<text x="92" y="'+(iy(0)-32)+'" fill="'+CM+'" font-size="9" text-anchor="middle">nμ = '+C.nmu+' → PRODUCT group</text>';
+    if(C.nmu<C.nhid)
+      h+='<rect x="36" y="'+(iy(C.nmu)-24)+'" width="112" height="'+(iy(C.nhid-1)-iy(C.nmu)+48)+'" rx="9" fill="rgba(63,195,240,.08)" stroke="rgba(63,195,240,.35)"/>'+
+         '<text x="92" y="'+(iy(C.nhid-1)+38)+'" fill="'+CA+'" font-size="9" text-anchor="middle">'+(C.nhid-C.nmu)+' input(s) → SUM group</text>';
+    else
+      h+='<text x="92" y="'+(iy(C.nhid-1)+38)+'" fill="'+CA+'" font-size="9" text-anchor="middle" opacity=".6">0 inputs left → the SUM group is EMPTY</text>';
+    for(let j=0;j<C.nhid;j++){const cc=j<C.nmu?CM:CA;
+      for(let i=0;i<C.nout;i++){const sel=i===selO;
+        h+='<path d="M '+(ix+16)+' '+iy(j)+' C 250 '+iy(j)+', 250 '+oy(i)+', '+(ox-16)+' '+oy(i)+'" fill="none" stroke="'+cc+'" stroke-width="'+(sel?2:1)+'" stroke-opacity="'+(sel?.9:.08)+'"/>';}
+      const v=phiL(selO,j,XL[j]);
+      h+='<g class="pb" data-k="'+j+'" style="cursor:pointer"><rect x="222" y="'+((iy(j)+oy(selO))/2-10)+'" width="66" height="20" rx="5" fill="#080d18" stroke="'+cc+'" stroke-width="1"/>'+
+         '<text x="255" y="'+((iy(j)+oy(selO))/2)+'" text-anchor="middle" dominant-baseline="central" fill="'+cc+'" font-size="9" font-family="IBM Plex Mono">'+v.toFixed(3)+'</text></g>';}
+    for(let j=0;j<C.nhid;j++){const cc=j<C.nmu?CM:CA;
+      h+='<circle cx="'+ix+'" cy="'+iy(j)+'" r="16" fill="#080d18" stroke="'+cc+'" stroke-width="1.6"/>'+
+         '<text x="'+ix+'" y="'+iy(j)+'" text-anchor="middle" dominant-baseline="central" fill="'+cc+'" font-size="9.5" font-family="IBM Plex Mono">h'+(j+1)+'</text>'+
+         '<text x="'+(ix-26)+'" y="'+iy(j)+'" text-anchor="end" dominant-baseline="central" fill="'+CMUT+'" font-size="9" font-family="IBM Plex Mono">'+XL[j].toFixed(2)+'</text>';}
+    for(let i=0;i<C.nout;i++){const sel=i===selO;
+      h+='<g class="ob" data-k="'+i+'" style="cursor:pointer"><circle cx="'+ox+'" cy="'+oy(i)+'" r="'+(sel?15:11)+'" fill="'+(sel?"rgba(255,193,69,.14)":"#080d18")+'" stroke="'+(sel?CI:CW)+'" stroke-width="'+(sel?2:1)+'" opacity="'+(sel?1:.5)+'"/>'+
+         '<text x="'+ox+'" y="'+oy(i)+'" text-anchor="middle" dominant-baseline="central" fill="'+(sel?CI:CW)+'" font-size="9" font-family="IBM Plex Mono" opacity="'+(sel?1:.6)+'">z'+(i+1)+'</text>'+
+         '<text x="'+(ox+21)+'" y="'+oy(i)+'" dominant-baseline="central" fill="'+CMUT+'" font-size="8.5" font-family="IBM Plex Mono" opacity="'+(sel?.95:.35)+'">d'+C.outSp[i]+'/dt</text></g>';}
+  } else {
+    const ix=62,hx=300,ox=520;
+    const iy=j=>C.nin<2?235:top+(bot-top)*j/(C.nin-1);
+    const hy=i=>C.nhid<2?235:top+(bot-top)*(i+.5)/C.nhid;
+    const oy=i=>C.nout<2?235:top+(bot-top)*(i+.5)/C.nout;
+    const xl=leanIn();
+    h+='<text x="62" y="26" fill="'+CMUT+'" font-size="9.5" text-anchor="middle">u (tanh)</text>'+
+       '<text x="300" y="26" fill="'+CA+'" font-size="9.5" text-anchor="middle">AddKAN → Σ → tanh</text>'+
+       '<text x="520" y="26" fill="'+CM+'" font-size="9.5" text-anchor="middle">LeanKAN → z</text>';
+    for(let j=0;j<C.nin;j++)for(let i=0;i<C.nhid;i++)
+      h+='<path d="M '+(ix+13)+' '+iy(j)+' C 180 '+iy(j)+', 180 '+hy(i)+', '+(hx-17)+' '+hy(i)+'" fill="none" stroke="'+CA+'" stroke-width="1" stroke-opacity=".22"/>';
+    for(let j=0;j<C.nhid;j++){const cc=j<C.nmu?CM:CA;
+      for(let i=0;i<C.nout;i++){const sel=i===selO;
+        h+='<path d="M '+(hx+17)+' '+hy(j)+' C 410 '+hy(j)+', 410 '+oy(i)+', '+(ox-13)+' '+oy(i)+'" fill="none" stroke="'+cc+'" stroke-width="'+(sel?2:1)+'" stroke-opacity="'+(sel?.9:.07)+'"/>';}}
+    for(let j=0;j<C.nin;j++)
+      h+='<circle cx="'+ix+'" cy="'+iy(j)+'" r="12" fill="#080d18" stroke="'+CA+'" stroke-width="1.2"/>'+
+         '<text x="'+ix+'" y="'+iy(j)+'" text-anchor="middle" dominant-baseline="central" fill="'+CA+'" font-size="7" font-family="IBM Plex Mono">'+C.inLbl[j]+'</text>';
+    for(let i=0;i<C.nhid;i++){const cc=i<C.nmu?CM:CA;
+      h+='<circle cx="'+hx+'" cy="'+hy(i)+'" r="17" fill="#080d18" stroke="'+cc+'" stroke-width="1.6"/>'+
+         '<text x="'+hx+'" y="'+hy(i)+'" text-anchor="middle" dominant-baseline="central" fill="'+cc+'" font-size="12" font-family="IBM Plex Mono">Σ</text>'+
+         '<text x="'+hx+'" y="'+(hy(i)-26)+'" text-anchor="middle" fill="'+CMUT+'" font-size="8" font-family="IBM Plex Mono">h'+(i+1)+' raw '+hidRaw(i).toFixed(2)+'</text>'+
+         '<text x="'+hx+'" y="'+(hy(i)+30)+'" text-anchor="middle" fill="'+CI+'" font-size="8" font-family="IBM Plex Mono">tanh '+xl[i].toFixed(3)+'</text>';}
+    for(let i=0;i<C.nout;i++){const sel=i===selO,o=outOf(i);
+      h+='<g class="ob" data-k="'+i+'" style="cursor:pointer"><circle cx="'+ox+'" cy="'+oy(i)+'" r="'+(sel?14:10)+'" fill="'+(sel?"rgba(255,193,69,.14)":"#080d18")+'" stroke="'+(sel?CI:CW)+'" stroke-width="'+(sel?2:1)+'" opacity="'+(sel?1:.5)+'"/>'+
+         '<text x="'+ox+'" y="'+oy(i)+'" text-anchor="middle" dominant-baseline="central" fill="'+(sel?CI:CW)+'" font-size="8.5" font-family="IBM Plex Mono">×</text>'+
+         '<text x="'+(ox+18)+'" y="'+(oy(i)-5)+'" fill="'+CMUT+'" font-size="8" font-family="IBM Plex Mono" opacity="'+(sel?.95:.4)+'">d'+C.outSp[i]+'/dt</text>'+
+         '<text x="'+(ox+18)+'" y="'+(oy(i)+7)+'" fill="'+(sel?CI:CMUT)+'" font-size="8" font-family="IBM Plex Mono" opacity="'+(sel?1:.4)+'">'+o.z.toFixed(3)+'</text></g>';}
+    h+='<text x="310" y="446" fill="'+CMUT+'" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">'+
+       C.nin+' → '+C.nhid+' → '+C.nout+'  ·  the full kinetic core, Eq. 13  ·  '+(C.nin*C.nhid)+' + '+(C.nhid*C.nout)+' = '+(C.nin*C.nhid+C.nhid*C.nout)+' activations</text>';
+  }
+  asvg.innerHTML=h;
+  asvg.querySelectorAll(".hb").forEach(el=>el.onclick=()=>{selH=+el.dataset.k;renderAnat();});
+  asvg.querySelectorAll(".ob").forEach(el=>el.onclick=()=>{selO=+el.dataset.k;renderAnat();});
+}
+function renderAnat(){
+  const C=CASES[AC];
+  if(selH>=C.nhid)selH=0; if(selO>=C.nout)selO=0;
+  drawAnat();
+  const R=$("anatRight");
+  let sl='<div style="font-size:10px;color:'+CMUT+';margin:8px 0 4px;line-height:1.5">'+C.note+'</div>';
+  if(TAB==="lean"){
+    for(let j=0;j<C.nhid;j++)
+      sl+='<div class="ctl"><label style="color:'+(j<C.nmu?CM:CA)+'">x'+(j+1)+' = h'+(j+1)+'</label>'+
+          '<input type="range" min="-0.95" max="0.95" step="0.01" value="'+XL[j]+'" data-t="l" data-j="'+j+'"><span class="v">'+XL[j].toFixed(2)+'</span></div>';
+  }else{
+    for(let j=0;j<C.nin;j++)
+      sl+='<div class="ctl"><label style="color:'+CA+'">'+C.inLbl[j]+'</label>'+
+          '<input type="range" min="-0.95" max="0.95" step="0.01" value="'+XIN[j]+'" data-t="i" data-j="'+j+'"><span class="v">'+XIN[j].toFixed(2)+'</span></div>';
+  }
+  $("sliders").innerHTML=sl;
+  $("sliders").querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
+    const j=+e.target.dataset.j;
+    if(e.target.dataset.t==="l")XL[j]=+e.target.value;else XIN[j]=+e.target.value;
+    renderAnat();});
+
+  if(TAB==="add"){
+    let rows="",s=0;
+    for(let j=0;j<C.nin;j++){const v=phiA(selH,j,XIN[j]);s+=v;
+      rows+='<div class="row"><span class="lbl" style="color:'+CA+'">φ<sub>'+(selH+1)+','+(j+1)+'</sub>('+C.inLbl[j]+' = '+XIN[j].toFixed(2)+')</span><span class="val">'+v.toFixed(4)+'</span></div>';}
+    R.innerHTML='<div style="font-size:10.5px;color:'+CMUT+';margin-bottom:7px">Hidden node <b style="color:var(--txt)">h'+(selH+1)+'</b> — click another Σ node to switch. The AddKAN layer is the original KAN of Liu et al.: a matrix Φ of learnable activations, <b>summed</b>, nothing else.</div>'+
+      '<div class="eq" style="white-space:normal">Ψ<sup>add</sup>(x)<sub>i</sub> = Σ<sub>j=1</sub><sup>n_l</sup> φ<sub>l,i,j</sub>(x<sub>j</sub>)  —  Eq. 7</div>'+
+      '<div class="calc">'+rows+'</div>'+
+      '<div class="grp a"><div class="t">h'+(selH+1)+' = Σ of all '+C.nin+' activations</div><div class="big" id="ah"></div></div>'+
+      '<div class="grp z"><div class="t">tanh(h'+(selH+1)+') → what the LeanKAN layer actually receives</div><div class="big">'+Math.tanh(s).toFixed(4)+'</div></div>'+
+      '<p style="font-size:10.5px;color:'+CMUT+';line-height:1.6;margin:8px 0 0">This layer holds <b style="color:'+CA+'">'+C.nin+' × '+C.nhid+' = '+(C.nin*C.nhid)+'</b> activations — one per input-output pair. Every one carries N = '+C.N+' basis weights.</p>';
+    $("ah").innerHTML='<b style="color:'+CA+'">'+s.toFixed(4)+'</b>';
+  } else if(TAB==="lean"){
+    const o=outOf(selO);
+    let rows="";
+    for(let j=0;j<C.nhid;j++){const v=phiL(selO,j,XL[j]),mult=j<C.nmu;
+      rows+='<div class="row"><span class="lbl" style="color:'+(mult?CM:CA)+'">φ<sub>'+(selO+1)+','+(j+1)+'</sub>(h'+(j+1)+' = '+XL[j].toFixed(2)+')</span><span class="val">'+v.toFixed(4)+'</span></div>';}
+    R.innerHTML='<div style="font-size:10.5px;color:'+CMUT+';margin-bottom:7px">Output <b style="color:var(--txt)">z'+(selO+1)+'</b> (d'+C.outSp[selO]+'/dt) — click another output to switch. nμ splits the <b>inputs</b>; the output always does both.</div>'+
+      '<div class="calc">'+rows+'</div>'+
+      '<div class="grp m"><div class="t">y<sup>mult</sup> = Π φ over the first nμ = '+C.nmu+' inputs (Eq. 9)</div><div class="big">'+
+        (o.ps.length?o.ps.map(v=>v.toFixed(3)).join(" × ")+' = <b style="color:'+CM+'">'+o.prod.toFixed(4)+'</b>':'<span class="empty">none</span>')+'</div></div>'+
+      '<div class="grp a"><div class="t">y<sup>add</sup> = Σ φ over inputs '+(C.nmu+1)+' … '+C.nhid+' (Eq. 10)</div><div class="big">'+
+        (o.as.length?o.as.map(v=>v.toFixed(3)).join(" + ")+' = <b style="color:'+CA+'">'+o.sum.toFixed(4)+'</b>'
+                    :'<span class="empty">empty sum (nμ = n<sub>l</sub> = '+C.nhid+') → <b style="color:'+CA+'">0.0000</b></span>')+'</div></div>'+
+      '<div class="grp z"><div class="t">z = y<sup>mult</sup> + y<sup>add</sup> (Eq. 8)</div><div class="big">'+o.prod.toFixed(4)+' + '+o.sum.toFixed(4)+' = <b style="color:'+CI+'">'+o.z.toFixed(4)+'</b></div></div>'+
+      '<p style="font-size:10.5px;color:'+CMUT+';line-height:1.6;margin:8px 0 0">This layer holds <b style="color:'+CM+'">'+C.nhid+' × '+C.nout+' = '+(C.nhid*C.nout)+'</b> activations. nμ changes <em>what happens to them</em>, not <em>how many there are</em> — so it costs zero parameters.</p>';
+  } else {
+    const o=outOf(selO),xl=o.xl;
+    let hc="";
+    for(let i=0;i<C.nhid;i++)
+      hc+='<div class="h"><span>h'+(i+1)+' = Σ of '+C.nin+' φ</span><span>'+hidRaw(i).toFixed(4)+'  →  tanh  →  <b style="color:'+CI+'">'+xl[i].toFixed(4)+'</b></span></div>';
+    let rows="";
+    for(let j=0;j<C.nhid;j++){const v=phiL(selO,j,xl[j]),mult=j<C.nmu;
+      rows+='<div class="row"><span class="lbl" style="color:'+(mult?CM:CA)+'">φ<sup>lean</sup><sub>'+(selO+1)+','+(j+1)+'</sub>('+xl[j].toFixed(3)+')</span><span class="val">'+v.toFixed(4)+'</span></div>';}
+    R.innerHTML='<div style="font-size:10.5px;color:'+CMUT+';margin-bottom:7px">The <b style="color:var(--txt)">whole kinetic core</b> for '+C.title+', end to end. Move any input slider and watch it propagate. Output <b style="color:var(--txt)">z'+(selO+1)+'</b> = d'+C.outSp[selO]+'/dt.</div>'+
+      '<div class="eq" style="white-space:normal">dũ/dt = KAN<sub>kin</sub>(u, θ<sub>kin</sub>) = (Ψ<sup>lean</sup> ∘ Ψ<sup>add</sup>)(u)  —  Eq. 13</div>'+
+      '<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:'+CA+';margin:9px 0 3px;font-weight:600">Step 1 · AddKAN → hidden</div>'+
+      '<div class="hidchain">'+hc+'</div>'+
+      '<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:'+CM+';margin:9px 0 3px;font-weight:600">Step 2 · LeanKAN → output z'+(selO+1)+'</div>'+
+      '<div class="calc">'+rows+'</div>'+
+      '<div class="grp m"><div class="t">y<sup>mult</sup> (first nμ = '+C.nmu+')</div><div class="big">'+
+        (o.ps.length?o.ps.map(v=>v.toFixed(3)).join(" × ")+' = <b style="color:'+CM+'">'+o.prod.toFixed(4)+'</b>':'<span class="empty">none</span>')+'</div></div>'+
+      '<div class="grp a"><div class="t">y<sup>add</sup> (remaining '+(C.nhid-C.nmu)+')</div><div class="big">'+
+        (o.as.length?o.as.map(v=>v.toFixed(3)).join(" + ")+' = <b style="color:'+CA+'">'+o.sum.toFixed(4)+'</b>'
+                    :'<span class="empty">empty sum → <b style="color:'+CA+'">0.0000</b></span>')+'</div></div>'+
+      '<div class="grp z"><div class="t">z'+(selO+1)+' = d'+C.outSp[selO]+'/dt</div><div class="big"><b style="color:'+CI+'">'+o.z.toFixed(4)+'</b></div></div>'+
+      (C.thermo?'<p style="font-size:10.5px;color:'+CT+';line-height:1.6;margin:8px 0 0">In the H₂ case this z is one of 9 rates that then feed the thermodynamic superstructure (the orange block in the main diagram) to produce dT/dt.</p>'
+               :'<p style="font-size:10.5px;color:'+CMUT+';line-height:1.6;margin:8px 0 0">Biodiesel is isothermal, so the core <em>is</em> the whole model — no thermo superstructure, no KAN_cor, no θ_thermo.</p>');
+  }
+  $("anatSub").textContent=TAB==="add"?"AddKAN Ψ₀ (Eq. 7) — the original KAN layer: a matrix of activations, summed"
+    :TAB==="lean"?"LeanKAN Ψ₁ (Eqs. 8–10) — same activations, but nμ inputs get multiplied"
+    :"Combined kinetic core (Eq. 13) — AddKAN → tanh → LeanKAN, end to end";
+  $("anatFoot").innerHTML='<b style="color:'+CMUT+'">What is the paper\'s and what is mine:</b> structure, nμ, node counts, grid sizes, tanh normalization, the RBF basis and the swish base are all the paper\'s. The <b>weights are seeded random</b>, so the φ values illustrate the arithmetic — the paper publishes no trained weight values. Switch to <b>Biodiesel</b> on the LeanKAN tab to see y<sup>add</sup> actually populated.';
+}
+$("anatTab").onclick=e=>{const b=e.target.closest("button");if(!b)return;TAB=b.dataset.t;
+  [...e.currentTarget.children].forEach(x=>x.classList.toggle("sel",x===b));renderAnat();};
+$("anatCase").onclick=e=>{const b=e.target.closest("button");if(!b)return;AC=b.dataset.c;
+  [...e.currentTarget.children].forEach(x=>x.classList.toggle("sel",x===b));
+  selH=0;selO=0;buildWeights();initX();renderAnat();};
+
+/* ============ PARAM CALCULATOR ============ */
+let PCcase="h2",PCh=3,PCn=5;
+function pcReset(){const C=CASES[PCcase];PCh=C.nhid;PCn=C.N;pcRender();}
+function pcRender(){
+  const C=CASES[PCcase];
+  $("pcHid").value=PCh;$("pcN").value=PCn;$("pcHidV").textContent=PCh;$("pcNV").textContent=PCn;
+  const aAdd=C.nin*PCh, aLean=PCh*C.nout, aCor=C.thermo?C.nin*1:0;
+  const pAdd=aAdd*PCn, pLean=aLean*PCn, pCor=aCor*PCn, pTh=C.thermo?C.m:0;
+  const tot=pAdd+pLean+pCor+pTh, totAct=aAdd+aLean+aCor;
+  let rows='<tr><th>Layer</th><th>n_in × n_out</th><th class="n">Acts</th><th class="n">× N</th><th class="n">Params</th></tr>'+
+   '<tr><td class="a">AddKAN Ψ₀</td><td>'+C.nin+' × '+PCh+'</td><td class="n">'+aAdd+'</td><td class="n">×'+PCn+'</td><td class="n">'+pAdd+'</td></tr>'+
+   '<tr><td class="m">LeanKAN Ψ₁</td><td>'+PCh+' × '+C.nout+'</td><td class="n">'+aLean+'</td><td class="n">×'+PCn+'</td><td class="n">'+pLean+'</td></tr>';
+  if(C.thermo)
+    rows+='<tr><td class="t">KAN_cor</td><td>'+C.nin+' × 1</td><td class="n">'+aCor+'</td><td class="n">×'+PCn+'</td><td class="n">'+pCor+'</td></tr>'+
+          '<tr><td class="t">θ_thermo</td><td>m scalars, linear</td><td class="n">—</td><td class="n">—</td><td class="n">'+pTh+'</td></tr>';
+  rows+='<tr class="tot"><td>TOTAL</td><td></td><td class="n">'+totAct+'</td><td></td><td class="n">'+tot+'</td></tr>';
+  $("pcTab").innerHTML=rows;
+  const isPaper=(PCh===C.nhid&&PCn===C.N);
+  $("pcVerdict").innerHTML=isPaper
+    ? '<div class="verdict ok">✓ '+tot+' — matches the paper\'s stated <b>'+C.paper+'</b> parameters exactly at its own config ('+C.nhid+' hidden, N='+C.N+').</div>'
+    : '<div class="verdict no">'+tot+' parameters at '+PCh+' hidden / N='+PCn+'. The paper\'s config is '+C.nhid+' hidden, N='+C.N+' → '+C.paper+'.</div>';
+  $("pcNote").innerHTML = PCcase==="h2"
+    ? 'N=5 is <b>derived</b>, not stated: it is the only integer for which 67 × N + 9 = 344. The 9 is θ_thermo (m = 9 species). Eq. 11 also makes the swish-base weight w<sup>b</sup> learnable, which would give N+1 per activation — but that breaks both biodiesel numbers, so the reported counts appear to exclude it.'
+    : 'Both of the paper\'s biodiesel networks fall straight out of this rule: 4 hidden → 52 × 3 = <b>156 ✓</b>, and 2 hidden → 26 × 3 = <b>78 ✓</b>. (The paper also cites “72 parameters” in the same paragraph as 78; 72 fits no integer hidden count, so it reads as a slip.) Inputs are 7 = 6 species + T; outputs are the 6 species rates.';
+}
+$("pcCase").onclick=e=>{const b=e.target.closest("button");if(!b)return;PCcase=b.dataset.c;
+  [...e.currentTarget.children].forEach(x=>x.classList.toggle("sel",x===b));pcReset();};
+$("pcHid").oninput=e=>{PCh=+e.target.value;pcRender();};
+$("pcN").oninput=e=>{PCn=+e.target.value;pcRender();};
+$("pcReset").onclick=pcReset;
+
+/* ============ INIT ============ */
+buildWeights();initX();renderAnat();
+pcReset();
+setPhase(0);
+if(reduce){packets.forEach(p=>p.el.setAttribute("opacity","0"));pb.textContent="► Stream (motion reduced)";playing=false;drawRoll(TMAX);}
+else requestAnimationFrame(tick);
+</script>
+</body>
+</html>

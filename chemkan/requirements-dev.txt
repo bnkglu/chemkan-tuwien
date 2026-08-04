@@ -1,0 +1,6 @@
+# Extra tooling for the step-by-step notebook (not needed to run the generators).
+# Install alongside the pinned runtime: pip install -r requirements.txt -r requirements-dev.txt
+matplotlib==3.8.4
+jupyter
+nbconvert
+ipykernel

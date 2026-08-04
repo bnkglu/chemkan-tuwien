@@ -19,6 +19,7 @@ extension** (see the end of this file). Nothing generated is committed — every
 | `generate_all.py` | runs the biodiesel + hydrogen generators |
 | `verify_data.py` | sanity checks on a generated `.npz` |
 | `extensions/generate_methane.py` | optional methane extension (not run by default) |
+| `data_generation_walkthrough.ipynb` | notebook that traces each step with intermediate outputs and plots |
 
 ## Quickstart
 
@@ -45,6 +46,19 @@ Individual generators accept CLI arguments (e.g. `--out`, `--seed`, `--n-train`,
 python generate_biodiesel.py --out ../../data/generated/biodiesel.npz --seed 0
 python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
 python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Figure 8 (A) 441 total data. 406 of which were unseen, 35 were seen during training.
+```
+
+### Interactive walkthrough
+
+`data_generation_walkthrough.ipynb` runs the *same* functions as the scripts and
+shows each intermediate step (rate constants, a single trajectory, the full
+train/test split, normalization, noise, ignition delay, verification) with inline
+plots. It reuses the generators — it does not re-implement them. It needs the
+runtime plus a small plotting/notebook stack:
+
+```bash
+pip install -r ../../requirements.txt -r ../../requirements-dev.txt
+jupyter lab data_generation_walkthrough.ipynb   # or: jupyter notebook / VS Code
 ```
 
 ### Cantera version
