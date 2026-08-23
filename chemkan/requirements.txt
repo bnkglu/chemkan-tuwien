@@ -1,5 +1,19 @@
-# ChemKAN cites Cantera 3.0.0, so this repository pins Cantera 3.0.0.
-# NumPy is pinned to a 1.x version for compatibility with Cantera 3.0.0 wheels.
+# Runtime lock for the ChemKAN reproduction: data generation + model training/eval.
+# Prefer `pip install -e .` (see pyproject.toml); this file mirrors those runtime deps
+# for a plain `pip install -r requirements.txt`.
+#
+# NumPy pinned to 1.x for Cantera 3.0.0 wheel compatibility; Cantera 3.0.0 per the paper.
 numpy==1.26.4
 scipy==1.17.1
 cantera==3.0.0
+
+# torch is intentionally unpinned: the exact version used for the original runs was not
+# recoverable from the environment. Pin it here once a reference version is chosen.
+torch
+
+# GitHub torchdiffeq pinned to a Tsit5-capable commit so that method="tsit5" is available
+# (upstream PyPI torchdiffeq does not expose the Tsit5 solver used by ChemKAN).
+torchdiffeq @ git+https://github.com/rtqichen/torchdiffeq.git@657943acefa826ef04c025ebeb1ff5e9d60dc268
+
+# training progress bar (optional at runtime; falls back to logging if absent)
+tqdm

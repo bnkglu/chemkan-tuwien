@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chemkan"
+version = "0.1.0"
+description = "PyTorch reproduction of ChemKAN (RBF-based KAN chemical-kinetics neural ODE)."
+requires-python = ">=3.10"
+dependencies = [
+    "torch",                       # version not pinned (see requirements.txt note)
+    # GitHub torchdiffeq pinned to a Tsit5-capable commit so method="tsit5" is available.
+    "torchdiffeq @ git+https://github.com/rtqichen/torchdiffeq.git@657943acefa826ef04c025ebeb1ff5e9d60dc268",
+    "numpy==1.26.4",               # 1.x for Cantera 3.0.0 wheel compatibility
+    "scipy==1.17.1",
+    "cantera==3.0.0",              # ChemKAN cites Cantera 3.0.0
+    "tqdm",                        # training progress bar
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+notebooks = ["matplotlib==3.8.4", "jupyter", "nbconvert", "ipykernel"]
+
+# src/ layout: the importable package is src/chemkan.
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py310"
+
+[tool.ruff.lint]
+# PLR0402: `import torch.nn as nn` is the universal PyTorch idiom; keep it.
+ignore = ["PLR0402"]
+
+[tool.ruff.lint.per-file-ignores]
+# CLI entry points intentionally log on the root logger after basicConfig.
+"scripts/*" = ["LOG015"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

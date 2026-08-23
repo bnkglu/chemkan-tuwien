@@ -12,6 +12,9 @@ dist/
 build/
 *.egg
 .eggs/
+.pytest_cache/
+.ruff_cache/
+.claude/settings.local.json
 
 # Virtual environments
 .venv/
