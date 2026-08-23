@@ -4,7 +4,11 @@
 
 Welcome to the `chemkan-tuwien` project! This repository contains the source code, materials, and documentation for interdisciplinary project at TU Wien.
 
-**Current status:** ChemKAN data-generation scripts are under `chemkan/scripts/data_gen`; model/training code will be added later.
+**Current status:** data generation **and** the model/training stack are implemented under
+`chemkan/` — KAN layers, `KineticCore` + thermodynamic superstructure, biodiesel and
+two-stage hydrogen training/evaluation, Tsit5 integration via `torchdiffeq`, and a
+direct-autograd sensitivity path (Forward Sensitivity Analysis is still a TODO). See
+[`chemkan/README.md`](chemkan/README.md) and [`chemkan/HOW_THE_CODE_WORKS.md`](chemkan/HOW_THE_CODE_WORKS.md).
 
 ### Course Information
 * **Course:** [194.147 Interdisciplinary Project in Data Science](https://tiss.tuwien.ac.at/course/courseDetails.xhtml?dswid=6763&dsrid=17&semester=2026S&courseNr=194147)
