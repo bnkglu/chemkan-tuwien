@@ -8,6 +8,15 @@ in THIS script -- the training library knows nothing about hydrogen or PINN.
 Stage 1: integrate species only; temperature observed/interpolated; kinetic core.
 Stage 2: integrate full [Y, T] with the COMPLETE model; update ALL parameters.
 
+Stage-1 external temperature source is selectable (``--stage1-temperature-source``).
+The supervisor-approved default ``dense-cantera`` reads a precomputed dense Cantera
+trajectory (default 20000 points over 0.6 ms, generated once by
+``generate_hydrogen.py --temperature-only``) through the existing linear
+``ObservedTemperature``; ``training-data`` reads the original sparse 50-point
+observed trajectory instead (ablation). Either way the Stage-1 output grid and
+species targets stay on the canonical 50-point dataset -- only ``T(t)`` becomes
+dense. 20000 is a reproduction choice, not a paper-specified value.
+
 ``num_basis = 5`` (default) is INFERRED for the count-matching reproduction from the
 reported architecture + 344-parameter count, not an explicitly stated grid size.
 """
@@ -24,7 +33,12 @@ from _chemistry import (
     MOLAR_WEIGHTS,
     assert_species_order,
 )
-from _data import input_scaling_meta, load_hydrogen, resolve_device
+from _data import (
+    input_scaling_meta,
+    load_hydrogen,
+    load_hydrogen_temperature,
+    resolve_device,
+)
 
 from chemkan.dynamics import ChemKANDynamics, KineticDynamics
 from chemkan.losses import chemkan_loss, element_conservation_loss, trajectory_mse
@@ -57,9 +71,38 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--solver-method", default="tsit5")
     p.add_argument("--rtol", type=float, default=1e-6)
     p.add_argument("--atol", type=float, default=1e-8)
+    # Stage-1 external temperature source. The supervisor-approved default is a
+    # dense precomputed Cantera trajectory read through ObservedTemperature; the
+    # original sparse 50-point training-data trajectory remains as an ablation.
+    p.add_argument("--stage1-temperature-source",
+                   choices=["dense-cantera", "training-data"], default="dense-cantera",
+                   help="Stage-1 temperature: 'dense-cantera' (default) reads a precomputed "
+                        "dense Cantera trajectory; 'training-data' reads the original 50-point "
+                        "observed trajectory from the canonical hydrogen dataset.")
+    p.add_argument("--stage1-temperature-points", type=int, default=20000,
+                   help="dense Stage-1 temperature resolution (dense-cantera source); loads "
+                        "hydrogen_temperature_<N>.npz. Not a paper-specified value.")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     p.add_argument("--out", default="hydrogen_chemkan.pt")
     return p
+
+
+def stage1_temperature_metadata(source: str, n_points: int,
+                                cache_file: str | None = None) -> dict:
+    """Checkpoint record of the Stage-1 temperature-provider configuration.
+
+    ``source`` is the resolved metadata tag ('dense_cantera' or 'training_data').
+    The dense variant additionally records the cache file name (no absolute path).
+    """
+    meta = {
+        "source": source,
+        "n_points": int(n_points),
+        "provider": "ObservedTemperature",
+        "interpolation": "linear",
+    }
+    if source == "dense_cantera":
+        meta["cache_file"] = cache_file
+    return meta
 
 
 def main():
@@ -88,7 +131,21 @@ def main():
     mw = MOLAR_WEIGHTS.to(device)
 
     # --- Stage 1: species only, observed temperature ------------------------------
-    temp = ObservedTemperature(data["t"], data["T_obs_TB1"]).to(device)
+    # Only the EXTERNAL temperature provider changes here. The Stage-1 output grid
+    # (t = data["t"], 50 points) and species targets stay on the canonical dataset.
+    if args.stage1_temperature_source == "dense-cantera":
+        dense = load_hydrogen_temperature(split="train",
+                                          n_points=args.stage1_temperature_points)
+        temp = ObservedTemperature(dense["t_dense"], dense["T_dense_TB1"]).to(device)
+        stage1_temp_meta = stage1_temperature_metadata(
+            "dense_cantera", args.stage1_temperature_points,
+            cache_file=f"hydrogen_temperature_{args.stage1_temperature_points}.npz")
+    else:  # "training-data": original sparse 50-point observed trajectory (ablation)
+        temp = ObservedTemperature(data["t"], data["T_obs_TB1"]).to(device)
+        stage1_temp_meta = stage1_temperature_metadata(
+            "training_data", int(data["t"].shape[0]))
+    logging.info("Stage-1 temperature provider: %s", stage1_temp_meta)
+
     kin_dyn = KineticDynamics(model.kinetic, temp,
                               input_normalizer=input_normalizer).to(device)
     Y0 = data["species_TBm"][0].to(device)                  # (B, m)
@@ -136,6 +193,7 @@ def main():
                      "use_pinn_stage2": args.pinn_stage2},
         "solver": {"method": solver.method, "rtol": solver.rtol,
                    "atol": solver.atol, "sensitivity": solver.sensitivity},
+        "stage1_temperature": stage1_temp_meta,
         "state_representation": "physical",
         "input_scaling": input_scaling_meta(args.input_scaling, full_norm),
     }

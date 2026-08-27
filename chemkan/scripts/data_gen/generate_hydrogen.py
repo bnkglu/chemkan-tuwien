@@ -174,6 +174,82 @@ def generate(cfg) -> dict:
     }
 
 
+def generate_temperature_only(cfg) -> dict:
+    """Dense TEMPERATURE-ONLY cache for the Stage-1 ObservedTemperature provider.
+
+    Reuses the canonical hydrogen setup exactly -- same mechanism / fuel / oxidizer
+    / pressure / tolerances / coarse IC grid / 35-1 split / time interval and, most
+    importantly, the SAME initial-condition ORDERING as ``generate()``. Only the
+    temperature column of each trajectory is kept; no dense species trajectories,
+    normalization statistics, or ignition diagnostics are computed or saved.
+
+    This exists so the dense Stage-1 temperature trajectory can be precomputed once
+    (supervisor-approved approach) and reused across experiments, instead of calling
+    Cantera inside the training loop. The original 50-point ``hydrogen.npz`` remains
+    the canonical trajectory/target dataset and is never touched here.
+    """
+    if cfg.grid != "coarse":
+        raise ValueError("--temperature-only requires the coarse grid (the paper's 35/1 split)")
+
+    names, keep = species_index(MECH, DROP)
+    t = np.linspace(0.0, cfg.t_end, cfg.n_points)
+    T0s, phis = build_grid("coarse")
+    if cfg.phis:
+        phis = np.array(cfg.phis)
+
+    # Identical loop/order to generate(): T0 outer, phi inner.
+    ics, temps = [], []
+    for T0 in T0s:
+        for phi in phis:
+            states = integrate_case(MECH, FUEL, OXIDIZER, T0, phi, t,
+                                    cfg.pressure, keep, cfg.rtol, cfg.atol)
+            temps.append(states[:, -1])                # temperature column only
+            ics.append((T0, phi))
+    temps = np.stack(temps)                            # (n_cases, N)
+    ics = np.array(ics)                                # (n_cases, 2)
+
+    is_test = np.all(np.isclose(ics, np.array(TEST_IC)), axis=1)
+    if not is_test.any():
+        raise ValueError("held-out IC (1150 K, phi=1.3) not on this grid")
+
+    # Time-major (N, B, 1) -- the exact layout ObservedTemperature expects --
+    # preserving canonical case ordering along B.
+    train_T = temps[~is_test].T[:, :, None]            # (N, 35, 1)
+    test_T = temps[is_test].T[:, :, None]              # (N,  1, 1)
+
+    print(f"  temperature-only: {len(temps)} cases | "
+          f"{train_T.shape[1]} train / {test_T.shape[1]} test | {cfg.n_points} points")
+    print(f"  T range: {temps.min():.0f}-{temps.max():.0f} K")
+
+    return {
+        "t": t,                                        # (N,)
+        "train_T": train_T,                            # (N, 35, 1)
+        "test_T": test_T,                              # (N,  1, 1)
+        "train_ics": ics[~is_test],                    # (35, 2) = [T0, phi]
+        "test_ics": ics[is_test],                      # (1, 2)
+        "n_points": np.array(cfg.n_points),
+        "t_end": np.array(cfg.t_end),
+        "mechanism": np.array(MECH),
+        "pressure": np.array(cfg.pressure),
+        "rtol": np.array(cfg.rtol),
+        "atol": np.array(cfg.atol),
+        "species": np.array(names),
+        "state_layout": np.array("temperature_only"),
+        "metadata": np.array(metadata(
+            system="hydrogen-temperature-only",
+            generator="generate_hydrogen.py --temperature-only",
+            seed=cfg.seed,
+            mechanism=MECH,
+            species=names,
+            grid=cfg.grid,
+            n_points=cfg.n_points,
+            t_end_s=cfg.t_end,
+            pressure_pa=cfg.pressure,
+            purpose="dense Stage-1 ObservedTemperature provider (species not saved)",
+        )),
+    }
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -192,7 +268,22 @@ def main():
     p.add_argument("--pressure", type=float, default=ct.one_atm)
     p.add_argument("--rtol", type=float, default=1e-9)
     p.add_argument("--atol", type=float, default=1e-15)
+    p.add_argument("--temperature-only", action="store_true",
+                   help="save ONLY the dense temperature trajectory for the Stage-1 "
+                        "ObservedTemperature provider (no dense species / normalization / "
+                        "ignition). Requires the coarse grid; use with --n-points 20000 and "
+                        "a distinct --out (e.g. hydrogen_temperature_20000.npz).")
     cfg = p.parse_args()
+
+    if cfg.temperature_only:
+        if cfg.out.name == "hydrogen.npz":
+            raise SystemExit(
+                "refusing to overwrite hydrogen.npz in --temperature-only mode; pass a "
+                "distinct --out (e.g. --out ../../data/generated/hydrogen_temperature_20000.npz)")
+        print(f"Hydrogen-air TEMPERATURE-ONLY cache: coarse grid, {cfg.n_points} points over "
+              f"{cfg.t_end * 1e3:.2f} ms at {cfg.pressure / ct.one_atm:.2f} atm")
+        save(cfg.out, **generate_temperature_only(cfg))
+        return
 
     print(f"Hydrogen-air: {cfg.grid} grid, {cfg.n_points} points over "
           f"{cfg.t_end * 1e3:.2f} ms at {cfg.pressure / ct.one_atm:.2f} atm")

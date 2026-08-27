@@ -48,6 +48,42 @@ python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
 python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Figure 8 (A) 441 total data. 406 of which were unseen, 35 were seen during training.
 ```
 
+### Dense Stage-1 temperature cache (supervisor-approved)
+
+Hydrogen Stage 1 integrates species only, with temperature supplied externally as
+`T(t)`. The paper reads Stage-1 temperature from the training data but does not
+specify how it is evaluated at the adaptive ODE solver's internal times. The
+original reproduction used the sparse 50-point trajectory through the linear
+`ObservedTemperature` provider (`src/chemkan/temperature.py`); the
+supervisor-approved final implementation instead precomputes a **dense** Cantera
+temperature trajectory and reads it through the *same* linear `ObservedTemperature`.
+
+`--temperature-only` reuses the canonical hydrogen Cantera setup (mechanism,
+fuel/oxidizer, pressure, tolerances, coarse IC grid, 35/1 split, ordering) and
+saves **only** the temperature trajectory — no dense species, normalization, or
+ignition data. It does not touch `hydrogen.npz`.
+
+```bash
+# default dense resolution: 20000 points over the same 0.6 ms interval
+python generate_hydrogen.py --temperature-only --n-points 20000 \
+    --out ../../data/generated/hydrogen_temperature_20000.npz
+```
+
+Archive schema: `t (N,)`, `train_T (N,35,1)`, `test_T (N,1,1)`, `train_ics (35,2)`,
+`test_ics (1,2)`, plus `n_points`, `t_end`, `mechanism`, `pressure`, `rtol`, `atol`,
+`metadata`. `train_T[:, b, :]` follows the exact ordering of the 50-point hydrogen
+training conditions. Load it with `_data.load_hydrogen_temperature(split, n_points)`,
+which validates the file against the canonical archive and fails loudly on mismatch.
+
+Training consumes it via `train_hydrogen.py --stage1-temperature-source dense-cantera`
+(the default). Important: this is still **linear interpolation** on a fine grid — it
+reduces interpolation error, it does not eliminate interpolation, because the solver's
+internal query times almost never land exactly on the grid. The Stage-1 output grid
+and species targets stay on the canonical 50 points; only `T(t)` becomes dense.
+`20000` is a reproduction choice, not a paper-specified value. The original 50-point
+provider remains available as an ablation via
+`--stage1-temperature-source training-data`.
+
 ### Interactive walkthrough
 
 `data_generation_walkthrough.ipynb` runs the *same* functions as the scripts and

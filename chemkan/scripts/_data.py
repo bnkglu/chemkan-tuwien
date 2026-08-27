@@ -127,3 +127,59 @@ def load_hydrogen(split: str = "train"):
         "u_max": torch.as_tensor(d["u_max"], dtype=torch.float32),  # (m+1,) train-only
         "species": list(d["species"]),
     }
+
+
+def load_hydrogen_temperature(split: str = "train", n_points: int = 20000):
+    """Dense precomputed Cantera Stage-1 temperature trajectory (supervisor-approved).
+
+    Loads ``hydrogen_temperature_{n_points}.npz`` (produced by
+    ``generate_hydrogen.py --temperature-only``) and returns the dense temperature
+    as ``(N, B, 1)`` for feeding ``ObservedTemperature``. This is ONLY the external
+    Stage-1 temperature provider: it carries no species trajectories, targets, or
+    normalization -- the canonical 50-point ``hydrogen.npz`` remains the sole source
+    of training targets and normalization statistics (never refit here).
+
+    Validates against the canonical hydrogen archive and FAILS LOUDLY on any
+    mismatch: strictly-increasing / finite times, matching time range, matching
+    batch size, and identical initial-condition ordering.
+    """
+    _check_split(split)
+    d = _load(f"hydrogen_temperature_{n_points}")
+
+    t_dense = torch.as_tensor(d["t"], dtype=torch.float32)              # (N,)
+    T_dense = torch.as_tensor(d[f"{split}_T"], dtype=torch.float32)     # (N, B, 1)
+    ics = torch.as_tensor(d[f"{split}_ics"], dtype=torch.float32)       # (B, 2)
+
+    # --- self-consistency of the dense file -----------------------------------
+    if t_dense.ndim != 1:
+        raise ValueError("dense temperature: t must be 1-D (N,)")
+    if not torch.isfinite(t_dense).all() or not torch.isfinite(T_dense).all():
+        raise ValueError("dense temperature: non-finite values present")
+    if not torch.all(t_dense[1:] > t_dense[:-1]):
+        raise ValueError("dense temperature: t must be strictly increasing")
+    if T_dense.ndim != 3 or T_dense.shape[0] != t_dense.shape[0] or T_dense.shape[-1] != 1:
+        raise ValueError(
+            f"dense temperature: {split}_T must be (N, B, 1); got {tuple(T_dense.shape)}")
+
+    # --- cross-check against the canonical 50-point hydrogen archive ----------
+    canon = _load("hydrogen")
+    t_canon = torch.as_tensor(canon["t"], dtype=torch.float32)
+    if not (torch.isclose(t_dense[0], t_canon[0]) and torch.isclose(t_dense[-1], t_canon[-1])):
+        raise ValueError(
+            f"dense temperature time range [{float(t_dense[0]):.3e}, {float(t_dense[-1]):.3e}] "
+            f"does not match canonical [{float(t_canon[0]):.3e}, {float(t_canon[-1]):.3e}]")
+    canon_ics = torch.as_tensor(canon[f"{split}_ics"], dtype=torch.float32)
+    if ics.shape != canon_ics.shape or not torch.allclose(ics, canon_ics):
+        raise ValueError(
+            f"dense temperature IC ordering/values do not match the canonical hydrogen "
+            f"archive for split={split!r}; expected {tuple(canon_ics.shape)} in the same order")
+    if T_dense.shape[1] != canon_ics.shape[0]:
+        raise ValueError(
+            f"dense temperature batch size {T_dense.shape[1]} != canonical {canon_ics.shape[0]}")
+
+    return {
+        "t_dense": t_dense,               # (N,)
+        "T_dense_TB1": T_dense,           # (N, B, 1)
+        "ics": ics,                       # (B, 2) = [T0, phi], canonical order
+        "metadata": str(d["metadata"]),
+    }
