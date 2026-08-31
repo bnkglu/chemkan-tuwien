@@ -38,34 +38,6 @@ def _grid(num_basis: int, lo: float, hi: float) -> tuple[torch.Tensor, float]:
     h = (hi - lo) / (num_basis - 1)          # spacing = bump width; kept a Python float
     return centers, h
 
-
-class RBFActivation(nn.Module):
-    """One learnable univariate activation phi(x). Educational / test / plotting use.
-
-    Unlike ``RBFEdgeFunctions`` this does NOT apply ``tanh`` -- it is the raw scalar
-    function so you can plot phi over an arbitrary x range.
-    """
-
-    def __init__(self, num_basis: int, x_min: float = -1.0, x_max: float = 1.0,
-                 *, use_base_act: bool):
-        super().__init__()
-        centers, self.h = _grid(num_basis, x_min, x_max)
-        self.register_buffer("centers", centers)              # fixed model state
-        self.w_rbf = nn.Parameter(torch.randn(num_basis) * 0.1)
-        if use_base_act:
-            self.base = nn.SiLU()
-            self.w_base = nn.Parameter(torch.zeros(1))
-        else:
-            self.base = None
-            self.register_parameter("w_base", None)           # not trainable, not counted
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # (batch,) -> (batch,)
-        out = gaussian(x, self.centers, self.h) @ self.w_rbf
-        if self.w_base is not None:
-            out = out + self.w_base * self.base(x)
-        return out
-
-
 class RBFEdgeFunctions(nn.Module):
     r"""Vectorized (out x in) grid of edge functions phi_{i,j} (ChemKAN Eq. 7, 11-12).
 

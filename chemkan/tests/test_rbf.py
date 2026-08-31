@@ -2,7 +2,7 @@ import pytest
 import torch
 
 from chemkan.kan._common import gaussian
-from chemkan.kan.rbf import RBFActivation, RBFEdgeFunctions
+from chemkan.kan.rbf import RBFEdgeFunctions
 
 
 def test_gaussian_uses_2_h_squared():
@@ -28,11 +28,6 @@ def test_edge_output_shape():
     edges = RBFEdgeFunctions(4, 7, num_basis=6, use_base_act=False)
     out = edges(torch.randn(5, 4))
     assert out.shape == (5, 7, 4)                         # (B, out, in)
-
-
-def test_activation_output_shape():
-    phi = RBFActivation(num_basis=8, use_base_act=False)
-    assert phi(torch.linspace(-1, 1, 20)).shape == (20,)
 
 
 def test_gradients_reach_trainable_params():
@@ -61,8 +56,6 @@ def test_use_base_act_is_required():
 def test_num_basis_is_required():
     with pytest.raises(TypeError):
         RBFEdgeFunctions(3, 2, use_base_act=False)   # no num_basis default anymore
-    with pytest.raises(TypeError):
-        RBFActivation(use_base_act=False)            # no num_basis default anymore
 
 
 def test_num_basis_min_two():
