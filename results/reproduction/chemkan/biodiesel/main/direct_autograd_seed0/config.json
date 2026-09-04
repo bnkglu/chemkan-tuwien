@@ -1,0 +1,36 @@
+{
+  "model": "ChemKAN-KineticCore",
+  "chemical_system": "biodiesel",
+  "experiment_name": "main",
+  "seed": 0,
+  "sensitivity_backend": "direct_autograd",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 4,
+    "num_basis": 3,
+    "n_mu": 2,
+    "use_base_act": false
+  },
+  "parameter_count": 156,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": 10000,
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18)",
+  "pinn": {
+    "enabled": false
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "dataset": "biodiesel.npz (train split)",
+  "noise": null,
+  "run_id": "chemkan/biodiesel/main/direct_autograd_seed0",
+  "git_commit": "19e2a13a988d826332b8314eeff4edf4ff2cc673",
+  "created": "2026-08-28T07:18:50Z"
+}

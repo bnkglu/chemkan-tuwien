@@ -1,0 +1,8 @@
+2026-08-29 20:22:06,851 INFO run start 2026-08-29T17:22:06Z | run_id=chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0
+2026-08-29 20:22:06,877 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/config.json
+2026-08-29 20:22:06,877 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.282943e-01
+2026-08-29 20:22:06,975 INFO stage-2 probe -> results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/stage2_probe.csv
+2026-08-29 21:33:17,006 INFO stage 2 final loss: 2.127238e+00
+2026-08-29 21:33:17,009 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/checkpoint_final.pt
+2026-08-29 21:33:17,009 INFO removed results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/checkpoint_resume.pt (run completed)
+2026-08-29 21:33:17,009 INFO run completed 2026-08-29T18:33:17Z

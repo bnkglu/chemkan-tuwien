@@ -1,0 +1,7 @@
+2026-08-28 07:51:17,977 INFO run start 2026-08-28T04:51:17Z | run_id=chemkan/hydrogen/main/base_off_direct_autograd_seed0 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/main/base_off_direct_autograd_seed0
+2026-08-28 07:51:18,004 INFO wrote results/reproduction/chemkan/hydrogen/main/base_off_direct_autograd_seed0/config.json
+2026-08-28 08:45:24,820 INFO stage 1 final loss: 3.282943e-01
+2026-08-28 09:59:19,071 INFO stage 2 final loss: 2.127238e+00
+2026-08-28 09:59:19,077 INFO wrote results/reproduction/chemkan/hydrogen/main/base_off_direct_autograd_seed0/checkpoint_final.pt
+2026-08-28 09:59:19,077 INFO removed results/reproduction/chemkan/hydrogen/main/base_off_direct_autograd_seed0/checkpoint_resume.pt (run completed)
+2026-08-28 09:59:19,077 INFO run completed 2026-08-28T06:59:19Z

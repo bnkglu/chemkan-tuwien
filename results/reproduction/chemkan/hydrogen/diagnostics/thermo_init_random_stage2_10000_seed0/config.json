@@ -1,0 +1,57 @@
+{
+  "model": "ChemKAN",
+  "chemical_system": "hydrogen",
+  "experiment_name": "main",
+  "seed": 0,
+  "sensitivity_backend": "direct_autograd",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 5,
+    "n_mu": 3,
+    "use_base_act": false
+  },
+  "parameter_count": 344,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": {
+    "stage1": 10000,
+    "stage2": 10000
+  },
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18) + alpha*PINN",
+  "pinn": {
+    "stage1": true,
+    "stage2": true,
+    "alpha_pinn": 0.0001
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)",
+  "noise": null,
+  "stage1_temperature": {
+    "source": "dense_cantera",
+    "n_points": 20000,
+    "provider": "ObservedTemperature",
+    "interpolation": "linear",
+    "cache_file": "hydrogen_temperature_20000.npz"
+  },
+  "thermo_init": {
+    "thermo_init": "random"
+  },
+  "stage1_from": {
+    "source": "checkpoint_stage1.pt",
+    "run_id": "chemkan/hydrogen/diagnostics/stage1_seed0",
+    "stage1_final_loss": 0.3282943069934845,
+    "stage1_epochs": 10000
+  },
+  "run_id": "chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0",
+  "git_commit": "19e2a13a988d826332b8314eeff4edf4ff2cc673",
+  "created": "2026-08-29T17:22:06Z"
+}

@@ -1,0 +1,10 @@
+metric,base_off,base_on
+parameters,156,156
+train_total_mse,0.062017,0.043788
+test_total_mse,0.081401,0.121229
+test_TG_mse,0.017536,0.019390
+test_ROH_mse,0.041747,0.079341
+test_DG_mse,0.085221,0.067727
+test_MG_mse,0.159467,0.189442
+test_GL_mse,0.155110,0.163363
+test_RCO2R_mse,0.029322,0.208115

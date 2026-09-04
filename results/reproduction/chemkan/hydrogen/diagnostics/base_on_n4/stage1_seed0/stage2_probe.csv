@@ -1,0 +1,2 @@
+epoch,stage2_loss,temperature_MSE,peak_T_K,ignites,ignition_delay_s,thermo_linear_norm,coeff_H2,coeff_H,coeff_O,coeff_O2,coeff_OH,coeff_H2O,coeff_HO2,coeff_H2O2,coeff_N2
+0,,2.577543e+01,1050.0,False,,5.391572e-01,-0.192034,0.191652,0.176525,0.255841,0.120908,-0.11132,-0.0931494,0.0984766,0.274012

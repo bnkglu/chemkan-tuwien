@@ -1,0 +1,8 @@
+2026-08-29 21:38:38,217 INFO run start 2026-08-29T18:38:38Z | run_id=chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0
+2026-08-29 21:38:38,244 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0/config.json
+2026-08-29 21:38:38,244 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.282943e-01
+2026-08-29 21:38:38,341 INFO stage-2 probe -> results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0/stage2_probe.csv
+2026-08-29 23:20:20,972 INFO stage 2 final loss: 2.366149e-01
+2026-08-29 23:20:20,976 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0/checkpoint_final.pt
+2026-08-29 23:20:20,976 INFO removed results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0/checkpoint_resume.pt (run completed)
+2026-08-29 23:20:20,978 INFO run completed 2026-08-29T20:20:20Z

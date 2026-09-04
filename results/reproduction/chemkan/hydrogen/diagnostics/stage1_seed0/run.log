@@ -1,0 +1,8 @@
+2026-08-29 18:48:30,385 INFO run start 2026-08-29T15:48:30Z | run_id=chemkan/hydrogen/diagnostics/stage1_seed0 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/diagnostics/stage1_seed0
+2026-08-29 18:48:30,451 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/stage1_seed0/config.json
+2026-08-29 19:42:36,268 INFO stage 1 final loss: 3.282943e-01
+2026-08-29 19:42:36,276 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/stage1_seed0/checkpoint_stage1.pt
+2026-08-29 19:42:36,280 INFO stage 2 final loss: nan
+2026-08-29 19:42:36,281 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/stage1_seed0/checkpoint_final.pt
+2026-08-29 19:42:36,281 INFO removed results/reproduction/chemkan/hydrogen/diagnostics/stage1_seed0/checkpoint_resume.pt (run completed)
+2026-08-29 19:42:36,281 INFO run completed 2026-08-29T16:42:36Z

@@ -1,0 +1,4 @@
+model,networks,parameters,species,speedup,source
+ChemNODE (Ref. 17),7,637,"H2,O2,H2O,N2,O,OH + T",2.3x,paper_reported
+ChemKAN (paper),1,344,9 species + T,2.0x,paper_reported
+ChemKAN (this reproduction),1,344,9 species + T,not measured,local_verified

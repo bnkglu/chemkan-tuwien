@@ -1,0 +1,10 @@
+2026-09-01 00:46:53,397 INFO run start 2026-08-31T21:46:53Z | run_id=chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0
+2026-09-01 00:46:53,471 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/config.json
+2026-09-01 02:12:22,846 INFO stage 1 final loss: 3.148778e-01
+2026-09-01 02:12:22,853 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_stage1.pt
+2026-09-01 02:12:30,974 INFO stage-2 probe -> results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/stage2_probe.csv
+2026-09-01 02:12:30,981 INFO stage-2 snapshots at epochs [500]
+2026-09-01 02:12:30,985 INFO stage 2 final loss: nan
+2026-09-01 02:12:30,993 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_final.pt
+2026-09-01 02:12:30,994 INFO removed results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_resume.pt (run completed)
+2026-09-01 02:12:30,994 INFO run completed 2026-08-31T23:12:30Z

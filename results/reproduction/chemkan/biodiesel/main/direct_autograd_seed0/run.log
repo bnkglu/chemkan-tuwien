@@ -1,0 +1,6 @@
+2026-08-28 10:18:50,120 INFO run start 2026-08-28T07:18:50Z | run_id=chemkan/biodiesel/main/direct_autograd_seed0 | system=biodiesel | dir=results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0
+2026-08-28 10:18:50,146 INFO wrote results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0/config.json
+2026-08-28 10:29:18,963 INFO final training loss: 9.126026e-02
+2026-08-28 10:29:18,966 INFO wrote results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0/checkpoint_final.pt
+2026-08-28 10:29:18,966 INFO removed results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0/checkpoint_resume.pt (run completed)
+2026-08-28 10:29:18,966 INFO run completed 2026-08-28T07:29:18Z

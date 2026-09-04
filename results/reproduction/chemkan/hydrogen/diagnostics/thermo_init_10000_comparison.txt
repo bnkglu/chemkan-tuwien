@@ -1,0 +1,34 @@
+
+################################################################
+thermo_init_random_stage2_10000_seed0
+################################################################
+===== TRAIN MSE =====
+hydrogen [train] normalized trajectory MSE: 2.122741e+00
+wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/metrics.json
+===== TEST MSE =====
+hydrogen [test] normalized trajectory MSE: 3.155575e+00
+wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/metrics.json
+===== IGNITION =====
+checkpoint      : results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0/checkpoint_final.pt
+run_id          : chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0
+parameters      : 344   (expected 344)
+pinn            : stage1=True stage2=True alpha=0.0001
+input scaling   : minmax
+solver          : tsit5 rtol=1e-06 atol=1e-08
+peak tolerance  : 150 K
+delay tolerance : 25%
+
+T0=1050 K, phi=0.90   [FAIL]
+   peak T   :  1058.0 K vs  2669.7 K   (err 1611.7 K)  OUT OF TOLERANCE
+   ignition : MODEL NEVER IGNITES  OUT OF TOLERANCE
+   T range  : model 1050-1058 K, reference 1050-2670 K
+
+T0=1150 K, phi=1.30   [FAIL]
+   peak T   :  1159.6 K vs  2761.6 K   (err 1602.0 K)  OUT OF TOLERANCE
+   ignition : MODEL NEVER IGNITES  OUT OF TOLERANCE
+   T range  : model 1150-1160 K, reference 1150-2762 K
+
+============================================================
+IGNITION GATE: FAILED
+Do not generate Figs. 7 / 8A / 8B or the Table I ChemKAN row
+from this checkpoint.

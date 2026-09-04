@@ -1,0 +1,24 @@
+{
+  "run_id": "chemkan/hydrogen/diagnostics/thermo_init_cantera_stage2_10000_seed0",
+  "train_mse": 0.2368447482585907,
+  "n_params": 344,
+  "evaluation_wall_time_s": 0.0651,
+  "evaluated_conditions": 1,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (full [Y, T] state), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08,
+    "sensitivity": "direct_autograd"
+  },
+  "stage1_temperature": {
+    "source": "dense_cantera",
+    "n_points": 20000,
+    "provider": "ObservedTemperature",
+    "interpolation": "linear",
+    "cache_file": "hydrogen_temperature_20000.npz"
+  },
+  "evaluated_at_train": "2026-08-31T11:17:08Z",
+  "test_mse": 0.23808391392230988,
+  "evaluated_at_test": "2026-08-31T11:17:09Z"
+}

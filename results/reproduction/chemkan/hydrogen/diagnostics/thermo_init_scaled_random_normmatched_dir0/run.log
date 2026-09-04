@@ -1,0 +1,8 @@
+2026-08-30 14:00:44,146 INFO run start 2026-08-30T11:00:44Z | run_id=chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0
+2026-08-30 14:00:44,172 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0/config.json
+2026-08-30 14:00:44,172 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.282943e-01
+2026-08-30 14:00:44,233 INFO stage-2 probe -> results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0/stage2_probe.csv
+2026-08-30 14:02:32,883 INFO stage 2 final loss: 5.061749e+00
+2026-08-30 14:02:32,885 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0/checkpoint_final.pt
+2026-08-30 14:02:32,885 INFO removed results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0/checkpoint_resume.pt (run completed)
+2026-08-30 14:02:32,886 INFO run completed 2026-08-30T11:02:32Z

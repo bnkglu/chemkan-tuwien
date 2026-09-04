@@ -1,0 +1,10 @@
+2026-08-28 10:43:08,265 INFO run start 2026-08-28T07:43:08Z | run_id=chemkan/biodiesel/sensitivity/base_on_matched_seed0 | system=biodiesel | dir=results/reproduction/chemkan/biodiesel/sensitivity/base_on_matched_seed0
+2026-08-28 10:43:08,290 INFO wrote results/reproduction/chemkan/biodiesel/sensitivity/base_on_matched_seed0/config.json
+2026-08-28 10:49:17,640 WARNING interrupted; resume checkpoint preserved for --resume
+2026-08-28 10:49:17,640 INFO run interrupted 2026-08-28T07:49:17Z
+2026-08-28 10:49:38,058 INFO run start 2026-08-28T07:49:38Z | run_id=chemkan/biodiesel/sensitivity/base_on_matched_seed0 | system=biodiesel | dir=results/reproduction/chemkan/biodiesel/sensitivity/base_on_matched_seed0
+2026-08-28 10:49:38,082 INFO wrote results/reproduction/chemkan/biodiesel/sensitivity/base_on_matched_seed0/config.json
+2026-08-28 10:59:53,227 INFO final training loss: 4.379051e-02
+2026-08-28 10:59:53,233 INFO wrote results/reproduction/chemkan/biodiesel/sensitivity/base_on_matched_seed0/checkpoint_final.pt
+2026-08-28 10:59:53,233 INFO removed results/reproduction/chemkan/biodiesel/sensitivity/base_on_matched_seed0/checkpoint_resume.pt (run completed)
+2026-08-28 10:59:53,233 INFO run completed 2026-08-28T07:59:53Z

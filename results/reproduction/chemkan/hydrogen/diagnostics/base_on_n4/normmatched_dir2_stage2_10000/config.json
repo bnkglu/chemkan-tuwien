@@ -1,0 +1,111 @@
+{
+  "model": "ChemKAN",
+  "chemical_system": "hydrogen",
+  "experiment_name": "base_on_n4",
+  "seed": 0,
+  "sensitivity_backend": "direct_autograd",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 4,
+    "n_mu": 3,
+    "use_base_act": true
+  },
+  "parameter_count": 344,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": {
+    "stage1": 10000,
+    "stage2": 10000
+  },
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18) + alpha*PINN",
+  "pinn": {
+    "stage1": true,
+    "stage2": true,
+    "alpha_pinn": 0.0001
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)",
+  "noise": null,
+  "stage1_temperature": {
+    "source": "dense_cantera",
+    "n_points": 20000,
+    "provider": "ObservedTemperature",
+    "interpolation": "linear",
+    "cache_file": "hydrogen_temperature_20000.npz"
+  },
+  "thermo_init": {
+    "thermo_init": "scaled-random",
+    "mechanism": "h2o2.yaml",
+    "scaling_mode": "match-cantera-norm",
+    "thermo_linear_init_seed": 2,
+    "original_random_vector": [
+      0.07646338641643524,
+      -0.07932476699352264,
+      0.09140956401824951,
+      -0.01702594757080078,
+      0.14239589869976044,
+      0.0793575868010521,
+      -0.038311563432216644,
+      -0.269487589597702,
+      0.07610480487346649
+    ],
+    "original_random_norm": 0.35671019554138184,
+    "requested_scale_factor": null,
+    "effective_scale_factor": 480018.36058179836,
+    "resulting_vector": [
+      36703.83203125,
+      -38077.34765625,
+      43878.26953125,
+      -8172.767578125,
+      68352.6484375,
+      38093.1015625,
+      -18390.25390625,
+      -129358.9921875,
+      36531.703125
+    ],
+    "resulting_norm": 171227.4375,
+    "cantera_reference_norm": 171227.44326658684,
+    "sign_match_vs_cantera": "4/9",
+    "reference_temperature": 1050.0,
+    "reference_phi": 0.5,
+    "cp_mass_J_per_kg_K": 1360.6309330699291,
+    "species_order": [
+      "H2",
+      "H",
+      "O",
+      "O2",
+      "OH",
+      "H2O",
+      "HO2",
+      "H2O2",
+      "N2"
+    ],
+    "note": "Cantera vector used for its L2 NORM ONLY; direction/signs/ratios are random. sign_match is descriptive only and never used to accept/reject a draw."
+  },
+  "stage1_from": {
+    "source": "checkpoint_stage1.pt",
+    "path": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_stage1.pt",
+    "stage1_checkpoint_sha256": "6b25dfcf49305ba85f7b29d5a3fd3c91871b8cbe15c2e8facc9357a850175837",
+    "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0",
+    "architecture": {
+      "hidden_dim": 3,
+      "num_basis": 4,
+      "n_mu": 3,
+      "use_base_act": true
+    },
+    "stage1_final_loss": 0.31487777829170227,
+    "stage1_epochs": 10000
+  },
+  "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir2_stage2_10000",
+  "git_commit": "64df16c199c78040795da181639a86bb9080f199",
+  "created": "2026-09-01T20:11:49Z"
+}

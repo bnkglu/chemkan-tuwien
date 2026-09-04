@@ -1,0 +1,132 @@
+
+################################################################
+RUN: thermo_init_scaled_random_normmatched_dir0
+################################################################
+
+===== TRAIN MSE =====
+
+===== TEST MSE =====
+
+===== IGNITION GATE =====
+checkpoint      : results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0/checkpoint_final.pt
+run_id          : chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir0
+parameters      : 344   (expected 344)
+pinn            : stage1=True stage2=True alpha=0.0001
+input scaling   : minmax
+solver          : tsit5 rtol=1e-06 atol=1e-08
+peak tolerance  : 150 K
+delay tolerance : 25%
+
+T0=1050 K, phi=0.90   [FAIL]
+   peak T   :  2596.4 K vs  2669.7 K   (err   73.3 K)  ok
+   ignition : 0.000e+00 s vs 1.469e-04 s   (rel 100.0%)  OUT OF TOLERANCE
+   T range  : model 1050-2596 K, reference 1050-2670 K
+
+T0=1150 K, phi=1.30   [FAIL]
+   peak T   :  2710.5 K vs  2761.6 K   (err   51.1 K)  ok
+   ignition : 0.000e+00 s vs 7.347e-05 s   (rel 100.0%)  OUT OF TOLERANCE
+   T range  : model 1150-2710 K, reference 1150-2762 K
+
+============================================================
+IGNITION GATE: FAILED
+Do not generate Figs. 7 / 8A / 8B or the Table I ChemKAN row
+from this checkpoint.
+
+################################################################
+RUN: thermo_init_scaled_random_normmatched_dir1
+################################################################
+
+===== TRAIN MSE =====
+
+===== TEST MSE =====
+
+===== IGNITION GATE =====
+checkpoint      : results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir1/checkpoint_final.pt
+run_id          : chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir1
+parameters      : 344   (expected 344)
+pinn            : stage1=True stage2=True alpha=0.0001
+input scaling   : minmax
+solver          : tsit5 rtol=1e-06 atol=1e-08
+peak tolerance  : 150 K
+delay tolerance : 25%
+
+T0=1050 K, phi=0.90   [PASS]
+   peak T   :  2601.1 K vs  2669.7 K   (err   68.6 K)  ok
+   ignition : 1.592e-04 s vs 1.469e-04 s   (rel 8.3%)  ok
+   T range  : model 1050-2601 K, reference 1050-2670 K
+
+T0=1150 K, phi=1.30   [FAIL]
+   peak T   :  2915.6 K vs  2761.6 K   (err  154.1 K)  OUT OF TOLERANCE
+   ignition : 8.571e-05 s vs 7.347e-05 s   (rel 16.7%)  ok
+   T range  : model 1150-2916 K, reference 1150-2762 K
+
+============================================================
+IGNITION GATE: FAILED
+Do not generate Figs. 7 / 8A / 8B or the Table I ChemKAN row
+from this checkpoint.
+
+################################################################
+RUN: thermo_init_scaled_random_normmatched_dir2
+################################################################
+
+===== TRAIN MSE =====
+
+===== TEST MSE =====
+
+===== IGNITION GATE =====
+checkpoint      : results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir2/checkpoint_final.pt
+run_id          : chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir2
+parameters      : 344   (expected 344)
+pinn            : stage1=True stage2=True alpha=0.0001
+input scaling   : minmax
+solver          : tsit5 rtol=1e-06 atol=1e-08
+peak tolerance  : 150 K
+delay tolerance : 25%
+
+T0=1050 K, phi=0.90   [FAIL]
+   peak T   :  2932.4 K vs  2669.7 K   (err  262.7 K)  OUT OF TOLERANCE
+   ignition : 9.796e-05 s vs 1.469e-04 s   (rel 33.3%)  OUT OF TOLERANCE
+   T range  : model 1025-2932 K, reference 1050-2670 K
+
+T0=1150 K, phi=1.30   [FAIL]
+   peak T   :  3286.8 K vs  2761.6 K   (err  525.2 K)  OUT OF TOLERANCE
+   ignition : 4.898e-05 s vs 7.347e-05 s   (rel 33.3%)  OUT OF TOLERANCE
+   T range  : model 1146-3287 K, reference 1150-2762 K
+
+============================================================
+IGNITION GATE: FAILED
+Do not generate Figs. 7 / 8A / 8B or the Table I ChemKAN row
+from this checkpoint.
+
+################################################################
+RUN: thermo_init_cantera_500_ref1050_phi05_seed0
+################################################################
+
+===== TRAIN MSE =====
+
+===== TEST MSE =====
+
+===== IGNITION GATE =====
+checkpoint      : results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_500_ref1050_phi05_seed0/checkpoint_final.pt
+run_id          : chemkan/hydrogen/diagnostics/thermo_init_cantera_500_ref1050_phi05_seed0
+parameters      : 344   (expected 344)
+pinn            : stage1=True stage2=True alpha=0.0001
+input scaling   : minmax
+solver          : tsit5 rtol=1e-06 atol=1e-08
+peak tolerance  : 150 K
+delay tolerance : 25%
+
+T0=1050 K, phi=0.90   [PASS]
+   peak T   :  2755.8 K vs  2669.7 K   (err   86.1 K)  ok
+   ignition : 1.469e-04 s vs 1.469e-04 s   (rel 0.0%)  ok
+   T range  : model 1049-2756 K, reference 1050-2670 K
+
+T0=1150 K, phi=1.30   [FAIL]
+   peak T   :  3051.2 K vs  2761.6 K   (err  289.6 K)  OUT OF TOLERANCE
+   ignition : 7.347e-05 s vs 7.347e-05 s   (rel 0.0%)  ok
+   T range  : model 1150-3051 K, reference 1150-2762 K
+
+============================================================
+IGNITION GATE: FAILED
+Do not generate Figs. 7 / 8A / 8B or the Table I ChemKAN row
+from this checkpoint.

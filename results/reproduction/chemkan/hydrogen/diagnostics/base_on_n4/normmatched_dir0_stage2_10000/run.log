@@ -1,0 +1,10 @@
+2026-09-01 17:10:25,388 INFO run start 2026-09-01T14:10:25Z | run_id=chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000 | system=hydrogen | dir=results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000
+2026-09-01 17:10:25,435 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000/config.json
+2026-09-01 17:10:25,435 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.148778e-01
+2026-09-01 17:10:25,831 INFO stage-2 probe -> results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000/stage2_probe.csv
+2026-09-01 17:10:25,832 INFO stage-2 snapshots at epochs [500]
+2026-09-01 19:29:10,265 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000/checkpoint_stage2_epoch_500.pt
+2026-09-01 19:29:10,266 INFO stage 2 final loss: 1.566960e+03
+2026-09-01 19:29:10,268 INFO wrote results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000/checkpoint_final.pt
+2026-09-01 19:29:10,269 INFO removed results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir0_stage2_10000/checkpoint_resume.pt (run completed)
+2026-09-01 19:29:10,269 INFO run completed 2026-09-01T16:29:10Z

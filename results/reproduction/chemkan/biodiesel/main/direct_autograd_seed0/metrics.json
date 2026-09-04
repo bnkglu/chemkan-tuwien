@@ -1,0 +1,17 @@
+{
+  "run_id": "chemkan/biodiesel/main/direct_autograd_seed0",
+  "train_mse": 0.062016528099775314,
+  "n_params": 156,
+  "evaluation_wall_time_s": 0.024,
+  "evaluated_conditions": 10,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (species-only, biodiesel Stage-1), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08,
+    "sensitivity": "direct_autograd"
+  },
+  "evaluated_at_train": "2026-08-28T07:37:59Z",
+  "test_mse": 0.08140052855014801,
+  "evaluated_at_test": "2026-08-28T07:38:00Z"
+}
