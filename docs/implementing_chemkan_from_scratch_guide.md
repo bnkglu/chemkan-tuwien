@@ -10,8 +10,8 @@ You already generated the training data (`chemkan/data/generated/*.npz` — see 
 This guide builds the *model* that learns from it.
 
 Paper: *ChemKANs for Combustion Chemistry Modeling and Acceleration*, Koenig, Kim
-& Deng, 2025 ([`docs/paper/…pdf`](paper/ChemKANs_for_Combustion_Chemistry_Modeling_and_Acceleration.pdf),
-[arXiv:2504.12580](https://arxiv.org/pdf/2504.12580)). Equation numbers below refer to it.
+& Deng, 2025 ([arXiv:2504.12580](https://arxiv.org/pdf/2504.12580)). Equation numbers
+below refer to it.
 
 ---
 
@@ -31,7 +31,7 @@ Paper: *ChemKANs for Combustion Chemistry Modeling and Acceleration*, Koenig, Ki
 |---|---|---|
 | [pykan](https://github.com/KindXiaoming/pykan) | Run the "Hello, KAN" and "fit a formula" intro notebooks once. **Watch an activation function get learned.** Do not copy its code. | B-spline basis; heavy. This is for *intuition only*. |
 | [DENG-MIT/LeanKAN](https://github.com/DENG-MIT/LeanKAN), [DENG-MIT/KAN-ODEs](https://github.com/DENG-MIT/KAN-ODEs) | Your **canonical reference**. Same authors as ChemKAN. When your shapes/loss don't match the paper, compare here. The repo's [`Lotka-Volterra-Pytorch/predator_prey.py`](https://github.com/DENG-MIT/KAN-ODEs/blob/main/Lotka-Volterra-Pytorch/predator_prey.py) is a ready-made **PyTorch KAN-ODE training loop** — borrow it in Milestone 4. | Most of the repo is Julia; the *math* is language-independent. The one Python example uses a **B-spline** layer (`efficientkan.py`) — reuse its *loop*, not its *layer*. |
-| Your [`chemkan/src/addkan/addkan.py`](../chemkan/src/addkan/addkan.py) (= [efficient-kan](https://github.com/Blealtan/efficient-kan)) | Read `AddKANLinear.forward` once to see how a KAN layer is wired. | **B-spline**, not RBF. ChemKAN uses RBF (Eq. 11–12), so you will *not* reuse this activation. Good structural reference, wrong basis. |
+| [efficient-kan](https://github.com/Blealtan/efficient-kan) (`AddKANLinear`) | Read `AddKANLinear.forward` once to see how a KAN layer is wired. | **B-spline**, not RBF. ChemKAN uses RBF (Eq. 11–12), so you will *not* reuse this activation. Good structural reference, wrong basis. **Not vendored into this repository** — read it upstream. |
 
 **The single most important fact:** the paper's activation is a **Gaussian RBF
 sum** (Eq. 11–12), and the layers are **LeanKAN** (multiply + add, Eq. 8–10) —
@@ -615,7 +615,6 @@ train_stage(model, u0, t, target_full, steps=..., params=thermo_params)
 
 ```
 chemkan/src/
-  addkan/addkan.py          # (existing) B-spline reference — keep for comparison
   kan/
     rbf.py                  # RBFActivation                 (Milestone 1)
     layers.py               # AddKANLayer, LeanKANLayer      (Milestone 2-3)

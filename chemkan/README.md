@@ -26,7 +26,7 @@ Data generation **and** the model/training stack are implemented:
   Sensitivity Analysis; FSA is **not implemented yet** and is a known reproduction gap
   (see `src/chemkan/ASSUMPTIONS.md` §9).
 
-See **[`HOW_THE_CODE_WORKS.md`](HOW_THE_CODE_WORKS.md)** for a module-by-module
+See **[`code-overview.md`](code-overview.md)** for a module-by-module
 walkthrough and **[`src/chemkan/ASSUMPTIONS.md`](src/chemkan/ASSUMPTIONS.md)** for every
 paper-vs-implementation decision.
 
