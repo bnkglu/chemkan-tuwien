@@ -573,6 +573,19 @@ thermo_params = list(model.thermo_linear.parameters()) + list(model.cor.paramete
 train_stage(model, u0, t, target_full, steps=..., params=thermo_params)
 ```
 
+> **Stage-1 temperature source (H₂).** In Stage 1 temperature is supplied
+> externally as `T(t)`; only species are integrated. The paper reads it from the
+> training data but does not specify how it is evaluated at the adaptive solver's
+> internal times. This reproduction interpolates linearly via `ObservedTemperature`.
+> The supervisor-approved default precomputes a **dense** Cantera `T(t)` (20000
+> points over the same 0.6 ms, generated once with `generate_hydrogen.py
+> --temperature-only`) and reads it through the same linear provider —
+> `train_hydrogen.py --stage1-temperature-source dense-cantera` (default). This
+> reduces but does not remove interpolation (solver times rarely hit grid points).
+> The original sparse 50-point provider stays available as `--stage1-temperature-source
+> training-data`. Either way the Stage-1 output grid and species targets remain the
+> canonical 50 points; 20000 is an implementation choice, not a paper value.
+
 ### Check
 
 - **Biodiesel:** reproduce the paper's robustness claim — train separately on the

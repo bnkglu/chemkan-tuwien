@@ -128,6 +128,23 @@ def test_dense_loader_rejects_ic_mismatch(small_dense_cache):
         load_hydrogen_temperature(split="train", n_points=n)
 
 
+def test_dense_loader_rejects_point_count_mismatch():
+    """A wrongly named cache (content resolution != requested n_points) fails loudly."""
+    _cantera_or_skip()
+    if not (DATA_DIR / "hydrogen.npz").exists():
+        pytest.skip("canonical hydrogen.npz not available")
+    import generate_hydrogen as gh
+    wrong = DATA_DIR / "hydrogen_temperature_64.npz"        # name says 64...
+    pre_existing = wrong.exists()
+    np.savez_compressed(wrong, **gh.generate_temperature_only(_tempcfg(48)))  # ...content is 48
+    try:
+        with pytest.raises(ValueError):
+            load_hydrogen_temperature(split="train", n_points=64)
+    finally:
+        if not pre_existing and wrong.exists():
+            wrong.unlink()
+
+
 # --------------------------------------------------------------------------
 # 5 / 8 / 9  ObservedTemperature reuse with a dense grid
 # --------------------------------------------------------------------------

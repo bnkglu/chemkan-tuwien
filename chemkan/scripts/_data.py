@@ -153,6 +153,14 @@ def load_hydrogen_temperature(split: str = "train", n_points: int = 20000):
     # --- self-consistency of the dense file -----------------------------------
     if t_dense.ndim != 1:
         raise ValueError("dense temperature: t must be 1-D (N,)")
+    if t_dense.shape[0] != n_points:
+        raise ValueError(
+            f"dense temperature: t has {t_dense.shape[0]} points but n_points={n_points} was "
+            f"requested (wrong file for this resolution?)")
+    if "n_points" in d.files and int(d["n_points"]) != n_points:
+        raise ValueError(
+            f"dense temperature: archive records n_points={int(d['n_points'])} but n_points="
+            f"{n_points} was requested (mismatched cache).")
     if not torch.isfinite(t_dense).all() or not torch.isfinite(T_dense).all():
         raise ValueError("dense temperature: non-finite values present")
     if not torch.all(t_dense[1:] > t_dense[:-1]):

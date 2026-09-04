@@ -5,8 +5,11 @@ paper (Koenig, Kim & Deng, 2025). They integrate the reference kinetic models,
 run some sanity checks, and save each system as a compressed `.npz`.
 
 **Biodiesel and hydrogen are the reproduction datasets. Methane is an optional
-extension** (see the end of this file). Nothing generated is committed — every
-`.npz` is regenerated from source.
+extension** (see the end of this file). Every `.npz` is regenerated from source; the
+canonical `biodiesel.npz` / `hydrogen.npz` and the production
+`hydrogen_temperature_20000.npz` cache are tracked in Git (small, and needed to reproduce
+reported results), while diagnostic dense caches (50k/100k/200k) and any other `.npz`
+stay untracked. See the root `.gitignore` negation rules.
 
 ## Files
 
