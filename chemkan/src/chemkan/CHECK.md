@@ -39,7 +39,9 @@ There is **no** `src/chemkan/config.py`.
 - **Checkpoints are self-describing**: `{model_state, architecture, data, training,
   solver}` — models are rebuilt from *dataset dim + checkpoint architecture*; eval
   validates checkpoint species vs. dataset.
-- **Paper counts are regression tests** (156 / 344 / 208 / 411), not model restrictions.
+- **Paper counts are regression tests** (156 / 344), not model restrictions. Hydrogen
+  defaults to `--num-basis 4` with the base path ON; `--num-basis 5 --no-use-base-act`
+  gives the same 344 and stays available (ASSUMPTIONS.md §2).
 
 ## Explicit-choice hardening (latest pass)
 

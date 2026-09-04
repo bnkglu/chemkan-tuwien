@@ -256,19 +256,24 @@ defaults to the **test** split, normalized with **train** statistics.
 
 ## 4 · Parameter counts — the reproduction anchor
 
-The paper reports parameter counts, so we treat them as a hard check. With the base path
-**off**:
+The paper reports parameter counts, so we treat them as a hard check. Current script
+defaults:
 
-| system    | arithmetic                                   | params |
-|-----------|----------------------------------------------|:------:|
-| biodiesel | `(7·4 + 4·6)·3`                              | **156** |
-| hydrogen  | `(10·3 + 3·9 + 10·1)·5 + 9`                  | **344** |
+| system    | arithmetic                                              | base path | params |
+|-----------|---------------------------------------------------------|:---------:|:------:|
+| biodiesel | `(7·4 + 4·6)·3`                                          | off | **156** |
+| hydrogen  | `(10·3 + 3·9 + 10·1)·4 + (10·3 + 3·9 + 10·1) + 9`        | on  | **344** |
 
 Reading the hydrogen sum: AddKAN edges `(m+1)·hidden = 10·3`, LeanKAN edges
-`hidden·m = 3·9`, `KAN_cor` edges `(m+1)·1 = 10·1`, all `× num_basis=5`, plus the thermo
-linear's `m = 9` coefficients. Turning the base path **on** gives 208 / 411 instead — a
-literal-Eq.-11 sensitivity variant, not the main run. (`num_basis=5` for hydrogen is
-*inferred* from this count; biodiesel's `num_basis=3` likewise reproduces 156.)
+`hidden·m = 3·9`, `KAN_cor` edges `(m+1)·1 = 10·1` — that is 67 edges, each carrying
+`num_basis = 4` RBF weights **plus one** Eq. 11 base weight, plus the thermo linear's
+`m = 9` coefficients.
+
+The count alone does not fix the architecture: `num_basis=5` with the base path **off**
+also gives exactly 344, and agrees block by block. Hydrogen defaults to the Eq. 11-aligned
+`num_basis=4`/base-ON reading; the historical one stays available as
+`--num-basis 5 --no-use-base-act`. Biodiesel keeps base **off** — its grid is paper-stated
+at 3 and only base-OFF reproduces 156 (base ON would give 208). See ASSUMPTIONS.md §2.
 
 ---
 

@@ -19,27 +19,39 @@ specifies from what this PyTorch port had to decide. Nothing here is a silent fi
 
 ## 2. Reproduction ambiguity — base activation (Eq. 11)
 
-Eq. 11 includes a Swish/SiLU base path `w^b b(x)` on every edge, but the reported
-parameter counts only match with the base path **OFF**:
+Eq. 11 includes a Swish/SiLU base path `w^b b(x)` on every edge. The paper states
+neither the grid size `N` nor whether that base weight is counted, so the reported
+totals do not pin the architecture down on their own.
 
-| system    | base OFF (reported) | base ON |
-|-----------|---------------------|---------|
-| biodiesel | **156** ✅          | 208     |
-| hydrogen  | **344** ✅          | 411     |
+**Hydrogen (344 reported).** Two configurations reproduce 344 exactly, and they agree
+block by block, so the count cannot distinguish them:
 
-Counts: biodiesel `(7·4 + 4·6)·3 = 156`; hydrogen `(10·3 + 3·9 + 10·1)·5 + 9 = 344`.
+| reading | `num_basis` | base path | count |
+|---|---|---|---|
+| **B — Eq. 11-aligned (default since 2026-09-03)** | **4** | **ON** | `(10·3 + 3·9 + 10·1)·4 + (10·3 + 3·9 + 10·1) + 9` = **344** ✅ |
+| A — historical | 5 | OFF | `(10·3 + 3·9 + 10·1)·5 + 9` = **344** ✅ |
 
-Decision: `use_base_act` is a **required, keyword-only** argument with no default.
-Main count-matching reproduction uses `use_base_act=False` (no trainable `w_base` is
-created — `register_parameter("w_base", None)`). `use_base_act=True` is retained only
-as a literal-Eq.-11 sensitivity experiment. — `kan/rbf.py`
+Decision: hydrogen defaults to **B** (`--num-basis 4`, base ON) because it keeps the
+Eq. 11 edge definition literal. **Neither `N` is paper-explicit.** Reading A stays
+reachable as `--num-basis 5 --no-use-base-act` and all existing N=5/base-OFF
+checkpoints, results and figures remain valid under their own recorded architecture.
+Switching the default does **not** remove the Stage-2 failure — see notebook 09 §22.
+
+**Biodiesel (156 reported)** keeps base **OFF**: the paper states its grid explicitly
+("three-point grids"), and with `num_basis = 3` only the base-OFF count matches
+(`(7·4 + 4·6)·3 = 156`; base ON would give 208).
+
+`use_base_act` remains a **required, keyword-only** argument on the reusable classes —
+only the scripts carry defaults. With it off, no trainable `w_base` is created
+(`register_parameter("w_base", None)`); with it on, `w_base` is zero-initialized, so
+the base pathway starts inert. — `kan/rbf.py`
 
 ## 3. Reproduction inference — grid size
 
-`num_basis = 5` for hydrogen is **inferred** (default in `scripts/train_hydrogen.py`,
-CLI-overridable) from the reported architecture plus the
-344-parameter count, not an explicitly stated grid size. Biodiesel `num_basis = 3`
-likewise reproduces 156. — script CLI defaults in `scripts/train_{hydrogen,biodiesel}.py`
+`num_basis` is **inferred** for hydrogen (`4`, see §2) from the reported architecture
+plus the 344-parameter count, not an explicitly stated grid size. Biodiesel
+`num_basis = 3` is paper-stated and reproduces 156. — script CLI defaults in
+`scripts/train_{hydrogen,biodiesel}.py`
 
 ## 4. PyTorch implementation assumptions (NOT paper-specified)
 
@@ -66,6 +78,32 @@ likewise reproduces 156. — script CLI defaults in `scripts/train_{hydrogen,bio
   not baked into the library. Main interpretation: Stage 1 OFF, Stage 2 ON. Biodiesel:
   MSE only. The library's training functions take a caller-provided `loss_fn`.
 - **Init scale** `randn * 0.1` for `w_rbf` is an implementation choice.
+
+## 4b. Unresolved paper ambiguity — biodiesel time grid (documented, NOT changed)
+
+The paper describes the biodiesel data as 30-second trajectories, 30 sampled data
+points, and a sparse sampling interval of 1 s. **These three statements are not
+simultaneously satisfiable**: 30 points spanning `[0, 30]` implies `dt = 30/29 ≈
+1.0345 s`, while an exact 1 s interval over the same window implies 31 coordinates.
+
+Current implementation (unchanged, supervisor-reviewed): `np.linspace(0.0, 30.0, 30)`
+in `scripts/data_gen/generate_biodiesel.py`, with **every** point supervised, `t = 0`
+included. This honours "30 sampled data points" and treats "1 s" as the paper's
+rounded description of the ≈1.0345 s spacing.
+
+The other reading — integrate on `0, 1, …, 30` and supervise only `t = 1…30`, so that
+the 30 observations sit at exactly 1 s intervals and `t = 0` is the known initial
+condition — is an **alternative interpretation that was not adopted**. It remains
+defensible on the evidence (a high-resolution measurement of the Fig. 3 data markers
+gives 30 markers at dt ≈ 1.003 s, the first about one full spacing after `t = 0`); it
+was not adopted because it is itself a reconstruction rather than a paper-explicit
+indexing convention, and because switching would change the dataset underlying the
+existing biodiesel results. Any future switch must regenerate the dataset and re-run
+every biodiesel result.
+
+The canonical `biodiesel.npz` is reproduced **bitwise** by
+`generate_biodiesel.py --seed 0` at its committed defaults (verified 2026-09-04: every
+array identical; only the `git_commit` provenance stamp differs).
 
 ## 5. Deliberate structural choices
 
