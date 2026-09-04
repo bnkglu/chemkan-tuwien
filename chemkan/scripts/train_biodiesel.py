@@ -20,6 +20,7 @@ import logging
 
 import torch
 from _data import input_scaling_meta, load_biodiesel, resolve_device
+from _run import RunManager, check_resume_config
 
 from chemkan.dynamics import KineticDynamics
 from chemkan.losses import trajectory_mse
@@ -51,7 +52,20 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--rtol", type=float, default=1e-6)
     p.add_argument("--atol", type=float, default=1e-8)
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
-    p.add_argument("--out", default="biodiesel_kinetic.pt")
+    p.add_argument("--out", default="biodiesel_kinetic.pt",
+                   help="legacy flat checkpoint path (used only when --run-dir is not given)")
+    # run-directory layout (organized reproduction runs)
+    p.add_argument("--run-dir", default=None,
+                   help="one directory per run; writes checkpoint_final.pt, config.json, "
+                        "run.log, history.csv, checkpoint_resume.pt. Overrides --out.")
+    p.add_argument("--experiment-name", default="main",
+                   help="recorded in config.json (e.g. main, noise_15, scaling_...).")
+    p.add_argument("--checkpoint-every", type=int, default=500,
+                   help="overwrite checkpoint_resume.pt every N epochs (run-dir mode).")
+    p.add_argument("--resume", action="store_true",
+                   help="resume from RUN_DIR/checkpoint_resume.pt if present.")
+    p.add_argument("--overwrite", action="store_true",
+                   help="allow replacing an existing completed run (checkpoint_final.pt).")
     return p
 
 
@@ -88,10 +102,68 @@ def main():
     target = loss_norm.normalize(data["species_TBm"].to(device))    # (T, B, m) normalized
 
     def loss_fn(pred):                                       # pred: (T, B, m) physical
-        return trajectory_mse(loss_norm.normalize(pred), target)
+        mse = trajectory_mse(loss_norm.normalize(pred), target)
+        return mse, {"mse_loss": mse.detach()}              # total + component (biodiesel = MSE only)
 
-    final = train_kinetic_stage(dynamics, Y0, t, loss_fn, epochs=args.epochs,
-                                lr=args.lr, solver=solver)
+    # --- run-directory plumbing (organization only; math unchanged) ----------------
+    run = RunManager(args.run_dir, "biodiesel", resume=args.resume, overwrite=args.overwrite)
+    run.start()
+
+    start_epoch, optimizer_state = 0, None
+    resume_state = run.load_resume() if args.resume else None
+    if resume_state is not None:
+        core.load_state_dict(resume_state["model_state"])
+        start_epoch = int(resume_state["epoch"])
+        optimizer_state = resume_state.get("optimizer_state")
+        if resume_state.get("rng_state") is not None:
+            torch.set_rng_state(resume_state["rng_state"])
+
+    n_params = sum(p.numel() for p in core.parameters())
+    config = {
+        "model": "ChemKAN-KineticCore", "chemical_system": "biodiesel",
+        "experiment_name": args.experiment_name, "seed": args.seed,
+        "sensitivity_backend": solver.sensitivity, "device": str(device),
+        "architecture": {"hidden_dim": args.hidden_dim, "num_basis": args.num_basis,
+                         "n_mu": args.n_mu, "use_base_act": args.use_base_act},
+        "parameter_count": n_params, "optimizer": "Adam", "learning_rate": args.lr,
+        "epochs": args.epochs,
+        "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol},
+        "loss": "normalized trajectory MSE (Eq. 18)", "pinn": {"enabled": False},
+        "normalization": {"input_scaling": args.input_scaling, "stats": "train-only min-max"},
+        "dataset": "biodiesel.npz (train split)", "noise": None,
+    }
+    if resume_state is not None:
+        # A resumed run may not silently change its science. Epoch total may GROW but
+        # never fall below the already-completed epoch; original provenance is preserved.
+        check_resume_config(resume_state.get("config", {}), config)
+        if args.epochs < start_epoch:
+            raise SystemExit(f"--resume: requested epochs {args.epochs} < already-completed "
+                             f"{start_epoch}; the epoch total may grow on resume, never shrink.")
+        config = resume_state.get("config", config)     # keep the original run's config.json
+        logging.info("resuming biodiesel from epoch %d (original config preserved)", start_epoch)
+    else:
+        run.write_config(config)
+
+    history = run.history("history.csv",
+                          ["epoch", "total_loss", "mse_loss", "elapsed_seconds"],
+                          resume_from=start_epoch)
+
+    def save_resume(next_epoch, opt_state):
+        run.save_resume({"stage": "main", "epoch": next_epoch,
+                         "model_state": core.state_dict(), "optimizer_state": opt_state,
+                         "config": config, "rng_state": torch.get_rng_state()})
+
+    try:
+        final = train_kinetic_stage(dynamics, Y0, t, loss_fn, epochs=args.epochs,
+                                    lr=args.lr, solver=solver, start_epoch=start_epoch,
+                                    optimizer_state=optimizer_state, on_epoch=history.on_epoch,
+                                    checkpoint_every=args.checkpoint_every, save_resume=save_resume)
+    except KeyboardInterrupt:
+        history.close()
+        logging.warning("interrupted; resume checkpoint preserved for --resume")
+        run.finish(ok=False)                            # closes log handler; keeps checkpoint_resume.pt
+        raise SystemExit(130)
+    history.close()
     logging.info("final training loss: %.6e", final)
 
     checkpoint = {
@@ -108,8 +180,13 @@ def main():
         "state_representation": "physical",
         "input_scaling": input_scaling_meta(args.input_scaling, full_norm),
     }
-    torch.save(checkpoint, args.out)
-    logging.info("saved kinetic core (+ metadata) -> %s", args.out)
+    if run.enabled:
+        checkpoint["run_id"] = run.run_id
+        run.save_final(checkpoint)                          # writes final, deletes resume
+        run.finish(ok=True)
+    else:
+        torch.save(checkpoint, args.out)                    # legacy flat-file behavior
+        logging.info("saved kinetic core (+ metadata) -> %s", args.out)
 
 
 if __name__ == "__main__":

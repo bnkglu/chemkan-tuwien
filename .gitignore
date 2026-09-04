@@ -50,3 +50,30 @@ lightning_logs/
 # Environment variables
 .env
 .env.local
+
+# ------------------------------------------------------------------------------
+# Scientific-reproduction artifacts: the blanket rules above ignore *.pt / *.npz /
+# *.log, but selected FINAL artifacts must be tracked. Negations below re-include
+# only those. Transient artifacts (checkpoint_resume.pt, diagnostic dense caches,
+# smoke runs) stay ignored. Keep large binaries (>10 MB) out -- regenerate instead.
+
+# Canonical reproduction datasets + the production dense H2 temperature cache
+!chemkan/data/generated/biodiesel.npz
+!chemkan/data/generated/hydrogen.npz
+!chemkan/data/generated/hydrogen_temperature_20000.npz
+
+# Final trained checkpoints supporting reported results (resume checkpoints stay ignored)
+!**/checkpoint_final.pt
+
+# Hydrogen Stage-1 checkpoints (~6 KB): the shared branch point every Stage-2 thermo-init
+# diagnostic starts from, and required by tests/test_thermo_diagnostics.py.
+!**/checkpoint_stage1.pt
+
+# Final prediction artifacts (<10 MB) live under a predictions/ directory
+!**/predictions/*.npz
+
+# Run logs for reproduction runs
+!**/run.log
+
+# Session scratch (review lists, not part of the science)
+.scratch/
