@@ -47,7 +47,42 @@ python generate_biodiesel.py --out ../../data/generated/biodiesel.npz --seed 0
 - Output: `chemkan/data/generated/biodiesel.npz` (20 train + 10 test trajectories,
   30 points over 30 s, noise levels `0/1/2/5/7/10/15 %`, isothermal `species_only`).
 - Regeneration is **optional** — the repository already ships `biodiesel.npz`; regenerate
-  only for full reproducibility.
+  only for full reproducibility. The 30-point grid and the existing split are a settled
+  decision (`chemkan/src/chemkan/ASSUMPTIONS.md` §4b); do not change them.
+
+### Step 2a — Add the missing 3 % noise level (Fig. 5 needs eight)
+
+Fig. 5A uses `0/1/2/3/5/7/10/15 %`; the shipped archive carries seven of those (no 3 %).
+The generator seeds every level from an independent stream
+(`seed + 1000 + round(level*1000)` for train, `+ 2000` for test), so a level can be added
+without disturbing any other. This appends it **in place** from the archive's own clean
+trajectories — it does not re-run the ODE solver and does not touch the split:
+
+```bash
+cd chemkan/scripts/data_gen
+python add_biodiesel_noise_level.py --level 0.03            # dry run: reports only
+python add_biodiesel_noise_level.py --level 0.03 --apply    # writes + verifies
+```
+
+`--apply` keeps a `.npz.bak`, then re-reads the file it wrote and **fails, restoring the
+backup, unless every pre-existing array is bitwise identical**.
+
+### Step 2b — Generate the Figure-3 evaluation condition
+
+Fig. 3 plots one explicitly published unseen condition (`TG0 = 1.94`, `ROH0 = 1.43`,
+`T = 334.8 K`) that is not in the 10-case test split. It is a separate artifact; the
+canonical split is not modified.
+
+```bash
+cd chemkan/scripts/data_gen
+python generate_biodiesel_fig3_condition.py --dry-run       # reports only
+python generate_biodiesel_fig3_condition.py                 # writes the artifact
+```
+
+- Output: `chemkan/data/generated/biodiesel_fig3_condition.npz` — the 30-point clean
+  trajectory, a 601-point dense trajectory for the plotted continuous prediction, and
+  deterministic noisy observations at `0/5/10/15 %` from the separate
+  `seed + 3000 + round(level*1000)` stream.
 
 ## Step 3 — Generate canonical hydrogen data (optional if present)
 
@@ -61,6 +96,15 @@ python generate_hydrogen.py --out ../../data/generated/hydrogen.npz
   `species_then_temperature` layout (`[Y_1..Y_9, T]`).
 - This is the source of Stage-1 species targets and the train-only normalization. It is
   **distinct** from the dense temperature cache in Step 4.
+
+The 441-condition generalization grid for Fig. 8A is a **separate, evaluation-only**
+archive, `hydrogen_fine.npz` — `T0 = linspace(950, 1200, 21)` x `phi = linspace(0.5, 1.5, 21)`,
+holding the 35 original training conditions, the original held-out condition and 405
+further unseen ones. It is present in the working tree but **not tracked**; regenerate it
+with `generate_hydrogen.py --out ../../data/generated/hydrogen_fine.npz --grid fine`
+if it is missing. The 21x21 spacing is
+RECONSTRUCTED from the paper's 441-condition count and figure, not tabulated there. It is
+never used to fit a normalizer.
 
 ## Step 4 — Generate the 20k H2 Stage-1 temperature cache
 
@@ -100,6 +144,60 @@ python train_biodiesel.py \
 - **Overwrite:** a completed run is protected; `--overwrite` starts a **genuinely fresh**
   run, first clearing all prior artifacts (old histories, stale resume checkpoint,
   predictions, metrics, config, log) so nothing from the old run leaks into the new one.
+
+### Step 5a — Noisy biodiesel runs and the Fig.-5B clean replay
+
+`--noise-percent` trains against the archive's stored deterministic observations at that
+level; `--eval-every 1` adds two evaluation-only history columns, `test_mse_noisy` and
+`test_mse_clean` (paper Eq. 22). Both default OFF, so an unflagged run reproduces the
+existing clean runs bitwise, with the same four history columns.
+
+```bash
+cd chemkan/scripts
+python train_biodiesel.py --noise-percent 15 --epochs 10000 --eval-every 1 --seed 0 \
+    --run-dir ../../results/reproduction/chemkan/biodiesel/noise/noise15_seed0
+```
+
+The evaluation runs inside the loss function, i.e. at the parameter state **before** that
+epoch's optimizer update — the same state that produced the epoch's training loss — under
+`no_grad`, with the RNG state saved and restored, using the train-only normalizer and the
+full test set. It takes no optimizer step and writes no parameter; training losses are
+bitwise identical with and without it. Epochs that are not evaluated leave those two
+columns empty rather than carrying an interpolated value.
+
+**The Fig.-5B clean replay** is a separately labelled 0 % run whose only purpose is to
+supply the 0 % panel's missing history — `B0` remains the established 0 % result for
+Figs. 3 and 5A and is not replaced:
+
+```bash
+python train_biodiesel.py --epochs 10000 --eval-every 1 --seed 0 \
+    --run-dir ../../results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0
+```
+
+### Step 5b — DeepONet baseline (Figs. 4, 5, 6)
+
+```bash
+cd deeponet
+python train_biodiesel_deeponet.py --noise-percent 15 --epochs 10000 --eval-every 1 \
+    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/noise/noise15_seed0
+python train_biodiesel_deeponet.py --width 6 --epochs 50000 \
+    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/scaling/w6_seed0
+```
+
+- Same dataset, same train-only normalizer, same Eq. 18 reduction as the ChemKAN runs, and
+  the same run-directory layout.
+- Architecture: branch `[7, w, w, w]`, trunk `[1, w-1, w]`, Hadamard combine, head
+  `Linear(w, 6)`. At `w = 8` this is the paper-described architecture and totals **340**
+  parameters against the **308** reported — a documented, unexplained discrepancy. No
+  architecture is chosen to match 308.
+- ReLU between layers, Glorot-normal weights, zero biases, Adam `lr = 1e-3`: these are the
+  bundled reference example's conventions (`deeponet/src/deeponet_dataset.py`), **not**
+  ChemKAN-paper facts, and are held fixed across widths and noise levels.
+- Input/output scaling is a REPRODUCTION CHOICE recorded in `biodiesel_deeponet.py`: the
+  branch consumes min-max normalized `[Y0, T]`, the trunk `tau = t / t_end`, and the model
+  emits normalized species. Fed raw, the initial Eq. 18 loss is ~5e7 purely from
+  conditioning. The statistics are stored in the checkpoint and reconstructed at
+  evaluation, never refitted.
 
 ## Step 6 — Train main hydrogen ChemKAN (dense-Cantera, direct autograd, seed 0)
 
@@ -152,6 +250,86 @@ python evaluate_hydrogen.py --run-dir ../../results/reproduction/chemkan/hydroge
 - Compatibility is enforced on load: `run_id` + `architecture` + `checkpoint_sha256` must
   all match the checkpoint, or the artifact is rejected and regenerated.
 
+### Step 7a — The Figure-5A metric triple
+
+`--noise-percent` scores ONE set of predicted trajectories against TWO targets: the noisy
+observations (Eq. 18) and the clean underlying trajectories (Eq. 22). Only the reference
+changes. All three Fig.-5A numbers come from the **final checkpoint**, never from the last
+training-history row.
+
+```bash
+cd chemkan/scripts
+python evaluate_biodiesel.py --run-dir <run> --split train --noise-percent 15 --metrics
+python evaluate_biodiesel.py --run-dir <run> --split test  --noise-percent 15 --metrics \
+    --save-predictions
+
+cd ../../deeponet
+python evaluate_biodiesel_deeponet.py --run-dir <run> --split train --noise-percent 15 --metrics
+python evaluate_biodiesel_deeponet.py --run-dir <run> --split test  --noise-percent 15 --metrics
+```
+
+Written to `metrics.json` as `train_mse_noisy`, `test_mse_noisy` and `test_mse_clean`
+(plus `noise_percent`). At 0 % the two test metrics coincide exactly. Omitting
+`--noise-percent` keeps the previous single `<split>_mse` key, so existing runs are
+unaffected — verified against `B0`: `train 6.201653e-02`, `test 8.140053e-02`.
+
+### Step 7b — Hydrogen figure evaluations from saved checkpoints
+
+No hydrogen training is needed for Figs. 7, 8A, 8B or Table I. All three read a completed
+`checkpoint_final.pt` and write nothing back into the run directory.
+
+```bash
+cd chemkan/scripts
+
+# Fig. 8A -- 441 per-condition MSEs, plus flags and failures, never pre-averaged
+python evaluate_hydrogen_grid.py --run-dir <run> \
+    --out ../../results/reproduction/chemkan/hydrogen/generalization --save-predictions
+
+# Fig. 8B -- ignition delay on a shared dense grid for reference AND model
+python evaluate_hydrogen_ignition.py --run-dir <run> \
+    --out ../../results/reproduction/tables
+
+# Table I -- local PyTorch-vs-Cantera inference benchmark
+cd benchmark
+python benchmark_inference.py --run-dir <run> --out ../../../results/reproduction/tables
+```
+
+- **Grid evaluation** normalizes with the canonical `hydrogen.npz` TRAIN statistics — never
+  the fine archive's own, and never refitted on the 441 conditions. All conditions are
+  integrated in one batch (matching how a split is evaluated); if that batch raises or
+  produces a non-finite value the affected conditions are retried individually and the
+  summary records it. Failures are stored as failures with their condition identifiers.
+- **Ignition evaluation** puts reference and model on the *same* dense grid (601 points
+  over 0-0.6 ms) and through the *same* estimator, `t[argmax(gradient(T, t))]`; the
+  reference temperature is the 20k Cantera cache interpolated onto that grid. Comparing a
+  50-point reference derivative with a dense model derivative is exactly what this avoids.
+  The evaluated set is fixed by which REFERENCE trajectories ignite (30 of 36 — the six
+  950 K cases do not ignite in the window), never by whether the model succeeds; a
+  non-igniting prediction is recorded as `no_ignition_in_window` with its delay undefined.
+- **The inference benchmark** is a *local* PyTorch-vs-Cantera measurement and is not
+  comparable to the paper's Arrhenius.jl 2.0x. It records hardware, dtype, thread count,
+  solver/tolerances, warm-up, repetitions and timing scope, and reports ignition outcome
+  and peak-temperature error **beside** the timing so a fast but wrong model cannot be
+  read as a speed-up.
+- `check_ignition.py` remains a two-condition **gate**, not a figure evaluation. Do not use
+  it to decide whether the per-condition evaluations above may run: those record outcomes
+  condition by condition, including failures.
+
+## Step 7c — Figure assembly and the comparison table
+
+```bash
+cd chemkan/scripts/diagnostics
+# Fig. 4 marker positions, read from the paper PDF (600 dpi vector render)
+python digitize_paper_fig4.py --pdf ../../../docs/paper/ChemKANs_*.pdf \
+    --out-dir /tmp/fig4 --json ../../../results/reproduction/tables/paper_fig4_digitized.json
+# Fig. 4 points + explicit fit masks from our own scaling runs
+python assemble_fig4_scaling.py
+```
+
+Both write to `results/reproduction/tables/`. The digitization is validated by refitting
+the four slopes the paper prints in its own figure — that validates **the extraction**, not
+any model trained here.
+
 ## Step 8 — Reproduction notebooks
 
 After training/evaluation, the reproduction notebooks (analysis layer, not training):
@@ -166,8 +344,27 @@ Each notebook: locates the run, loads `checkpoint_final.pt`, calls the repositor
 the checkpoint (never using another checkpoint's predictions), computes the paper metrics,
 displays results in paper order, and saves final figures to
 `results/reproduction/figures/{biodiesel,hydrogen}/` and tables to
-`results/reproduction/tables/`. These experiments are implemented incrementally; the
-organization task only wires the workflow.
+`results/reproduction/tables/`.
+
+**Status: Figures 3-8 and Table I are all evaluated.** Notebook 07 produces Figs. 3, 4, 5A,
+5B and 6; Notebook 08 produces Figs. 7, 8A, 8B and Table I from the saved hydrogen
+checkpoints with no retraining. *Evaluation completed is not the same as paper result
+matched* — the per-result verdict lives in
+`results/reproduction/tables/reproduction_comparison.csv`.
+
+### Regenerating the two untracked evaluation inputs
+
+Both are exactly reproducible from committed generators at fixed seeds and are therefore
+**not tracked** (the repository keeps large or derivable `.npz` out; see `.gitignore`):
+
+```bash
+cd chemkan/scripts/data_gen
+python generate_biodiesel_fig3_condition.py                 # Fig. 3's plotted condition
+python generate_hydrogen.py --out ../../data/generated/hydrogen_fine.npz --grid fine  # Fig. 8A
+```
+
+Notebook 07's Figure 3 and Notebook 08's Figure 8A will not run on a fresh clone until
+these exist.
 
 ---
 

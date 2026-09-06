@@ -22,6 +22,17 @@ artifacts follow the layout in [`results/reproduction/README.md`](results/reprod
 Nothing below is claimed as a completed paper reproduction unless it says so. No single
 cause is asserted where the artifacts do not establish one.
 
+**"Evaluation completed" is not "paper result matched."** Figures 3-8 and Table I have all
+now been *evaluated* end to end from committed artifacts. Most of the paper's reported
+*numbers* are still **not** reproduced. The row-by-row verdict, with an artifact path for
+every claim, is
+[`results/reproduction/tables/reproduction_comparison.csv`](results/reproduction/tables/reproduction_comparison.csv):
+across its 20 compared results: **1 matched** (Table I's network / parameter / species
+counts), **1 partially matched**, 1 partially matched for the labelled hydrogen
+initialization comparison only, 2 qualitatively similar but not quantitatively matched,
+1 consistent but weakly discriminating, and **14 evaluated and not matched**. Forward
+Sensitivity Analysis (FSA) remains unimplemented and is a separate later task.
+
 ### Hydrogen — reproduction NOT complete
 
 Full evidence: [`chemkan/notebooks/09_hydrogen_thermo_failure_analysis.ipynb`](chemkan/notebooks/09_hydrogen_thermo_failure_analysis.ipynb)
@@ -50,6 +61,20 @@ default changed. The findings below are **N=5/base-OFF** except where stated.
   reacts ~6×10⁴ too strongly — Stage 2 roughly doubles this but does not create it.
 - **The N=4 / base-ON interpretation does not remove the failure.** Matched at 344
   parameters, default-random test MSE is 3.16 (N=5/base-OFF) vs 3.15 (N=4/base-ON).
+- **Figs. 7, 8A, 8B and Table I are now evaluated from the saved checkpoints** (no hydrogen
+  retraining). The primary run `H0` (N=4/base-ON, random thermo init) ignites in **0 of the
+  30** reference-igniting conditions; all 441 generalization conditions were evaluated with
+  0 integration failures, median trajectory MSE 2.66. `H0` is retained as the primary
+  result including its failure.
+- **One separately labelled initialization (`Hnorm1`) does recover ignition** — 30/30
+  reference-igniting conditions, median relative delay error 28.9 %, 441-grid median MSE
+  0.254 — while also igniting in 2 conditions where the reference does not. This is **one
+  initialization, not a seed study**, and it does not replace `H0` or establish a cause.
+- **Table I counts match; the speed-up does not.** 1 network, 344 measured parameters,
+  9 species + T, as reported. A local PyTorch-vs-Cantera benchmark measures **0.16x** (`H0`)
+  and **0.50x** (`Hnorm1`) — i.e. slower than Cantera, not the paper's 2.0x against
+  Arrhenius.jl. Different reference implementation, hardware and timing scope, so the two
+  are reported side by side and not merged.
 - **FSA remains a major paper-explicit missing method.** Forward Sensitivity Analysis is
   not implemented; all runs use direct autograd. No result here speaks to whether FSA
   would change the outcome.
@@ -63,13 +88,33 @@ unstated, so several explanations remain simultaneously open.
 Full evidence: [`chemkan/notebooks/07_biodiesel_reproduction.ipynb`](chemkan/notebooks/07_biodiesel_reproduction.ipynb).
 
 - The **main ChemKAN implementation exists** and trains: the paper's exact 156-parameter
-  architecture reconstructs the trajectories from sparse data (Fig. 3 clean column).
-- **Noise / scaling reproduction remains incomplete.** Figs. 4, 5 and 6 need a ChemKAN
-  scaling sweep, a DeepONet scaling sweep, and 7+7 noise runs; none have been launched.
-- **The DeepONet biodiesel implementation and runs remain a major missing component.**
-  `deeponet/` is a vendored copy of the upstream reference repository plus a
-  parameter-count audit; a dimension/count/forward/loss/short-training smoke test now
-  exists at `deeponet/biodiesel_deeponet_smoke.py`, but no scaling or noise runs exist.
+  architecture reconstructs the trajectories from sparse data.
+- **Figs. 3, 4, 5A, 5B and 6 are evaluated.** 26 runs in total: 8 ChemKAN noise levels
+  (`B0` reused at 0 %), 8 DeepONet noise levels, 4 new ChemKAN scaling widths, 6 DeepONet
+  scaling widths, and one clean replay. All completed runs are preserved; nothing was
+  overwritten or retrained.
+- **The clean replay reproduces `B0` bitwise** — identical weights and identical training
+  loss at all 10,000 epochs — adding only the per-epoch clean-test columns `B0` lacks. It
+  supplies Fig. 5B's 0 % panel; `B0` remains the established 0 % result for Figs. 3 and 5A.
+- **The DeepONet baseline is implemented and run** (`deeponet/biodiesel_deeponet.py` plus a
+  trainer and evaluator). At the paper-described widths it measures **340** parameters
+  against the **308** reported — documented, not engineered away. Its input/output scaling
+  is a labelled reproduction choice.
+- **The reported noise and scaling trends are not reproduced.** ChemKAN's clean-test error
+  does not grow with noise (0.77x from 0 to 15 %, versus a reported ~2x), and the Fig. 4
+  regressions give -0.41 / -0.38 (ChemKAN) and -0.95 / -0.62 (DeepONet) against reported
+  -1.0 / -0.6 and -4.0 / -1.4. These are **descriptive all-point fits with R² <= 0.46**,
+  over a different fitting scope than the paper's pre-saturation subset.
+- **Two measurement limits are documented rather than worked around.** ChemKAN's
+  late-training loss oscillates by 0.10-0.19 over the last 20 % of epochs (DeepONet:
+  0.0003-0.0004), which exceeds the increments the paper reports for 0->1 % and 0->5 %
+  noise and makes our fixed-checkpoint increments come out negative; **the cause of that
+  oscillation is not established.** And no run meets our overfitting criterion, whose
+  thresholds and smoothing window are our own diagnostic choices, not the paper's.
+- Figure 4's widths were fixed by **digitizing the paper's own figure** to 0.11 % in
+  parameter count (`docs/fig4_width_matrix.md`). Four of its five ChemKAN markers land
+  exactly on `39h`; the fifth, at ~650 parameters, matches no feasible width and is
+  preserved as an unexplained discrepancy.
 - The absolute MSE gap to the paper's reported magnitude is **unexplained**, and its size
   depends on a time reduction the paper does not state: our literal Eq. 18 values are
   train 0.062 / test 0.081, the conventional time-averaged equivalents 2.07×10⁻³ /
