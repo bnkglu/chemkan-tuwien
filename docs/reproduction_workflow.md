@@ -330,6 +330,21 @@ Both write to `results/reproduction/tables/`. The digitization is validated by r
 the four slopes the paper prints in its own figure — that validates **the extraction**, not
 any model trained here.
 
+## Shortcut — per-figure scripts
+
+Every step below is wrapped, one script per paper result, in
+[`scripts/reproduction/`](../scripts/reproduction/README.md):
+
+```bash
+export CHEMKAN_PYTHON=~/uni_projects/chemkan-venv/bin/python
+./scripts/reproduction/biodiesel/fig05a_noise_robustness.sh   # one figure, end to end
+./scripts/reproduction/all.sh --dry-run                       # plan only
+```
+
+They are idempotent (a completed run is skipped, never overwritten), they never train
+hydrogen, and each prints the comparison-table verdict for its figure. The manual steps
+below remain the reference for what those scripts do.
+
 ## Step 8 — Reproduction notebooks
 
 After training/evaluation, the reproduction notebooks (analysis layer, not training):
