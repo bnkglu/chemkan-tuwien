@@ -69,6 +69,13 @@ lightning_logs/
 # diagnostic starts from, and required by tests/test_thermo_diagnostics.py.
 !**/checkpoint_stage1.pt
 
+# Mid-training epoch snapshots (8-12 KB each) that ARE themselves reported results:
+# checkpoint_epoch_5000.pt is Fig. 4's h=4 scaling point, and the Stage-2 500-epoch
+# snapshots are the short-budget arm of notebook 09's initialization comparison.
+# Ordinary transient checkpoints (checkpoint_resume.pt) stay ignored.
+!**/checkpoint_epoch_*.pt
+!**/checkpoint_stage2_epoch_*.pt
+
 # Final prediction artifacts (<10 MB) live under a predictions/ directory
 !**/predictions/*.npz
 

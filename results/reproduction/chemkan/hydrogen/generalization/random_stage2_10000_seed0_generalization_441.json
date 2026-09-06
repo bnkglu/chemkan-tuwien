@@ -1,0 +1,32 @@
+{
+  "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
+  "checkpoint": "../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0/checkpoint_final.pt",
+  "checkpoint_sha256": "4fd9f090785ffda61368fb225ed95765ecd965300df10a63e84d93e89dbd5bdb",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 4,
+    "n_mu": 3,
+    "use_base_act": true
+  },
+  "grid": "hydrogen_fine",
+  "grid_provenance": "RECONSTRUCTED 21x21: T0=linspace(950,1200,21), phi=linspace(0.5,1.5,21); count and spacing inferred from the paper's 441-condition figure, not tabulated there",
+  "conditions": 441,
+  "training": 35,
+  "held_out": 1,
+  "additional": 405,
+  "evaluated_ok": 441,
+  "failed": 0,
+  "integration_batching": "single batch of 441",
+  "mse_min": 0.03197167441248894,
+  "mse_median": 2.6576223373413086,
+  "mse_max": 3.222625255584717,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (full [Y, T] state), summed over observation times, using the canonical train-only min-max normalization; reported PER CONDITION (never averaged before plotting).",
+  "normalization": "canonical hydrogen.npz train-only min-max (not refit on the grid)",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "wall_time_s": 4.696,
+  "evaluated_at": "2026-09-05T17:06:09Z"
+}

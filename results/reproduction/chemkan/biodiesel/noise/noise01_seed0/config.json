@@ -1,0 +1,50 @@
+{
+  "model": "ChemKAN-KineticCore",
+  "chemical_system": "biodiesel",
+  "experiment_name": "main",
+  "seed": 0,
+  "sensitivity_backend": "direct_autograd",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 4,
+    "num_basis": 3,
+    "n_mu": 2,
+    "use_base_act": false
+  },
+  "parameter_count": 156,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": 10000,
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18)",
+  "pinn": {
+    "enabled": false
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "dataset": "biodiesel.npz (train split)",
+  "noise": {
+    "percent": 1,
+    "source": "biodiesel.npz train_states_noise01"
+  },
+  "in_training_evaluation": {
+    "eval_every": 1,
+    "columns": [
+      "test_mse_noisy",
+      "test_mse_clean"
+    ],
+    "split": "test",
+    "conditions": 10,
+    "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+    "normalizer": "train-only min-max (never refit on test data)"
+  },
+  "run_id": "chemkan/biodiesel/noise/noise01_seed0",
+  "git_commit": "aa5584d7e1f2971612010bb9a4645b8566abbdc0",
+  "created": "2026-09-05T16:51:20Z"
+}

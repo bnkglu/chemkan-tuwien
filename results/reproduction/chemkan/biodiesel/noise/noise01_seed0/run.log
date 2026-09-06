@@ -1,0 +1,6 @@
+2026-09-05 19:51:20,580 INFO run start 2026-09-05T16:51:20Z | run_id=chemkan/biodiesel/noise/noise01_seed0 | system=biodiesel | dir=/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/noise/noise01_seed0
+2026-09-05 19:51:20,675 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/noise/noise01_seed0/config.json
+2026-09-05 20:03:11,659 INFO final training loss: 3.158599e-02
+2026-09-05 20:03:11,661 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/noise/noise01_seed0/checkpoint_final.pt
+2026-09-05 20:03:11,661 INFO removed /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/noise/noise01_seed0/checkpoint_resume.pt (run completed)
+2026-09-05 20:03:11,661 INFO run completed 2026-09-05T17:03:11Z

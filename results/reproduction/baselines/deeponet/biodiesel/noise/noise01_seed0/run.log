@@ -1,0 +1,17 @@
+2026-09-05 21:35:23,486 INFO run start 2026-09-05T18:35:23Z | run_id=baselines/deeponet/biodiesel/noise/noise01_seed0 | system=biodiesel-deeponet | dir=/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/noise/noise01_seed0
+2026-09-05 21:35:23,520 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/noise/noise01_seed0/config.json
+2026-09-05 21:35:23,521 INFO DeepONet w=8: 340 parameters (paper reports 308); branch minmax, trunk tau=t/30.0s, normalized-species output
+2026-09-05 21:35:24,302 INFO epoch      0  loss 6.540351e+00
+2026-09-05 21:35:24,888 INFO epoch   1000  loss 1.887022e-01
+2026-09-05 21:35:25,536 INFO epoch   2000  loss 1.546974e-01
+2026-09-05 21:35:26,091 INFO epoch   3000  loss 1.419663e-01
+2026-09-05 21:35:26,621 INFO epoch   4000  loss 1.354808e-01
+2026-09-05 21:35:27,166 INFO epoch   5000  loss 1.340310e-01
+2026-09-05 21:35:27,723 INFO epoch   6000  loss 1.324341e-01
+2026-09-05 21:35:28,284 INFO epoch   7000  loss 1.314723e-01
+2026-09-05 21:35:28,818 INFO epoch   8000  loss 1.311915e-01
+2026-09-05 21:35:29,378 INFO epoch   9000  loss 1.310268e-01
+2026-09-05 21:35:29,911 INFO final training loss: 1.309079e-01
+2026-09-05 21:35:29,920 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/noise/noise01_seed0/checkpoint_final.pt
+2026-09-05 21:35:29,921 INFO removed /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/noise/noise01_seed0/checkpoint_resume.pt (run completed)
+2026-09-05 21:35:29,922 INFO run completed 2026-09-05T18:35:29Z
