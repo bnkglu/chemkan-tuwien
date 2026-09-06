@@ -88,19 +88,57 @@ def load_input_scaling(ckpt: dict, device) -> MinMaxNormalizer | None:
     raise ValueError(f"unknown input scaling method: {method!r}")
 
 
-def load_biodiesel(split: str = "train"):
+def noise_tag(noise_percent) -> str:
+    """Archive key suffix for a noise level given in PERCENT (5 -> 'noise05')."""
+    pct = int(round(float(noise_percent)))
+    if abs(float(noise_percent) - pct) > 1e-9:
+        raise ValueError(f"noise_percent must be a whole percent; got {noise_percent!r}")
+    if pct < 0:
+        raise ValueError(f"noise_percent must be >= 0; got {noise_percent!r}")
+    return f"noise{pct:02d}"
+
+
+def available_noise_percents() -> list[int]:
+    """Whole-percent noise levels actually stored in biodiesel.npz, ascending."""
+    d = _load("biodiesel")
+    return sorted(int(k[len("train_states_noise"):]) for k in d.files
+                  if k.startswith("train_states_noise"))
+
+
+def load_biodiesel(split: str = "train", noise_percent=None):
     """Isothermal biodiesel (species_only). Returns a dict of tensors.
 
     ``u_min`` / ``u_max`` are ALWAYS the train-only statistics stored in the archive
     (Eq. 18), regardless of split -- test states are normalized with TRAIN stats.
+
+    ``noise_percent`` selects a stored deterministic noise realization by WHOLE PERCENT
+    (0, 1, 2, 3, 5, 7, 10, 15 in the current archive; ``available_noise_percents()`` is
+    the authority). Nothing is generated here: the level
+    must already exist in the archive, otherwise the loader fails loudly listing what is
+    available. ``species_TBm`` always stays the CLEAN trajectory (paper Eq. 22's
+    noise-free reference); the selected observations are returned separately as
+    ``targets_TBm``, so a caller that ignores the new key keeps its previous behavior.
+    ``Y0`` comes from the clean states -- the generator leaves t=0 exact in every noise
+    array, and the initial condition is a model input, not an observation.
     """
     _check_split(split)
     d = _load("biodiesel")
-    states = _to_TBx(d[f"{split}_states"])              # (T, B, m)
+    states = _to_TBx(d[f"{split}_states"])              # (T, B, m) clean
+    targets = states
+    if noise_percent is not None:
+        key = f"{split}_states_{noise_tag(noise_percent)}"
+        if key not in d.files:
+            raise KeyError(
+                f"{key} not in biodiesel.npz; stored levels are "
+                f"{available_noise_percents()} percent. Add the missing level with "
+                f"scripts/data_gen/add_biodiesel_noise_level.py -- never fabricate it here.")
+        targets = _to_TBx(d[key])
     return {
         "t": torch.as_tensor(d["t"], dtype=torch.float32),          # (T,)
-        "Y0": states[0],                                            # (B, m)
-        "species_TBm": states,                                      # (T, B, m)
+        "Y0": states[0],                                            # (B, m) always clean
+        "species_TBm": states,                                      # (T, B, m) clean truth
+        "targets_TBm": targets,                                     # (T, B, m) observations
+        "noise_percent": None if noise_percent is None else int(round(float(noise_percent))),
         "T_const": torch.as_tensor(d[f"{split}_T"], dtype=torch.float32),  # (B,)
         "u_min": torch.as_tensor(d["u_min"], dtype=torch.float32),  # (m,) train-only
         "u_max": torch.as_tensor(d["u_max"], dtype=torch.float32),  # (m,) train-only

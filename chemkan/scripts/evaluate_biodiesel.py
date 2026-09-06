@@ -88,10 +88,24 @@ def integrate_biodiesel(core, input_normalizer, solver, Y0, T_const, t, device="
         return integrate(dyn, Y0.to(device), t.to(device), solver)
 
 
-def evaluate_biodiesel(ckpt_path="biodiesel_kinetic.pt", split="test", device="cpu") -> dict:
-    """Full-split evaluation. Returns predictions + metric + reusable model pieces."""
+def evaluate_biodiesel(ckpt_path="biodiesel_kinetic.pt", split="test", device="cpu",
+                       noise_percent=None) -> dict:
+    """Full-split evaluation. Returns predictions + metric + reusable model pieces.
+
+    ``noise_percent`` selects the stored deterministic noisy observations for this split.
+    ONE set of predicted trajectories is then scored against TWO targets, so the metrics
+    differ only in their reference:
+
+    * ``mse``       -- against the selected observations (noisy when a level is given).
+                       This is paper Eq. 18's training/testing loss.
+    * ``mse_clean`` -- against the clean underlying trajectories (paper Eq. 22). At 0%
+                       noise, and when no level is given, the two coincide exactly.
+
+    Predictions always start from the clean initial condition and never see intermediate
+    observations, and the normalizer is always the train-only one stored in the archive.
+    """
     dev = resolve_device(device)
-    data = load_biodiesel(split=split)                  # normalization stats stay train-only
+    data = load_biodiesel(split=split, noise_percent=noise_percent)  # stats stay train-only
     species_dim = data["species_TBm"].shape[-1]
     ckpt = torch.load(ckpt_path, map_location=dev, weights_only=False)
     _validate_species(ckpt, species_dim, data["species"])
@@ -103,12 +117,17 @@ def evaluate_biodiesel(ckpt_path="biodiesel_kinetic.pt", split="test", device="c
 
     pred = integrate_biodiesel(core, input_normalizer, solver,
                                data["Y0"], data["T_const"], data["t"], dev)   # (T,B,m)
-    mse = trajectory_mse(loss_norm.normalize(pred),
-                         loss_norm.normalize(data["species_TBm"].to(dev))).item()
+    pred_norm = loss_norm.normalize(pred)
+    mse = trajectory_mse(pred_norm, loss_norm.normalize(data["targets_TBm"].to(dev))).item()
+    mse_clean = trajectory_mse(pred_norm,
+                               loss_norm.normalize(data["species_TBm"].to(dev))).item()
     return {
-        "t": data["t"], "truth": data["species_TBm"], "pred": pred.cpu(),
+        "t": data["t"], "truth": data["species_TBm"],       # clean canonical ground truth
+        "observations": data["targets_TBm"], "pred": pred.cpu(),
         "species": data["species"], "T_const": data["T_const"], "split": split,
-        "mse": mse, "n_params": sum(p.numel() for p in core.parameters()),
+        "noise_percent": data["noise_percent"],
+        "mse": mse, "mse_clean": mse_clean,
+        "n_params": sum(p.numel() for p in core.parameters()),
         "ckpt": ckpt, "core": core, "input_normalizer": input_normalizer,
         "solver": solver, "loss_normalizer": loss_norm,
     }
@@ -125,7 +144,14 @@ def write_metrics(run_dir: Path, res: dict, split: str, ckpt_path: Path,
     path = Path(run_dir) / METRICS_JSON
     metrics = json.loads(path.read_text()) if path.exists() else {}
     metrics.setdefault("run_id", res["ckpt"].get("run_id"))
-    metrics[f"{split}_mse"] = res["mse"]
+    if res.get("noise_percent") is None:
+        metrics[f"{split}_mse"] = res["mse"]
+    else:
+        # Paper Fig. 5A's three final metrics, all from THIS checkpoint: the loss against
+        # the noisy observations for each split, plus the noise-free test loss (Eq. 22).
+        metrics["noise_percent"] = res["noise_percent"]
+        metrics[f"{split}_mse_noisy"] = res["mse"]
+        metrics[f"{split}_mse_clean"] = res["mse_clean"]
     metrics["n_params"] = res["n_params"]
     metrics["evaluation_wall_time_s"] = round(evaluation_wall_time_s, 4)
     metrics["evaluated_conditions"] = int(res["truth"].shape[1])
@@ -156,7 +182,9 @@ def save_prediction_artifact(run_dir: Path, res: dict, split: str, ckpt_path: Pa
         u_min=ln.u_min.detach().cpu().numpy(),
         u_max=ln.u_max.detach().cpu().numpy(),
         metric_convention=_METRIC_CONVENTION,
-        eval_config={"split": split, "solver": {"method": res["solver"].method,
+        eval_config={"split": split, "noise_percent": res.get("noise_percent"),
+                     "reference": "clean underlying trajectories (Eq. 22 target)",
+                     "solver": {"method": res["solver"].method,
                      "rtol": res["solver"].rtol, "atol": res["solver"].atol}},
     )
 
@@ -168,6 +196,9 @@ def main():
     p.add_argument("--run-dir", default=None,
                    help="evaluate RUN_DIR/checkpoint_final.pt and write metrics/predictions there.")
     p.add_argument("--split", default="test", choices=["train", "test"])
+    p.add_argument("--noise-percent", type=int, default=None,
+                   help="score against the stored noisy observations at this whole-percent "
+                        "level, and also report the noise-free (Eq. 22) loss.")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     p.add_argument("--metrics", action="store_true", help="write RUN_DIR/metrics.json")
     p.add_argument("--save-predictions", action="store_true",
@@ -178,9 +209,14 @@ def main():
 
     ckpt_path = Path(args.run_dir) / "checkpoint_final.pt" if args.run_dir else Path(args.ckpt)
     started = time.perf_counter()
-    res = evaluate_biodiesel(str(ckpt_path), args.split, args.device)
+    res = evaluate_biodiesel(str(ckpt_path), args.split, args.device, args.noise_percent)
     elapsed = time.perf_counter() - started
-    logging.info("biodiesel [%s] normalized trajectory MSE: %.6e", args.split, res["mse"])
+    if args.noise_percent is None:
+        logging.info("biodiesel [%s] normalized trajectory MSE: %.6e", args.split, res["mse"])
+    else:
+        logging.info("biodiesel [%s @ %d%% noise] observations MSE: %.6e | "
+                     "noise-free MSE (Eq. 22): %.6e",
+                     args.split, args.noise_percent, res["mse"], res["mse_clean"])
 
     if args.metrics:
         if not args.run_dir:
