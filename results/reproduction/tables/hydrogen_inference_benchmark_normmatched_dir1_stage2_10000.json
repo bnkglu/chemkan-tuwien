@@ -1,0 +1,91 @@
+{
+  "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000",
+  "checkpoint": "../../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000/checkpoint_final.pt",
+  "checkpoint_sha256": "82c02a6725b2d538db171e5e57e4400d3db71c196d201b14496be17c838ae5aa",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 4,
+    "n_mu": 3,
+    "use_base_act": true
+  },
+  "parameter_count": 344,
+  "benchmark": "local PyTorch-vs-Cantera inference benchmark; NOT the paper's Arrhenius.jl measurement and not comparable to it directly",
+  "task": {
+    "conditions": 36,
+    "output_points": 50,
+    "t_end_s": 0.0006,
+    "outputs": "[Y_1..Y_9, T] at every requested output time"
+  },
+  "timing_scope": "integration only, after warm-up; excludes data/checkpoint loading and model construction",
+  "warmup": 2,
+  "repetitions": 5,
+  "chemkan": {
+    "median_s": 0.4699187080259435,
+    "min_s": 0.4576574999955483,
+    "times_s": [
+      0.4663033750257455,
+      0.5027622919878922,
+      0.4707643330330029,
+      0.4576574999955483,
+      0.4699187080259435
+    ],
+    "batched": true,
+    "solver": {
+      "method": "tsit5",
+      "rtol": 1e-06,
+      "atol": 1e-08,
+      "sensitivity": "direct_autograd"
+    },
+    "dtype": "torch.float32",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "threads": 4
+  },
+  "cantera": {
+    "mechanism": "h2o2.yaml",
+    "pressure_pa": 101325.0,
+    "version": "3.0.0",
+    "runs": [
+      {
+        "rtol": 1e-09,
+        "atol": 1e-15,
+        "status": "ok",
+        "median_s": 0.23428483301540837,
+        "min_s": 0.23127945797750726,
+        "times_s": [
+          0.23127945797750726,
+          0.23319208301836625,
+          0.2368650000425987,
+          0.25105916598113254,
+          0.23428483301540837
+        ],
+        "speedup_vs_chemkan": 0.4985646006723228
+      },
+      {
+        "rtol": 1e-06,
+        "atol": 1e-08,
+        "status": "integration_failed: CanteraError",
+        "note": "*******************************************************************************"
+      }
+    ],
+    "batched": false,
+    "note": "36 separate reactor integrations, as the generator runs them"
+  },
+  "accuracy": {
+    "reference_igniting_conditions": 30,
+    "chemkan_igniting_within_reference_set": 30,
+    "chemkan_igniting_where_reference_does_not": 2,
+    "peak_temperature_abs_error_K": {
+      "median": 38.10206115745825,
+      "max": 189.28921769454257
+    },
+    "caveat": "timing is only meaningful beside this accuracy; a model that does not reproduce the dynamics is not a valid speed-up claim"
+  },
+  "hardware": {
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.11.3"
+  },
+  "measured_at": "2026-09-05T17:37:57Z"
+}
