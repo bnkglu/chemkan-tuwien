@@ -2,7 +2,7 @@
   "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
   "train_mse": 2.1393826007843018,
   "n_params": 344,
-  "evaluation_wall_time_s": 0.6024,
+  "evaluation_wall_time_s": 0.6451,
   "evaluated_conditions": 1,
   "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (full [Y, T] state), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
   "solver": {
@@ -18,7 +18,7 @@
     "interpolation": "linear",
     "cache_file": "hydrogen_temperature_20000.npz"
   },
-  "evaluated_at_train": "2026-09-05T17:05:51Z",
+  "evaluated_at_train": "2026-09-06T16:29:15Z",
   "test_mse": 3.1461219787597656,
-  "evaluated_at_test": "2026-09-05T17:05:53Z"
+  "evaluated_at_test": "2026-09-06T16:29:19Z"
 }

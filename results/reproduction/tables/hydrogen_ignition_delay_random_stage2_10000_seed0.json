@@ -1,6 +1,6 @@
 {
   "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
-  "checkpoint": "../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0/checkpoint_final.pt",
+  "checkpoint": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0/checkpoint_final.pt",
   "checkpoint_sha256": "4fd9f090785ffda61368fb225ed95765ecd965300df10a63e84d93e89dbd5bdb",
   "architecture": {
     "hidden_dim": 3,
@@ -25,5 +25,5 @@
     "rtol": 1e-06,
     "atol": 1e-08
   },
-  "evaluated_at": "2026-09-05T17:06:13Z"
+  "evaluated_at": "2026-09-06T16:29:43Z"
 }

@@ -1,6 +1,6 @@
 {
   "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000",
-  "checkpoint": "../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000/checkpoint_final.pt",
+  "checkpoint": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000/checkpoint_final.pt",
   "checkpoint_sha256": "82c02a6725b2d538db171e5e57e4400d3db71c196d201b14496be17c838ae5aa",
   "architecture": {
     "hidden_dim": 3,
@@ -27,6 +27,6 @@
     "rtol": 1e-06,
     "atol": 1e-08
   },
-  "wall_time_s": 1.148,
-  "evaluated_at": "2026-09-05T17:06:17Z"
+  "wall_time_s": 1.414,
+  "evaluated_at": "2026-09-06T16:29:38Z"
 }

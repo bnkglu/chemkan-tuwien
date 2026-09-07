@@ -51,6 +51,17 @@ from evaluate_hydrogen import build_chemkan, solver_from_ckpt       # noqa: E402
 from chemkan.dynamics import ChemKANDynamics                        # noqa: E402
 from chemkan.solver import integrate                                # noqa: E402
 
+
+def repo_relative(path) -> str:
+    """Path from the repository root, so provenance never bakes in a local absolute path.
+
+    Falls back to the string as given if no 'results' component is present.
+    """
+    parts = Path(path).resolve().parts
+    if "results" in parts:
+        return "/".join(parts[parts.index("results"):])
+    return str(path)
+
 FUEL = "H2"
 OXIDIZER = {"O2": 1.0, "N2": 3.76}
 
@@ -167,7 +178,7 @@ def main():
     false_ignitions = int((pred_ign & ~ref_ign).sum())
 
     result = {
-        "run_id": ckpt.get("run_id"), "checkpoint": str(ckpt_path),
+        "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
         "checkpoint_sha256": checkpoint_sha256(ckpt_path),
         "architecture": ckpt["architecture"], "parameter_count": n_params,
         "benchmark": "local PyTorch-vs-Cantera inference benchmark; NOT the paper's "

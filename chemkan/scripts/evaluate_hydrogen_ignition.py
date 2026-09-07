@@ -44,6 +44,17 @@ from _run import utc_now
 from chemkan.dynamics import ChemKANDynamics
 from chemkan.solver import integrate
 
+
+def repo_relative(path) -> str:
+    """Path from the repository root, so provenance never bakes in a local absolute path.
+
+    Falls back to the string as given if no 'results' component is present.
+    """
+    parts = Path(path).resolve().parts
+    if "results" in parts:
+        return "/".join(parts[parts.index("results"):])
+    return str(path)
+
 RISE_THRESHOLD_K = 100.0        # REPRODUCTION CHOICE, matching the data generator's rule
 
 
@@ -173,7 +184,7 @@ def main():
     logging.info("wrote %s", csv_path)
 
     summary = {
-        "run_id": ckpt.get("run_id"), "checkpoint": str(ckpt_path),
+        "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
         "checkpoint_sha256": checkpoint_sha256(ckpt_path),
         "architecture": ckpt["architecture"],
         "definition": "ignition delay = time of maximum dT/dt (paper Sec. III B)",

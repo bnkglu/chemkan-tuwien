@@ -1,6 +1,6 @@
 {
   "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
-  "checkpoint": "../../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0/checkpoint_final.pt",
+  "checkpoint": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0/checkpoint_final.pt",
   "checkpoint_sha256": "4fd9f090785ffda61368fb225ed95765ecd965300df10a63e84d93e89dbd5bdb",
   "architecture": {
     "hidden_dim": 3,
@@ -20,14 +20,14 @@
   "warmup": 2,
   "repetitions": 5,
   "chemkan": {
-    "median_s": 1.4814644170110114,
-    "min_s": 1.4685101669747382,
+    "median_s": 1.8709703750209883,
+    "min_s": 1.8212447499390692,
     "times_s": [
-      1.4685101669747382,
-      1.4814644170110114,
-      1.4773883750312962,
-      1.5091820829547942,
-      1.5273969999980181
+      1.953028834075667,
+      1.8252779580652714,
+      1.8709703750209883,
+      1.9212826660368592,
+      1.8212447499390692
     ],
     "batched": true,
     "solver": {
@@ -50,16 +50,16 @@
         "rtol": 1e-09,
         "atol": 1e-15,
         "status": "ok",
-        "median_s": 0.23565662500914186,
-        "min_s": 0.2273336669895798,
+        "median_s": 0.27070483297575265,
+        "min_s": 0.24731224996503443,
         "times_s": [
-          0.23565662500914186,
-          0.24888579198159277,
-          0.23006708303000778,
-          0.23979333299212158,
-          0.2273336669895798
+          0.2727370000211522,
+          0.24731224996503443,
+          0.31911862490233034,
+          0.27070483297575265,
+          0.2587515839841217
         ],
-        "speedup_vs_chemkan": 0.1590700541323837
+        "speedup_vs_chemkan": 0.14468686227739758
       },
       {
         "rtol": 1e-06,
@@ -87,5 +87,5 @@
     "processor": "arm",
     "python": "3.11.3"
   },
-  "measured_at": "2026-09-05T17:37:48Z"
+  "measured_at": "2026-09-06T16:30:06Z"
 }

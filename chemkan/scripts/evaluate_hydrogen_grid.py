@@ -54,6 +54,17 @@ _METRIC_CONVENTION = ("normalized trajectory MSE (Eq. 18): mean over modeled sta
                       "(never averaged before plotting).")
 
 
+
+def repo_relative(path) -> str:
+    """Path from the repository root, so provenance never bakes in a local absolute path.
+
+    Falls back to the string as given if no 'results' component is present.
+    """
+    parts = Path(path).resolve().parts
+    if "results" in parts:
+        return "/".join(parts[parts.index("results"):])
+    return str(path)
+
 def _match_rows(ics: np.ndarray, targets: np.ndarray, tol: float = 1e-6) -> np.ndarray:
     """Boolean mask of rows of ``ics`` that appear in ``targets`` (order-independent)."""
     mask = np.zeros(len(ics), dtype=bool)
@@ -174,7 +185,7 @@ def main():
 
     ok = np.array([r["trajectory_mse"] for r in rows if r["status"] == "ok"])
     summary = {
-        "run_id": ckpt.get("run_id"), "checkpoint": str(ckpt_path),
+        "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
         "checkpoint_sha256": checkpoint_sha256(ckpt_path),
         "architecture": ckpt["architecture"], "grid": args.grid,
         "grid_provenance": "RECONSTRUCTED 21x21: T0=linspace(950,1200,21), "
