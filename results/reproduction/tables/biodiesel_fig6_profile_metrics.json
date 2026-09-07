@@ -1,0 +1,18 @@
+{
+  "initial_state": [
+    1.940000057220459,
+    1.4299999475479126,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "temperature_K": 334.79998779296875,
+  "deeponet_version": "reference_final_trunk_relu",
+  "clean_mse": {
+    "ChemKAN": 0.025660357775279002,
+    "DeepONet": 0.026217640544995074
+  },
+  "condition": "Figure 3 dedicated unseen condition",
+  "observation_times": 30
+}

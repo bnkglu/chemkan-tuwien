@@ -1,0 +1,50 @@
+{
+  "ChemKAN_0pct": {
+    "min_epoch": 9986,
+    "test_rise": 1.25275249066689,
+    "train_fall_after_min": 0.0,
+    "overfitting": false
+  },
+  "DeepONet_0pct": {
+    "min_epoch": 9580,
+    "test_rise": 0.002986587687967206,
+    "train_fall_after_min": 0.00025464022114680236,
+    "overfitting": false
+  },
+  "ChemKAN_2pct": {
+    "min_epoch": 9960,
+    "test_rise": 0.05183072838770095,
+    "train_fall_after_min": 0.0,
+    "overfitting": false
+  },
+  "DeepONet_2pct": {
+    "min_epoch": 6660,
+    "test_rise": 0.1118266640080246,
+    "train_fall_after_min": 0.01223086029687169,
+    "overfitting": false
+  },
+  "ChemKAN_7pct": {
+    "min_epoch": 9118,
+    "test_rise": 0.03523460322170046,
+    "train_fall_after_min": 0.03553995389013657,
+    "overfitting": false
+  },
+  "DeepONet_7pct": {
+    "min_epoch": 4391,
+    "test_rise": 0.04194318969345974,
+    "train_fall_after_min": 0.020048059945439428,
+    "overfitting": false
+  },
+  "ChemKAN_15pct": {
+    "min_epoch": 9881,
+    "test_rise": 0.01637614333100324,
+    "train_fall_after_min": 0.00032499378605062664,
+    "overfitting": false
+  },
+  "DeepONet_15pct": {
+    "min_epoch": 3943,
+    "test_rise": 0.059786443138287924,
+    "train_fall_after_min": 0.019380918748012278,
+    "overfitting": false
+  }
+}

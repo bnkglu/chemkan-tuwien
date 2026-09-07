@@ -1,50 +1,82 @@
 {
   "ChemKAN_0pct": {
     "min_epoch": 9986,
-    "test_rise": 1.25275249066689,
+    "test_rise": 1.2527524906668899,
     "train_fall_after_min": 0.0,
-    "overfitting": false
-  },
-  "DeepONet_0pct": {
-    "min_epoch": 9580,
-    "test_rise": 0.002986587687967206,
-    "train_fall_after_min": 0.00025464022114680236,
-    "overfitting": false
+    "overfitting": false,
+    "train_late_span": 0.11876014433801174,
+    "test_late_span": 0.12729717791080475,
+    "source": "results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
   },
   "ChemKAN_2pct": {
     "min_epoch": 9960,
-    "test_rise": 0.05183072838770095,
+    "test_rise": 0.051830728387700864,
     "train_fall_after_min": 0.0,
-    "overfitting": false
-  },
-  "DeepONet_2pct": {
-    "min_epoch": 6660,
-    "test_rise": 0.1118266640080246,
-    "train_fall_after_min": 0.01223086029687169,
-    "overfitting": false
+    "overfitting": false,
+    "train_late_span": 0.10663852840662003,
+    "test_late_span": 0.12736472487449646,
+    "source": "results/reproduction/chemkan/biodiesel/noise/noise02_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
   },
   "ChemKAN_7pct": {
     "min_epoch": 9118,
-    "test_rise": 0.03523460322170046,
+    "test_rise": 0.035234603221700356,
     "train_fall_after_min": 0.03553995389013657,
-    "overfitting": false
-  },
-  "DeepONet_7pct": {
-    "min_epoch": 4391,
-    "test_rise": 0.04194318969345974,
-    "train_fall_after_min": 0.020048059945439428,
-    "overfitting": false
+    "overfitting": false,
+    "train_late_span": 0.18942063301801682,
+    "test_late_span": 0.200004942715168,
+    "source": "results/reproduction/chemkan/biodiesel/noise/noise07_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
   },
   "ChemKAN_15pct": {
     "min_epoch": 9881,
-    "test_rise": 0.01637614333100324,
+    "test_rise": 0.016376143331003234,
     "train_fall_after_min": 0.00032499378605062664,
-    "overfitting": false
+    "overfitting": false,
+    "train_late_span": 0.10451433062553406,
+    "test_late_span": 0.11642616242170334,
+    "source": "results/reproduction/chemkan/biodiesel/noise/noise15_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "DeepONet_0pct": {
+    "min_epoch": 6429,
+    "test_rise": 0.10781537951213993,
+    "train_fall_after_min": 0.03540259663538404,
+    "overfitting": false,
+    "train_late_span": 0.0003777220845222473,
+    "test_late_span": 0.0029101818799972534,
+    "source": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise00_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "DeepONet_2pct": {
+    "min_epoch": 9930,
+    "test_rise": 0.002645918524132096,
+    "train_fall_after_min": 0.0,
+    "overfitting": false,
+    "train_late_span": 0.0003760438412427902,
+    "test_late_span": 0.001021120697259903,
+    "source": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise02_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "DeepONet_7pct": {
+    "min_epoch": 6659,
+    "test_rise": 0.012175116063037228,
+    "train_fall_after_min": 0.017994265559396715,
+    "overfitting": false,
+    "train_late_span": 0.0003455132246017456,
+    "test_late_span": 0.0018624886870384216,
+    "source": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise07_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
   },
   "DeepONet_15pct": {
-    "min_epoch": 3943,
-    "test_rise": 0.059786443138287924,
-    "train_fall_after_min": 0.019380918748012278,
-    "overfitting": false
+    "min_epoch": 7692,
+    "test_rise": 0.001495505555624721,
+    "train_fall_after_min": 0.008808624406713449,
+    "overfitting": false,
+    "train_late_span": 0.0010751336812973022,
+    "test_late_span": 0.001700468361377716,
+    "source": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise15_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
   }
 }
