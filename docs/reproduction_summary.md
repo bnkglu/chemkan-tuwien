@@ -134,18 +134,25 @@ does not establish a cause.
 
 ![Fig. 7 H0](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_H0.png)
 
-**`H0` fails on temperature, not on chemistry.** Panels (A) and (D) show the prediction
-flat at `T₀` while the reference climbs past 2500 K — no ignition at either condition. But
-panels (B), (C), (E) and (F) show the species genuinely reacting and broadly tracking the
-reference: H₂ falls, H₂O rises, OH peaks. The per-state losses say the same thing
-numerically — temperature is **88.9 %** of the ten-state loss at the training condition and
-**94.7 %** at the held-out one, with the nine species averaging only 0.352 and 0.186.
-Describing `H0` as a blanket failure would misread this figure.
+**Temperature dominates `H0`'s error; its kinetic accuracy remains imperfect.** Panels
+(A) and (D) show the prediction flat at `T₀` while the reference climbs past 2500 K — no
+ignition at either condition. Panels (B), (C), (E) and (F) show the species genuinely
+reacting and broadly tracking the reference: H₂ falls, H₂O rises, OH peaks. Numerically,
+temperature is **88.9 %** of the ten-state loss at the training condition and **94.7 %** at
+the held-out one, against a nine-species mean of 0.352 and 0.186.
+
+That makes the failure lopsided, not selective. The species are far **less** wrong than
+temperature, but they are not accurate: 0.186–0.352 summed over the 50 observation times is
+0.0037–0.0070 time-averaged, still roughly **37–70× above** the paper's ~10⁻⁴ order. So
+calling `H0` a blanket failure misreads the figure, and calling it a kinetics success
+overstates it.
 
 ![Fig. 7 Hnorm1](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_Hnorm1.png)
 
-**`Hnorm1`'s advantage is entirely temperature.** Its ten-state loss is far lower (0.296 /
-0.209 against `H0`'s 2.867 / 3.146), but that gain comes from one state:
+**`Hnorm1`'s advantage is predominantly temperature.** Its ten-state loss is far lower
+(0.296 / 0.209 against `H0`'s 2.867 / 3.146), and temperature accounts for **98.6 %** of
+that improvement at the training condition and for **all** of it at the held-out condition,
+where the species in aggregate get worse:
 
 | | `H0` | `Hnorm1` | |
 |---|---|---|---|
@@ -155,10 +162,11 @@ Describing `H0` as a blanket failure would misread this figure.
 | 9-species mean, held-out | 0.186 | **0.222** | **`H0` is better** |
 
 At the held-out condition `Hnorm1` is worse than `H0` on **six of nine species** (H₂, O,
-O₂, OH, H₂O, H₂O₂). So the norm-matched initialization recovers the thermodynamic path
-without improving the kinetics, and on unseen data it trades a little species accuracy for
-a large temperature gain. That is one initialization, not a seed study, and it does not
-establish a cause.
+O₂, OH, H₂O, H₂O₂); at the training condition its species mean is slightly better, so the
+gain is not purely thermal. The norm-matched initialization largely recovers the
+thermodynamic path while leaving the kinetics roughly where they were, and on unseen data
+it trades a little species accuracy for a large temperature gain. That is one
+initialization, not a seed study, and it does not establish a cause.
 [`fig07_hydrogen_per_state_mse.csv`](../results/reproduction/tables/fig07_hydrogen_per_state_mse.csv)
 
 **Two distinct mismatches live in this figure and must not be merged.**
@@ -172,9 +180,9 @@ establish a cause.
    the authors' plotting code a typo cannot be confirmed. No data, prediction or loss is
    affected: losses are computed before any multiplier.
 2. **Prediction accuracy.** The models genuinely differ from the reference, and the two
-   runs fail differently: `H0` in the thermodynamic path only, `Hnorm1` in the kinetics it
-   never improved. The cause of the remaining gap is **unresolved**, and FSA has not been
-   tested.
+   runs differ in where the error sits: `H0` overwhelmingly in the thermodynamic path,
+   `Hnorm1` mostly in the kinetics it did not improve. Neither is accurate on the species.
+   The cause of the remaining gap is **unresolved**, and FSA has not been tested.
 
 A companion view plots the identical data at **true mass fraction with no multipliers**,
 on a symlog axis. It shows what the multiplier view hides — predicted mass fractions going
@@ -248,7 +256,7 @@ code, not the science.
 | Clean replay vs `B0` | **bitwise identical** — identical weights and identical training loss at all 10,000 epochs; the replay only adds the per-epoch clean-test columns `B0` lacks |
 | Fig.-4 `h=4` snapshot | the epoch-5000 snapshot is **bitwise identical** to an independently trained 5,000-epoch run |
 | Determinism | training is bitwise reproducible under CPU contention (200 epochs × 4 parallel columns, identical) |
-| Run provenance | all 19 Fig.-4 points verified by SHA-256 against their checkpoints ([`biodiesel_completed_run_audit.csv`](../results/reproduction/tables/biodiesel_completed_run_audit.csv)) |
+| Run provenance | 19 audited checkpoint references — 8 DeepONet noise, 6 DeepONet scaling, 5 ChemKAN scaling — each verified by SHA-256 against its checkpoint. Only the 11 scaling rows are Figure-4 points. ([`biodiesel_completed_run_audit.csv`](../results/reproduction/tables/biodiesel_completed_run_audit.csv)) |
 | Test suite | **235 passing** |
 
 The digitization row validates the **extraction** of the paper's figure, not our trained
