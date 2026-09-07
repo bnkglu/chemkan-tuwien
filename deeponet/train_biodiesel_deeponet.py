@@ -11,16 +11,17 @@ Artifacts follow the ChemKAN run-directory layout (``chemkan/scripts/_run.py``):
 
     # Fig. 5 noise sweep (10,000 epochs, per-epoch clean-test history)
     python train_biodiesel_deeponet.py --noise-percent 15 --epochs 10000 --eval-every 1 \
-        --run-dir ../results/reproduction/baselines/deeponet/biodiesel/noise/noise15_seed0
+        --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise15_seed0
 
     # Fig. 4 width sweep (50,000 epochs, no per-epoch test history needed)
     python train_biodiesel_deeponet.py --width 6 --epochs 50000 \
-        --run-dir ../results/reproduction/baselines/deeponet/biodiesel/scaling/w6_seed0
+        --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w6_seed0
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
 import time
@@ -35,6 +36,7 @@ from _data import available_noise_percents, load_biodiesel, resolve_device   # n
 from _run import RunManager, check_resume_config                             # noqa: E402
 
 from biodiesel_deeponet import (COMPARISON_WIDTH, PAPER_PARAMS, architecture,  # noqa: E402
+                                LEGACY_ARCHITECTURE_VERSION, REFERENCE_ARCHITECTURE_VERSION,
                                 build, prepare_inputs)
 from chemkan.losses import trajectory_mse                                    # noqa: E402
 from chemkan.normalization import MinMaxNormalizer                           # noqa: E402
@@ -63,8 +65,26 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def require_reference_run_directory(run_dir):
+    """Protect legacy artifacts even when --resume or --overwrite is requested."""
+    root = Path(run_dir)
+    paths = ([root / "config.json"] if (root / "config.json").exists() else [])
+    paths += sorted(root.glob("checkpoint*.pt"))
+    for path in paths:
+        record = (json.loads(path.read_text()) if path.suffix == ".json" else
+                  torch.load(path, map_location="cpu", weights_only=False))
+        arch = record.get("architecture", record.get("config", {}).get("architecture", {}))
+        version = arch.get("architecture_version", LEGACY_ARCHITECTURE_VERSION)
+        if version != REFERENCE_ARCHITECTURE_VERSION:
+            raise SystemExit(
+                f"{path} has architecture_version={version!r}. "
+                "Refusing to resume or overwrite a legacy or unknown architecture. "
+                "Use a new run directory for reference_final_trunk_relu.")
+
+
 def main():
     args = build_parser().parse_args()
+    require_reference_run_directory(args.run_dir)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     device = resolve_device(args.device)
     if args.noise_percent is not None and args.noise_percent not in available_noise_percents():
@@ -150,9 +170,14 @@ def main():
     else:
         run.write_config(config)
 
-    logging.info("DeepONet w=%d: %d parameters (paper reports %d); branch minmax, "
-                 "trunk tau=t/%.1fs, normalized-species output",
-                 args.width, arch["parameter_count"], PAPER_PARAMS, t_end)
+    logging.info("DeepONet w=%d: %d trainable parameters; branch inputs [Y0, T] use "
+                 "train-only min-max scaling; trunk time input tau=t/%.1fs; "
+                 "outputs are normalized species concentrations",
+                 args.width, arch["parameter_count"], t_end)
+    if args.width == COMPARISON_WIDTH:
+        logging.info("Paper main-model comparison: %d reported parameters; "
+                     "our reconstructed w=%d model has %d",
+                     PAPER_PARAMS, COMPARISON_WIDTH, arch["parameter_count"])
 
     columns = ["epoch", "total_loss", "mse_loss"]
     if args.eval_every:
@@ -192,6 +217,7 @@ def main():
                 logging.info("epoch %6d  loss %.6e", epoch, float(loss.detach()))
             if args.checkpoint_every and (epoch + 1) % args.checkpoint_every == 0:
                 run.save_resume({"stage": "main", "epoch": epoch + 1,
+                                 "architecture": arch,
                                  "model_state": model.state_dict(),
                                  "optimizer_state": opt.state_dict(),
                                  "config": config, "rng_state": torch.get_rng_state()})

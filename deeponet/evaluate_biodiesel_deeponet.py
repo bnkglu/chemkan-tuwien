@@ -29,7 +29,8 @@ from _data import load_biodiesel, resolve_device                    # noqa: E402
 from _predictions import checkpoint_sha256, save_predictions        # noqa: E402
 from _run import METRICS_JSON, PREDICTIONS_DIR, utc_now             # noqa: E402
 
-from biodiesel_deeponet import (PAPER_PARAMS, BiodieselDeepONet,   # noqa: E402
+from biodiesel_deeponet import (PAPER_PARAMS, LEGACY_ARCHITECTURE_VERSION,  # noqa: E402
+                                BiodieselDeepONet,
                                 prepare_inputs)
 from chemkan.losses import trajectory_mse                           # noqa: E402
 from chemkan.normalization import MinMaxNormalizer                  # noqa: E402
@@ -41,8 +42,11 @@ _METRIC_CONVENTION = ("normalized trajectory MSE (Eq. 18): mean over modeled sta
 
 
 def build_model(ckpt, device) -> BiodieselDeepONet:
+    """Reconstruct the saved graph; unversioned checkpoints always remain legacy."""
     model = BiodieselDeepONet(width=ckpt["architecture"]["width"],
-                              out_dim=ckpt["architecture"]["out_dim"]).to(device)
+                              out_dim=ckpt["architecture"]["out_dim"],
+                              architecture_version=ckpt["architecture"].get(
+                                  "architecture_version", LEGACY_ARCHITECTURE_VERSION)).to(device)
     model.load_state_dict(ckpt["model_state"])
     model.eval()
     return model
