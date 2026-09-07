@@ -179,9 +179,9 @@ python train_biodiesel.py --epochs 10000 --eval-every 1 --seed 0 \
 ```bash
 cd deeponet
 python train_biodiesel_deeponet.py --noise-percent 15 --epochs 10000 --eval-every 1 \
-    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/noise/noise15_seed0
+    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise15_seed0
 python train_biodiesel_deeponet.py --width 6 --epochs 50000 \
-    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/scaling/w6_seed0
+    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w06_seed0
 ```
 
 - Same dataset, same train-only normalizer, same Eq. 18 reduction as the ChemKAN runs, and
@@ -190,14 +190,32 @@ python train_biodiesel_deeponet.py --width 6 --epochs 50000 \
   `Linear(w, 6)`. At `w = 8` this is the paper-described architecture and totals **340**
   parameters against the **308** reported — a documented, unexplained discrepancy. No
   architecture is chosen to match 308.
-- ReLU between layers, Glorot-normal weights, zero biases, Adam `lr = 1e-3`: these are the
-  bundled reference example's conventions (`deeponet/src/deeponet_dataset.py`), **not**
-  ChemKAN-paper facts, and are held fixed across widths and noise levels.
+- ReLU between branch layers with a **linear final branch layer**, ReLU after **every**
+  trunk layer including the last, a linear six-output head, Glorot-normal weights, zero
+  biases, Adam `lr = 1e-3`: these are the bundled reference example's conventions
+  (`deeponet/src/deeponet_dataset.py`, and DeepXDE 0.11.2 `OpNN.build()` for the trunk
+  activation), **not** ChemKAN-paper facts, and are held fixed across widths and noise levels.
+- **Two architecture versions exist.** `legacy_final_trunk_linear` omitted that final trunk
+  ReLU; `reference_final_trunk_relu` corrects it and is the default for new runs. A
+  checkpoint with no recorded version is legacy and is always reconstructed as legacy —
+  existing weights are never reinterpreted under the corrected graph, and the trainer
+  refuses to resume or overwrite a legacy run directory. **The currently reported
+  Figures 4, 5 and 6 DeepONet points come from the completed corrected runs.** Legacy
+  reports remain labelled under `legacy_final_trunk_linear/` in the figures/tables folders.
 - Input/output scaling is a REPRODUCTION CHOICE recorded in `biodiesel_deeponet.py`: the
   branch consumes min-max normalized `[Y0, T]`, the trunk `tau = t / t_end`, and the model
-  emits normalized species. Fed raw, the initial Eq. 18 loss is ~5e7 purely from
-  conditioning. The statistics are stored in the checkpoint and reconstructed at
+  emits normalized species. The statistics are stored in the checkpoint and reconstructed at
   evaluation, never refitted.
+
+For the complete corrected sweep and the fixed-`n_mu=2` Figure-4 comparison, use
+`chemkan/scripts/reproduction/biodiesel/deeponet_reference.sh` and
+`chemkan/scripts/reproduction/biodiesel/fig04_nmu2.sh` from the repository root. Their
+[README](../chemkan/scripts/reproduction/README.md) documents budgets, config checks, resume,
+and manifests validated by Notebook 07. All 14 corrected DeepONet runs and five fixed-
+`n_mu=2` points are complete and plotted. These training commands skip matching completed
+runs; the figure wrappers now render corrected results. Run
+`python chemkan/scripts/diagnostics/refresh_biodiesel_reports.py` to rebuild tables and
+both Figure-4 comparisons without training, then execute Notebook 07 for all inline plots.
 
 ## Step 6 — Train main hydrogen ChemKAN (dense-Cantera, direct autograd, seed 0)
 
@@ -333,12 +351,12 @@ any model trained here.
 ## Shortcut — per-figure scripts
 
 Every step below is wrapped, one script per paper result, in
-[`scripts/reproduction/`](../scripts/reproduction/README.md):
+[`chemkan/scripts/reproduction/`](../chemkan/scripts/reproduction/README.md):
 
 ```bash
 export CHEMKAN_PYTHON=~/uni_projects/chemkan-venv/bin/python
-./scripts/reproduction/biodiesel/fig05a_noise_robustness.sh   # one figure, end to end
-./scripts/reproduction/all.sh --dry-run                       # plan only
+./chemkan/scripts/reproduction/biodiesel/fig05a_noise_robustness.sh   # one figure, end to end
+./chemkan/scripts/reproduction/all.sh --dry-run                       # plan only
 ```
 
 They are idempotent (a completed run is skipped, never overwritten), they never train

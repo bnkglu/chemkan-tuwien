@@ -111,12 +111,20 @@ marker. The marker remains unexplained and is reported as such alongside the pap
 ## 5. Approved DeepONet width matrix
 
 Family: `branch [7,w,w,w]`, `trunk [1,w-1,w]`, Hadamard, head `Linear(w,6)`; 50,000
-epochs, Adam lr = 1e-3, ReLU, Glorot-normal, biased Linear (reference-derived), same
-dataset / normalizer / loss as ChemKAN. Every count measured.
+epochs, Adam lr = 1e-3, Glorot-normal, biased Linear (reference-derived), same dataset /
+normalizer / loss as ChemKAN. Every count measured. Activation placement is
+reference-derived: ReLU between branch layers with a linear final branch layer, ReLU after
+every trunk layer including the last, and a linear head.
+
+**Current figures use the completed `reference_final_trunk_relu` sweep.** The earlier
+`legacy_final_trunk_linear` checkpoints remain at their original paths and are always
+loaded with their original architecture. Their reports are archived and labelled under
+`legacy_final_trunk_linear/` in the figures and tables directories. Notebook 07 also
+includes a second comparison with fixed `n_mu=2` ChemKAN; both use the corrected DeepONet.
 
 | w | measured P | nearest paper marker | offset | run directory |
 |---|---|---|---|---|
-| 3 | 85 | 78.0 | +9 % | `results/reproduction/baselines/deeponet/biodiesel/scaling/w03_seed0` |
+| 3 | 85 | 78.0 | +9 % | `results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0` |
 | 5 | 169 | 156.0 | +8 % | `.../scaling/w05_seed0` |
 | 6 | 220 | 234.0 | −6 % | `.../scaling/w06_seed0` |
 | 8 | **340** | 308.1 | +10 % | `.../scaling/w08_seed0` — the comparison architecture |

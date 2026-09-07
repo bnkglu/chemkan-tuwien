@@ -1,16 +1,19 @@
 # ChemKAN reproduction — consolidated run matrix
 
-Status: **complete.** All 26 approved runs finished and every figure evaluation
-(Figures 3-8 and Table I) has been produced from them. Nothing further is scheduled for
-this phase; FSA remains a separate later task.
+Status: **corrected biodiesel runs complete and Notebook 07 refreshed.** All 26
+original runs remain preserved. The 14 `reference_final_trunk_relu` DeepONet runs
+and three new fixed-`n_mu=2` ChemKAN runs completed; two ChemKAN checkpoints are reused.
+The 19 points passed config, checkpoint/data hash, epoch-budget and history checks.
+See `results/reproduction/tables/biodiesel_completed_run_audit.csv` for sources and timing.
 
 | group | runs | state |
 |---|---|---|
 | ChemKAN noise 1-15 % | 7 | complete, 10,000 epochs each |
 | ChemKAN clean replay (Fig.-5B history) | 1 | complete; **bitwise reproduction of `B0`**, plus an epoch-5000 snapshot |
-| DeepONet noise 0-15 % | 8 | complete, 10,000 epochs each |
+| DeepONet noise 0-15 % | 8 | legacy and corrected complete, 10,000 epochs each |
 | ChemKAN scaling h = 2, 3, 10, 17 | 4 | complete, 5,000 epochs each (h=4 reused from the replay snapshot) |
-| DeepONet scaling w = 3, 5, 6, 8, 10, 13 | 6 | complete, 50,000 epochs each |
+| DeepONet scaling w = 3, 5, 6, 8, 10, 13 | 6 | legacy and corrected complete, 50,000 epochs each |
+| Fixed-n_mu=2 ChemKAN scaling | 3 new + 2 reused | complete, 5,000 epochs per point |
 | Hydrogen | 0 | **no retraining**; Figs. 7/8A/8B and Table I evaluated from saved checkpoints |
 
 The 5 % ChemKAN run was interrupted once by an external process kill and **resumed** from
@@ -37,8 +40,9 @@ unless you decide to track them.
 
 ## C. New training — biodiesel noise sweep (Figs. 3, 5A, 5B, 6)
 
-Eight ChemKAN and eight DeepONet conditions. `B0` covers ChemKAN 0 %, so **7 + 8 = 15**
-runs remain. Every run: 10,000 epochs, seed 0, `--eval-every 1`.
+The original sweep is complete. `B0` covers ChemKAN 0 %; seven noisy ChemKAN and eight
+legacy DeepONet runs were trained. Every run uses 10,000 epochs, seed 0, `--eval-every 1`.
+The eight corrected DeepONet runs are also complete and supply the current plots.
 
 ### C1 — ChemKAN, 7 runs
 
@@ -67,7 +71,7 @@ Measured cost: 15.5 s per 200 epochs with per-epoch evaluation → **≈ 13 min 
 |---|---|---|
 | **Fig. 5B, 0 % panel only** | `results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0` | 0 % noise, 10,000 epochs, `--eval-every 1`. `B0`'s `history.csv` has training loss only and a final checkpoint cannot reconstruct earlier test losses. **Both** curves of the 0 % panel come from this run, so they share one parameter trajectory; no history is spliced. `B0` remains the established 0 % result for Figs. 3 and 5A. The replay's final metrics are reported beside `B0`'s as a reproducibility comparison only. |
 
-### C3 — DeepONet, 8 runs
+### C3 — DeepONet, 8 legacy and 8 corrected noise runs complete
 
 | Noise | Run directory |
 |---|---|
@@ -77,32 +81,33 @@ Architecture: branch `[7,8,8,8]`, trunk `[1,7,8]`, Hadamard, head `Linear(8,6)` 
 **340 measured** parameters against the paper's **308** (documented, unexplained; no
 architecture is selected to match 308). Adam `lr = 1e-3`, ReLU, Glorot-normal, biased
 Linear — reference-derived from `deeponet/src/deeponet_dataset.py`, not ChemKAN-paper
-facts. 10,000 epochs, `--eval-every 1`. The 3 % run needs **B1** (the second and last B1-dependent run).
+facts. The archived runs omit the final trunk ReLU. Corrected runs apply ReLU after
+every trunk layer, leave the final branch layer and head linear, and write under
+`.../biodiesel/reference_final_trunk_relu/noise/`. Both use 10,000 epochs and
+`--eval-every 1`; scaling and loss are unchanged. Use
+`bash chemkan/scripts/reproduction/biodiesel/deeponet_reference.sh` for all 14 corrected runs.
 
-Measured cost: ≈ 7 s per run — negligible.
+Measured training times for the corrected runs are recorded in `biodiesel_completed_run_audit.csv`.
 
 ---
 
-## D. New training — Fig. 4 width sweep: **widths not yet selected**
+## D. Figure 4 — existing sweep and fixed-n_mu comparison
 
-The prompt document requires digitizing Fig. 4 and auditing the marker positions against
-feasible counts *before* fixing the widths. That digitization has not been done, so I am
-**not** proposing specific width rows yet rather than inventing them.
+Width selection and digitization are complete; see [fig4_width_matrix.md](fig4_width_matrix.md).
 
-What is settled and measured:
+- Existing ChemKAN: h = 2/3/4/10/17, counts 78/117/156/390/663,
+  `n_mu=ceil(h/2)`, 5,000 epochs, N=3, base OFF. The h=4 point uses the clean replay's
+  `checkpoint_epoch_5000.pt`; it is an actual 5,000-step checkpoint.
+- Existing DeepONet: w = 3/5/6/8/10/13, counts 85/169/220/340/484/745,
+  50,000 epochs. All six corrected runs are complete under
+  `reference_final_trunk_relu/scaling/` and supply the current figures; legacy runs remain available.
+- Completed fixed-`n_mu=2` comparison: the same five ChemKAN widths and 5,000-epoch budget.
+  Reused h=3 and the h=4 snapshot; trained h=2/10/17 into `scaling_nmu2/`. Run
+  `bash chemkan/scripts/reproduction/biodiesel/fig04_nmu2.sh`. Its manifest records all five
+  checkpoint sources for the second Figure-4 plot now included in Notebook 07.
 
-- ChemKAN: `N = 3` fixed, base OFF fixed, vary `hidden_dim`; `P(h) = 39h` — verified
-  against `model.parameters()` at h = 4 (156). `n_mu = ceil(h/2)` is a RECONSTRUCTION
-  CHOICE; the paper states no Fig. 4 rule. Candidate family to *check* against the figure:
-  h = [2, 3, 4, 6, 10, 18] → P = [78, 117, 156, 234, 390, 702]. The paper's 72-vs-78
-  wording inconsistency is recorded, not engineered away.
-- DeepONet: family branch `[7,w,w,w]`, trunk `[1,w-1,w]`, head `Linear(w,6)`. Measured
-  counts: w = 2 → 52, 3 → 85, 4 → 124, 6 → 220, **8 → 340**, 10 → 484, 12 → 652, 18 → 1300.
-- Epochs: ChemKAN 5,000; DeepONet 50,000. `B0` (10,000 epochs) is **not** a 5,000-epoch
-  scaling point, and no suitable 5,000-epoch snapshot exists in the archive — h = 4 must be
-  trained separately for this figure.
-
-Estimated cost once widths are fixed: ≈ 4 min per ChemKAN width, ≈ 35 s per DeepONet width.
+Neither sweep changes the canonical dataset, loss, or preprocessing. Paper point
+markers are omitted from our current Figure-4 plot; its table retains the paper slopes.
 
 ---
 
@@ -133,7 +138,7 @@ values will be regenerated into `results/` during the hydrogen phase.
 
 ---
 
-## F. Totals
+## F. Original-phase totals (completed)
 
 | Category | Count |
 |---|---|
@@ -141,11 +146,12 @@ values will be regenerated into `results/` during the hydrogen phase.
 | New ChemKAN noise runs | 7 |
 | Fig.-5B clean replay (history only) | 1 |
 | New DeepONet noise runs | 8 |
-| Fig. 4 width sweep | pending width selection |
+| Original Fig. 4 width sweep | complete: 4 new ChemKAN + h=4 snapshot + 6 legacy DeepONet |
 | Hydrogen training | **0** |
 | Evaluation-only tasks | 7 groups (E1–E7) |
 
 **Exactly two of the sixteen runs depend on B1** — ChemKAN 3 % and DeepONet 3 %. The other **fourteen are independent of it**.
 
-Approving section C launches **16 runs, ≈ 1.8 h wall clock** (8 ChemKAN runs at ≈ 13 min each, plus ≈ 1 min for all eight DeepONet runs). No run in C reuses another
-run's directory, and no reused checkpoint is counted twice.
+The completed additional phase contains **14 corrected DeepONet runs and 3 fixed-n_mu=2
+ChemKAN runs**, plus two reused ChemKAN checkpoints. Notebook 07 now plots these results.
+Legacy reports are labelled and archived; hydrogen work is separate.

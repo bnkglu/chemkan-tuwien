@@ -71,13 +71,40 @@ default changed. The findings below are **N=5/base-OFF** except where stated.
   0.254 — while also igniting in 2 conditions where the reference does not. This is **one
   initialization, not a seed study**, and it does not replace `H0` or establish a cause.
 - **Table I counts match; the speed-up does not.** 1 network, 344 measured parameters,
-  9 species + T, as reported. A local PyTorch-vs-Cantera benchmark measures **0.16x** (`H0`)
+  9 species + T, as reported. A local PyTorch-vs-Cantera benchmark measures **0.14x** (`H0`)
   and **0.50x** (`Hnorm1`) — i.e. slower than Cantera, not the paper's 2.0x against
   Arrhenius.jl. Different reference implementation, hardware and timing scope, so the two
   are reported side by side and not merged.
 - **FSA remains a major paper-explicit missing method.** Forward Sensitivity Analysis is
   not implemented; all runs use direct autograd. No result here speaks to whether FSA
   would change the outcome.
+
+**Two separate Figure-7/8A mismatches, not one.** They have different status and must not
+be merged:
+
+1. **Display annotation.** Two of the paper's printed Figure-7 multipliers do not agree
+   with our reference values at its own plotted scale. At φ=0.9 our initial O₂ mass
+   fraction is 0.2270, so the printed ×10² would put the curve at 22.70 while the paper
+   draws it near 2.27; our sampled H peak is 0.003453, so ×10⁴ would give 34.53 against a
+   plotted peak near 3.5. We therefore display **O₂ ×10¹ and H ×10³**, labelled in the
+   figure. This is a **display choice to obtain comparable panel ranges**, not a claim that
+   the paper printed those factors — without the authors' plotting code we cannot confirm a
+   typo. No data, prediction or loss is affected: losses are computed before any multiplier.
+2. **Prediction accuracy.** Our models genuinely differ from the reference trajectories.
+   The diagnostics locate weak temperature evolution in `H0`; `Hnorm1` improves it
+   substantially. The remaining gap's cause is **unresolved**, and FSA has not been tested.
+
+**Figure 8A is shown at two scales.** The first pair uses the paper's displayed
+**0–10 ×10⁻⁴** range with smaller MSE darker; every one of the 441 errors exceeds that
+upper bound for both models, so that view is uniformly pale. A clearly labelled full-range
+comparison follows it. No error value is rescaled or divided to fit the paper's range.
+
+**Hydrogen numbers side by side:**
+[`results/reproduction/tables/hydrogen_paper_comparison.csv`](results/reproduction/tables/hydrogen_paper_comparison.csv)
+(paper / `H0` / `Hnorm1`, with a page-level paper source per row), also displayed in
+notebook 08. For example the paper reports order **10⁻⁴** at the six 1000 K training
+points, against **1.50–2.31** (`H0`) and **0.50–0.95** (`Hnorm1`). The table records the
+unresolved time-reduction convention and keeps local timing separate from the paper's.
 
 These are **co-existing findings, not a ranked causal chain.** The paper leaves the grid
 size `N`, the `θ_thermo` initialization, and any derivative scaling inside Eq. 14
@@ -89,28 +116,28 @@ Full evidence: [`chemkan/notebooks/07_biodiesel_reproduction.ipynb`](chemkan/not
 
 - The **main ChemKAN implementation exists** and trains: the paper's exact 156-parameter
   architecture reconstructs the trajectories from sparse data.
-- **Figs. 3, 4, 5A, 5B and 6 are evaluated.** 26 runs in total: 8 ChemKAN noise levels
-  (`B0` reused at 0 %), 8 DeepONet noise levels, 4 new ChemKAN scaling widths, 6 DeepONet
-  scaling widths, and one clean replay. All completed runs are preserved; nothing was
-  overwritten or retrained.
+- **Figs. 3, 4, 5A, 5B and 6 are evaluated.** The original 26 runs remain available.
+  Notebook 07 now uses all 14 corrected DeepONet runs and includes a second Figure 4
+  with fixed `n_mu=2` ChemKAN (three new runs and two reused checkpoints). All 19 points
+  passed artifact/config validation; the notebook was executed with the updated sources.
 - **The clean replay reproduces `B0` bitwise** — identical weights and identical training
   loss at all 10,000 epochs — adding only the per-epoch clean-test columns `B0` lacks. It
   supplies Fig. 5B's 0 % panel; `B0` remains the established 0 % result for Figs. 3 and 5A.
 - **The DeepONet baseline is implemented and run** (`deeponet/biodiesel_deeponet.py` plus a
   trainer and evaluator). At the paper-described widths it measures **340** parameters
   against the **308** reported — documented, not engineered away. Its input/output scaling
-  is a labelled reproduction choice.
-- **The reported noise and scaling trends are not reproduced.** ChemKAN's clean-test error
-  does not grow with noise (0.77x from 0 to 15 %, versus a reported ~2x), and the Fig. 4
-  regressions give -0.41 / -0.38 (ChemKAN) and -0.95 / -0.62 (DeepONet) against reported
-  -1.0 / -0.6 and -4.0 / -1.4. These are **descriptive all-point fits with R² <= 0.46**,
-  over a different fitting scope than the paper's pre-saturation subset.
-- **Two measurement limits are documented rather than worked around.** ChemKAN's
-  late-training loss oscillates by 0.10-0.19 over the last 20 % of epochs (DeepONet:
-  0.0003-0.0004), which exceeds the increments the paper reports for 0->1 % and 0->5 %
-  noise and makes our fixed-checkpoint increments come out negative; **the cause of that
-  oscillation is not established.** And no run meets our overfitting criterion, whose
-  thresholds and smoothing window are our own diagnostic choices, not the paper's.
+  is a labelled reproduction choice. The reported runs now use `reference_final_trunk_relu`;
+  legacy checkpoints and labelled reports remain available. This activation follows the
+  selected upstream implementation; the paper does not specify its placement.
+- **The paper's trends are not fully reproduced.** ChemKAN's clean-test error does not
+  grow from 0 to 15% noise (0.77x versus a reported ~2x). Figure-4 train/test slopes are
+  -0.41 / -0.38 (ChemKAN) and -2.08 / -1.32 (corrected DeepONet), against reported
+  -1.0 / -0.6 and -4.0 / -1.4. These describe all measured points; the paper fits a
+  pre-saturation subset. Fixed-`n_mu=2` ChemKAN instead has positive slopes (+0.69 / +0.68),
+  so increasing width did not improve loss in that sweep.
+- **No plotted Figure-5B run meets our stated overfitting criterion.** Its thresholds and
+  201-epoch smoothing window are diagnostic choices, not paper requirements. Per-run
+  late-loss spans and sources are saved in `biodiesel_fig5b_overfit_assessment.json`.
 - Figure 4's widths were fixed by **digitizing the paper's own figure** to 0.11 % in
   parameter count (`docs/fig4_width_matrix.md`). Four of its five ChemKAN markers land
   exactly on `39h`; the fifth, at ~650 parameters, matches no feasible width and is
