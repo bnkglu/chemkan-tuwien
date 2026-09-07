@@ -1,0 +1,17 @@
+2026-09-06 20:35:27,381 INFO run start 2026-09-06T17:35:27Z | run_id=baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise05_seed0 | system=biodiesel-deeponet | dir=/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise05_seed0
+2026-09-06 20:35:27,427 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise05_seed0/config.json
+2026-09-06 20:35:27,427 INFO DeepONet w=8: 340 parameters (paper reports 308); branch minmax, trunk tau=t/30.0s, normalized-species output
+2026-09-06 20:35:29,634 INFO epoch      0  loss 6.481247e+00
+2026-09-06 20:35:31,069 INFO epoch   1000  loss 1.433617e-01
+2026-09-06 20:35:31,910 INFO epoch   2000  loss 1.022708e-01
+2026-09-06 20:35:32,726 INFO epoch   3000  loss 5.786852e-02
+2026-09-06 20:35:33,959 INFO epoch   4000  loss 4.591174e-02
+2026-09-06 20:35:34,926 INFO epoch   5000  loss 4.251679e-02
+2026-09-06 20:35:36,320 INFO epoch   6000  loss 4.075675e-02
+2026-09-06 20:35:38,442 INFO epoch   7000  loss 4.000237e-02
+2026-09-06 20:35:39,314 INFO epoch   8000  loss 3.967016e-02
+2026-09-06 20:35:40,648 INFO epoch   9000  loss 3.951100e-02
+2026-09-06 20:35:41,711 INFO final training loss: 3.932039e-02
+2026-09-06 20:35:41,717 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise05_seed0/checkpoint_final.pt
+2026-09-06 20:35:41,717 INFO removed /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise05_seed0/checkpoint_resume.pt (run completed)
+2026-09-06 20:35:41,718 INFO run completed 2026-09-06T17:35:41Z

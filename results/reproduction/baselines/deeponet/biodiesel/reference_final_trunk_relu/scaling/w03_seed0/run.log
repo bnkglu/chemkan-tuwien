@@ -1,0 +1,57 @@
+2026-09-06 20:37:59,757 INFO run start 2026-09-06T17:37:59Z | run_id=baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0 | system=biodiesel-deeponet | dir=/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0
+2026-09-06 20:37:59,927 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0/config.json
+2026-09-06 20:37:59,928 INFO DeepONet w=3: 85 parameters (paper reports 308); branch minmax, trunk tau=t/30.0s, normalized-species output
+2026-09-06 20:38:01,981 INFO epoch      0  loss 6.270089e+00
+2026-09-06 20:38:03,325 INFO epoch   1000  loss 7.935802e-01
+2026-09-06 20:38:04,412 INFO epoch   2000  loss 7.700787e-01
+2026-09-06 20:38:05,584 INFO epoch   3000  loss 7.631474e-01
+2026-09-06 20:38:06,976 INFO epoch   4000  loss 7.545981e-01
+2026-09-06 20:38:08,625 INFO epoch   5000  loss 7.534359e-01
+2026-09-06 20:38:09,952 INFO epoch   6000  loss 7.530876e-01
+2026-09-06 20:38:11,002 INFO epoch   7000  loss 7.530176e-01
+2026-09-06 20:38:12,308 INFO epoch   8000  loss 7.530109e-01
+2026-09-06 20:38:13,530 INFO epoch   9000  loss 7.530106e-01
+2026-09-06 20:38:14,603 INFO epoch  10000  loss 7.530111e-01
+2026-09-06 20:38:15,776 INFO epoch  11000  loss 7.530107e-01
+2026-09-06 20:38:17,102 INFO epoch  12000  loss 7.530106e-01
+2026-09-06 20:38:18,658 INFO epoch  13000  loss 7.530106e-01
+2026-09-06 20:38:19,804 INFO epoch  14000  loss 7.530106e-01
+2026-09-06 20:38:21,070 INFO epoch  15000  loss 7.530305e-01
+2026-09-06 20:38:22,239 INFO epoch  16000  loss 7.530106e-01
+2026-09-06 20:38:23,443 INFO epoch  17000  loss 7.530106e-01
+2026-09-06 20:38:24,547 INFO epoch  18000  loss 7.530107e-01
+2026-09-06 20:38:25,518 INFO epoch  19000  loss 7.530106e-01
+2026-09-06 20:38:26,611 INFO epoch  20000  loss 7.530125e-01
+2026-09-06 20:38:27,538 INFO epoch  21000  loss 7.530106e-01
+2026-09-06 20:38:28,308 INFO epoch  22000  loss 7.530109e-01
+2026-09-06 20:38:29,376 INFO epoch  23000  loss 7.530106e-01
+2026-09-06 20:38:30,833 INFO epoch  24000  loss 7.530106e-01
+2026-09-06 20:38:32,052 INFO epoch  25000  loss 7.530106e-01
+2026-09-06 20:38:33,138 INFO epoch  26000  loss 7.530112e-01
+2026-09-06 20:38:36,898 INFO epoch  27000  loss 7.530231e-01
+2026-09-06 20:38:38,941 INFO epoch  28000  loss 7.530106e-01
+2026-09-06 20:38:40,156 INFO epoch  29000  loss 7.530106e-01
+2026-09-06 20:38:41,327 INFO epoch  30000  loss 7.530106e-01
+2026-09-06 20:38:42,386 INFO epoch  31000  loss 7.530113e-01
+2026-09-06 20:38:43,268 INFO epoch  32000  loss 7.530106e-01
+2026-09-06 20:38:44,449 INFO epoch  33000  loss 7.530106e-01
+2026-09-06 20:38:45,881 INFO epoch  34000  loss 7.530106e-01
+2026-09-06 20:38:47,452 INFO epoch  35000  loss 7.530246e-01
+2026-09-06 20:38:49,052 INFO epoch  36000  loss 7.530106e-01
+2026-09-06 20:38:50,415 INFO epoch  37000  loss 7.530106e-01
+2026-09-06 20:38:51,673 INFO epoch  38000  loss 7.530115e-01
+2026-09-06 20:38:53,065 INFO epoch  39000  loss 7.530106e-01
+2026-09-06 20:38:54,729 INFO epoch  40000  loss 7.530160e-01
+2026-09-06 20:38:56,300 INFO epoch  41000  loss 7.530106e-01
+2026-09-06 20:38:57,604 INFO epoch  42000  loss 7.530116e-01
+2026-09-06 20:38:58,714 INFO epoch  43000  loss 7.530106e-01
+2026-09-06 20:38:59,934 INFO epoch  44000  loss 7.530106e-01
+2026-09-06 20:39:01,589 INFO epoch  45000  loss 7.530106e-01
+2026-09-06 20:39:03,503 INFO epoch  46000  loss 7.530106e-01
+2026-09-06 20:39:05,181 INFO epoch  47000  loss 7.530501e-01
+2026-09-06 20:39:06,774 INFO epoch  48000  loss 7.530106e-01
+2026-09-06 20:39:08,357 INFO epoch  49000  loss 7.530106e-01
+2026-09-06 20:39:10,122 INFO final training loss: 7.530112e-01
+2026-09-06 20:39:10,148 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0/checkpoint_final.pt
+2026-09-06 20:39:10,152 INFO removed /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0/checkpoint_resume.pt (run completed)
+2026-09-06 20:39:10,153 INFO run completed 2026-09-06T17:39:10Z

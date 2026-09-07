@@ -1,0 +1,64 @@
+{
+  "model": "DeepONet-biodiesel",
+  "chemical_system": "biodiesel",
+  "experiment_name": "main",
+  "seed": 0,
+  "device": "cpu",
+  "architecture": {
+    "architecture_version": "reference_final_trunk_relu",
+    "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+    "width": 8,
+    "branch_dims": [
+      7,
+      8,
+      8,
+      8
+    ],
+    "trunk_dims": [
+      1,
+      7,
+      8
+    ],
+    "combine": "hadamard",
+    "out_dim": 6,
+    "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+    "bias": true,
+    "weight_init": "glorot_normal (xavier_normal_), zero bias",
+    "parameter_count": 340
+  },
+  "parameter_count": 340,
+  "paper_parameter_count": 308,
+  "optimizer": "Adam",
+  "learning_rate": 0.001,
+  "epochs": 10000,
+  "loss": "normalized trajectory MSE (Eq. 18)",
+  "normalization": {
+    "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+    "output": "normalized species u_hat (compared directly with normalized targets)",
+    "stats": "train-only min-max",
+    "t_end_s": 30.0
+  },
+  "dataset": "biodiesel.npz (train split)",
+  "noise": {
+    "percent": 3,
+    "source": "biodiesel.npz train_states_noise03"
+  },
+  "in_training_evaluation": {
+    "eval_every": 1,
+    "columns": [
+      "test_mse_noisy",
+      "test_mse_clean"
+    ],
+    "split": "test",
+    "conditions": 10,
+    "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+    "normalizer": "train-only min-max (never refit on test data)"
+  },
+  "provenance": {
+    "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+    "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+  },
+  "run_id": "baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise03_seed0",
+  "git_commit": "04ce72e76c68bf7f65d60e19baa85bed5858f04a",
+  "created": "2026-09-06T17:35:13Z"
+}

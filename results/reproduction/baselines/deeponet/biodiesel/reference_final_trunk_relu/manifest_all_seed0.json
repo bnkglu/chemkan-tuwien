@@ -1,0 +1,938 @@
+{
+  "experiment": "deeponet",
+  "seed": 0,
+  "dataset": "chemkan/data/generated/biodiesel.npz",
+  "dataset_sha256": "347e39d3113896d85628c3c8ac0a85d9be30bf946e57807d229c8b9f25f32023",
+  "jobs": [
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 0,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise00_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 0,
+          "source": "biodiesel.npz train_states_noise00"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "695f4547404576c065f8ad0e405aacd9f1f799efcc65b5a97f5f6c76a0f261e7"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 1,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise01_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 1,
+          "source": "biodiesel.npz train_states_noise01"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "144a32029287ce837d91598dcef228b33646d5837e40faaa1440be75a2f89096"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 2,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise02_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 2,
+          "source": "biodiesel.npz train_states_noise02"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "8fa7bf6132aefe18ddbd6f65ac29bcf4ea5b828e17bc8f7e2f4624757e9e047b"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 3,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise03_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 3,
+          "source": "biodiesel.npz train_states_noise03"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "981bbfb65d344b12f550ace8ff0946556e96d2a2f92f580cac9961762ea80df4"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 5,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise05_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 5,
+          "source": "biodiesel.npz train_states_noise05"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "49db2772d6c4e0037cc595462fd66f393dc4be7db44e0a8d119d201ba0b606d7"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 7,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise07_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 7,
+          "source": "biodiesel.npz train_states_noise07"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "b695bf0a09acfa3dd1be1e9aa4928a5311d12e92bdb0b61ee70d2078998aa419"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 10,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise10_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 10,
+          "source": "biodiesel.npz train_states_noise10"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "9db07083c7245705ab6d459548203d4d87e3cd98b2a5718c0460bb3694740903"
+    },
+    {
+      "model": "DeepONet",
+      "group": "noise",
+      "width": 8,
+      "noise_percent": 15,
+      "epochs": 10000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise15_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 10000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": {
+          "percent": 15,
+          "source": "biodiesel.npz train_states_noise15"
+        },
+        "in_training_evaluation": {
+          "eval_every": 1,
+          "columns": [
+            "test_mse_noisy",
+            "test_mse_clean"
+          ],
+          "split": "test",
+          "conditions": 10,
+          "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+          "normalizer": "train-only min-max (never refit on test data)"
+        },
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "eaa95c9ad1046eb910b3d6cd6da428d423598b36bfcb21cf3573e1ef5ccf0b71"
+    },
+    {
+      "model": "DeepONet",
+      "group": "scaling",
+      "width": 3,
+      "noise_percent": null,
+      "epochs": 50000,
+      "parameters": 85,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "scaling",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 3,
+          "branch_dims": [
+            7,
+            3,
+            3,
+            3
+          ],
+          "trunk_dims": [
+            1,
+            2,
+            3
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 85
+        },
+        "parameter_count": 85,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "in_training_evaluation": null,
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "d9e0d6e64bb32b181a015c3e7c3f8705975d48018dea501cdced2dce7253bd56"
+    },
+    {
+      "model": "DeepONet",
+      "group": "scaling",
+      "width": 5,
+      "noise_percent": null,
+      "epochs": 50000,
+      "parameters": 169,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w05_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "scaling",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 5,
+          "branch_dims": [
+            7,
+            5,
+            5,
+            5
+          ],
+          "trunk_dims": [
+            1,
+            4,
+            5
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 169
+        },
+        "parameter_count": 169,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "in_training_evaluation": null,
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "3bb504d8ccd23aae232a0934d7c4c6b32174496640cd156aefa71f0decbbef4f"
+    },
+    {
+      "model": "DeepONet",
+      "group": "scaling",
+      "width": 6,
+      "noise_percent": null,
+      "epochs": 50000,
+      "parameters": 220,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w06_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "scaling",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 6,
+          "branch_dims": [
+            7,
+            6,
+            6,
+            6
+          ],
+          "trunk_dims": [
+            1,
+            5,
+            6
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 220
+        },
+        "parameter_count": 220,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "in_training_evaluation": null,
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "22d463ddfc50aa36c6c08d7eaf9ac1361d9b010a81e6b7975944b7dcd7a4a364"
+    },
+    {
+      "model": "DeepONet",
+      "group": "scaling",
+      "width": 8,
+      "noise_percent": null,
+      "epochs": 50000,
+      "parameters": 340,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w08_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "scaling",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 8,
+          "branch_dims": [
+            7,
+            8,
+            8,
+            8
+          ],
+          "trunk_dims": [
+            1,
+            7,
+            8
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 340
+        },
+        "parameter_count": 340,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "in_training_evaluation": null,
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "980fb74e967de4f014a3ebaaef1be8f38054ba9577e98c4f9519161ded2879f1"
+    },
+    {
+      "model": "DeepONet",
+      "group": "scaling",
+      "width": 10,
+      "noise_percent": null,
+      "epochs": 50000,
+      "parameters": 484,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w10_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "scaling",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 10,
+          "branch_dims": [
+            7,
+            10,
+            10,
+            10
+          ],
+          "trunk_dims": [
+            1,
+            9,
+            10
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 484
+        },
+        "parameter_count": 484,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "in_training_evaluation": null,
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "40a2b3b3b3fd2154041420331dc3db857c13459aca7ebfa8c71695fb69e17fb8"
+    },
+    {
+      "model": "DeepONet",
+      "group": "scaling",
+      "width": 13,
+      "noise_percent": null,
+      "epochs": 50000,
+      "parameters": 745,
+      "action": "train",
+      "checkpoint": "results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w13_seed0/checkpoint_final.pt",
+      "config": {
+        "model": "DeepONet-biodiesel",
+        "chemical_system": "biodiesel",
+        "experiment_name": "scaling",
+        "seed": 0,
+        "device": "cpu",
+        "architecture": {
+          "architecture_version": "reference_final_trunk_relu",
+          "family": "reconstructed DeepONet: branch [7,w,w,w], trunk [1,w-1,w], Hadamard combine, head Linear(w,6)",
+          "width": 13,
+          "branch_dims": [
+            7,
+            13,
+            13,
+            13
+          ],
+          "trunk_dims": [
+            1,
+            12,
+            13
+          ],
+          "combine": "hadamard",
+          "out_dim": 6,
+          "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+          "bias": true,
+          "weight_init": "glorot_normal (xavier_normal_), zero bias",
+          "parameter_count": 745
+        },
+        "parameter_count": 745,
+        "paper_parameter_count": 308,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50000,
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "normalization": {
+          "input_scaling": "min-max on the branch input [Y0, T]; trunk input tau = t/t_end",
+          "output": "normalized species u_hat (compared directly with normalized targets)",
+          "stats": "train-only min-max",
+          "t_end_s": 30.0
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "in_training_evaluation": null,
+        "provenance": {
+          "architecture": "literal reconstruction of the paper's prose description; 340 parameters at w=8 vs the 308 reported (unexplained)",
+          "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py (relu, Glorot normal, biased Linear, Adam lr=1e-3); not stated by the ChemKAN paper"
+        }
+      },
+      "checkpoint_sha256": "c5ed9342dc6259c956305eb295d1147add05c21b03169add036633b78ea2db9a"
+    }
+  ]
+}

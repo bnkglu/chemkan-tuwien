@@ -1,0 +1,6 @@
+2026-09-06 20:50:02,377 INFO run start 2026-09-06T17:50:02Z | run_id=chemkan/biodiesel/scaling_nmu2/h10_seed0 | system=biodiesel | dir=/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/scaling_nmu2/h10_seed0
+2026-09-06 20:50:02,477 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/scaling_nmu2/h10_seed0/config.json
+2026-09-06 20:57:56,458 INFO final training loss: 7.642326e-02
+2026-09-06 20:57:56,465 INFO wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/scaling_nmu2/h10_seed0/checkpoint_final.pt
+2026-09-06 20:57:56,488 INFO removed /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/biodiesel/scaling_nmu2/h10_seed0/checkpoint_resume.pt (run completed)
+2026-09-06 20:57:56,488 INFO run completed 2026-09-06T17:57:56Z
