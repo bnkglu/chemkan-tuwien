@@ -15,12 +15,20 @@ noise_runs() {
         --epochs 10000 --eval-every 1 --seed 0
   done
 
-  say "DeepONet noise runs (10,000 epochs each)"
+  say "Corrected DeepONet noise runs used by the current figures"
   for pct in 00 "${levels[@]}"; do
-    train_run "$DOB/noise/noise${pct}_seed0" "$REPO/deeponet" \
-      "$PY" train_biodiesel_deeponet.py --noise-percent "$((10#$pct))" \
-        --epochs 10000 --eval-every 1 --seed 0
+    reference_deeponet_run noise "noise${pct}_seed0"
   done
+}
+
+reference_deeponet_run() {
+  local checkpoint="$DOB_REF/$1/$2/checkpoint_final.pt"
+  if [ ! -f "$checkpoint" ]; then
+    warn "Missing corrected checkpoint: $checkpoint"
+    warn "Use biodiesel/deeponet_reference.sh to prepare the corrected checkpoints."
+    exit 1
+  fi
+  info "reuse corrected $1/$2 (current figure source)"
 }
 
 clean_replay_run() {
@@ -39,6 +47,7 @@ evaluate_noise_levels() {
       workdir="$REPO/chemkan/scripts"
       [ "$n" -eq 0 ] && dir="$CKB/main/direct_autograd_seed0"
     else
+      # Evaluate the runs the notebook actually plots (reference_final_trunk_relu).
       dir="$DOB/noise/noise${pct}_seed0"; script=evaluate_biodiesel_deeponet.py
       workdir="$REPO/deeponet"
     fi

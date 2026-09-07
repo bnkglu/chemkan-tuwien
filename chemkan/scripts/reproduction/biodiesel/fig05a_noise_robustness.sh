@@ -9,7 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/_runs.sh"
 require_python
 
-"$(dirname "${BASH_SOURCE[0]}")/00_data.sh" ${DRY_RUN:+--dry-run}
+DRY_RUN="$DRY_RUN" bash "$(dirname "${BASH_SOURCE[0]}")/00_data.sh"
 noise_runs
 
 say "Final-checkpoint evaluation"

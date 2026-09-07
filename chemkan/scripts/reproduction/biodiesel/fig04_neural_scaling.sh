@@ -24,11 +24,9 @@ for spec in "2 1" "3 2" "10 5" "17 9"; do
       --epochs 5000 --seed 0 --experiment-name scaling
 done
 
-say "DeepONet scaling widths (50,000 epochs)"
+say "Corrected DeepONet scaling widths"
 for w in 3 5 6 8 10 13; do
-  train_run "$DOB/scaling/w$(printf %02d "$w")_seed0" "$REPO/deeponet" \
-    "$PY" train_biodiesel_deeponet.py --width "$w" --epochs 50000 --seed 0 \
-      --experiment-name scaling
+  reference_deeponet_run scaling "w$(printf %02d "$w")_seed0"
 done
 
 PDF=$(ls "$REPO"/docs/paper/ChemKANs_*.pdf 2>/dev/null | head -1 || true)
@@ -41,14 +39,12 @@ else
   warn "the assembly step below needs $TABLES/paper_fig4_digitized.json"
 fi
 
-run "assemble points + explicit-mask fits and render the figure" -- \
-  bash -c "cd '$REPO/chemkan/scripts/diagnostics' && '$PY' assemble_fig4_scaling.py"
+run "validate completed sweeps and render both Figure-4 comparisons" -- \
+  "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
 
 say "Output"
-info "${FIGURES#"$REPO"/}/biodiesel/fig04_biodiesel_neural_scaling.pdf"
+info "${FIGURES#"$REPO"/}/biodiesel/fig04_biodiesel_neural_scaling{,_nmu2}.pdf"
 info "${TABLES#"$REPO"/}/biodiesel_fig4_points.csv   (per-point late-epoch oscillation bands)"
 info "${TABLES#"$REPO"/}/biodiesel_fig4_fits.csv     (descriptive all-point regressions)"
-info "The fits are DESCRIPTIVE, not scaling-law estimates: R^2 <= 0.46, standard errors"
-info "comparable to the slopes, and a different fitting scope from the paper's"
-info "pre-saturation subset."
+info "Fits describe all measured points; the paper fits a pre-saturation subset."
 verdict "Fig. 4"

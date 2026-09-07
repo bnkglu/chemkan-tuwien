@@ -8,7 +8,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/_runs.sh"
 require_python
 
-"$(dirname "${BASH_SOURCE[0]}")/00_data.sh" ${DRY_RUN:+--dry-run}
+DRY_RUN="$DRY_RUN" bash "$(dirname "${BASH_SOURCE[0]}")/00_data.sh"
 
 say "Figure 3 prerequisites: the 5/10/15% ChemKAN runs (shared with Figure 5)"
 for pct in 05 10 15; do

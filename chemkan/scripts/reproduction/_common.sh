@@ -17,14 +17,18 @@
 
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 PY="${CHEMKAN_PYTHON:-python3}"
 DRY_RUN="${DRY_RUN:-0}"
 NO_RENDER="${NO_RENDER:-0}"
 
 RESULTS="$REPO/results/reproduction"
 CKB="$RESULTS/chemkan/biodiesel"
-DOB="$RESULTS/baselines/deeponet/biodiesel"
+# Default figures use corrected checkpoints; legacy runs remain at their original paths.
+# DOB_REF is nested under DOB_LEGACY: address each explicitly, never glob recursively.
+DOB_LEGACY="$RESULTS/baselines/deeponet/biodiesel"
+DOB_REF="$DOB_LEGACY/reference_final_trunk_relu"
+DOB="$DOB_REF"
 HYD="$RESULTS/chemkan/hydrogen/diagnostics/base_on_n4"
 TABLES="$RESULTS/tables"
 FIGURES="$RESULTS/figures"

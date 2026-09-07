@@ -14,17 +14,15 @@ source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/_runs.sh"
 require_python
 
-"$(dirname "${BASH_SOURCE[0]}")/00_data.sh" ${DRY_RUN:+--dry-run}
+DRY_RUN="$DRY_RUN" bash "$(dirname "${BASH_SOURCE[0]}")/00_data.sh"
 clean_replay_run
 say "The 2/7/15% panels (shared with Figure 5A)"
 for pct in 02 07 15; do
   train_run "$CKB/noise/noise${pct}_seed0" "$REPO/chemkan/scripts" \
     "$PY" train_biodiesel.py --noise-percent "$((10#$pct))" --epochs 10000 --eval-every 1 --seed 0
-  train_run "$DOB/noise/noise${pct}_seed0" "$REPO/deeponet" \
-    "$PY" train_biodiesel_deeponet.py --noise-percent "$((10#$pct))" --epochs 10000 --eval-every 1 --seed 0
+  reference_deeponet_run noise "noise${pct}_seed0"
 done
-train_run "$DOB/noise/noise00_seed0" "$REPO/deeponet" \
-  "$PY" train_biodiesel_deeponet.py --noise-percent 0 --epochs 10000 --eval-every 1 --seed 0
+reference_deeponet_run noise noise00_seed0
 
 render_notebook 07_biodiesel_reproduction.ipynb
 say "Output"
