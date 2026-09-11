@@ -290,3 +290,35 @@ models — every number in it comes from the paper's own plot.
   initialization and any derivative scaling inside Eq. 14 are all unstated in the paper, so
   several explanations remain simultaneously open. Diagnostics:
   [notebook 09](../chemkan/notebooks/09_hydrogen_thermo_failure_analysis.ipynb).
+
+## 6. Consolidated biodiesel training comparison
+
+The table below brings together the saved full-batch, observed-interval, and trajectory
+batch-size-1 experiments. The **full-rollout train/test MSE** columns are the comparable
+metrics: the model is integrated from the original initial conditions over the complete
+time grid, without injecting observations between time points. The **local objective** is
+shown only for observed-interval training; it restarts from an observed state at every
+interval and therefore must not be compared directly with the full-rollout MSE columns.
+
+| procedure | seed | epochs | optimizer updates | local objective | full-rollout train MSE | held-out test MSE | runtime (s) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Original full batch (`B=20`) | 0 | 10,000 | 10,000 | — | 0.062017 | 0.081401 | 628.1 |
+| Original full batch (`B=20`) | 1 | 10,000 | 10,000 | — | 0.022466 | 0.063242 | 1,072.6 |
+| Original full batch (`B=20`) | 2 | 10,000 | 10,000 | — | 0.033120 | 0.055667 | 1,084.6 |
+| RBF-labelled full batch (`B=20`) | 0 | 10,000 | 10,000 | — | 0.014882 | 0.038514 | 649.4 |
+| Observed intervals | 0 | 10,000 | 10,000 | 0.000245 | 0.032555 | 0.085017 | 5,493.2 |
+| Observed intervals | 1 | 10,000 | 10,000 | 0.000389 | 0.023246 | 0.067326 | 6,768.6 |
+| Observed intervals | 2 | 10,000 | 10,000 | 0.000205 | 0.018138 | 0.070551 | 6,528.6 |
+| Full rollout, batch size 1 — matched budget | 0 | 500 | 10,000 | — | 0.117750 | 0.131032 | — |
+| Full rollout, batch size 1 — full budget | 0 | 10,000 | 200,000 | — | 0.021087 | 0.035169 | 28,353.2 |
+
+The observed-interval rows use one optimizer update per epoch, although they perform 29
+interval integrations per update. Batch size 1 uses 20 optimizer updates per epoch, so its
+10,000-epoch run receives 200,000 updates. At the matched 10,000-update budget, batch size
+1 performs worse than the original full-batch run; its improvement appears only after the
+additional 20-fold update budget.
+
+Sources: observed-interval [final comparison](../results/experiments/biodiesel_observed_intervals/tables/observed_intervals_final_comparison.csv),
+[runtime table](../results/experiments/biodiesel_observed_intervals/tables/observed_intervals_runtime.csv),
+batching [final comparison](../results/experiments/biodiesel_trajectory_batching/tables/batching_final_comparison.csv),
+and the RBF-labelled run's [metrics](../results/experiments/biodiesel_rbf_kanode/clean_seed0/metrics.json).
