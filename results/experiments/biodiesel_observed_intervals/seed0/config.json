@@ -1,0 +1,60 @@
+{
+  "model": "ChemKAN-KineticCore",
+  "chemical_system": "biodiesel",
+  "experiment": "observed_interval_training",
+  "experiment_name": "observed_intervals",
+  "seed": 0,
+  "sensitivity_backend": "direct_autograd",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 4,
+    "num_basis": 3,
+    "n_mu": 2,
+    "use_base_act": false
+  },
+  "parameter_count": 156,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": 10000,
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18), unchanged formula",
+  "training_procedure": "observed-interval training: for each adjacent pair of observation times (j, j+1) the solver is started from the OBSERVED state at t[j] and integrated over the absolute-time grid t[j:j+2]; only the endpoint is compared with the observation at t[j+1] via chemkan.losses.trajectory_mse on (1, B, m) tensors. A prediction is never fed into the next interval. Gradients from all N-1 intervals are accumulated before ONE Adam step per epoch. Not a procedure specified by the paper.",
+  "training_objective": "sum over the N-1 interval endpoints of the Eq. 18 normalized MSE (mean over species, mean over trajectories)",
+  "updates_per_epoch": 1,
+  "time_grid": {
+    "n_saved_times": 30,
+    "n_intervals": 29,
+    "t_start_s": 0.0,
+    "t_end_s": 30.0,
+    "dt_min_s": 1.0344810485839844,
+    "dt_max_s": 1.0344829559326172,
+    "note": "read from biodiesel.npz; the paper states 1 s sampling, the archive stores 30 points over 30 s (dt ~ 1.03448 s). The archive is used as-is; no data is regenerated."
+  },
+  "pinn": {
+    "enabled": false
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "dataset": "biodiesel.npz (train split, clean)",
+  "noise": null,
+  "evaluation": {
+    "eval_every": 100,
+    "columns": [
+      "full_rollout_train_mse",
+      "full_rollout_test_mse_clean"
+    ],
+    "convention": "full rollout from the ORIGINAL initial conditions over the whole saved time grid, scored with chemkan.losses.trajectory_mse under train-only min-max normalization -- the same quantity the original trainer reports",
+    "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss; the row at epoch == epochs is the final weights",
+    "normalizer": "train-only min-max (never refit on test data)",
+    "test_reference": "clean test trajectories (Eq. 22)"
+  },
+  "run_id": "biodiesel_observed_intervals/seed0",
+  "git_commit": "b4be13a262a19a6524a74d1da732c72e3515515a",
+  "created": "2026-09-07T16:39:56Z"
+}

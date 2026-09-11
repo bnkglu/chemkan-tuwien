@@ -1,0 +1,8 @@
+2026-09-07 19:39:56,021 INFO run start 2026-09-07T16:39:56Z | run_id=biodiesel/baseline_original_seed1 | system=biodiesel | dir=results/experiments/biodiesel_observed_intervals/baseline_original_seed1
+2026-09-07 19:39:56,058 INFO wrote results/experiments/biodiesel_observed_intervals/baseline_original_seed1/config.json
+2026-09-07 19:39:56,059 INFO snapshots at epochs [5000]
+2026-09-07 19:57:49,658 INFO wrote results/experiments/biodiesel_observed_intervals/baseline_original_seed1/checkpoint_epoch_5000.pt
+2026-09-07 19:57:49,659 INFO final training loss: 2.314913e-02
+2026-09-07 19:57:49,662 INFO wrote results/experiments/biodiesel_observed_intervals/baseline_original_seed1/checkpoint_final.pt
+2026-09-07 19:57:49,663 INFO removed results/experiments/biodiesel_observed_intervals/baseline_original_seed1/checkpoint_resume.pt (run completed)
+2026-09-07 19:57:49,663 INFO run completed 2026-09-07T16:57:49Z

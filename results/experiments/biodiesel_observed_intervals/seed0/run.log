@@ -1,0 +1,9 @@
+2026-09-07 19:39:56,021 INFO run start 2026-09-07T16:39:56Z | run_id=biodiesel_observed_intervals/seed0 | system=biodiesel_observed_intervals | dir=results/experiments/biodiesel_observed_intervals/seed0
+2026-09-07 19:39:56,057 INFO wrote results/experiments/biodiesel_observed_intervals/seed0/config.json
+2026-09-07 19:39:56,058 INFO snapshots at updates [5000]
+2026-09-07 21:11:30,641 INFO final interval objective: 2.454330e-04
+2026-09-07 21:11:30,688 INFO final full-rollout train MSE: 3.255497e-02 | clean test MSE: 8.501674e-02
+2026-09-07 21:11:30,688 INFO wrote results/experiments/biodiesel_observed_intervals/seed0/checkpoint_epoch_5000.pt
+2026-09-07 21:11:30,695 INFO wrote results/experiments/biodiesel_observed_intervals/seed0/checkpoint_final.pt
+2026-09-07 21:11:30,695 INFO removed results/experiments/biodiesel_observed_intervals/seed0/checkpoint_resume.pt (run completed)
+2026-09-07 21:11:30,698 INFO run completed 2026-09-07T18:11:30Z

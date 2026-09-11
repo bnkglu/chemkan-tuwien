@@ -1,0 +1,65 @@
+{
+  "checkpoint": "results/experiments/biodiesel_observed_intervals/seed0/checkpoint_final.pt",
+  "reference_archive": "chemkan/data/generated/biodiesel_fig3_condition.npz",
+  "condition": "Paper Figure 3; distinct from canonical train and test conditions",
+  "y0": [
+    1.94,
+    1.43,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "temperature_K": 334.8,
+  "training_method": "observed_interval",
+  "training_noise_percent": 0,
+  "seed": 0,
+  "optimizer_updates": 10000,
+  "n_observation_times": 30,
+  "n_dense_display_times": 601,
+  "full_rollout_loss_timesummed": 0.004982418846338987,
+  "conditional_interval_loss_timesummed": 0.00012289491132833064,
+  "per_species_full_rollout_error_timesummed": {
+    "TG": 0.002062564715743065,
+    "ROH": 0.0006291236495599151,
+    "DG": 0.015711333602666855,
+    "MG": 0.009649541229009628,
+    "GL": 0.0012821804266422987,
+    "RCO2R": 0.0005597702693194151
+  },
+  "per_species_interval_error_timesummed": {
+    "TG": 2.5126819309662096e-05,
+    "ROH": 3.0547631467925385e-05,
+    "DG": 0.0004321835294831544,
+    "MG": 8.303156209876761e-05,
+    "GL": 0.00013906430103816092,
+    "RCO2R": 2.741559910646174e-05
+  },
+  "loss_reduction": "Mean over 6 species; sum over 30 saved times for full rollout (initial error zero), or 29 interval endpoints. One condition. Train-only species min/max normalization.",
+  "interpretation": "The endpoint diagnostic supplies intermediate observations at the unseen condition. Only the full rollout is a prediction from initial conditions comparable in evaluation procedure to Figure 3. This is an interval-trained model, not a claim that the paper used interval training.",
+  "reference_origin": "Existing synthetic trajectory from the repository's mechanistic biodiesel ODE.",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08,
+    "sensitivity": "direct_autograd"
+  },
+  "grids": {
+    "add": {
+      "centers": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "h": 1.0
+    },
+    "lean": {
+      "centers": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "h": 1.0
+    }
+  }
+}

@@ -1,0 +1,7 @@
+seed,procedure,wall_seconds,segments,solver_calls_per_update
+0,observed_interval,5493.1806,1,29
+0,original,628.0747,1,1
+1,observed_interval,6768.5851,2,29
+1,original,1072.5878,1,1
+2,observed_interval,6528.579299999999,2,29
+2,original,1084.6098,1,1
