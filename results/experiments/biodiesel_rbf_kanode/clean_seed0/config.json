@@ -1,0 +1,61 @@
+{
+  "model": "ChemKAN-KineticCore",
+  "chemical_system": "biodiesel",
+  "experiment_name": "rbf_kanode_kernel",
+  "seed": 0,
+  "sensitivity_backend": "direct_autograd",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 4,
+    "num_basis": 3,
+    "n_mu": 2,
+    "use_base_act": false
+  },
+  "parameter_count": 156,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": 10000,
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18)",
+  "pinn": {
+    "enabled": false
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "initialization": "default",
+  "training_formulation": "full_rollout",
+  "batching": {
+    "batch_size": 20,
+    "num_train_trajectories": 20,
+    "batches_per_epoch": 1,
+    "total_optimizer_steps": 10000,
+    "shuffle_each_epoch": false,
+    "shuffle_seed": 0,
+    "legacy_full_batch_path": true,
+    "loss_reduction": "chemkan.losses.trajectory_mse, UNCHANGED: mean over species, sum over observation times, then MEAN over the trajectories in the batch. A batch of k trajectories divides by k, so a batch of one divides by one.",
+    "epoch_metric": "total_loss/mse_loss is the FULL 20-trajectory Eq. 18 metric evaluated under no_grad at the parameter state the epoch STARTS from -- the identical definition and the identical parameter state the unbatched trainer logs, so the column is directly comparable across batch sizes. It is NOT the last mini-batch's loss. The sample-weighted mean of the batch losses actually optimized during the epoch is logged separately as batch_loss_running_mean; those are measured at different parameter states within the epoch and are a running quantity, not the epoch metric.",
+    "epoch_definition": "one epoch is one complete pass over all training trajectories, each visited exactly once. An epoch is never redefined as an optimizer step."
+  },
+  "dataset": "biodiesel.npz (train split)",
+  "noise": null,
+  "in_training_evaluation": {
+    "eval_every": 100,
+    "columns": [
+      "test_mse_noisy",
+      "test_mse_clean"
+    ],
+    "split": "test",
+    "conditions": 10,
+    "parameter_state": "before this epoch's optimizer update -- the same state that produced the epoch's training loss",
+    "normalizer": "train-only min-max (never refit on test data)"
+  },
+  "run_id": "biodiesel/clean_seed0",
+  "git_commit": "b4be13a262a19a6524a74d1da732c72e3515515a",
+  "created": "2026-09-08T21:51:41Z"
+}

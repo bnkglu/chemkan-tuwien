@@ -1,0 +1,6 @@
+2026-09-09 00:51:41,288 INFO run start 2026-09-08T21:51:41Z | run_id=biodiesel/clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_rbf_kanode/clean_seed0
+2026-09-09 00:51:41,326 INFO wrote results/experiments/biodiesel_rbf_kanode/clean_seed0/config.json
+2026-09-09 01:02:32,137 INFO final training loss: 1.604480e-02
+2026-09-09 01:02:32,159 INFO wrote results/experiments/biodiesel_rbf_kanode/clean_seed0/checkpoint_final.pt
+2026-09-09 01:02:32,160 INFO removed results/experiments/biodiesel_rbf_kanode/clean_seed0/checkpoint_resume.pt (run completed)
+2026-09-09 01:02:32,163 INFO run completed 2026-09-08T22:02:32Z

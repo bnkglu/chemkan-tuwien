@@ -1,0 +1,17 @@
+{
+  "run_id": "biodiesel/clean_seed0",
+  "train_mse": 0.014881864190101624,
+  "n_params": 156,
+  "evaluation_wall_time_s": 0.0268,
+  "evaluated_conditions": 10,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (species-only, biodiesel Stage-1), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08,
+    "sensitivity": "direct_autograd"
+  },
+  "evaluated_at_train": "2026-09-08T22:20:13Z",
+  "test_mse": 0.03851444646716118,
+  "evaluated_at_test": "2026-09-08T22:20:14Z"
+}
