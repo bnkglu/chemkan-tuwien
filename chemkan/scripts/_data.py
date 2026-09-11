@@ -168,7 +168,7 @@ def load_hydrogen(split: str = "train"):
 
 
 def load_hydrogen_temperature(split: str = "train", n_points: int = 20000):
-    """Dense precomputed Cantera Stage-1 temperature trajectory (supervisor-approved).
+    """Dense precomputed Cantera Stage-1 temperature trajectory.
 
     Loads ``hydrogen_temperature_{n_points}.npz`` (produced by
     ``generate_hydrogen.py --temperature-only``) and returns the dense temperature

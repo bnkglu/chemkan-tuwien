@@ -8,7 +8,7 @@ Complete biodiesel Figures 3–6 first, then hydrogen Figures 7–8 and Table I 
 
 **Sensitivity method:** the ChemKAN paper uses FSA (Sec. II C 5, p. 8), while the present runs use `direct_autograd`. Keep the current backend for this phase and record it in run metadata. FSA implementation, validation and comparison are a separate later task; they are not prerequisites for the present figures.
 
-Keep the supervisor-accepted biodiesel dataset and `np.linspace(0, 30, 30)` unchanged: 30 observations including both endpoints. Keep the existing split, loss sampling and train-only normalizers.
+Keep the biodiesel dataset and `np.linspace(0, 30, 30)` unchanged: 30 observations including both endpoints. Keep the existing split, loss sampling and train-only normalizers.
 
 ### Exact saved-checkpoint references
 

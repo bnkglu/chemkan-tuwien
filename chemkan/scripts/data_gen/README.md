@@ -51,14 +51,14 @@ python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
 python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Figure 8 (A) 441 total data. 406 of which were unseen, 35 were seen during training.
 ```
 
-### Dense Stage-1 temperature cache (supervisor-approved)
+### Dense Stage-1 temperature cache
 
 Hydrogen Stage 1 integrates species only, with temperature supplied externally as
 `T(t)`. The paper reads Stage-1 temperature from the training data but does not
 specify how it is evaluated at the adaptive ODE solver's internal times. The
 original reproduction used the sparse 50-point trajectory through the linear
 `ObservedTemperature` provider (`src/chemkan/temperature.py`); the
-supervisor-approved final implementation instead precomputes a **dense** Cantera
+final implementation instead precomputes a **dense** Cantera
 temperature trajectory and reads it through the *same* linear `ObservedTemperature`.
 
 `--temperature-only` reuses the canonical hydrogen Cantera setup (mechanism,
@@ -177,8 +177,7 @@ r3 = k3 * MG * ROH
 This is the standard interpretation of reactions with one glyceride and one
 methanol reactant on the left-hand side, but it is documented because a
 first-order implementation would generate different trajectories with the same
-Arrhenius constants. This point can be confirmed with the supervisor if exact
-chemical interpretation becomes important.
+Arrhenius constants.
 
 The activation energies are reported in kcal/mol, so the code uses
 R = 1.987e-3 kcal/(mol*K).

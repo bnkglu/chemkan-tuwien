@@ -184,7 +184,7 @@ def generate_temperature_only(cfg) -> dict:
     normalization statistics, or ignition diagnostics are computed or saved.
 
     This exists so the dense Stage-1 temperature trajectory can be precomputed once
-    (supervisor-approved approach) and reused across experiments, instead of calling
+    and reused across experiments, instead of calling
     Cantera inside the training loop. The original 50-point ``hydrogen.npz`` remains
     the canonical trajectory/target dataset and is never touched here.
     """

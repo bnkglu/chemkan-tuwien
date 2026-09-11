@@ -1,4 +1,4 @@
-"""Dense precomputed Cantera Stage-1 temperature approach (supervisor-approved).
+"""Dense precomputed Cantera Stage-1 temperature approach.
 
 Covers the temperature-only generator mode, the dense loader's validations, the
 reuse of ObservedTemperature (exact-at-node / linear-between), the invariants that

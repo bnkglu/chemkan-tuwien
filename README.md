@@ -140,8 +140,8 @@ Full evidence: [`chemkan/notebooks/07_biodiesel_reproduction.ipynb`](chemkan/not
 
 ### ChemNODE
 
-Published ChemNODE results are used as the reference baseline, following supervisor
-guidance. No ChemNODE model is trained in this repository.
+Published ChemNODE results are used as the reference baseline. No ChemNODE model is
+trained in this repository.
 
 ### Course Information
 * **Course:** [194.147 Interdisciplinary Project in Data Science](https://tiss.tuwien.ac.at/course/courseDetails.xhtml?dswid=6763&dsrid=17&semester=2026S&courseNr=194147)

@@ -1,6 +1,6 @@
 r"""Isothermal (fixed-temperature) reference chemistry for the kinetic-core diagnostic.
 
-DIAGNOSTIC ONLY. Answers the question raised in the 28.08.2026 supervisor meeting: if the
+DIAGNOSTIC ONLY. Answers the question: if the
 temperature is held low/fixed, does the learned kinetic core still drive substantial species
 reaction, and does it react MORE strongly than the true isothermal chemistry?
 

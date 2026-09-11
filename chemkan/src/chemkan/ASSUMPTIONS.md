@@ -86,7 +86,7 @@ points, and a sparse sampling interval of 1 s. **These three statements are not
 simultaneously satisfiable**: 30 points spanning `[0, 30]` implies `dt = 30/29 ≈
 1.0345 s`, while an exact 1 s interval over the same window implies 31 coordinates.
 
-Current implementation (unchanged, supervisor-reviewed): `np.linspace(0.0, 30.0, 30)`
+Current implementation (unchanged): `np.linspace(0.0, 30.0, 30)`
 in `scripts/data_gen/generate_biodiesel.py`, with **every** point supervised, `t = 0`
 included. This honours "30 sampled data points" and treats "1 s" as the paper's
 rounded description of the ≈1.0345 s spacing.

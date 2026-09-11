@@ -9,7 +9,7 @@ Stage 1: integrate species only; temperature observed/interpolated; kinetic core
 Stage 2: integrate full [Y, T] with the COMPLETE model; update ALL parameters.
 
 Stage-1 external temperature source is selectable (``--stage1-temperature-source``).
-The supervisor-approved default ``dense-cantera`` reads a precomputed dense Cantera
+The default ``dense-cantera`` reads a precomputed dense Cantera
 trajectory (default 20000 points over 0.6 ms, generated once by
 ``generate_hydrogen.py --temperature-only``) through the existing linear
 ``ObservedTemperature``; ``training-data`` reads the original sparse 50-point
@@ -86,7 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--solver-method", default="tsit5")
     p.add_argument("--rtol", type=float, default=1e-6)
     p.add_argument("--atol", type=float, default=1e-8)
-    # Stage-1 external temperature source. The supervisor-approved default is a
+    # Stage-1 external temperature source. The default is a
     # dense precomputed Cantera trajectory read through ObservedTemperature; the
     # original sparse 50-point training-data trajectory remains as an ablation.
     p.add_argument("--stage1-temperature-source",

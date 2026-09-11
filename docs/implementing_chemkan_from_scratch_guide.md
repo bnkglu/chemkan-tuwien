@@ -577,7 +577,7 @@ train_stage(model, u0, t, target_full, steps=..., params=thermo_params)
 > externally as `T(t)`; only species are integrated. The paper reads it from the
 > training data but does not specify how it is evaluated at the adaptive solver's
 > internal times. This reproduction interpolates linearly via `ObservedTemperature`.
-> The supervisor-approved default precomputes a **dense** Cantera `T(t)` (20000
+> The default precomputes a **dense** Cantera `T(t)` (20000
 > points over the same 0.6 ms, generated once with `generate_hydrogen.py
 > --temperature-only`) and reads it through the same linear provider —
 > `train_hydrogen.py --stage1-temperature-source dense-cantera` (default). This
