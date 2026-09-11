@@ -23,17 +23,24 @@ Row-by-row verdicts:
 | paper result | our result | verdict |
 |---|---|---|
 | Fig. 3 — reconstruction at 0/5/10/15 % noise | all four columns, all six species, at the paper's explicit unseen condition | qualitatively similar, not quantitatively matched |
-| Fig. 4 — ChemKAN slopes −1.0 / −0.6 | −0.41 / −0.38 (R² 0.19 / 0.18) | fitting scope differs |
+| Fig. 4 — ChemKAN scaling slopes −1.0 / −0.6 (train / test) | −0.41 / −0.38 (R² 0.19 / 0.18) | fitting scope differs |
 | Fig. 4 — DeepONet slopes −4.0 / −1.4 | −2.08 / −1.32 (R² 0.68 / 0.76) | fitting scope differs |
-| Fig. 5A — ChemKAN clean-test error grows ~2× over 0→15 % | 0.77× (does not grow) | not matched |
+| Fig. 4 — ChemKAN errors already around 10⁻⁴ at 72 parameters | train / test 0.367 / 0.462 at 78 parameters (`h=2`), 0.068 / 0.112 at 156 (5,000 epochs) | not matched |
+| Fig. 5A — ChemKAN training MSE rises +3.78×10⁻⁵ (0→1 %) and +9.64×10⁻⁴ (0→5 %) | −3.04×10⁻² and −1.39×10⁻² | not measurable: late-training oscillation exceeds the increment |
+| Fig. 5A — clean-test error over 0→15 %: ChemKAN ~2×, DeepONet 5× | ChemKAN 0.77×, DeepONet 0.83× | not matched |
 | Fig. 5A — DeepONet/ChemKAN clean-test ratio 4.4× at 15 % | 0.86× | not matched |
-| Fig. 5B — DeepONet overfits at 7 % and 15 %, ChemKAN does not | no run meets our criterion, in either direction | does not discriminate |
-| Fig. 6 — 15 % models track the hidden clean trajectory | both models plotted at Fig. 3's condition | evaluated; plotted condition is our choice |
+| Fig. 5B — DeepONet overfits at 7 % (minimum near epoch 5,000) and 15 % (near 1,000); ChemKAN does not | DeepONet clean-test minima at epochs 6,659 (7 %) and 7,692 (15 %); no run meets our overfitting criterion | does not discriminate |
+| Fig. 6 — 15 % models track the hidden clean trajectory; DeepONet profiles jagged | both track it: clean MSE 0.0257 (ChemKAN), 0.0262 (DeepONet), at Fig. 3's condition | evaluated; plotted condition is our choice |
 | Fig. 7 — one 344-parameter ChemKAN reconstructs 9 species + T | species reconstructed by both runs; `H0` does not ignite (T is 89–95 % of its loss), `Hnorm1` does | not matched (`H0`) |
 | Fig. 8A — ~10⁻⁴ at the 1000 K training points | 1.50–2.31 (`H0`), 0.50–0.95 (`Hnorm1`) | not matched |
-| Fig. 8B — close ignition-delay agreement over 30 conditions | `H0` 0/30; `Hnorm1` 30/30, median rel. error 28.9 % | not matched (`H0`) |
+| Fig. 8A — order 10⁻³ at the unseen 987.5 K points | 1.30–2.30 (`H0`), 0.93–3.47 (`Hnorm1`) | not matched |
+| Fig. 8A — 441 conditions, 406 unseen; no aggregate error reported | all 441 evaluated, 0 failures; median 2.658 (`H0`), 0.254 (`Hnorm1`) | evaluated |
+| Fig. 8B — ignition delays for the 30 igniting cases; accuracy described as strong, no error metric reported | `H0` 0/30; `Hnorm1` 30/30, median rel. error 28.9 % | not matched (`H0`) |
 | Table I — 1 network, 344 parameters, 9 species + T | 1 / 344 measured / 9 + T | **matched** |
 | Table I — 2.0× speed-up vs Arrhenius.jl | 0.14× (`H0`), 0.50× (`Hnorm1`) vs Cantera, locally | not matched; different reference and hardware |
+
+Our losses are Eq. 18 values, summed over the saved times; the paper does not state its
+time reduction (§5).
 
 ---
 
@@ -205,7 +212,7 @@ The full-range view reveals the spatial structure:
 | | paper | `H0` | `Hnorm1` |
 |---|---|---|---|
 | six 1000 K training points | order 10⁻⁴ | 1.50–2.31 | 0.50–0.95 |
-| 21 unseen points at 987.5 K | order 10⁻³ | 1.30–2.30 | 0.93–3.47 |
+| unseen points at 987.5 K (21 in our grid) | order 10⁻³ | 1.30–2.30 | 0.93–3.47 |
 | 441-grid median | not reported | 2.658 | 0.254 |
 
 All 441 conditions were evaluated with **0 integration failures**. The 21×21 grid is
@@ -252,7 +259,7 @@ code, not the science.
 | Fig.-4 `h=4` snapshot | the epoch-5000 snapshot is **bitwise identical** to an independently trained 5,000-epoch run |
 | Determinism | training is bitwise reproducible under CPU contention (200 epochs × 4 parallel columns, identical) |
 | Run provenance | 19 audited checkpoint references — 8 DeepONet noise, 6 DeepONet scaling, 5 ChemKAN scaling — each verified by SHA-256 against its checkpoint. Only the 11 scaling rows are Figure-4 points. ([`biodiesel_completed_run_audit.csv`](../results/reproduction/tables/biodiesel_completed_run_audit.csv)) |
-| Test suite | **235 passing** |
+| Test suite | **263 passing** |
 
 ---
 
