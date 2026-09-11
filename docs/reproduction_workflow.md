@@ -337,16 +337,11 @@ python benchmark_inference.py --run-dir <run> --out ../../../results/reproductio
 
 ```bash
 cd chemkan/scripts/diagnostics
-# Fig. 4 marker positions, read from the paper PDF (600 dpi vector render)
-python digitize_paper_fig4.py --pdf ../../../docs/paper/ChemKANs_*.pdf \
-    --out-dir /tmp/fig4 --json ../../../results/reproduction/tables/paper_fig4_digitized.json
 # Fig. 4 points + explicit fit masks from our own scaling runs
 python assemble_fig4_scaling.py
 ```
 
-Both write to `results/reproduction/tables/`. The digitization is validated by refitting
-the four slopes the paper prints in its own figure — that validates **the extraction**, not
-any model trained here.
+It writes to `results/reproduction/tables/`.
 
 ## Shortcut — per-figure scripts
 

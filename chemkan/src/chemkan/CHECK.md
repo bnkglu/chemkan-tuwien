@@ -77,7 +77,7 @@ new:  physical [Y,T] -> train-minmax -> tanh -> KAN -> physical dY/dt
   hydrogen uses archive `m+1` stats). No clipping; not per-trajectory.
 - Checkpoints store `state_representation="physical"` + `input_scaling` (exact
   `u_min`/`u_max` for `minmax`); eval reconstructs it and rejects missing/unknown metadata.
-- Witnesses (`tests/test_input_scaling.py`): raw path → `d(out)/d(T)=0` exactly;
+- Tests (`tests/test_input_scaling.py`): raw path → `d(out)/d(T)=0` exactly;
   scaled path → `d(out)/d(T)≠0`. Parameter counts unchanged (156/208, 344/411).
 
 ## Preserved from before (unchanged math)

@@ -12,9 +12,7 @@ paper*, because those are different claims with different support.
 
 Row-by-row verdicts:
 [`reproduction_comparison.csv`](../results/reproduction/tables/reproduction_comparison.csv)
-(20 rows) · hydrogen detail:
-[`hydrogen_paper_comparison.csv`](../results/reproduction/tables/hydrogen_paper_comparison.csv)
-· full evidence: notebooks
+(20 rows) · full evidence: notebooks
 [07](../chemkan/notebooks/07_biodiesel_reproduction.ipynb) and
 [08](../chemkan/notebooks/08_hydrogen_reproduction.ipynb).
 
@@ -55,10 +53,9 @@ overshoot. The noisy columns are not visibly worse than the clean one.
 
 ![Fig. 4](../results/reproduction/figures/biodiesel/fig04_biodiesel_neural_scaling.png)
 
-Widths were fixed by **digitizing the paper's own figure** to 0.11 % in parameter count
-([`fig4_width_matrix.md`](fig4_width_matrix.md)). Four of its five ChemKAN markers land
-exactly on `39h`; the fifth, at ≈650, matches no feasible width and is preserved as an
-unexplained discrepancy.
+Widths span the parameter range of the paper's Figure 4 axis
+([`fig4_width_matrix.md`](fig4_width_matrix.md)). The paper gives no width table, so they
+are not paper-specified architectures.
 
 | series | paper | ours (all-point) | R² |
 |---|---|---|---|
@@ -251,16 +248,11 @@ code, not the science.
 |---|---|
 | Biodiesel parameter count | **156**, measured from `model.parameters()`, exactly `39h` at `h=4` — the paper's stated architecture |
 | Hydrogen parameter count | **344** measured, matching Table I exactly |
-| Fig.-4 marker recovery | four of the paper's five ChemKAN markers land **exactly** on `39h` (78, 117, 156, 390) |
-| Digitization validity | refitting the paper's own digitized points recovers its four printed slopes (−1.04/−0.59/−4.13/−1.45 vs −1.0/−0.6/−4.0/−1.4), at 0.45 px rms = **0.11 %** in parameter count |
 | Clean replay vs `B0` | **bitwise identical** — identical weights and identical training loss at all 10,000 epochs; the replay only adds the per-epoch clean-test columns `B0` lacks |
 | Fig.-4 `h=4` snapshot | the epoch-5000 snapshot is **bitwise identical** to an independently trained 5,000-epoch run |
 | Determinism | training is bitwise reproducible under CPU contention (200 epochs × 4 parallel columns, identical) |
 | Run provenance | 19 audited checkpoint references — 8 DeepONet noise, 6 DeepONet scaling, 5 ChemKAN scaling — each verified by SHA-256 against its checkpoint. Only the 11 scaling rows are Figure-4 points. ([`biodiesel_completed_run_audit.csv`](../results/reproduction/tables/biodiesel_completed_run_audit.csv)) |
 | Test suite | **235 passing** |
-
-The digitization row validates the **extraction** of the paper's figure, not our trained
-models — every number in it comes from the paper's own plot.
 
 ---
 

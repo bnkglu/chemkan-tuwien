@@ -352,11 +352,9 @@ Use the already-selected multiplication-split rule:
 Mark it RECONSTRUCTION CHOICE: the ChemKAN paper does not specify the Fig. 4 rule.
 
 Before fixing the width sweep:
-1. render/digitize Fig. 4 at high resolution;
-2. estimate the x locations of the ChemKAN markers;
-3. compare these against feasible counts P=39h;
-4. choose the closest systematic hidden-width family;
-5. save the selected h values and actual counts in a manifest.
+1. compare feasible counts P=39h against the parameter range of the Fig. 4 axis;
+2. choose a systematic hidden-width family covering that range;
+3. save the selected h values and actual counts in a manifest.
 
 A reasonable candidate family to CHECK against the figure, not blindly adopt, is:
     h = [2, 3, 4, 6, 10, 18]
@@ -408,9 +406,8 @@ Measure actual count every time.
 Do not call these exact paper architectures unless verified.
 
 Before fixing widths:
-1. digitize DeepONet Fig. 4 x-locations;
-2. select a transparent width family spanning the same approximate range;
-3. store actual parameter counts.
+1. select a transparent width family spanning the parameter range of the Fig. 4 axis;
+2. store actual parameter counts.
 
 Train each DeepONet scaling model for:
     50,000 epochs

@@ -93,10 +93,8 @@ rounded description of the ≈1.0345 s spacing.
 
 The other reading — integrate on `0, 1, …, 30` and supervise only `t = 1…30`, so that
 the 30 observations sit at exactly 1 s intervals and `t = 0` is the known initial
-condition — is an **alternative interpretation that was not adopted**. It remains
-defensible on the evidence (a high-resolution measurement of the Fig. 3 data markers
-gives 30 markers at dt ≈ 1.003 s, the first about one full spacing after `t = 0`); it
-was not adopted because it is itself a reconstruction rather than a paper-explicit
+condition — is an **alternative interpretation that was not adopted**. It was not
+adopted because it is itself a reconstruction rather than a paper-explicit
 indexing convention, and because switching would change the dataset underlying the
 existing biodiesel results. Any future switch must regenerate the dataset and re-run
 every biodiesel result.
@@ -190,7 +188,7 @@ not confirmed author preprocessing.**
   hydrogen uses the archive's `m+1` stats directly. Stage 1 / Stage 2 / held-out inputs
   all use this same normalizer.
 - **`input_scaling=none`** is retained as an explicit raw-input diagnostic/ablation.
-  Two witnesses (`tests/test_input_scaling.py`) prove the practical consequence on
+  Two tests (`tests/test_input_scaling.py`) show the practical consequence on
   CPU/float64: raw physical T gives bit-identical model outputs for 323 K vs 343 K and
   `d(out)/d(T) == 0` exactly; under min-max scaling `d(out)/d(T) != 0`.
 - Checkpoints record `state_representation` and `input_scaling` (with the exact

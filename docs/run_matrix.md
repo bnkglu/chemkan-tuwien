@@ -93,7 +93,7 @@ Measured training times for the corrected runs are recorded in `biodiesel_comple
 
 ## D. Figure 4 — existing sweep and fixed-n_mu comparison
 
-Width selection and digitization are complete; see [fig4_width_matrix.md](fig4_width_matrix.md).
+Width selection is complete; see [fig4_width_matrix.md](fig4_width_matrix.md).
 
 - Existing ChemKAN: h = 2/3/4/10/17, counts 78/117/156/390/663,
   `n_mu=ceil(h/2)`, 5,000 epochs, N=3, base OFF. The h=4 point uses the clean replay's

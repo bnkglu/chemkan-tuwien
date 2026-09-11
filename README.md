@@ -99,13 +99,6 @@ be merged:
 upper bound for both models, so that view is uniformly pale. A clearly labelled full-range
 comparison follows it. No error value is rescaled or divided to fit the paper's range.
 
-**Hydrogen numbers side by side:**
-[`results/reproduction/tables/hydrogen_paper_comparison.csv`](results/reproduction/tables/hydrogen_paper_comparison.csv)
-(paper / `H0` / `Hnorm1`, with a page-level paper source per row), also displayed in
-notebook 08. For example the paper reports order **10⁻⁴** at the six 1000 K training
-points, against **1.50–2.31** (`H0`) and **0.50–0.95** (`Hnorm1`). The table records the
-unresolved time-reduction convention and keeps local timing separate from the paper's.
-
 These are **co-existing findings, not a ranked causal chain.** The paper leaves the grid
 size `N`, the `θ_thermo` initialization, and any derivative scaling inside Eq. 14
 unstated, so several explanations remain simultaneously open.
@@ -138,10 +131,8 @@ Full evidence: [`chemkan/notebooks/07_biodiesel_reproduction.ipynb`](chemkan/not
 - **No plotted Figure-5B run meets our stated overfitting criterion.** Its thresholds and
   201-epoch smoothing window are diagnostic choices, not paper requirements. Per-run
   late-loss spans and sources are saved in `biodiesel_fig5b_overfit_assessment.json`.
-- Figure 4's widths were fixed by **digitizing the paper's own figure** to 0.11 % in
-  parameter count (`docs/fig4_width_matrix.md`). Four of its five ChemKAN markers land
-  exactly on `39h`; the fifth, at ~650 parameters, matches no feasible width and is
-  preserved as an unexplained discrepancy.
+- Figure 4's widths span the parameter range of the paper's Figure 4 axis. The paper gives
+  no width table, so they are not paper-specified architectures (`docs/fig4_width_matrix.md`).
 - The absolute MSE gap to the paper's reported magnitude is **unexplained**, and its size
   depends on a time reduction the paper does not state: our literal Eq. 18 values are
   train 0.062 / test 0.081, the conventional time-averaged equivalents 2.07×10⁻³ /

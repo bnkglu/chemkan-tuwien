@@ -91,7 +91,7 @@ chemkan/scripts/reproduction/
 │   ├── deeponet_reference.sh          corrected DeepONet only: 8 noise + 6 scaling runs
 │   ├── fig04_nmu2.sh                  fixed-n_mu=2 comparison data: 3 new + 2 reused
 │   ├── fig03_trajectories.sh          Fig. 3   noise columns on the published condition
-│   ├── fig04_neural_scaling.sh        Fig. 4   width sweep + paper digitization
+│   ├── fig04_neural_scaling.sh        Fig. 4   width sweep
 │   ├── fig05a_noise_robustness.sh     Fig. 5A  three metrics × 8 noise levels × 2 models
 │   ├── fig05b_loss_dynamics.sh        Fig. 5B  per-epoch loss curves
 │   ├── fig06_15pct_profiles.sh        Fig. 6   15 % profiles, no new training

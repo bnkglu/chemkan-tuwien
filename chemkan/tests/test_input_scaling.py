@@ -17,14 +17,14 @@ CPU = torch.device("cpu")
 F64 = torch.float64
 
 
-# --- §18 raw-temperature saturation witness (CPU / float64) ------------------------
+# --- §18 raw-temperature saturation (CPU / float64) --------------------------------
 
 def test_tanh_saturates_on_raw_kelvin_bit_exact():
     assert torch.tanh(torch.tensor(323.0, dtype=F64)).item() == 1.0
     assert torch.tanh(torch.tensor(343.0, dtype=F64)).item() == 1.0
 
 
-def test_raw_input_model_is_temperature_blind_witness():
+def test_raw_input_model_is_temperature_blind():
     torch.manual_seed(0)
     core = KineticCore(species_dim=2, hidden_dim=3, num_basis=4, n_mu=2,
                        use_base_act=False).double()          # base-off, float64
@@ -46,7 +46,7 @@ def test_raw_input_temperature_gradient_is_exactly_zero():
     assert torch.equal(T.grad, torch.zeros_like(T.grad))    # d out / d T == 0 exactly
 
 
-# --- §19 scaled-input temperature sensitivity witness -----------------------------
+# --- §19 scaled-input temperature sensitivity -------------------------------------
 
 def test_minmax_separates_temperatures_before_tanh():
     # train T range includes 323, 343

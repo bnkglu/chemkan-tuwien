@@ -1,12 +1,11 @@
 #!/bin/bash
-# Figure 4 - neural scaling. Widths were fixed by DIGITIZING the paper's own figure
-# (docs/fig4_width_matrix.md), not guessed:
+# Figure 4 - neural scaling. The widths span the parameter range of the paper's Figure 4
+# axis, 10^2 to 10^3 parameters (docs/fig4_width_matrix.md):
 #   ChemKAN  h = 2, 3, 4, 10, 17  ->  78, 117, 156, 390, 663 measured parameters, 5,000 epochs
 #   DeepONet w = 3, 5, 6, 8, 10, 13 -> 85, 169, 220, 340, 484, 745, 50,000 epochs
 #
-# These RECONSTRUCT the plotted parameter range; they are not paper-specified
-# architectures. The paper's ~650-parameter ChemKAN marker matches no feasible width and
-# is preserved as an unexplained discrepancy - h=17 (663) is only the nearest feasible one.
+# They cover the plotted parameter range; the paper gives no width table, so they are
+# not paper-specified architectures.
 #
 # h=4 is NOT trained here: it is the clean replay's checkpoint_epoch_5000.pt, the model
 # after exactly 5,000 optimizer steps under every Figure-4 setting.
@@ -28,16 +27,6 @@ say "Corrected DeepONet scaling widths"
 for w in 3 5 6 8 10 13; do
   reference_deeponet_run scaling "w$(printf %02d "$w")_seed0"
 done
-
-PDF=$(ls "$REPO"/docs/paper/ChemKANs_*.pdf 2>/dev/null | head -1 || true)
-if [ -n "$PDF" ]; then
-  run "digitize the paper's Figure-4 markers (validates the EXTRACTION, not our models)" -- \
-    bash -c "cd '$REPO/chemkan/scripts/diagnostics' && '$PY' digitize_paper_fig4.py \
-      --pdf '$PDF' --out-dir '${TMPDIR:-/tmp}/fig4' --json '$TABLES/paper_fig4_digitized.json'"
-else
-  warn "paper PDF not found under docs/paper - skipping digitization"
-  warn "the assembly step below needs $TABLES/paper_fig4_digitized.json"
-fi
 
 run "validate completed sweeps and render both Figure-4 comparisons" -- \
   "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
