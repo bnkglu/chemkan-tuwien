@@ -1,0 +1,6 @@
+2026-09-08 09:50:32,116 INFO run start 2026-09-08T06:50:32Z | run_id=biodiesel/timing_probe_bs1_100ep | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/timing_probe_bs1_100ep
+2026-09-08 09:50:32,144 INFO wrote results/experiments/biodiesel_trajectory_batching/timing_probe_bs1_100ep/config.json
+2026-09-08 09:50:32,145 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 2000 total over 100 epochs
+2026-09-08 09:51:59,370 INFO final training loss: 8.486224e-01
+2026-09-08 09:51:59,384 INFO wrote results/experiments/biodiesel_trajectory_batching/timing_probe_bs1_100ep/checkpoint_final.pt
+2026-09-08 09:51:59,384 INFO run completed 2026-09-08T06:51:59Z

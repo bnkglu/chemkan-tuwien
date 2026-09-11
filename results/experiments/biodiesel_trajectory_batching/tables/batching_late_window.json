@@ -1,0 +1,13 @@
+{
+  "late_window_median": {
+    "B1": {
+      "train": 0.030800575390458107,
+      "test": 0.05571204423904419
+    },
+    "B20": {
+      "train": 0.03578290529549122,
+      "test": 0.07306277379393578
+    }
+  },
+  "window": "last 20% of epochs, raw per-epoch values"
+}

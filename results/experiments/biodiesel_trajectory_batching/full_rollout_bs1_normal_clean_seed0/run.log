@@ -1,0 +1,40 @@
+2026-09-08 09:52:29,367 INFO run start 2026-09-08T06:52:29Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 09:52:29,398 INFO wrote results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0/config.json
+2026-09-08 09:52:29,399 INFO snapshots at epochs [500]
+2026-09-08 09:52:29,399 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 10:52:47,742 INFO run start 2026-09-08T07:52:47Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 10:52:47,747 INFO resuming biodiesel from epoch 2500 (original config preserved)
+2026-09-08 10:52:47,760 INFO snapshots at epochs [500]
+2026-09-08 10:52:47,760 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 11:23:42,952 INFO run start 2026-09-08T08:23:42Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 11:23:42,960 INFO resuming biodiesel from epoch 3000 (original config preserved)
+2026-09-08 11:23:49,194 INFO snapshots at epochs [500]
+2026-09-08 11:23:49,195 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 11:52:46,887 INFO run start 2026-09-08T08:52:46Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 11:52:46,892 INFO resuming biodiesel from epoch 3500 (original config preserved)
+2026-09-08 11:52:46,909 INFO snapshots at epochs [500]
+2026-09-08 11:52:46,909 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 12:22:30,424 INFO run start 2026-09-08T09:22:30Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 12:22:30,428 INFO resuming biodiesel from epoch 4100 (original config preserved)
+2026-09-08 12:22:30,445 INFO snapshots at epochs [500]
+2026-09-08 12:22:30,445 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 12:52:15,623 INFO run start 2026-09-08T09:52:15Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 12:52:15,627 INFO resuming biodiesel from epoch 4700 (original config preserved)
+2026-09-08 12:52:15,646 INFO snapshots at epochs [500]
+2026-09-08 12:52:15,646 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 13:22:16,928 INFO run start 2026-09-08T10:22:16Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 13:22:16,932 INFO resuming biodiesel from epoch 5300 (original config preserved)
+2026-09-08 13:22:16,954 INFO snapshots at epochs [500]
+2026-09-08 13:22:16,954 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 16:28:21,296 INFO run start 2026-09-08T13:28:21Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 16:28:21,301 INFO resuming biodiesel from epoch 8500 (original config preserved)
+2026-09-08 16:28:21,337 INFO snapshots at epochs [500]
+2026-09-08 16:28:21,338 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 17:58:18,163 INFO run start 2026-09-08T14:58:18Z | run_id=biodiesel/full_rollout_bs1_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0
+2026-09-08 17:58:18,167 INFO resuming biodiesel from epoch 9700 (original config preserved)
+2026-09-08 17:58:18,208 INFO snapshots at epochs [500]
+2026-09-08 17:58:18,208 INFO trajectory batching: batch_size=1 of 20 trajectories -> 20 optimizer steps/epoch, 200000 total over 10000 epochs
+2026-09-08 18:20:43,404 INFO final training loss: 3.248828e-02
+2026-09-08 18:20:43,407 INFO wrote results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0/checkpoint_final.pt
+2026-09-08 18:20:43,407 INFO removed results/experiments/biodiesel_trajectory_batching/full_rollout_bs1_normal_clean_seed0/checkpoint_resume.pt (run completed)
+2026-09-08 18:20:43,407 INFO run completed 2026-09-08T15:20:43Z

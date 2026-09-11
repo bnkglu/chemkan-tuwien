@@ -1,0 +1,13 @@
+{
+  "epochs_measured": 100,
+  "optimizer_steps": 2000,
+  "batches_per_epoch": 20,
+  "process_wall_seconds": 89.55,
+  "training_loop_seconds": 86.45,
+  "seconds_per_epoch": 0.8645,
+  "optimizer_updates_per_second": 23.14,
+  "projected_10000_epoch_seconds": 8644.8,
+  "projected_10000_epoch_hours": 2.4,
+  "projected_total_optimizer_steps": 200000,
+  "note": "measured on the same machine with nothing else running; includes the one no_grad 20-trajectory epoch-metric solve per epoch"
+}

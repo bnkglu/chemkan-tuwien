@@ -1,0 +1,82 @@
+{
+  "ChemKAN_xavier_0pct": {
+    "min_epoch": 9796,
+    "test_rise": 0.10032694944477427,
+    "train_fall_after_min": 0.08019957492878724,
+    "overfitting": false,
+    "train_late_span": 0.11902474611997604,
+    "test_late_span": 0.18321379274129868,
+    "source": "results/experiments/biodiesel_xavier_init/clean_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_default_0pct": {
+    "min_epoch": 9986,
+    "test_rise": 1.2527524906668899,
+    "train_fall_after_min": 0.0,
+    "overfitting": false,
+    "train_late_span": 0.11876014433801174,
+    "test_late_span": 0.12729717791080475,
+    "source": "results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_xavier_2pct": {
+    "min_epoch": 9875,
+    "test_rise": 0.09013259991994338,
+    "train_fall_after_min": 0.002121257745972565,
+    "overfitting": false,
+    "train_late_span": 0.1925409808754921,
+    "test_late_span": 0.2740287780761719,
+    "source": "results/experiments/biodiesel_xavier_init/noise02_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_default_2pct": {
+    "min_epoch": 9960,
+    "test_rise": 0.051830728387700864,
+    "train_fall_after_min": 0.0,
+    "overfitting": false,
+    "train_late_span": 0.10663852840662003,
+    "test_late_span": 0.12736472487449646,
+    "source": "results/reproduction/chemkan/biodiesel/noise/noise02_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_xavier_7pct": {
+    "min_epoch": 9795,
+    "test_rise": 0.06906509506063951,
+    "train_fall_after_min": 0.05226567685527629,
+    "overfitting": false,
+    "train_late_span": 0.12041517347097397,
+    "test_late_span": 0.1807573363184929,
+    "source": "results/experiments/biodiesel_xavier_init/noise07_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_default_7pct": {
+    "min_epoch": 9118,
+    "test_rise": 0.035234603221700356,
+    "train_fall_after_min": 0.03553995389013657,
+    "overfitting": false,
+    "train_late_span": 0.18942063301801682,
+    "test_late_span": 0.200004942715168,
+    "source": "results/reproduction/chemkan/biodiesel/noise/noise07_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_xavier_15pct": {
+    "min_epoch": 9885,
+    "test_rise": 0.06164348733694025,
+    "train_fall_after_min": 0.00041852841551678243,
+    "overfitting": false,
+    "train_late_span": 0.13230066001415253,
+    "test_late_span": 0.18343062698841095,
+    "source": "results/experiments/biodiesel_xavier_init/noise15_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  },
+  "ChemKAN_default_15pct": {
+    "min_epoch": 9881,
+    "test_rise": 0.016376143331003234,
+    "train_fall_after_min": 0.00032499378605062664,
+    "overfitting": false,
+    "train_late_span": 0.10451433062553406,
+    "test_late_span": 0.11642616242170334,
+    "source": "results/reproduction/chemkan/biodiesel/noise/noise15_seed0/history.csv",
+    "criterion": "test rise >10%, training fall >5%, minimum before 90% of budget; training uses a centered 201-epoch mean, clamped to its available endpoints"
+  }
+}
