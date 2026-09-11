@@ -1,0 +1,16 @@
+{
+  "run_id": "baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise00_seed0",
+  "noise_percent": 0,
+  "train_mse_noisy": 0.02269730344414711,
+  "train_mse_clean": 0.02269730344414711,
+  "n_params": 340,
+  "paper_parameter_count": 308,
+  "evaluation_wall_time_s": 0.0042,
+  "train_conditions": 20,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (species-only), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
+  "evaluated_at_train": "2026-09-09T14:16:32Z",
+  "test_mse_noisy": 0.06486620754003525,
+  "test_mse_clean": 0.06486620754003525,
+  "test_conditions": 10,
+  "evaluated_at_test": "2026-09-09T14:16:34Z"
+}

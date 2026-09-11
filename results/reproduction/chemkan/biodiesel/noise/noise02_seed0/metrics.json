@@ -1,10 +1,10 @@
 {
-  "run_id": "chemkan/biodiesel/noise/noise05_seed0",
-  "noise_percent": 5,
-  "train_mse_noisy": 0.048136744648218155,
-  "train_mse_clean": 0.03154546394944191,
+  "run_id": "chemkan/biodiesel/noise/noise02_seed0",
+  "noise_percent": 2,
+  "train_mse_noisy": 0.03385623171925545,
+  "train_mse_clean": 0.03116576373577118,
   "n_params": 156,
-  "evaluation_wall_time_s": 0.0244,
+  "evaluation_wall_time_s": 0.0269,
   "evaluated_conditions": 10,
   "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (species-only, biodiesel Stage-1), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
   "solver": {
@@ -13,8 +13,8 @@
     "atol": 1e-08,
     "sensitivity": "direct_autograd"
   },
-  "evaluated_at_train": "2026-09-09T14:16:22Z",
-  "test_mse_noisy": 0.09069150686264038,
-  "test_mse_clean": 0.07010368257761002,
-  "evaluated_at_test": "2026-09-09T14:16:23Z"
+  "evaluated_at_train": "2026-09-09T14:16:17Z",
+  "test_mse_noisy": 0.07036580890417099,
+  "test_mse_clean": 0.06867881119251251,
+  "evaluated_at_test": "2026-09-09T14:16:18Z"
 }

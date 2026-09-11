@@ -1,0 +1,18 @@
+{
+  "initial_state": [
+    1.106827735900879,
+    1.4436622858047485,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "temperature_K": 338.1545715332031,
+  "deeponet_version": "reference_final_trunk_relu",
+  "clean_mse": {
+    "ChemKAN": 0.041233353316783905,
+    "DeepONet": 0.0366484560072422
+  },
+  "condition": "test split case 0",
+  "observation_times": 30
+}

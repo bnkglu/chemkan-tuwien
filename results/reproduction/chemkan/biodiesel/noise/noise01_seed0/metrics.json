@@ -4,7 +4,7 @@
   "train_mse_noisy": 0.03158406540751457,
   "train_mse_clean": 0.031071346253156662,
   "n_params": 156,
-  "evaluation_wall_time_s": 0.0269,
+  "evaluation_wall_time_s": 0.0241,
   "evaluated_conditions": 10,
   "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (species-only, biodiesel Stage-1), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
   "solver": {
@@ -13,8 +13,8 @@
     "atol": 1e-08,
     "sensitivity": "direct_autograd"
   },
-  "evaluated_at_train": "2026-09-05T17:07:39Z",
+  "evaluated_at_train": "2026-09-09T14:16:14Z",
   "test_mse_noisy": 0.0690363347530365,
   "test_mse_clean": 0.06885488331317902,
-  "evaluated_at_test": "2026-09-05T17:07:40Z"
+  "evaluated_at_test": "2026-09-09T14:16:16Z"
 }
