@@ -1,0 +1,5 @@
+initialization,architecture,num_basis,parameters,train_MSE,held_out_MSE,run,stage1_source
+random,base-OFF,5,344,2.1227407455444336,3.1555752754211426,results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_stage2_10000_seed0,chemkan/hydrogen/diagnostics/stage1_seed0
+random,base-ON,4,344,2.1393826007843018,3.1461219787597656,results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0,chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0
+norm-matched dir1,base-OFF,5,344,0.26972633600234985,0.20708340406417847,results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_scaled_random_normmatched_dir1_stage2_10000,chemkan/hydrogen/diagnostics/stage1_seed0
+norm-matched dir1,base-ON,4,344,0.31010109186172485,0.20879463851451874,results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000,chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0
