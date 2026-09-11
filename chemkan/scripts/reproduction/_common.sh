@@ -14,6 +14,11 @@
 #                    torchdiffeq, and cantera. See README / docs/reproduction_workflow.md.
 #   DRY_RUN=1        print what would run, change nothing (same as --dry-run).
 #   NO_RENDER=1      skip notebook execution (same as --no-render).
+#   RENDER_NOTEBOOKS=1  additionally re-execute the notebook (same as --render-notebooks).
+#
+# Figures are produced by chemkan/scripts/figures/*.py, which is the single
+# implementation. The notebooks import those same functions for inline display and
+# interpretation, so producing one figure no longer requires executing a whole notebook.
 
 set -euo pipefail
 
@@ -21,6 +26,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 PY="${CHEMKAN_PYTHON:-python3}"
 DRY_RUN="${DRY_RUN:-0}"
 NO_RENDER="${NO_RENDER:-0}"
+RENDER_NOTEBOOKS="${RENDER_NOTEBOOKS:-0}"
 
 RESULTS="$REPO/results/reproduction"
 CKB="$RESULTS/chemkan/biodiesel"
@@ -41,6 +47,7 @@ for arg in "$@"; do
   case "$arg" in
     --dry-run)   DRY_RUN=1 ;;
     --no-render) NO_RENDER=1 ;;
+    --render-notebooks) RENDER_NOTEBOOKS=1 ;;
     -h|--help)   SHOW_HELP=1 ;;
   esac
 done
@@ -106,6 +113,22 @@ train_run() {
 }
 
 # ------------------------------------------------------------- rendering + closing
+figure_script() {            # figure_script <script name> [args...]
+  # The single figure implementation. Fast, and it executes nothing but that figure.
+  local script="$1"; shift
+  run "draw $script" -- "$PY" "$REPO/chemkan/scripts/figures/$script" "$@"
+}
+
+maybe_render_notebook() {    # maybe_render_notebook <notebook basename>
+  # Re-executing a notebook is now OPT-IN: the figures it would produce are already
+  # produced by the figure scripts above. Use it when you want refreshed notebook outputs.
+  if [ "$RENDER_NOTEBOOKS" != "1" ]; then
+    info "notebook not executed (pass --render-notebooks to refresh $1)"
+    return 0
+  fi
+  render_notebook "$1"
+}
+
 render_notebook() {          # render_notebook <notebook basename>
   if [ "$NO_RENDER" = "1" ]; then
     info "skipping notebook render (--no-render); figures on disk are unchanged"

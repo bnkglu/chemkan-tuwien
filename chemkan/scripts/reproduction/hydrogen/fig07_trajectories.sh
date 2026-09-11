@@ -21,7 +21,7 @@ _eval() {
 say "Split evaluation"
 for_each_hydrogen_set _eval
 
-render_notebook 08_hydrogen_reproduction.ipynb
+figure_script fig07_hydrogen_trajectories.py
 say "Output"
 info "${FIGURES#"$REPO"/}/hydrogen/fig07_hydrogen_trajectories_H0.pdf"
 info "${FIGURES#"$REPO"/}/hydrogen/fig07_hydrogen_trajectories_Hnorm1.pdf"

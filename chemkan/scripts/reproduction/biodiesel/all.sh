@@ -4,9 +4,10 @@
 source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh"
 D="$(dirname "${BASH_SOURCE[0]}")"
 FLAGS=(); [ "$DRY_RUN" = "1" ] && FLAGS+=(--dry-run); [ "$NO_RENDER" = "1" ] && FLAGS+=(--no-render)
-# Render once at the end rather than after every figure.
 for f in fig03_trajectories fig05a_noise_robustness fig05b_loss_dynamics \
          fig06_15pct_profiles fig04_neural_scaling; do
-  "$D/$f.sh" "${FLAGS[@]}" --no-render
+  "$D/$f.sh" "${FLAGS[@]}"
 done
-render_notebook 07_biodiesel_reproduction.ipynb
+# Each figure was drawn by its own script above. The notebook adds interpretation, not
+# figures, so re-executing it is opt-in.
+maybe_render_notebook 07_biodiesel_reproduction.ipynb

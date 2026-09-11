@@ -17,7 +17,7 @@ for pct in 05 10 15; do
       --epochs 10000 --eval-every 1 --seed 0
 done
 
-render_notebook 07_biodiesel_reproduction.ipynb
+figure_script fig03_biodiesel_trajectories.py
 say "Output"
 info "${FIGURES#"$REPO"/}/biodiesel/fig03_biodiesel_noise_columns.pdf"
 verdict "Fig. 3"

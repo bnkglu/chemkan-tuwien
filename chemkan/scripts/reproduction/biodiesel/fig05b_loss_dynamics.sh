@@ -24,7 +24,10 @@ for pct in 02 07 15; do
 done
 reference_deeponet_run noise noise00_seed0
 
-render_notebook 07_biodiesel_reproduction.ipynb
+# The overfitting assessment below is written by this refresh.
+run "refresh the biodiesel report tables" -- \
+  "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
+figure_script fig05_biodiesel_loss.py
 say "Output"
 info "${FIGURES#"$REPO"/}/biodiesel/fig05b_biodiesel_loss_dynamics.pdf"
 info "${TABLES#"$REPO"/}/biodiesel_fig5b_overfit_assessment.json"

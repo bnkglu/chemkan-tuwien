@@ -4,7 +4,8 @@
 source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh"
 D="$(dirname "${BASH_SOURCE[0]}")"
 FLAGS=(); [ "$DRY_RUN" = "1" ] && FLAGS+=(--dry-run); [ "$NO_RENDER" = "1" ] && FLAGS+=(--no-render)
+# The three figures are drawn by their own scripts; table1_efficiency.sh executes
+# notebook 08, which is where Table I is assembled.
 for f in fig07_trajectories fig08a_generalization fig08b_ignition_delay table1_efficiency; do
-  "$D/$f.sh" "${FLAGS[@]}" --no-render
+  "$D/$f.sh" "${FLAGS[@]}"
 done
-render_notebook 08_hydrogen_reproduction.ipynb

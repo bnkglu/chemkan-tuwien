@@ -21,7 +21,7 @@ _ign() {
 }
 for_each_hydrogen_set _ign
 
-render_notebook 08_hydrogen_reproduction.ipynb
+figure_script fig08_hydrogen_ignition.py
 say "Output"
 info "${FIGURES#"$REPO"/}/hydrogen/fig08b_hydrogen_ignition_delay.pdf"
 info "${TABLES#"$REPO"/}/hydrogen_ignition_delay_*.csv  (per-condition status)"

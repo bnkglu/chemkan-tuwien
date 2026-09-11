@@ -24,6 +24,8 @@ _bench() {
 }
 for_each_hydrogen_set _bench
 
+# Table I is assembled in notebook 08 and has no figure script, so this step still
+# executes the notebook. Every hydrogen FIGURE is drawn by its own script.
 render_notebook 08_hydrogen_reproduction.ipynb
 say "Output"
 info "${TABLES#"$REPO"/}/hydrogen_efficiency.csv"

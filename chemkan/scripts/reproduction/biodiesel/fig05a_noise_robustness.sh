@@ -16,7 +16,10 @@ say "Final-checkpoint evaluation"
 evaluate_noise_levels chemkan  00 01 02 03 05 07 10 15
 evaluate_noise_levels deeponet 00 01 02 03 05 07 10 15
 
-render_notebook 07_biodiesel_reproduction.ipynb
+# Figure 5A reads biodiesel_fig5a_metrics.csv, which this refresh rebuilds.
+run "refresh the biodiesel report tables" -- \
+  "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
+figure_script fig05_biodiesel_noise.py
 say "Output"
 info "${FIGURES#"$REPO"/}/biodiesel/fig05a_biodiesel_noise_robustness.pdf"
 info "${TABLES#"$REPO"/}/biodiesel_fig5a_metrics.csv"

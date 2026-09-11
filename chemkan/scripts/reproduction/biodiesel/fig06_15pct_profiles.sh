@@ -17,7 +17,7 @@ train_run "$CKB/noise/noise15_seed0" "$REPO/chemkan/scripts" \
   "$PY" train_biodiesel.py --noise-percent 15 --epochs 10000 --eval-every 1 --seed 0
 reference_deeponet_run noise noise15_seed0
 
-render_notebook 07_biodiesel_reproduction.ipynb
+figure_script fig06_biodiesel_profiles.py
 say "Output"
 info "${FIGURES#"$REPO"/}/biodiesel/fig06_biodiesel_15pct_profiles.pdf"
 verdict "Fig. 6"

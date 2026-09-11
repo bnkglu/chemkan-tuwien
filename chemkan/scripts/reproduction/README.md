@@ -1,5 +1,33 @@
 # Per-figure reproduction scripts
 
+> **Plotting has moved.** Every paper figure is now produced by a single readable Python
+> script under [`chemkan/scripts/figures/`](../figures/README.md); the notebooks import
+> those functions and supply run paths. The shell scripts in this directory still own
+> *training and data preparation* and then call the notebooks, which is unchanged.
+>
+> To regenerate a figure without training anything:
+>
+> ```bash
+> python chemkan/scripts/figures/fig03_biodiesel_trajectories.py     # Figure 3
+> python chemkan/scripts/figures/fig04_biodiesel_scaling.py          # Figure 4
+> python chemkan/scripts/figures/fig05_biodiesel_noise.py            # Figure 5A
+> python chemkan/scripts/figures/fig05_biodiesel_loss.py             # Figure 5B
+> python chemkan/scripts/figures/fig06_biodiesel_profiles.py         # Figure 6
+> python chemkan/scripts/figures/fig07_hydrogen_trajectories.py      # Figure 7
+> python chemkan/scripts/figures/fig08_hydrogen_generalization.py    # Figure 8A
+> python chemkan/scripts/figures/fig08_hydrogen_ignition.py          # Figure 8B
+> python chemkan/scripts/figures/plot_all.py                         # all of them
+> ```
+>
+> A notebook plots another run by importing the same function and changing paths:
+>
+> ```python
+> from fig05_biodiesel_loss import make_figure
+> fig, results = make_figure(chemkan_runs={0: RUN_DIR}, output_path=RUN_DIR / "fig05b")
+> ```
+>
+> There is no second plotting implementation in the notebooks.
+
 Notebook 07 and the figure wrappers now use `reference_final_trunk_relu` DeepONet
 checkpoints. All 14 corrected runs and the five fixed-`n_mu=2` ChemKAN points are
 verified and plotted. Legacy checkpoints remain untouched; previous reports are

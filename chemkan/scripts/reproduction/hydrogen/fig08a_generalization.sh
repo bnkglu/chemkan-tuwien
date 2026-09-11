@@ -20,7 +20,7 @@ _grid() {
 }
 for_each_hydrogen_set _grid
 
-render_notebook 08_hydrogen_reproduction.ipynb
+figure_script fig08_hydrogen_generalization.py
 say "Output"
 info "${FIGURES#"$REPO"/}/hydrogen/fig08a_hydrogen_generalization_441.pdf"
 info "${RESULTS#"$REPO"/}/chemkan/hydrogen/generalization/*_generalization_441.csv"
