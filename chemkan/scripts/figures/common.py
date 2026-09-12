@@ -98,16 +98,17 @@ def relative_to_root(path) -> str:
 
 
 def loss_reduction(n_times: int, time_averaged: bool) -> tuple[float, str, str]:
-    """Divisor, axis wording and filename suffix for the two reductions of ONE loss.
+    """Divisor, axis wording and filename suffix for a full-rollout Eq. 18 loss.
 
-    Eq. 18 as optimized sums the per-time squared error over the ``N_t`` observation
-    times. Dividing by ``N_t`` gives the conventional time-averaged MSE, which is the
-    reduction the paper's axes appear to use. It is a DISPLAY convention only: a single
-    constant applied after training, changing no model, no stored table and no ranking.
+    Eq. 18 averages the squared normalized-state error over the state variables and sums
+    it over the ``N_t`` time points; it has no 1/N_t factor. With ``time_averaged`` the
+    loss is divided by ``N_t`` as a derived diagnostic, which changes no model, stored
+    table or ranking.
 
-    ``N_t`` differs per system -- 30 for biodiesel, 50 for hydrogen -- so it is always
-    read from the data rather than hard-coded as "30".
+    ``n_times`` is the number of time points the loss sums over, taken from the grid the
+    loss was evaluated on (30 for biodiesel, 50 for hydrogen; t = 0 is included in both).
     """
     if not time_averaged:
-        return 1.0, "Eq. 18 (summed over the observation times)", ""
-    return float(n_times), f"Eq. 18 / $N_t$  (time-averaged, $N_t$={n_times})", "_time_averaged"
+        return 1.0, "Eq. 18 (summed over the time points)", ""
+    return (float(n_times), f"Time-averaged diagnostic: Eq. 18 loss / $N_t$ ($N_t$ = {n_times})",
+            "_time_averaged")

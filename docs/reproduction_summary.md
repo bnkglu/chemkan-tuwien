@@ -26,7 +26,7 @@ Row-by-row verdicts:
 | Fig. 4 — ChemKAN scaling slopes −1.0 / −0.6 (train / test) | −0.41 / −0.38 (R² 0.19 / 0.18) | fitting scope differs |
 | Fig. 4 — DeepONet slopes −4.0 / −1.4 | −2.08 / −1.32 (R² 0.68 / 0.76) | fitting scope differs |
 | Fig. 4 — ChemKAN errors already around 10⁻⁴ at 72 parameters | train / test 0.367 / 0.462 at 78 parameters (`h=2`), 0.068 / 0.112 at 156 (5,000 epochs) | not matched |
-| Fig. 5A — ChemKAN training MSE rises +3.78×10⁻⁵ (0→1 %) and +9.64×10⁻⁴ (0→5 %) | −3.04×10⁻² and −1.39×10⁻² | not measurable: late-training oscillation exceeds the increment |
+| Fig. 5A — ChemKAN training MSE rises +3.78×10⁻⁵ from 0 to 1 % noise | −3.04×10⁻² | not measurable: late-training oscillation exceeds the increment |
 | Fig. 5A — clean-test error over 0→15 %: ChemKAN ~2×, DeepONet 5× | ChemKAN 0.77×, DeepONet 0.83× | not matched |
 | Fig. 5A — DeepONet/ChemKAN clean-test ratio 4.4× at 15 % | 0.86× | not matched |
 | Fig. 5B — DeepONet overfits at 7 % (minimum near epoch 5,000) and 15 % (near 1,000); ChemKAN does not | DeepONet clean-test minima at epochs 6,659 (7 %) and 7,692 (15 %); no run meets our overfitting criterion | does not discriminate |
@@ -39,8 +39,10 @@ Row-by-row verdicts:
 | Table I — 1 network, 344 parameters, 9 species + T | 1 / 344 measured / 9 + T | **matched** |
 | Table I — 2.0× speed-up vs Arrhenius.jl | 0.14× (`H0`), 0.50× (`Hnorm1`) vs Cantera, locally | not matched; different reference and hardware |
 
-Our losses are Eq. 18 values, summed over the saved times; the paper does not state its
-time reduction (§5).
+All losses are Eq. 18 values. Eq. 18 averages the squared normalized-state error over the
+state variables and sums it over the `N_t` time points; it has no 1/N_t factor. Figures with
+the suffix `_time_averaged` show the derived diagnostic Eq. 18 loss / N_t (`N_t` = 30 for
+biodiesel, 50 for hydrogen).
 
 ---
 
@@ -146,8 +148,8 @@ temperature is **88.9 %** of the ten-state loss at the training condition and **
 the held-out one, against a nine-species mean of 0.352 and 0.186.
 
 That makes the failure lopsided, not selective. The species are far **less** wrong than
-temperature, but they are not accurate: 0.186–0.352 summed over the 50 observation times is
-0.0037–0.0070 time-averaged, still roughly **37–70× above** the paper's ~10⁻⁴ order. So
+temperature, but they are not accurate: 0.186–0.352 (Eq. 18), against the paper's ~10⁻⁴
+order at its training conditions. So
 calling `H0` a blanket failure misreads the figure, and calling it a kinetics success
 overstates it.
 
@@ -199,9 +201,9 @@ negative at the held-out condition (`H0`: O₂, HO₂, H₂O₂; `Hnorm1`: HO₂
 
 ### Figure 8A — 441-condition generalization
 
-Shown at the paper's displayed **0–10 ×10⁻⁴** range, smaller MSE darker. Every one of the
-441 errors exceeds that upper bound for both models, so this view is uniformly pale — that
-saturation *is* the result, and no error was rescaled to fit:
+Shown at the paper's displayed **0–10 ×10⁻⁴** range, smaller MSE lighter as in the paper.
+Every one of the 441 errors exceeds that upper bound for both models, so this view is
+uniformly dark — that saturation *is* the result, and no error was rescaled to fit:
 
 ![Fig. 8A paper scale](../results/reproduction/figures/hydrogen/fig08a_hydrogen_generalization_441.png)
 
@@ -216,8 +218,7 @@ The full-range view reveals the spatial structure:
 | 441-grid median | not reported | 2.658 | 0.254 |
 
 All 441 conditions were evaluated with **0 integration failures**. The 21×21 grid is
-reconstructed from the paper's reported count and figure spacing. Absolute magnitudes
-carry the unresolved time-reduction caveat (§5).
+reconstructed from the paper's reported count and figure spacing.
 
 ### Figure 8B — ignition delay
 
@@ -265,12 +266,9 @@ code, not the science.
 
 ## 5. Open items and known caveats
 
-- **The absolute MSE gap is unexplained.** Our literal Eq. 18 values are train 0.062 /
-  test 0.081; the conventional time-averaged equivalents are 2.07×10⁻³ / 2.71×10⁻³. The
-  paper does not state its time reduction. Dividing by `N_t = 30` accounts for exactly one
-  factor of 30, and the residual gaps after that still span 2×–1400× across Fig.-4 points
-  — so a reduction convention **cannot** be the explanation, and no figure is replotted in
-  those units.
+- **The absolute MSE gap is unexplained.** The paper reports biodiesel errors around
+  10⁻⁴; our Eq. 18 values for the 156-parameter model are train 0.062 / test 0.081
+  (2.07×10⁻³ / 2.71×10⁻³ as the time-averaged diagnostic, Eq. 18 loss / N_t).
 - **`B0` has not converged at the paper's own 10,000-epoch cutoff.** Its median training
   loss still falls at 0.049 decades per 1000 epochs over the last 3000 epochs.
 - **ChemKAN's late-training oscillation is unresolved.** Its late-training loss span is

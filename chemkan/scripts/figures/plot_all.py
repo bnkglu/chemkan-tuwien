@@ -28,8 +28,9 @@ from common import (
     use_headless_backend,
 )
 
-# Figures that carry a loss value accept --time-averaged; the flag divides the DISPLAYED
-# loss by N_t (30 biodiesel, 50 hydrogen) and writes a "_time_averaged" companion file.
+# Figures that carry a loss value accept --time-averaged; the flag writes a "_time_averaged"
+# companion showing the derived diagnostic Eq. 18 loss / N_t, where N_t is the number of time
+# points the loss sums over (30 biodiesel, 50 hydrogen).
 # Figures 6 and 8B show no loss, so they have no such variant.
 TIME_AVERAGED = False
 
@@ -96,8 +97,8 @@ def main():
     p.add_argument("--keep-going", action="store_true",
                    help="continue after a figure fails, and report at the end")
     p.add_argument("--time-averaged", action="store_true",
-                   help="also-available display convention: divide the plotted loss by "
-                        "N_t and write '_time_averaged' companions (figures 3, 4, 5A, 5B, "
+                   help="write '_time_averaged' companions showing the derived diagnostic "
+                        "Eq. 18 loss / N_t (figures 3, 4, 5A, 5B, "
                         "7, 8A; 6 and 8B show no loss)")
     args = p.parse_args()
     global TIME_AVERAGED

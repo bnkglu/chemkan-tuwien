@@ -47,23 +47,20 @@ Run from the repository root, with the project environment
 
 ## The two loss reductions (`--time-averaged`)
 
-Eq. 18 as optimized **sums** the per-time squared error over the `N_t` observation times.
-Dividing by `N_t` gives the conventional **time-averaged** MSE, which is the reduction the
-paper's axes appear to use. Every figure defaults to the summed form — the quantity that
-is actually optimized — and `--time-averaged` writes a `_time_averaged` companion:
+Eq. 18 averages the squared normalized-state error over the state variables and **sums**
+it over the `N_t` time points; it has no 1/N_t factor. Every figure shows this loss by
+default. `--time-averaged` writes a `_time_averaged` companion with the derived diagnostic
+Eq. 18 loss / N_t, where `N_t` is the number of time points the loss sums over (30 for
+biodiesel, 50 for hydrogen):
 
 ```bash
 python chemkan/scripts/figures/plot_all.py --time-averaged      # all of them
 python chemkan/scripts/figures/fig05_biodiesel_noise.py --time-averaged
 ```
 
-`N_t` is read from the dataset, never hard-coded: **30 for biodiesel, 50 for hydrogen**,
-so this is not a single "÷30" across all figures. Applies to Figures 3, 4, 5A, 5B, 7 and
-8A; Figures 6 and 8B display no loss, so they have no variant.
-
-This is a **display convention only**: one constant applied after training. It changes no
-model, no stored table, and no ranking between runs — and it does *not* explain the gap to
-the paper, whose post-÷30 residual spans 2.1x-1382x across the Figure-4 points.
+`N_t` is read from the evaluation grid, never hard-coded. The variant applies to Figures 3,
+4, 5A, 5B, 7 and 8A; Figures 6 and 8B display no loss, so they have none. It is one constant
+applied after training and changes no model, stored table or ranking between runs.
 
 ## Using them from a notebook
 

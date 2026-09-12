@@ -95,9 +95,9 @@ be merged:
    substantially. The remaining gap's cause is **unresolved**, and FSA has not been tested.
 
 **Figure 8A is shown at two scales.** The first pair uses the paper's displayed
-**0–10 ×10⁻⁴** range with smaller MSE darker; every one of the 441 errors exceeds that
-upper bound for both models, so that view is uniformly pale. A clearly labelled full-range
-comparison follows it. No error value is rescaled or divided to fit the paper's range.
+**0–10 ×10⁻⁴** range with smaller MSE lighter, as in the paper; every one of the 441 errors
+exceeds that upper bound for both models, so that view is uniformly dark. A clearly labelled
+full-range comparison follows it. No error value is rescaled or divided to fit the paper's range.
 
 These are **co-existing findings, not a ranked causal chain.** The paper leaves the grid
 size `N`, the `θ_thermo` initialization, and any derivative scaling inside Eq. 14
@@ -133,10 +133,11 @@ Full evidence: [`chemkan/notebooks/07_biodiesel_reproduction.ipynb`](chemkan/not
   late-loss spans and sources are saved in `biodiesel_fig5b_overfit_assessment.json`.
 - Figure 4's widths span the parameter range of the paper's Figure 4 axis. The paper gives
   no width table, so they are not paper-specified architectures (`docs/fig4_width_matrix.md`).
-- The absolute MSE gap to the paper's reported magnitude is **unexplained**, and its size
-  depends on a time reduction the paper does not state: our literal Eq. 18 values are
-  train 0.062 / test 0.081, the conventional time-averaged equivalents 2.07×10⁻³ /
-  2.71×10⁻³. Both are reported in notebook 07; the paper comparison is **approximate**.
+- The absolute MSE gap to the paper's reported magnitude is **unexplained**. Eq. 18
+  averages the squared normalized-state error over the state variables and sums it over
+  the `N_t` time points; it has no 1/N_t factor. Our Eq. 18 values are train 0.062 /
+  test 0.081 (2.07×10⁻³ / 2.71×10⁻³ as the time-averaged diagnostic, Eq. 18 loss / N_t).
+  Both are reported in notebook 07; the paper comparison is **approximate**.
 
 ### ChemNODE
 

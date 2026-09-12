@@ -82,7 +82,7 @@ def per_species_losses(prediction, reference, normalizer):
     return (error ** 2).sum(dim=0).numpy()
 
 
-def plot_clean_condition_column(condition, dense_prediction, training_label):
+def plot_clean_condition_column(condition, dense_prediction, training_label, *, full_rollout_loss=None):
     """The paper's six-row clean column, with the training procedure identified.
 
     ``dense_prediction`` must be a complete prediction from the initial condition;
@@ -104,10 +104,13 @@ def plot_clean_condition_column(condition, dense_prediction, training_label):
     fig.legend(handles, labels, loc="outside lower center", ncol=1, fontsize=9,
                frameon=False)
     y0 = condition["y0"]
+    loss_label = ("" if full_rollout_loss is None else
+                  f"\nFull-rollout loss = {full_rollout_loss:.9f}\n"
+                  f"Normalized error summed over {len(condition['t'])} observation times")
     fig.suptitle("Figure 3 | 0% training noise\n"
                  f"{training_label}\n"
                  f"TG = {y0[0]:.2f}, ROH = {y0[1]:.2f}; other species = 0\n"
-                 f"T = {float(condition['T']):.1f} K | Complete rollout",
+                 f"T = {float(condition['T']):.1f} K | Complete rollout{loss_label}",
                  fontsize=10)
     return fig
 
@@ -251,6 +254,12 @@ def make_clean_column_figure(run_dir=None, case=0, output_path=None, *,
                  "t_dense": t_dense, "reduction": note}
 
 
+def make_interval_figure(output_path=None, *, show=False):
+    """Verified clean interval-model Figure 3, shared by notebook 11 and the CLI."""
+    from plot_biodiesel_interval_fig3 import make_figure as make_interval
+    return make_interval(output_path=output_path, show=show)
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -264,7 +273,7 @@ def main():
                    default=FIGURES_BIODIESEL / "fig03_biodiesel_clean_column")
     p.add_argument("--skip-clean-column", action="store_true")
     p.add_argument("--time-averaged", action="store_true",
-                   help="divide the reported loss by N_t (display convention only)")
+                   help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
     args = p.parse_args()
     if args.observed_intervals:
         from plot_biodiesel_interval_fig3 import main as make_interval_fig3

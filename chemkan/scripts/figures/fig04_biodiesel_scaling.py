@@ -233,7 +233,7 @@ def plot_figure(points, fits, n_mu, deeponet_version, divisor=1.0, note=""):
                 else:
                     cell.get_text().set_color(
                         {"ChemKAN": "crimson", "DeepONet": "seagreen"}[slope_rows[row - 1][0]])
-    axes[0].set_ylabel(f"Loss (Eq. 18){note}", fontsize=11)
+    axes[0].set_ylabel(f"Loss{note}" if note else "Loss (Eq. 18)", fontsize=11)
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, ncol=2, loc="lower center", bbox_to_anchor=(0.5, 0.045),
                fontsize=9, handlelength=3, columnspacing=2.5, framealpha=1)
@@ -288,7 +288,7 @@ def main():
     p.add_argument("--deeponet-version", choices=("reference", "legacy"), default="reference")
     p.add_argument("--output", default=None, help="output path without extension")
     p.add_argument("--time-averaged", action="store_true",
-                   help="divide the plotted loss by N_t (display convention only)")
+                   help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
     args = p.parse_args()
     _, results = make_figure(n_mu=args.n_mu, deeponet_version=args.deeponet_version,
                              output_path=args.output,
