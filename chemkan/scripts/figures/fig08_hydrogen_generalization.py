@@ -82,7 +82,7 @@ def load_grid(csv_path):
 def plot_figure(grids, vmax, paper_scale, divisor=1.0, note=""):
     """Two side-by-side maps sharing one colour scale."""
     norm = Normalize(vmin=0, vmax=vmax, clip=False)
-    cmap = plt.get_cmap("Reds_r").copy()          # lower MSE = darker
+    cmap = plt.get_cmap("Reds").copy()            # lower MSE = lighter, as in the paper
     cmap.set_over(cmap(1.0))
     fig, axes = plt.subplots(1, 2, figsize=(14, 5.6), sharex=True, sharey=True,
                              layout="constrained")
@@ -110,7 +110,8 @@ def plot_figure(grids, vmax, paper_scale, divisor=1.0, note=""):
         ax.set_title(f"{label}\n{detail}median {np.median(mse[ok]):.3e}", fontsize=9)
     bar = fig.colorbar(im, ax=axes, fraction=.035, pad=.025,
                        extend="max" if paper_scale else "neither")
-    bar.set_label(f"MSE — normalized trajectory loss (Eq. 18){note}")
+    bar.set_label(f"MSE — normalized trajectory loss{note}" if note
+                  else "MSE — normalized trajectory loss (Eq. 18)")
     if paper_scale:
         bar.set_ticks(np.linspace(0, PAPER_MSE_MAX, 11))
         bar.formatter = FuncFormatter(lambda value, pos: f"{value / 1e-4:g}")
@@ -118,9 +119,10 @@ def plot_figure(grids, vmax, paper_scale, divisor=1.0, note=""):
         bar.ax.set_title(r"$\times 10^{-4}$", fontsize=10, pad=10)
     axes[0].legend(loc="lower left", bbox_to_anchor=(0, 1.17), ncol=2, fontsize=8,
                    frameon=False)
-    fig.suptitle(r"Figure 8A — paper-sized range: 0–10 $\times10^{-4}$; lower MSE = darker"
+    fig.suptitle(r"Figure 8A — paper-sized range: 0–10 $\times10^{-4}$; lower MSE = lighter"
                  if paper_scale else
-                 "Figure 8A — supplementary full-range comparison; lower MSE = darker",
+                 f"Figure 8A — full measured range: 0–{vmax:g} (no $\\times10^{{-4}}$ factor); "
+                 "lower MSE = lighter",
                  fontsize=13)
     return fig
 
@@ -133,7 +135,7 @@ def make_figure(table_paths=None, output_dir=None, *, time_averaged=False,
     paths.update(table_paths or {})
     grids = {label: load_grid(path) for label, path in paths.items()}
 
-    n_times = observation_times()
+    n_times = observation_times("hydrogen_fine.npz")      # the grid the 441 losses sum over
     divisor, note, ta_suffix = loss_reduction(n_times, time_averaged)
     maximum = max(float(np.nanmax(g["matrix"])) for g in grids.values()) / divisor
     ceiling = MaxNLocator(nbins=6).tick_values(0, maximum)[-1]
@@ -157,7 +159,8 @@ def make_figure(table_paths=None, output_dir=None, *, time_averaged=False,
                         f"{suffix}{ta_suffix}", dpi=200)
     if show:
         plt.show()
-    return figs, {"scale_rows": scale_rows, "grids": grids, "reduction": note}
+    return figs, {"scale_rows": scale_rows, "grids": grids, "reduction": note,
+                  "n_times": n_times}
 
 
 def main():
@@ -165,7 +168,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
     p.add_argument("--time-averaged", action="store_true",
-                   help="divide the plotted loss by N_t (display convention only)")
+                   help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
     args = p.parse_args()
     _, results = make_figure(output_dir=args.output_dir,
                              time_averaged=args.time_averaged)

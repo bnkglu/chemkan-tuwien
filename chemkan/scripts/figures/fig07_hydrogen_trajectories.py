@@ -248,7 +248,7 @@ def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits):
                 ax.legend(loc="lower left", fontsize=9, ncol=3, framealpha=.8,
                           borderpad=.35, handlelength=1.3, columnspacing=1.1,
                           labelspacing=.3)
-    fig.suptitle(f"Figure 7 companion (true mass fraction, no multipliers) \u2014 {label}",
+    fig.suptitle(f"Figure 7 \u2014 {label} (true mass fraction, no display multipliers)",
                  fontsize=14, y=.995)
     fig.legend(handles=[Line2D([], [], color="0.35", marker="o", ls="none", ms=4,
                                label="Cantera reference (50 observation times)"),
@@ -257,8 +257,8 @@ def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits):
                         Patch(facecolor="0.9",
                               label=f"linear band |Y| < {LINTHRESH:g} (symlog)")],
                loc="lower center", bbox_to_anchor=(.5, .015), ncol=3, frameon=False)
-    fig.text(.5, .006, "No display multipliers; identical data, predictions and losses to "
-             "the paper-comparable view above.", ha="center", fontsize=8, color="0.35")
+    fig.text(.5, .006, "Species at true mass fraction; losses are computed on the "
+             "train-min-max-normalized states.", ha="center", fontsize=8, color="0.35")
     fig.tight_layout(rect=(0, .065, 1, .975), h_pad=1.3)
     return fig
 
@@ -347,7 +347,7 @@ def main():
     p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
     p.add_argument("--table", default=TABLES / "fig07_hydrogen_per_state_mse.csv")
     p.add_argument("--time-averaged", action="store_true",
-                   help="divide the reported loss by N_t (display convention only)")
+                   help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
     args = p.parse_args()
     _, results = make_figure(output_dir=args.output_dir, table_path=args.table,
                              time_averaged=args.time_averaged)
