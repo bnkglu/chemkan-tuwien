@@ -1,28 +1,15 @@
 # Figures for the observed-interval training objective
 
-These four figures use the existing clean training data and saved runs. No model was
+These two figures use the existing clean training data and saved runs. No model was
 trained or updated. Each figure is available as PDF and PNG in `figures/`.
 
 | Figure | What it shows |
 |---|---|
-| [Objective convergence](figures/interval_objective_convergence.pdf) | The recorded interval objective for seeds 0, 1, and 2, in one panel over all updates. The last-2,000-update panel was removed. |
+| [Objective convergence](figures/interval_objective_convergence.pdf) | The recorded interval objective for seeds 0, 1, and 2, in one panel over all epochs. The last-2,000-epoch panel was removed. |
 | [Interval error by species](figures/interval_objective_per_species.pdf) | Final models from both training methods evaluated with the **same observed-state resets**. Bars are means over three seeds. |
-| [Interval error across time and species](figures/interval_objective_time_species.pdf) | Mean squared normalized endpoint error for each interval and species, averaged over 20 training conditions and three seeds. Both panels use one logarithmic color scale. |
-| [Endpoint concentration predictions](figures/interval_objective_endpoint_profiles.pdf) | Observed concentrations, independent interval endpoints, and a complete rollout for the same interval-trained model. Seed 0 and training condition 0 were fixed without ranking prediction errors. |
 
-The endpoint concentration figure is especially useful for explaining why a small
-interval objective can coexist with a larger rollout error. Orange crosses restart
-from the observed state at the preceding observation time. They are separate
-predictions, not a continuous trajectory. The blue curve uses only the original initial
-condition. In this example, the GL rollout becomes negative even though its independently
-reset endpoints stay much closer to the observations. The plotted predictions are not
-clipped to hide negative concentrations. The blue line connects predictions at the
-archive's 30 saved times.
-
-All four figures concern **training conditions**. The concentration example is not an
-unseen test case, and its errors need not represent all 20 conditions. These figures
-describe the interval diagnostic; they do not demonstrate reproduction of the paper's
-complete-trajectory accuracy.
+Both figures concern **training conditions**. They describe the interval diagnostic;
+they do not demonstrate reproduction of the paper's complete-trajectory accuracy.
 
 ## Loss and reductions
 
@@ -33,11 +20,10 @@ over the 20 conditions and six species.
 
 For the species bars, each value sums over endpoints and averages over conditions.
 Taking the mean of the six species values gives the overall interval objective. The
-heatmap contains the individual interval terms: sum all its cells and divide by six
-to recover the objective averaged over three seeds. No division by 29 or 30 is applied
+individual interval terms are listed in `tables/interval_objective_error_by_time_species.csv`. No division by 29 or 30 is applied
 to the objective.
 
-The baseline bars and heatmap are **new interval evaluations of the original final
+The baseline bars are **new interval evaluations of the original final
 models**. They are not the full-trajectory training losses logged by those runs.
 
 | Seed | Original model: interval evaluation | Interval-trained model: interval evaluation |
@@ -46,7 +32,7 @@ models**. They are not the full-trajectory training losses logged by those runs.
 | 1 | 0.00113835 | 0.000389095 |
 | 2 | 0.00274789 | 0.000204941 |
 
-At 10,000 updates, interval training lowers this local metric in all three paired
+At 10,000 epochs, interval training lowers this local metric in all three paired
 comparisons. This does not change the previously reported full-rollout results.
 
 ## Verification and regeneration
@@ -79,7 +65,7 @@ Source artifacts:
 ## Additional figures at the paper's Figure 3 condition
 
 These two separate figures use the same clean interval-trained seed-0 model at
-10,000 updates, evaluated at `TG=1.94, ROH=1.43, DG=MG=GL=RCO2R=0, T=334.8 K`.
+10,000 epochs, evaluated at `TG=1.94, ROH=1.43, DG=MG=GL=RCO2R=0, T=334.8 K`.
 This condition is distinct from the canonical training and test splits. The reference
 comes from the existing `biodiesel_fig3_condition.npz` mechanistic simulation.
 
@@ -129,7 +115,7 @@ not demonstrate learning from noisy data.
 
 The interval trainer currently loads clean data explicitly. A noise extension must use
 the selected noisy observations as both the reset states and endpoint targets, retain
-the same train-only scaling, architecture, RBF grids, learning rate, and update budget,
+the same train-only scaling, architecture, RBF grids, learning rate, and epoch budget,
 and report complete-rollout errors against clean held-out trajectories. A paired 5%
 seed-0 pilot would be a useful next diagnostic before extending to 10%, 15%, and more
 seeds. It is not necessary to postpone reporting the completed clean experiment.
@@ -151,9 +137,9 @@ It performs no training. Add `--dry-run` to inspect its commands.
 - [fig5b](figures/fig5b.pdf): two panels distinguish the actual interval objective for
   all three seeds from full-rollout training/test evaluation for seed-0 original
   ChemKAN, interval-trained ChemKAN, and reference DeepONet. Raw evaluation times
-  are retained. Separate markers at 10,000 updates show final-checkpoint metrics;
-  the original ChemKAN history itself ends at update 9,999.
-- The per-species bars, interval objective, and time/species heatmap remain labelled
+  are retained. Separate markers at epoch 10,000 show final-checkpoint metrics;
+  the original ChemKAN history itself ends at epoch 9,999.
+- The per-species bars and interval objective remain labelled
   biodiesel diagnostics because they have no direct paper figure number.
 - Figure 4 is a model-size sweep; these interval runs have only one model size.
 
@@ -167,7 +153,7 @@ how the full-rollout training loss is calculated and verifies the final comparis
 against the archived results. No model is trained or updated.
 
 The third attachment, [fig5a](figures/fig5a.pdf), shows final training and clean
-held-out full-rollout losses at 0% noise after 10,000 updates. All three paired
+held-out full-rollout losses at 0% noise after 10,000 epochs. All three paired
 ChemKAN seeds are shown individually, with one DeepONet seed-0 reference.
 The x-axis names the methods, with all seeds of one method at the same x position;
 grey lines connect matched ChemKAN seeds. Numeric labels show final losses to six

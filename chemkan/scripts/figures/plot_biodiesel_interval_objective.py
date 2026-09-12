@@ -19,7 +19,6 @@ sys.path.insert(0, str(ROOT / "chemkan/scripts"))
 os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "chemkan-mpl"))
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
 import numpy as np
 import torch
 
@@ -158,54 +157,6 @@ def species_bars(evaluations, species):
     save(fig, "interval_objective_per_species")
 
 
-def time_heatmap(evaluations, species, t):
-    maps = [np.stack([evaluations[method, seed]["sq"].mean(1) for seed in SEEDS])
-            .mean(0).T for method in METHODS]
-    norm = LogNorm(vmin=min(a.min() for a in maps), vmax=max(a.max() for a in maps))
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.4), layout="constrained", sharey=True)
-    ticks = np.array([0, 4, 9, 14, 19, 24, len(t) - 2])
-    for ax, values, label in zip(axes, maps, METHOD_LABELS):
-        im = ax.imshow(values, aspect="auto", cmap="magma", norm=norm,
-                       interpolation="nearest")
-        ax.set_title(label)
-        ax.set_yticks(np.arange(len(species)), species)
-        ax.set_xticks(ticks, [f"{t[j + 1]:.1f}" for j in ticks])
-        ax.set_xlabel("Interval endpoint time (s)")
-    fig.colorbar(im, ax=axes, label="Squared normalized endpoint error\n"
-                 "(mean over 20 training conditions and 3 seeds)", shrink=.85)
-    fig.suptitle("Biodiesel diagnostic: interval errors at 10,000 epochs\n"
-                 "Each column starts from its observed state; both panels share one color scale",
-                 fontsize=12)
-    save(fig, "interval_objective_time_species")
-
-
-def endpoint_profiles(result, data):
-    # Fixed first condition and seed 0, chosen without ranking prediction errors.
-    case = 0
-    t, truth = data["t"].numpy(), data["species_TBm"].numpy()[:, case]
-    fig, axes = plt.subplots(2, 3, figsize=(12, 6.6), layout="constrained", sharex=True)
-    for k, ax in enumerate(axes.flat):
-        ax.plot(t, result["full"][:, case, k], color=COLORS[0], lw=1.7,
-                label="Complete rollout from initial condition")
-        ax.scatter(t, truth[:, k], facecolors="none", edgecolors="#555555", s=27,
-                   linewidths=.8, label="Observed concentrations", zorder=3)
-        ax.scatter(t[1:], result["endpoints"][:, case, k], color=COLORS[1],
-                   marker="x", s=25, linewidths=1.1,
-                   label="Independent interval endpoint predictions", zorder=4)
-        ax.set_title(data["species"][k])
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("Concentration (archive units)")
-        ax.grid(alpha=.15)
-    handles, labels = axes.flat[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="outside lower center", ncol=3, fontsize=9,
-               frameon=False)
-    temp = float(data["T_const"].reshape(-1)[case])
-    fig.suptitle(f"Observed-interval trained model: seed 0, training condition 0, T = {temp:.2f} K\n"
-                 "Orange crosses each use a fresh observed starting state; they are not a continuous trajectory",
-                 fontsize=11)
-    save(fig, "interval_objective_endpoint_profiles")
-
-
 def main():
     # Notebook imports must retain their inline backend.
     from common import use_headless_backend
@@ -255,11 +206,9 @@ def main():
                          "axes.spines.right": False, "pdf.fonttype": 42})
     convergence(histories)
     species_bars(evaluations, data["species"])
-    time_heatmap(evaluations, data["species"], data["t"].numpy())
-    endpoint_profiles(evaluations["observed_interval", 0], data)
     write_csv(EXP / "tables/interval_objective_summary.csv", summary)
     write_csv(EXP / "tables/interval_objective_error_by_time_species.csv", cells)
-    print("Saved 4 figures as PDF and PNG and 2 CSV tables.")
+    print("Saved 2 figures as PDF and PNG and 2 CSV tables.")
 
 
 if __name__ == "__main__":
