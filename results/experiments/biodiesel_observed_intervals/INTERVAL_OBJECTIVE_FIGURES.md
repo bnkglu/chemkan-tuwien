@@ -6,7 +6,7 @@ trained or updated. Each figure is available as PDF and PNG in `figures/`.
 | Figure | What it shows |
 |---|---|
 | [Objective convergence](figures/interval_objective_convergence.pdf) | The recorded interval objective for seeds 0, 1, and 2, in one panel over all updates. The last-2,000-update panel was removed. |
-| [Interval error by species](figures/interval_objective_per_species.pdf) | Final models from both training methods evaluated with the **same observed-state resets**. Bars are means over three seeds. Individual markers denote seed 0 (circle), seed 1 (square), and seed 2 (triangle). |
+| [Interval error by species](figures/interval_objective_per_species.pdf) | Final models from both training methods evaluated with the **same observed-state resets**. Bars are means over three seeds. |
 | [Interval error across time and species](figures/interval_objective_time_species.pdf) | Mean squared normalized endpoint error for each interval and species, averaged over 20 training conditions and three seeds. Both panels use one logarithmic color scale. |
 | [Endpoint concentration predictions](figures/interval_objective_endpoint_profiles.pdf) | Observed concentrations, independent interval endpoints, and a complete rollout for the same interval-trained model. Seed 0 and training condition 0 were fixed without ranking prediction errors. |
 
@@ -148,9 +148,60 @@ and Figure 5B scripts with `--observed-intervals`.
 It performs no training. Add `--dry-run` to inspect its commands.
 
 - [fig3](figures/fig3.pdf): clean column at the paper's initial condition.
-- [fig5b](figures/fig5b.pdf): clean complete-trajectory loss curves for interval-trained
-  ChemKAN seed 0 and the existing clean DeepONet. The interval objective is excluded
-  from these trajectory-loss curves. ChemKAN uses the recorded evaluation times.
+- [fig5b](figures/fig5b.pdf): two panels distinguish the actual interval objective for
+  all three seeds from full-rollout training/test evaluation for seed-0 original
+  ChemKAN, interval-trained ChemKAN, and reference DeepONet. Raw evaluation times
+  are retained. Separate markers at 10,000 updates show final-checkpoint metrics;
+  the original ChemKAN history itself ends at update 9,999.
 - The per-species bars, interval objective, and time/species heatmap remain labelled
   biodiesel diagnostics because they have no direct paper figure number.
 - Figure 4 is a model-size sweep; these interval runs have only one model size.
+
+## Generate the three email attachments in Notebook 11
+
+Run [Notebook 11](../../../chemkan/notebooks/11_biodiesel_observed_intervals.ipynb)
+with the `chemkan-venv` kernel. Sections 4, 6, and 7 call the existing Figure 3,
+Figure 5B, and Figure 5A scripts directly as Python functions. Each call displays
+the same figure that it saves as PDF and PNG. The notebook also explains exactly
+how the full-rollout training loss is calculated and verifies the final comparison
+against the archived results. No model is trained or updated.
+
+The third attachment, [fig5a](figures/fig5a.pdf), shows final training and clean
+held-out full-rollout losses at 0% noise after 10,000 updates. All three paired
+ChemKAN seeds are shown individually, with one DeepONet seed-0 reference.
+The x-axis names the methods, with all seeds of one method at the same x position;
+grey lines connect matched ChemKAN seeds. Numeric labels show final losses to six
+decimal places. Every point uses 0% noise, so this is a clean-data comparison, not a noise sweep.
+At 0%, clean-reference and noisy-reference test losses coincide and are shown once.
+
+The callable functions are `fig03_biodiesel_trajectories.make_interval_figure`,
+`fig05_biodiesel_loss.make_interval_clean_figure`, and
+`fig05_biodiesel_noise.make_interval_clean_figure`. Each accepts `output_path`
+and `show`, returns `(figure, results)`, and writes no artifacts when `output_path`
+is omitted. The existing default reproduction modes are retained.
+
+Source data for the updated comparisons are exported to
+[final losses](tables/fig5a_clean_final_losses.csv),
+[full-rollout histories and final markers](tables/fig5b_clean_trajectory_losses.csv),
+and [actual interval objectives](tables/fig5b_interval_objective_losses.csv),
+including metric conventions and original source paths.
+
+Figure 5B includes tables of the final interval objectives (seeds 0–2) and final
+full-rollout training/held-out losses (three models, seed 0). Figure 3 labels its
+full-rollout loss, scored on the 30 observation times rather than the dense display grid.
+Displayed values are rounded; exported metric tables retain their original precision.
+
+## Time-averaged Figure 5 companions
+
+Notebook 11 also calls the existing Figure 5A and 5B functions with
+`time_averaged=True` and separate output stems. The generated
+[Figure 5A](figures/fig5a_time_averaged.pdf) divides both full-rollout panels by
+N_t = 30; [Figure 5B](figures/fig5b_time_averaged.pdf) divides its right-hand
+full-rollout curves, final markers, and table by 30. Its left-hand interval
+objective remains the sum over 29 independently restarted endpoints.
+
+The divisor comes from the saved observation grid, including the initial
+zero-error state. Averaging changes neither model rankings nor relative errors.
+These are derived diagnostics of the time-summed loss. Numeric rollout labels
+use eight decimal places; full precision is retained in the companion CSVs.
+Original figures and tables remain available under their existing names.

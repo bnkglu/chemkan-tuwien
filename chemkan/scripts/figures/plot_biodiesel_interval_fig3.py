@@ -7,6 +7,7 @@ existing reference archive and final seed-0 checkpoint; never trains a model.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 # Reuse the verified legacy-checkpoint reconstruction and headless plot setup.
 from plot_biodiesel_interval_objective import (
@@ -22,6 +23,7 @@ from _data import DATA_DIR, load_biodiesel, load_input_scaling
 from chemkan.normalization import MinMaxNormalizer
 from evaluate_biodiesel import build_kinetic_core, integrate_biodiesel, solver_from_ckpt
 from fig03_biodiesel_trajectories import plot_clean_condition_column
+from common import save_figure, use_headless_backend
 
 CONDITION_TEXT = "TG = 1.94, ROH = 1.43, DG = MG = GL = RCO2R = 0; T = 334.8 K"
 
@@ -101,13 +103,19 @@ def plot_endpoint_comparison(condition, result, dense):
     save(fig, "fig3_endpoint_diagnostic")
 
 
-def plot_clean_column(condition, dense):
+def plot_clean_column(condition, dense, *, full_rollout_loss=None):
     fig = plot_clean_condition_column(
-        condition, dense, "Observed-interval training, seed 0; 10,000 updates")
+        condition, dense, "Observed-interval training, seed 0; 10,000 epochs",
+        full_rollout_loss=full_rollout_loss)
     save(fig, "fig3")
 
 
-def main():
+def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=False):
+    """Return the verified full-rollout figure and metrics; save only when requested.
+
+    Notebook 11 and the standard Figure 3 entry point share this reconstruction,
+    including the legacy RBF widths and the observation-grid consistency checks.
+    """
     path = checkpoint_path("observed_interval", 0)
     train = load_biodiesel("train")
     loss_norm = MinMaxNormalizer(train["u_min"], train["u_max"])
@@ -125,8 +133,12 @@ def main():
     dense = dense_rollout(path, condition, result["full"])
     plt.rcParams.update({"font.size": 10, "axes.spines.top": False,
                          "axes.spines.right": False, "pdf.fonttype": 42})
-    plot_endpoint_comparison(condition, result, dense)
-    plot_clean_column(condition, dense)
+    if include_endpoint_diagnostic:
+        plot_endpoint_comparison(condition, result, dense)
+    fig = plot_clean_condition_column(
+        condition, dense, "Observed-interval training, seed 0; 10,000 epochs",
+        full_rollout_loss=result["full_loss"])
+    save_figure(fig, output_path, dpi=180)
 
     sparse_rows = []
     for j, time in enumerate(condition["t"]):
@@ -136,13 +148,12 @@ def main():
                                 "full_rollout": float(result["full"][j, 0, k]),
                                 "independent_endpoint": (float(result["endpoints"][j - 1, 0, k])
                                                          if j else None)})
-    write_csv(EXP / "tables/interval_fig3_seed0_predictions.csv", sparse_rows)
-    write_csv(EXP / "tables/interval_fig3_seed0_dense.csv", [
+    dense_rows = [
         {"time_s": float(time), "species": species,
          "clean_reference": float(condition["states_dense"][j, k]),
          "full_rollout": float(dense[j, k])}
         for j, time in enumerate(condition["t_dense"])
-        for k, species in enumerate(condition["species"])])
+        for k, species in enumerate(condition["species"])]
     full_sq = (loss_norm.normalize(torch.from_numpy(result["full"])) -
                loss_norm.normalize(data["species_TBm"])).square()
     metadata = {
@@ -172,10 +183,25 @@ def main():
                             "mechanistic biodiesel ODE.",
         "solver": result["solver"], "grids": result["grids"],
     }
-    (EXP / "tables/interval_fig3_seed0_metrics.json").write_text(
-        json.dumps(metadata, indent=2) + "\n")
-    print(f"Figure 3 condition, seed 0: conditional interval loss = {result['objective']:.9g}; "
-          f"full-rollout loss = {result['full_loss']:.9g}")
+    if output_path is not None:
+        tables = Path(output_path).parent.parent / "tables"
+        tables.mkdir(parents=True, exist_ok=True)
+        write_csv(tables / "interval_fig3_seed0_predictions.csv", sparse_rows)
+        write_csv(tables / "interval_fig3_seed0_dense.csv", dense_rows)
+        (tables / "interval_fig3_seed0_metrics.json").write_text(
+            json.dumps(metadata, indent=2) + "\n")
+    if show:
+        plt.show()
+    return fig, metadata
+
+
+def main():
+    use_headless_backend()
+    fig, metrics = make_figure(EXP / "figures/fig3", include_endpoint_diagnostic=True)
+    plt.close(fig)
+    print("Figure 3 condition, seed 0: conditional interval loss = "
+          f"{metrics['conditional_interval_loss_timesummed']:.9g}; full-rollout loss = "
+          f"{metrics['full_rollout_loss_timesummed']:.9g}")
     print("Saved two PDF/PNG figures and their prediction tables and metadata.")
 
 

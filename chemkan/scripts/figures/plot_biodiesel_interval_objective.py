@@ -18,8 +18,6 @@ sys.path.insert(0, str(ROOT / "chemkan/src"))
 sys.path.insert(0, str(ROOT / "chemkan/scripts"))
 os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "chemkan-mpl"))
 
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
@@ -130,7 +128,7 @@ def convergence(histories):
         epochs = np.array([int(row["epoch"]) for row in histories[seed]])
         loss = np.array([float(row["total_loss"]) for row in histories[seed]])
         ax.semilogy(epochs, loss, color=color, lw=1, label=f"Seed {seed}")
-    ax.set_xlabel("Optimizer updates")
+    ax.set_xlabel("Training epoch")
     ax.set_ylabel("Observed-interval training objective")
     ax.grid(alpha=.18, which="major")
     ax.legend(frameon=False)
@@ -148,17 +146,14 @@ def species_bars(evaluations, species):
                            for seed in SEEDS])
         positions = x + (i - .5) * width
         ax.bar(positions, values.mean(0), width, color=color, alpha=.8, label=label)
-        for seed in SEEDS:
-            ax.scatter(positions + (seed - 1) * .065, values[seed], s=23,
-                       marker=("o", "s", "^")[seed], color="black", zorder=3)
     ax.set_xticks(x, species)
     ax.set_yscale("log")
     ax.set_ylabel("Squared normalized endpoint error\n(sum over intervals; mean over training conditions)")
-    ax.set_title("Interval error by species at 10,000 updates\n"
+    ax.set_title("Interval error by species at 10,000 epochs\n"
                  "Both training methods evaluated with observed-state resets")
     ax.legend(frameon=False)
     ax.grid(axis="y", alpha=.18)
-    fig.supxlabel("Bars: mean of 3 seeds; dots: individual seeds. "
+    fig.supxlabel("Bars: mean of 3 seeds. "
                   "Mean across the 6 species equals the interval objective.", fontsize=9)
     save(fig, "interval_objective_per_species")
 
@@ -178,7 +173,7 @@ def time_heatmap(evaluations, species, t):
         ax.set_xlabel("Interval endpoint time (s)")
     fig.colorbar(im, ax=axes, label="Squared normalized endpoint error\n"
                  "(mean over 20 training conditions and 3 seeds)", shrink=.85)
-    fig.suptitle("Biodiesel diagnostic: interval errors at 10,000 updates\n"
+    fig.suptitle("Biodiesel diagnostic: interval errors at 10,000 epochs\n"
                  "Each column starts from its observed state; both panels share one color scale",
                  fontsize=12)
     save(fig, "interval_objective_time_species")
@@ -212,6 +207,9 @@ def endpoint_profiles(result, data):
 
 
 def main():
+    # Notebook imports must retain their inline backend.
+    from common import use_headless_backend
+    use_headless_backend()
     data = load_biodiesel(split="train", noise_percent=None)
     loss_norm = MinMaxNormalizer(data["u_min"], data["u_max"])
     histories = {seed: read_csv(EXP / f"seed{seed}/history.csv") for seed in SEEDS}
