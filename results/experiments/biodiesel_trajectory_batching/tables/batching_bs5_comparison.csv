@@ -1,0 +1,3 @@
+run,epochs,optimizer_steps,train_mse,test_mse,wall_seconds_full_run,source
+B=5  full budget,10000,40000,0.018116004765033722,0.06159759312868118,2646.6099,results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0/checkpoint_final.pt
+B=5  matched steps,2500,10000,0.04827778786420822,0.08291731774806976,2646.6099,results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0/checkpoint_epoch_2500.pt

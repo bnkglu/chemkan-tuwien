@@ -1,0 +1,9 @@
+2026-09-13 02:50:37,499 INFO run start 2026-09-12T23:50:37Z | run_id=biodiesel/full_rollout_bs5_normal_clean_seed0 | system=biodiesel | dir=results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0
+2026-09-13 02:50:37,531 INFO wrote results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0/config.json
+2026-09-13 02:50:37,535 INFO snapshots at epochs [2500]
+2026-09-13 02:50:37,535 INFO trajectory batching: batch_size=5 of 20 trajectories -> 4 optimizer steps/epoch, 40000 total over 10000 epochs
+2026-09-13 03:34:44,905 INFO wrote results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0/checkpoint_epoch_2500.pt
+2026-09-13 03:34:44,907 INFO final training loss: 1.501403e-02
+2026-09-13 03:34:44,910 INFO wrote results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0/checkpoint_final.pt
+2026-09-13 03:34:44,910 INFO removed results/experiments/biodiesel_trajectory_batching/full_rollout_bs5_normal_clean_seed0/checkpoint_resume.pt (run completed)
+2026-09-13 03:34:44,910 INFO run completed 2026-09-13T00:34:44Z

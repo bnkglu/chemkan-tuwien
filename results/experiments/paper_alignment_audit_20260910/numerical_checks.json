@@ -1,0 +1,198 @@
+{
+  "checkpoint": "chemkan-tuwien/results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0/checkpoint_final.pt",
+  "checkpoint_sha256": "06d4a34cb49b7257b2275651cf1e748d4a3e69a01726f2d6d8335cab7eff3994",
+  "torch_version": "2.13.0",
+  "scope": "frozen B0 checkpoint; original float32 loader data cast to double for double runs; no training; h reconstructed IN MEMORY from saved center spacing for historical checkpoint",
+  "precision": [
+    {
+      "split": "train",
+      "dtype": "torch.float32",
+      "rtol": 1e-06,
+      "atol": 1e-08,
+      "mse": 0.062016528099775314,
+      "max_normalized_prediction_difference_vs_original": 0.0
+    },
+    {
+      "split": "train",
+      "dtype": "torch.float64",
+      "rtol": 1e-06,
+      "atol": 1e-08,
+      "mse": 0.062016595923945095,
+      "max_normalized_prediction_difference_vs_original": 3.0869710876402223e-06
+    },
+    {
+      "split": "train",
+      "dtype": "torch.float64",
+      "rtol": 1e-08,
+      "atol": 1e-10,
+      "mse": 0.062016613122374095,
+      "max_normalized_prediction_difference_vs_original": 3.839072578282199e-06
+    },
+    {
+      "split": "train",
+      "dtype": "torch.float64",
+      "rtol": 1e-10,
+      "atol": 1e-12,
+      "mse": 0.06201661344442416,
+      "max_normalized_prediction_difference_vs_original": 3.859715643761419e-06
+    },
+    {
+      "split": "test",
+      "dtype": "torch.float32",
+      "rtol": 1e-06,
+      "atol": 1e-08,
+      "mse": 0.08140052855014801,
+      "max_normalized_prediction_difference_vs_original": 0.0
+    },
+    {
+      "split": "test",
+      "dtype": "torch.float64",
+      "rtol": 1e-06,
+      "atol": 1e-08,
+      "mse": 0.08140054485248183,
+      "max_normalized_prediction_difference_vs_original": 3.166913022933926e-06
+    },
+    {
+      "split": "test",
+      "dtype": "torch.float64",
+      "rtol": 1e-08,
+      "atol": 1e-10,
+      "mse": 0.08140070114527001,
+      "max_normalized_prediction_difference_vs_original": 3.463361661459885e-06
+    },
+    {
+      "split": "test",
+      "dtype": "torch.float64",
+      "rtol": 1e-10,
+      "atol": 1e-12,
+      "mse": 0.0814007056679457,
+      "max_normalized_prediction_difference_vs_original": 3.4891502560530085e-06
+    }
+  ],
+  "grid_occupancy": {
+    "train": {
+      "add_before_tanh_min": 0.0,
+      "add_before_tanh_max": 1.0,
+      "add_after_tanh_min": 0.0,
+      "add_after_tanh_max": 0.7615941559557649,
+      "lean_after_tanh_min": -0.8563432846864645,
+      "lean_after_tanh_max": 0.36825229644880075,
+      "lean_negative_fraction": 0.75
+    },
+    "test": {
+      "add_before_tanh_min": 0.0,
+      "add_before_tanh_max": 1.0939827173693208,
+      "add_after_tanh_min": 0.0,
+      "add_after_tanh_max": 0.7983271706976094,
+      "lean_after_tanh_min": -0.8440134374549614,
+      "lean_after_tanh_max": 0.3694503400077608,
+      "lean_negative_fraction": 0.75
+    }
+  },
+  "source_sha256": {
+    "kan/layers.py": "df8274702eb40fad5d8334d05251616e81130c585e5e8604b1d5e2f4a92d96d6",
+    "kan/rbf.py": "ea7b5056178cbc682d3e1470b20b5a3b2eb5977004c5c2aa439b46ab7b45f984",
+    "kan/_common.py": "6a4ea5b473cb1311ca0e113714b9556c33467c9e17a59f1ddc7aa74de7893a52",
+    "model.py": "944c15da1ca7881e737f824e1c9b4e607e21e6fef274417f386983d23173fbc2",
+    "solver.py": "87cfdaf4c290c4e4565c7bebd33a317d7310353a27b2f192b39f89986c7d9214"
+  },
+  "directional_gradient": {
+    "solver": {
+      "rtol": 1e-10,
+      "atol": 1e-12
+    },
+    "checks": [
+      {
+        "seed": 7301,
+        "epsilon": 0.0001,
+        "autograd_directional": -1.6296747898747819,
+        "finite_difference_directional": -1.629673860813717,
+        "relative_difference": 5.700898551916893e-07
+      },
+      {
+        "seed": 7301,
+        "epsilon": 1e-05,
+        "autograd_directional": -1.6296747898747819,
+        "finite_difference_directional": -1.629674780371723,
+        "relative_difference": 5.831260840123036e-09
+      },
+      {
+        "seed": 7301,
+        "epsilon": 1e-06,
+        "autograd_directional": -1.6296747898747819,
+        "finite_difference_directional": -1.6296747892170782,
+        "relative_difference": 4.035797039942219e-10
+      },
+      {
+        "seed": 7302,
+        "epsilon": 0.0001,
+        "autograd_directional": 13.767112447672092,
+        "finite_difference_directional": 13.767088372566432,
+        "relative_difference": 1.7487403950296408e-06
+      },
+      {
+        "seed": 7302,
+        "epsilon": 1e-05,
+        "autograd_directional": 13.767112447672092,
+        "finite_difference_directional": 13.767112205815417,
+        "relative_difference": 1.756771262317637e-08
+      },
+      {
+        "seed": 7302,
+        "epsilon": 1e-06,
+        "autograd_directional": 13.767112447672092,
+        "finite_difference_directional": 13.767112444714597,
+        "relative_difference": 2.1482323130643366e-10
+      },
+      {
+        "seed": 7303,
+        "epsilon": 0.0001,
+        "autograd_directional": -9.76155461896508,
+        "finite_difference_directional": -9.761512406512711,
+        "relative_difference": 4.324357545171778e-06
+      },
+      {
+        "seed": 7303,
+        "epsilon": 1e-05,
+        "autograd_directional": -9.76155461896508,
+        "finite_difference_directional": -9.7615541957273,
+        "relative_difference": 4.335762051670793e-08
+      },
+      {
+        "seed": 7303,
+        "epsilon": 1e-06,
+        "autograd_directional": -9.76155461896508,
+        "finite_difference_directional": -9.76155461275205,
+        "relative_difference": 6.364795704094524e-10
+      }
+    ]
+  },
+  "checkpoint_reload": {
+    "train": {
+      "add_centers": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "add_h": 0.5,
+      "lean_h": 1.0,
+      "mse": 6.9134840965271
+    },
+    "test": {
+      "add_centers": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "add_h": 0.5,
+      "lean_h": 1.0,
+      "mse": 6.073967933654785
+    }
+  },
+  "targeted_tests": {
+    "count": 81,
+    "result": "passed",
+    "command": "python -m pytest -q -p no:cacheprovider tests/test_rbf.py tests/test_layers.py tests/test_losses.py tests/test_dynamics.py tests/test_model.py tests/test_solver.py tests/test_temperature.py tests/test_input_scaling.py",
+    "wall_seconds": 2.09
+  }
+}

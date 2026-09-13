@@ -1,0 +1,107 @@
+{
+  "grid01": {
+    "checkpoint_sha256": "4f957289a874049aff54793784a504d6ff346843118c726f327694b661aa6bc9",
+    "grids": {
+      "add": {
+        "centers": [
+          0.0,
+          0.5,
+          1.0
+        ],
+        "constructor_h": 0.5,
+        "evaluation_h": 0.5
+      },
+      "lean": {
+        "centers": [
+          -1.0,
+          0.0,
+          1.0
+        ],
+        "constructor_h": 1.0,
+        "evaluation_h": 1.0
+      }
+    },
+    "final": {
+      "train": 0.02210148237645626,
+      "test": 0.07244683802127838
+    },
+    "late_window": {
+      "epochs": "8000 through 9999, pre-update histories",
+      "train_median": 0.02239657286554575,
+      "test_median": 0.08508441969752312,
+      "train_min": 0.019042763859033585,
+      "train_max": 0.08546179533004761,
+      "test_min": 0.07238749414682388,
+      "test_max": 0.20461902022361755
+    },
+    "history_5000": {
+      "epoch": "5000",
+      "total_loss": "0.04822361469268799",
+      "mse_loss": "0.04822361469268799",
+      "test_mse_noisy": "0.11578071117401123",
+      "test_mse_clean": "0.11578071117401123",
+      "elapsed_seconds": "442.2246"
+    },
+    "last_history_row": {
+      "epoch": "9999",
+      "total_loss": "0.03401965647935867",
+      "mse_loss": "0.03401965647935867",
+      "test_mse_noisy": "0.12006136029958725",
+      "test_mse_clean": "0.12006136029958725",
+      "elapsed_seconds": "918.6211"
+    }
+  },
+  "baseline": {
+    "checkpoint_sha256": "06d4a34cb49b7257b2275651cf1e748d4a3e69a01726f2d6d8335cab7eff3994",
+    "grids": {
+      "add": {
+        "centers": [
+          -1.0,
+          0.0,
+          1.0
+        ],
+        "constructor_h": 0.5,
+        "evaluation_h": 1.0
+      },
+      "lean": {
+        "centers": [
+          -1.0,
+          0.0,
+          1.0
+        ],
+        "constructor_h": 1.0,
+        "evaluation_h": 1.0
+      }
+    },
+    "final": {
+      "train": 0.062016528099775314,
+      "test": 0.08140052855014801
+    },
+    "late_window": {
+      "epochs": "8000 through 9999, pre-update histories",
+      "train_median": 0.03578290529549122,
+      "test_median": 0.07306277379393578,
+      "train_min": 0.031129175797104836,
+      "train_max": 0.14988932013511658,
+      "test_min": 0.06690116226673126,
+      "test_max": 0.194198340177536
+    },
+    "history_5000": {
+      "epoch": "5000",
+      "total_loss": "0.0683738961815834",
+      "mse_loss": "0.0683738961815834",
+      "test_mse_noisy": "0.11164325475692749",
+      "test_mse_clean": "0.11164325475692749",
+      "elapsed_seconds": "310.656"
+    },
+    "last_history_row": {
+      "epoch": "9999",
+      "total_loss": "0.09126026183366776",
+      "mse_loss": "0.09126026183366776",
+      "test_mse_noisy": "0.1507117599248886",
+      "test_mse_clean": "0.1507117599248886",
+      "elapsed_seconds": "683.2777"
+    }
+  },
+  "scope": "No training or source edits. Full-rollout evaluation of completed 10,000-update checkpoints. Each h reconstructed in memory as saved center spacing. Late-window medians use pre-update history epochs 8000 through 9999. Baseline clean_replay history is the previously verified bitwise replay."
+}
