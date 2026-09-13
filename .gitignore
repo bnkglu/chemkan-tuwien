@@ -84,3 +84,8 @@ lightning_logs/
 
 # Session scratch (review lists, not part of the science)
 .scratch/
+
+# Smoke-run output directories (quick pipeline checks, not reported results).
+# Directory-only pattern: excluding the directory also blocks the negations above,
+# and smoke *scripts* (e.g. deeponet/biodiesel_deeponet_smoke.py) stay tracked.
+results/**/*smoke*/
