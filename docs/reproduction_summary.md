@@ -180,11 +180,13 @@ initialization, not a seed study, and it does not establish a cause.
 1. **Display annotation.** Two of the paper's printed multipliers do not agree with our
    reference values at its own plotted scale: our initial O₂ mass fraction is 0.2270, so
    ×10² would place the curve at 22.70 while the paper draws it near 2.27; our sampled H
-   peak is 0.003453, so ×10⁴ would give 34.53 against a plotted peak near 3.5. We display
-   **O₂ ×10¹ and H ×10³** instead, labelled in-figure. This is a display choice to obtain
-   comparable panel ranges, **not** a claim that the paper printed those factors — without
-   the authors' plotting code a typo cannot be confirmed. No data, prediction or loss is
-   affected: losses are computed before any multiplier.
+   peak is 0.003453, so ×10⁴ would give 34.53 against a plotted peak near 3.5. The
+   multiplier figures (`fig07_hydrogen_trajectories_<model>.png`) use the paper's **printed**
+   factors (O₂ ×10², H ×10⁴), so those two curves sit 10× higher than the paper draws them
+   and the panel ranges widen accordingly (to about 23 and 48); the figure's legend title
+   and footnote say so. Without the authors' plotting code a typo in the paper cannot be
+   confirmed. No data, prediction or loss is affected: losses are computed before any
+   multiplier.
 2. **Prediction accuracy.** The models genuinely differ from the reference, and the two
    runs differ in where the error sits: `H0` overwhelmingly in the thermodynamic path,
    `Hnorm1` mostly in the kinetics it did not improve. Neither is accurate on the species.

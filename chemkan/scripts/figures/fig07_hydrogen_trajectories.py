@@ -51,10 +51,13 @@ CONDITIONS = [(1050.0, 0.9, "training"), (1150.0, 1.3, "held-out")]
 DENSE_POINTS = 601
 
 # DISPLAY ONLY. Each species is plotted multiplied by 10**power so that curves spanning
-# five decades share one axis. The multiplier travels with the legend entry. Losses are
-# always computed on the UNSCALED states.
-DISPLAY_POWER = {"T": 0, "H2": 2, "O2": 1, "H2O": 1, "O": 2, "OH": 2,
-                 "H": 3, "HO2": 4, "H2O2": 6}
+# five decades share one axis. The powers are the ones PRINTED in the paper's Fig. 7
+# labels (B/E: H2, O2, O, OH x10^2, H2O x10^1; C/F: H2O2 x10^6, HO2 x10^4, H x10^4). The
+# paper's plotted O2 and H curves are consistent with x10^1 and x10^3 instead (O2(0) =
+# 0.227 is drawn near 2.3; the H peak 0.0035 near 3.5), so with the printed labels those
+# two curves sit 10x higher than in the paper. Losses always use the UNSCALED states.
+DISPLAY_POWER = {"T": 0, "H2": 2, "O2": 2, "H2O": 1, "O": 2, "OH": 2,
+                 "H": 4, "HO2": 4, "H2O2": 6}
 TEX = {"H2": r"H_2", "O2": r"O_2", "H2O": r"H_2O", "O": "O", "OH": "OH",
        "H": "H", "HO2": r"HO_2", "H2O2": r"H_2O_2"}
 # Paper y-ranges per row; widened only where our data exceeds them.
@@ -159,7 +162,9 @@ def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, n
                 ax.yaxis.set_major_locator(MaxNLocator(nbins=7 if row == 2 else 5))
             letter = "ABC"[row] if col == 0 else "DEF"[row]
             ax.set_title(f"({letter})", loc="left", fontsize=13)
-            ax.text(.97, .94,
+            # Species panels keep the top-right corner for the legend, so their loss box
+            # sits at the right-hand middle, which the curves leave empty.
+            ax.text(.97, .94 if row == 0 else .55,
                     f"Normalized loss = {losses[indices].mean() / divisor:.3e}",
                     transform=ax.transAxes, ha="right", va="top", fontsize=8,
                     bbox={"facecolor": "white", "alpha": .85, "edgecolor": "none", "pad": 2})
@@ -167,10 +172,11 @@ def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, n
                 ax.set_title(f"{kind}: $T_0$={T0:g} K, $\\phi$={phi:g}\n"
                              f"10-state loss = {losses.mean() / divisor:.3e}", fontsize=9)
             else:
-                ax.legend(loc="upper left", fontsize=10, ncol=2, framealpha=.9,
-                          title="Species × display multiplier", title_fontsize=9,
-                          borderpad=.35, handlelength=1.3, columnspacing=1.1,
-                          labelspacing=.3)
+                ax.legend(loc="upper right", fontsize=8, ncol=2, framealpha=.9,
+                          title="Species × multiplier (as labelled in the paper)",
+                          title_fontsize=7,
+                          borderpad=.25, handlelength=1.0, handletextpad=.4,
+                          columnspacing=.8, labelspacing=.2)
     fig.suptitle(f"Figure 7 — {label}{note}", fontsize=14, y=.995)
     fig.legend(handles=[Line2D([], [], color="0.35", marker="o", ls="none", ms=4,
                                label="Cantera reference (50 observation times)"),
@@ -180,8 +186,10 @@ def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, n
     fig.text(.5, .035, r"Read the legend: $H_2O_2\times10^6$ means plotted 1 = actual mass "
              r"fraction $10^{-6}$; plotted 5 = $5\times10^{-6}$.",
              ha="center", fontsize=10, color="0.15")
-    fig.text(.5, .006, "Display choices: O₂ ×10¹ and H ×10³ (paper annotations differ); "
-             "losses use unscaled states.", ha="center", fontsize=8, color="0.35")
+    fig.text(.5, .006, "Multipliers follow the paper's printed Fig. 7 labels. The paper's drawn "
+             "O₂ and H curves match ×10¹ and ×10³, so those two curves sit 10× higher here "
+             "than in the paper. Losses use unscaled states.",
+             ha="center", fontsize=8, color="0.35")
     fig.tight_layout(rect=(0, .10, 1, .975), h_pad=1.3)
     return fig
 
