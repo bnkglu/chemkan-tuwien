@@ -1,0 +1,1 @@
+epoch,total_loss,state_mse,pinn_loss,elapsed_seconds,epoch_wall_time_s,nfe

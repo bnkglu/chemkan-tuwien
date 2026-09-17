@@ -12,6 +12,11 @@ Both take a caller-provided ``loss_fn(pred) -> scalar`` so the experiment script
 not the library, decides MSE vs. MSE+PINN vs. any future loss. This module does not
 import losses, normalization, or anything experiment-specific.
 
+Gradients come from the backend named by ``solver.sensitivity`` (see
+``loss_and_gradients``): ``direct_autograd`` backpropagates through ``odeint`` exactly as
+every earlier run did; ``fsa`` integrates the forward sensitivity equations alongside the
+state (``chemkan.fsa``). Both leave the gradient in ``.grad`` before the same Adam step.
+
 Progress reporting: when ``tqdm`` is installed and ``progress=True`` (the default), the
 epoch loop shows a live bar with ETA / it-s and the current loss. ``tqdm`` is an
 OPTIONAL convenience -- if it is missing (or ``progress=False``) the loop falls back to
@@ -27,6 +32,7 @@ from collections.abc import Callable
 
 import torch
 
+from .fsa import fsa_loss_and_gradients
 from .solver import SolverConfig, integrate
 
 try:                                                   # optional: nicer interactive output
@@ -39,6 +45,30 @@ logger = logging.getLogger(__name__)
 LossFn = Callable[[torch.Tensor], torch.Tensor]
 
 
+def loss_and_gradients(func: torch.nn.Module, y0: torch.Tensor, t: torch.Tensor,
+                       params, loss_fn: LossFn, solver: SolverConfig):
+    """Evaluate ``loss_fn`` on the prediction from ``y0`` and ADD dL/dparams to ``.grad``.
+
+    Returns ``loss_fn``'s own output (a scalar or ``(scalar, components)``).
+
+    * ``direct_autograd``: ``integrate`` -> ``loss_fn`` -> ``backward()``, the historical
+      sequence, unchanged.
+    * ``fsa``: state and forward sensitivities in one augmented Tsit5 solve, then
+      ``S^T dL/dx`` (``chemkan.fsa.fsa_loss_and_gradients``); no graph through the solver.
+
+    ``params`` must be the optimized parameters (a list; it is read, never consumed).
+    Gradients accumulate like ``backward()``, so the caller owns ``zero_grad``.
+    """
+    if solver.sensitivity == "direct_autograd":
+        pred = integrate(func, y0, t, solver)          # (T, B, dim)
+        out = loss_fn(pred)
+        (out[0] if isinstance(out, tuple) else out).backward()
+        return out
+    if solver.sensitivity == "fsa":
+        return fsa_loss_and_gradients(func, params, y0, t, solver, loss_fn)
+    raise ValueError(f"unknown sensitivity backend {solver.sensitivity!r}")
+
+
 def _optimize(func: torch.nn.Module, y0: torch.Tensor, t: torch.Tensor,
               params, loss_fn: LossFn, *, epochs: int, lr: float,
               solver: SolverConfig, log_every: int = 100,
@@ -47,7 +77,10 @@ def _optimize(func: torch.nn.Module, y0: torch.Tensor, t: torch.Tensor,
               on_epoch: Callable[[int, float, dict, float], None] | None = None,
               checkpoint_every: int = 0,
               save_resume: Callable[[int, dict], None] | None = None) -> float:
-    """Shared loop: integrate, evaluate ``loss_fn(pred)``, step Adam. Returns final loss.
+    """Shared loop: integrate, evaluate ``loss_fn(pred)``, form gradients, step Adam.
+
+    Returns the final loss. Gradients come from ``solver.sensitivity`` (see
+    ``loss_and_gradients``).
 
     Shows a ``tqdm`` bar (updating the loss each epoch) when available and
     ``progress`` is set; otherwise logs every ``log_every`` epochs.
@@ -56,13 +89,14 @@ def _optimize(func: torch.nn.Module, y0: torch.Tensor, t: torch.Tensor,
     default, so existing callers behave identically) support the run-directory layout:
 
     * ``loss_fn`` may return either a scalar loss or ``(scalar_loss, components_dict)``;
-      only the scalar drives ``backward()``. The components are forwarded to ``on_epoch``.
+      only the scalar is differentiated. The components are forwarded to ``on_epoch``.
     * ``on_epoch(epoch, total_loss, components, elapsed_seconds)`` -- per-epoch history hook.
     * ``start_epoch`` / ``optimizer_state`` -- resume from a saved point (loop runs
       ``range(start_epoch, epochs)`` and restores the Adam state).
     * ``checkpoint_every`` + ``save_resume(next_epoch, optimizer_state_dict)`` -- periodic
       resume snapshot.
     """
+    params = list(params)
     opt = torch.optim.Adam(params, lr=lr)
     if optimizer_state is not None:
         opt.load_state_dict(optimizer_state)
@@ -74,13 +108,11 @@ def _optimize(func: torch.nn.Module, y0: torch.Tensor, t: torch.Tensor,
     started = time.perf_counter()
     for epoch in epoch_iter:
         opt.zero_grad()
-        pred = integrate(func, y0, t, solver)          # (T, B, dim)
-        out = loss_fn(pred)
+        out = loss_and_gradients(func, y0, t, params, loss_fn, solver)
         if isinstance(out, tuple):
             loss, components = out
         else:
             loss, components = out, None
-        loss.backward()
         opt.step()
         if on_epoch is not None:                       # history hook (float conversions here only)
             comp_vals = {k: float(v) for k, v in (components or {}).items()}

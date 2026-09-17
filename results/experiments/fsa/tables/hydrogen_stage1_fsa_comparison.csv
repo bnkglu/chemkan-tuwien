@@ -1,0 +1,2 @@
+run,dir,sensitivity,stage1_checkpoint_sha256,stage1_final_loss,open_loop_species_mse_1050_0.9_observedT,epochs_logged,final_loss,min_loss,min_loss_epoch,training_seconds,median_seconds_per_epoch,wall_hours_run_log,median_nfe,total_nfe
+H_STAGE1 (direct autograd),results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0,direct_autograd,6b25dfcf49305ba85f7b29d5a3fd3c91871b8cbe15c2e8facc9357a850175837,0.31487777829170227,0.006559716547965237,10000,0.3148777782917022,0.3148777782917022,9999,5128.6542,0.4581965,1.4269444444444443,716.0,8010050.0

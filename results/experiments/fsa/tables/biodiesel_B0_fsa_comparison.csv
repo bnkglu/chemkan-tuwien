@@ -1,0 +1,3 @@
+run,dir,sensitivity,train_mse_clean_full_trajectory,test_mse_clean_full_trajectory,epochs_logged,final_loss,min_loss,min_loss_epoch,training_seconds,median_seconds_per_epoch,wall_hours_run_log
+B0 (direct autograd),results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0,direct_autograd,0.062016528099775314,0.08140052855014801,10000,0.0912602618336677,0.0311291757971048,9972,628.0747,0.06189999999998008,0.17444444444444446
+B0-FSA,results/experiments/fsa/biodiesel/fsa_seed0,fsa,0.031062355265021324,0.0689537525177002,10000,0.031065747141838,0.031065747141838,9999,3841.6477,0.3738000000003012,1.0672222222222223

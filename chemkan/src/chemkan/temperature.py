@@ -25,6 +25,9 @@ import torch.nn as nn
 class ConstantTemperature(nn.Module):
     """Per-trajectory constant temperature. ``temperature`` is ``(B, 1)`` (or ``(B,)``)."""
 
+    # Buffer -> trajectory axis; lets chemkan.fsa evaluate one trajectory at a time.
+    trajectory_buffer_axes = {"temperature": 0}
+
     def __init__(self, temperature: torch.Tensor):
         super().__init__()
         temperature = torch.as_tensor(temperature, dtype=torch.get_default_dtype())
@@ -47,6 +50,9 @@ class ObservedTemperature(nn.Module):
     ``forward(t)`` returns ``(B, 1)`` at a scalar solver time via linear
     interpolation between the two bracketing saved times (endpoints clamped).
     """
+
+    # Buffer -> trajectory axis; lets chemkan.fsa evaluate one trajectory at a time.
+    trajectory_buffer_axes = {"temperatures": 1}
 
     def __init__(self, saved_times: torch.Tensor, temperatures: torch.Tensor):
         super().__init__()

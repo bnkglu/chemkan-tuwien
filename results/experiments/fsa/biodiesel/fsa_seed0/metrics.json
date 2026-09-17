@@ -1,0 +1,17 @@
+{
+  "run_id": "biodiesel/fsa_seed0",
+  "train_mse": 0.031062355265021324,
+  "n_params": 156,
+  "evaluation_wall_time_s": 0.027,
+  "evaluated_conditions": 10,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (species-only, biodiesel Stage-1), summed over observation times, then mean over trajectories, using train-only min-max normalization (chemkan.losses.trajectory_mse).",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08,
+    "sensitivity": "fsa"
+  },
+  "evaluated_at_train": "2026-09-13T18:12:39Z",
+  "test_mse": 0.0689537525177002,
+  "evaluated_at_test": "2026-09-13T18:12:40Z"
+}

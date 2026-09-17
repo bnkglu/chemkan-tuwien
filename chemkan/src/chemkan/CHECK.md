@@ -33,7 +33,8 @@ There is **no** `src/chemkan/config.py`.
   default** on reusable classes.
 - **One `SolverConfig`** (in `solver.py`); the old duplicate + conversion is gone.
   Benchmark solver is `method="tsit5"` (paper's integrator, from the pinned GitHub
-  `torchdiffeq`) with `direct_autograd` sensitivity; FSA is not implemented (gap).
+  `torchdiffeq`); training gradients by `direct_autograd` (default) or `fsa`
+  (continuous forward sensitivity analysis, `fsa.py`).
 - **Library is generic**: `training.py` has no dataset-named functions and takes a
   caller-supplied `loss_fn`; PINN stage usage is a script CLI flag, not library logic.
 - **Checkpoints are self-describing**: `{model_state, architecture, data, training,

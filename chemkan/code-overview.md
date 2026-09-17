@@ -178,10 +178,20 @@ author preprocessing.
 - `method="tsit5"` — the **same integrator as the paper** (Tsitouras 5(4)), provided by
   the pinned GitHub `torchdiffeq` commit (stock PyPI `torchdiffeq` does not expose Tsit5).
   `rtol=1e-6` / `atol=1e-8` are implementation choices, not paper values.
-- `sensitivity="direct_autograd"` — gradients flow by backprop **through** `odeint`. This
-  is **not** the paper's Forward Sensitivity Analysis (FSA) and is **not claimed
-  equivalent** to it; `odeint_adjoint` is also not used, and the config rejects any other
-  value. **FSA remains an open reproduction gap** (see `ASSUMPTIONS.md` §9).
+- `sensitivity` selects how TRAINING gradients are formed; `integrate` itself is the
+  state-only solve for both backends and for all inference.
+  - `"direct_autograd"` (default, every earlier run) — backprop **through** `odeint`; not
+    the paper's Forward Sensitivity Analysis.
+  - `"fsa"` — continuous forward sensitivity analysis in `fsa.py`: the state and
+    its sensitivities (Stage 1 / biodiesel: `S_kin = d u_tilde / d theta_kin`; Stage 2:
+    `S_g = du / d theta_g`, `dS_g/dt = (df/du) S_g + df/d theta_g`, `S(t0) = 0`) are
+    integrated as one augmented ODE by the same Tsit5; the Jacobians come from
+    `torch.func.jacrev` of the existing dynamics wrapper (`functional_call`, vmapped
+    over trajectories), and
+    `dL/dtheta = sum_j S(t_j)^T dL/du(t_j)`. `training.loss_and_gradients` dispatches.
+    Reference for the sensitivity equations: SciMLSensitivity.jl, "Sensitivity Math
+    Details" (<https://docs.sciml.ai/SciMLSensitivity/stable/sensitivity_math/>).
+  `odeint_adjoint` is not used. See `ASSUMPTIONS.md` §9.
 
 ### 2.9 `losses.py` — the objective (Eq. 18)
 
@@ -324,7 +334,7 @@ environment variable. Generate the archives with the notebooks/scripts in
   `pytest` from the `chemkan/` directory.
 - **`ASSUMPTIONS.md` / `CHECK.md`** live under `src/chemkan/` and record every
   paper-vs-implementation decision. In particular, `ASSUMPTIONS.md` §9 documents the
-  pinned Tsit5-capable `torchdiffeq` commit and the still-open Forward-Sensitivity gap,
+  pinned Tsit5-capable `torchdiffeq` commit and the two sensitivity backends,
   and §10 the hydrogen two-stage terminology.
-- **Solver:** `method="tsit5"` (matches the paper's integrator) with `direct_autograd`
-  sensitivity (FSA still TODO) — see §2.8.
+- **Solver:** `method="tsit5"` (matches the paper's integrator); training gradients by
+  `direct_autograd` (default) or `fsa` — see §2.8.

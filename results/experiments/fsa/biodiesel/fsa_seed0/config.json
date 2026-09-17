@@ -1,0 +1,144 @@
+{
+  "model": "ChemKAN-KineticCore",
+  "chemical_system": "biodiesel",
+  "experiment_name": "main",
+  "seed": 0,
+  "sensitivity_backend": "fsa",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 4,
+    "num_basis": 3,
+    "n_mu": 2,
+    "use_base_act": false
+  },
+  "parameter_count": 156,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": 10000,
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18)",
+  "pinn": {
+    "enabled": false
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "initialization": "default",
+  "training_formulation": "full_rollout",
+  "batching": {
+    "batch_size": 20,
+    "num_train_trajectories": 20,
+    "batches_per_epoch": 1,
+    "total_optimizer_steps": 10000,
+    "shuffle_each_epoch": false,
+    "shuffle_seed": 0,
+    "legacy_full_batch_path": true,
+    "loss_reduction": "chemkan.losses.trajectory_mse, UNCHANGED: mean over species, sum over observation times, then MEAN over the trajectories in the batch. A batch of k trajectories divides by k, so a batch of one divides by one.",
+    "epoch_metric": "total_loss/mse_loss is the FULL 20-trajectory Eq. 18 metric evaluated under no_grad at the parameter state the epoch STARTS from -- the identical definition and the identical parameter state the unbatched trainer logs, so the column is directly comparable across batch sizes. It is NOT the last mini-batch's loss. The sample-weighted mean of the batch losses actually optimized during the epoch is logged separately as batch_loss_running_mean; those are measured at different parameter states within the epoch and are a running quantity, not the epoch metric.",
+    "epoch_definition": "one epoch is one complete pass over all training trajectories, each visited exactly once. An epoch is never redefined as an optimizer step."
+  },
+  "dataset": "biodiesel.npz (train split)",
+  "noise": null,
+  "in_training_evaluation": null,
+  "fsa": {
+    "formulation": "continuous forward sensitivity analysis: dS/dt = (dF/dx) S + dF/dtheta, S(t0) = 0, integrated together with the state as one augmented ODE z = [x, S] by the same Tsit5 solver; dF/dx and dF/dtheta by torch.func.jacrev of the existing dynamics wrapper (functional_call), vmapped over independent trajectories; dL/dtheta = sum_j S(t_j)^T dL/dx(t_j) with dL/dx from the unchanged loss on a detached leaf.",
+    "error_control": "torchdiffeq default: RMS norm over the whole augmented [state, sensitivity] tensor, with the run's rtol/atol applied to every component (no sensitivity-specific scaling, tolerances or norm).",
+    "sensitivity_initial_condition": "S(t0) = 0, created fresh for every solve",
+    "parameter_packing": {
+      "kinetic": {
+        "total": 156,
+        "group_counts": {
+          "theta_kin": 156
+        },
+        "order": [
+          {
+            "name": "kinetic.add.edges.w_rbf",
+            "shape": [
+              4,
+              7,
+              3
+            ],
+            "offset": 0,
+            "numel": 84,
+            "group": "theta_kin"
+          },
+          {
+            "name": "kinetic.lean.edges.w_rbf",
+            "shape": [
+              6,
+              4,
+              3
+            ],
+            "offset": 84,
+            "numel": 72,
+            "group": "theta_kin"
+          }
+        ]
+      }
+    },
+    "initial_model": {
+      "tensors": {
+        "param:add.edges.w_rbf": {
+          "sha256": "e082cefbd00bacce8000fa022aa7bdd9460e5cb8c07d6f695614eed9bb27db76",
+          "shape": [
+            4,
+            7,
+            3
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:lean.edges.w_rbf": {
+          "sha256": "a473c0a4eb9d8cf5527ab95a12cb54cb0f4afb11c93442d940251928dcc98d67",
+          "shape": [
+            6,
+            4,
+            3
+          ],
+          "dtype": "torch.float32"
+        },
+        "buffer:add.edges.centers": {
+          "sha256": "960d91f8fc2e9400c29b8d17fc4b626a411191b6f5c9fe82f5657c834bfc20ba",
+          "shape": [
+            3
+          ],
+          "dtype": "torch.float32"
+        },
+        "buffer:lean.edges.centers": {
+          "sha256": "960d91f8fc2e9400c29b8d17fc4b626a411191b6f5c9fe82f5657c834bfc20ba",
+          "shape": [
+            3
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "rbf_grids": {
+        "add.edges": {
+          "h": 1.0,
+          "centers": [
+            -1.0,
+            0.0,
+            1.0
+          ]
+        },
+        "lean.edges": {
+          "h": 1.0,
+          "centers": [
+            -1.0,
+            0.0,
+            1.0
+          ]
+        }
+      }
+    }
+  },
+  "dtype": "torch.float32",
+  "torch_num_threads": 2,
+  "run_id": "biodiesel/fsa_seed0",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "created": "2026-09-13T17:08:22Z"
+}

@@ -5,7 +5,7 @@ import torch.nn as nn
 from chemkan.solver import SolverConfig, integrate
 
 # The actual benchmark solver: Tsit5 (the paper's integrator, from the pinned GitHub
-# torchdiffeq) with direct-autograd sensitivity. FSA is intentionally NOT implemented.
+# torchdiffeq) with direct-autograd sensitivity (FSA is tested in test_fsa.py).
 TSIT5 = SolverConfig(method="tsit5", rtol=1e-6, atol=1e-8, sensitivity="direct_autograd")
 
 
@@ -51,11 +51,23 @@ def test_solver_is_method_agnostic():
     assert integrate(func, y0, t, cfg).shape == (3, 1, 1)
 
 
-def test_rejects_non_autograd_sensitivity():
-    # Forward Sensitivity Analysis / adjoint are not supported; only direct_autograd is.
-    with pytest.raises(ValueError):
-        SolverConfig(method="tsit5", rtol=1e-6, atol=1e-8,
-                     sensitivity="forward_sensitivity")
+def test_rejects_unknown_sensitivity():
+    # Only the two named backends exist; adjoint and misspellings are rejected.
+    for bad in ("forward_sensitivity", "adjoint"):
+        with pytest.raises(ValueError):
+            SolverConfig(method="tsit5", rtol=1e-6, atol=1e-8, sensitivity=bad)
+    for ok in ("direct_autograd", "fsa"):
+        assert SolverConfig(method="tsit5", rtol=1e-6, atol=1e-8, sensitivity=ok).sensitivity == ok
+
+
+def test_integrate_is_state_only_for_both_backends():
+    # sensitivity selects the TRAINING gradient method; inference is identical.
+    func = Linear1D(-0.5)
+    y0 = torch.tensor([[1.0]])
+    t = torch.linspace(0.0, 1.0, 5)
+    fsa = SolverConfig(method="tsit5", rtol=1e-6, atol=1e-8, sensitivity="fsa")
+    with torch.no_grad():
+        assert torch.equal(integrate(func, y0, t, TSIT5), integrate(func, y0, t, fsa))
 
 
 def test_solver_roundtrips_through_checkpoint_metadata():

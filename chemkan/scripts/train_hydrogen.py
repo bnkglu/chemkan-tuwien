@@ -22,6 +22,12 @@ reproduces the reported 344 parameters. ``num_basis`` is INFERRED either way -- 
 paper states neither the grid size nor whether the base path is counted. The earlier
 ``--num-basis 5 --no-use-base-act`` reading also gives 344 and stays reachable from
 the CLI. See ASSUMPTIONS.md §2-3.
+
+``--sensitivity fsa`` forms the training gradients of BOTH stages by forward sensitivity
+analysis (``chemkan.fsa``) instead of the default direct autograd. A Stage-2 run that
+loads ``--stage1-from`` must then load an FSA-trained Stage-1 checkpoint; mixing backends
+is refused unless ``--allow-stage1-backend-mismatch`` labels the run a Stage-2-only
+ablation.
 """
 
 from __future__ import annotations
@@ -50,13 +56,14 @@ from _data import (
     resolve_device,
 )
 from _predictions import checkpoint_sha256
-from _run import RunManager, check_resume_config
+from _run import RunManager, check_resume_config, model_tensor_record
 
 from chemkan.dynamics import ChemKANDynamics, KineticDynamics
+from chemkan.fsa import ParameterPacking, fsa_provenance
 from chemkan.losses import chemkan_loss, element_conservation_loss, trajectory_mse
 from chemkan.model import ChemKAN
 from chemkan.normalization import MinMaxNormalizer
-from chemkan.solver import SolverConfig
+from chemkan.solver import SENSITIVITY_BACKENDS, SolverConfig
 from chemkan.temperature import ObservedTemperature
 from chemkan.training import train_full_chemkan, train_kinetic_stage
 
@@ -86,6 +93,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--solver-method", default="tsit5")
     p.add_argument("--rtol", type=float, default=1e-6)
     p.add_argument("--atol", type=float, default=1e-8)
+    p.add_argument("--sensitivity", default="direct_autograd", choices=SENSITIVITY_BACKENDS,
+                   help="training-gradient backend for both stages: 'direct_autograd' "
+                        "(default; backprop through odeint, every earlier run) or 'fsa' "
+                        "(forward sensitivity analysis, chemkan.fsa). Inference is a "
+                        "state-only solve either way.")
+    p.add_argument("--allow-stage1-backend-mismatch", action="store_true",
+                   help="permit --stage1-from a checkpoint trained with a different "
+                        "sensitivity backend. Marks the run as a Stage-2-only ablation; "
+                        "never used by the main full-FSA reproduction.")
     # Stage-1 external temperature source. The default is a
     # dense precomputed Cantera trajectory read through ObservedTemperature; the
     # original sparse 50-point training-data trajectory remains as an ablation.
@@ -189,7 +205,7 @@ def main():
     assert_species_order(data["species"])                  # PINN matrices are positional
     m = data["species_TBm"].shape[-1]                       # data-derived species dim
     solver = SolverConfig(method=args.solver_method, rtol=args.rtol, atol=args.atol,
-                          sensitivity="direct_autograd")     # every field explicit
+                          sensitivity=args.sensitivity)      # every field explicit
 
     model = ChemKAN(species_dim=m, hidden_dim=args.hidden_dim, num_basis=args.num_basis,
                     n_mu=args.n_mu, use_base_act=args.use_base_act).to(device)
@@ -302,6 +318,15 @@ def main():
                              f"match the requested architecture")
         if list(s1ck.get("data", {}).get("species", [])) != [str(x) for x in data["species"]]:
             raise SystemExit("--stage1-from species order does not match the dataset")
+        # A full-FSA (or full-direct-autograd) pipeline must not silently inherit a Stage 1
+        # trained with the other backend.
+        stage1_backend = (s1ck.get("solver") or {}).get("sensitivity")
+        if stage1_backend != args.sensitivity and not args.allow_stage1_backend_mismatch:
+            raise SystemExit(
+                f"--stage1-from checkpoint was trained with sensitivity={stage1_backend!r} "
+                f"but this run uses {args.sensitivity!r}. Train Stage 1 with the same "
+                f"backend, or pass --allow-stage1-backend-mismatch for an explicitly "
+                f"labelled Stage-2-only ablation.")
         # Load ONLY the kinetic core: the thermo modules keep this run's own init policy,
         # which is what makes random-vs-cantera a controlled comparison.
         model.kinetic.load_state_dict(s1ck["kinetic_state"])
@@ -374,6 +399,22 @@ def main():
         return total, {"state_mse": state_mse.detach(),
                        "pinn_loss": (total - state_mse).detach()}   # exact weighted PINN part
 
+    # FSA provenance is computed from the freshly built model, BEFORE any resume state is
+    # loaded, so a resumed run reproduces it exactly (it is part of the compared config).
+    fsa_meta = None
+    if solver.sensitivity == "fsa":
+        fsa_meta = fsa_provenance({
+            "stage1": ParameterPacking.from_module(kin_dyn, model.kinetic.parameters()),
+            "stage2": ParameterPacking.from_module(chem_dyn, model.parameters())})
+        fsa_meta["initial_model"] = model_tensor_record(model)
+        fsa_meta["initial_model_note"] = (
+            "tensors at configuration time: after thermo initialization and, with "
+            "--stage1-from, after loading the Stage-1 kinetic core (i.e. the Stage-2 "
+            "initial model); otherwise the Stage-1 initial model.")
+        if stage1_from_meta is not None:
+            fsa_meta["stage1_from_sensitivity"] = stage1_backend
+            fsa_meta["stage2_only_ablation"] = stage1_backend != args.sensitivity
+
     # --- run-directory plumbing (organization only; math unchanged) ---------------
     run = RunManager(args.run_dir, "hydrogen", resume=args.resume, overwrite=args.overwrite)
     run.start()
@@ -404,6 +445,11 @@ def main():
         "thermo_init": thermo_init_meta,
         "stage1_from": stage1_from_meta,
     }
+    if fsa_meta is not None:
+        # FSA-only keys; direct-autograd configs keep their exact historical keys.
+        config["fsa"] = fsa_meta
+        config["dtype"] = str(u0.dtype)
+        config["torch_num_threads"] = torch.get_num_threads()
     if resume_state is not None:
         # A resumed run may not silently change its science (incl. the Stage-1 temperature
         # provider). Epoch totals may GROW but never fall below the completed epoch; the
@@ -472,7 +518,8 @@ def main():
                             "stage1_temperature": stage1_temp_meta,
                             "solver": {"method": solver.method, "rtol": solver.rtol,
                                        "atol": solver.atol, "sensitivity": solver.sensitivity},
-                            "input_scaling": input_scaling_meta(args.input_scaling, full_norm)},
+                            "input_scaling": input_scaling_meta(args.input_scaling, full_norm),
+                            **({"fsa": fsa_meta} if fsa_meta is not None else {})},
                            run.run_dir / "checkpoint_stage1.pt")
                 logging.info("wrote %s", run.run_dir / "checkpoint_stage1.pt")
             # Mark Stage 1 done so an interrupted Stage 2 resumes into Stage 2, not Stage 1.
@@ -597,6 +644,9 @@ def main():
         "state_representation": "physical",
         "input_scaling": input_scaling_meta(args.input_scaling, full_norm),
     }
+    if fsa_meta is not None:
+        checkpoint["fsa"] = fsa_meta
+        checkpoint["stage1_from"] = stage1_from_meta
     if run.enabled:
         checkpoint["run_id"] = run.run_id
         run.save_final(checkpoint)                          # writes final, deletes resume

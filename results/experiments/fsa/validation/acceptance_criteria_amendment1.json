@@ -1,0 +1,15 @@
+{
+  "created": "2026-09-13T16:55:42Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "amendment": {
+    "id": 1,
+    "applies_to": [
+      "C_gradients.refinement_stability (and the agreement/Section-10 checks of the affected cases)",
+      "E_independence.batch_vs_individual_at_L2"
+    ],
+    "thresholds_changed": false,
+    "rule": "A case that misses a refinement-based threshold at the pre-registered level (C: consecutive change L1->L2; E: batch-vs-individual at L2) is re-evaluated on a ladder extended by one decade, L3 = rtol/atol 1e-12/1e-14, with the SAME thresholds applied at the finest level: C requires the L2->L3 change of both backends <= 1e-3, FSA-vs-direct-autograd agreement at L3 within the L2 agreement thresholds, and the Section-10 production check against the L3 FSA gradient; E requires the batch-vs-individual differences at L3 within the L2 thresholds. A case still missing at L3 is a FAIL. Original results are kept.",
+    "rationale": "investigation_stage1_refinement.json: for hydrogen Stage 1 the gradients at L0/L1 are not converged for EITHER backend (L0->L1 ~4e-2, L1->L2 1.6e-3 FSA / 6.9e-3 direct autograd at the initial model) and remain slow even for a smooth control forcing (T = T0: L1->L2 5.9e-4 / 9.1e-4); one decade further both backends converge (L2->L3 6.5e-6 / 1.9e-5) and agree. For the trained Stage-1 model the C0 forcing T_obs(t) (piecewise-linear interpolation of 20,000 points) is the dominant cost: L1->L2 changes 9.1e-6 (FSA) with T_obs vs 3.5e-8 with the smooth control, and L3 needs 68,906 vs 10,076 RHS evaluations. Stage-1 batch-vs-individual state differences fall from 1.9e-7 (L2) to 1.2e-8 (L3), i.e. they are solver accuracy, not coupling (cross-derivatives are exactly zero). The pre-registered choice of L2 as the finest level was arbitrary.",
+    "evidence": "investigation_stage1_refinement.json"
+  }
+}

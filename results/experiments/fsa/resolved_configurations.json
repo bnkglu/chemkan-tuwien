@@ -1,0 +1,663 @@
+{
+  "created": "2026-09-13T17:08:11Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "8433429408dfcadc87316532951fff178d3874f7e5ad814444afe8d82cab0d8e",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_8433429408df.patch"
+  },
+  "validation_summary": {
+    "A": {
+      "status": "PASS",
+      "file": "A_analytic.json",
+      "seconds": 1.8,
+      "created": "2026-09-13T16:32:32Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+    },
+    "B": {
+      "status": "PASS",
+      "file": "B_functional_equivalence.json",
+      "seconds": 8.0,
+      "created": "2026-09-13T16:32:39Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+    },
+    "C": {
+      "status": "PASS",
+      "file": "C_gradients.json",
+      "seconds": 228.4,
+      "created": "2026-09-13T16:36:28Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+      "original_status": "FAIL",
+      "amendment_file": "C_gradients_amendment1.json"
+    },
+    "D": {
+      "status": "PASS",
+      "file": "D_state_consistency.json",
+      "seconds": 244.8,
+      "created": "2026-09-13T16:36:34Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+    },
+    "E": {
+      "status": "PASS",
+      "file": "E_independence.json",
+      "seconds": 82.0,
+      "created": "2026-09-13T16:37:56Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+      "original_status": "FAIL",
+      "amendment_file": "E_independence_amendment1.json"
+    },
+    "F": {
+      "status": "PASS",
+      "file": "F_production_dtype.json",
+      "seconds": 637.4,
+      "created": "2026-09-13T16:43:07Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+    },
+    "G": {
+      "status": "INCONCLUSIVE",
+      "file": "G_finite_differences.json",
+      "seconds": 84.3,
+      "created": "2026-09-13T16:44:31Z",
+      "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+    },
+    "core_validation": "PASS",
+    "optional_G": "INCONCLUSIVE"
+  },
+  "order": [
+    "B0-FSA and H_STAGE1-FSA (parallel)",
+    "H0-FSA and Hnorm1-FSA (parallel, after H_STAGE1-FSA wrote checkpoint_stage1.pt)"
+  ],
+  "jobs": {
+    "B0-FSA": {
+      "baseline": "results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0",
+      "baseline_config": {
+        "model": "ChemKAN-KineticCore",
+        "chemical_system": "biodiesel",
+        "experiment_name": "main",
+        "seed": 0,
+        "sensitivity_backend": "direct_autograd",
+        "device": "cpu",
+        "architecture": {
+          "hidden_dim": 4,
+          "num_basis": 3,
+          "n_mu": 2,
+          "use_base_act": false
+        },
+        "parameter_count": 156,
+        "optimizer": "Adam",
+        "learning_rate": 0.002,
+        "epochs": 10000,
+        "solver": {
+          "method": "tsit5",
+          "rtol": 1e-06,
+          "atol": 1e-08
+        },
+        "loss": "normalized trajectory MSE (Eq. 18)",
+        "pinn": {
+          "enabled": false
+        },
+        "normalization": {
+          "input_scaling": "minmax",
+          "stats": "train-only min-max"
+        },
+        "dataset": "biodiesel.npz (train split)",
+        "noise": null,
+        "run_id": "chemkan/biodiesel/main/direct_autograd_seed0",
+        "git_commit": "19e2a13a988d826332b8314eeff4edf4ff2cc673",
+        "created": "2026-08-28T07:18:50Z"
+      },
+      "output_dir": "results/experiments/fsa/biodiesel/fsa_seed0",
+      "argv": [
+        "chemkan/scripts/train_biodiesel.py",
+        "--seed",
+        "0",
+        "--epochs",
+        "10000",
+        "--hidden-dim",
+        "4",
+        "--num-basis",
+        "3",
+        "--n-mu",
+        "2",
+        "--lr",
+        "0.002",
+        "--input-scaling",
+        "minmax",
+        "--solver-method",
+        "tsit5",
+        "--rtol",
+        "1e-06",
+        "--atol",
+        "1e-08",
+        "--device",
+        "cpu",
+        "--experiment-name",
+        "main",
+        "--init",
+        "default",
+        "--sensitivity",
+        "fsa",
+        "--checkpoint-every",
+        "500",
+        "--run-dir",
+        "results/experiments/fsa/biodiesel/fsa_seed0"
+      ],
+      "cwd": "repository root (as the baselines were launched)",
+      "env": {
+        "OMP_NUM_THREADS": "2"
+      },
+      "parsed_and_checked": {
+        "seed": 0,
+        "epochs": 10000,
+        "lr": 0.002,
+        "hidden_dim": 4,
+        "num_basis": 3,
+        "n_mu": 2,
+        "use_base_act": false,
+        "input_scaling": "minmax",
+        "noise_percent": null,
+        "batch_size": null,
+        "eval_every": 0,
+        "init": "default",
+        "solver_method": "tsit5",
+        "rtol": 1e-06,
+        "atol": 1e-08,
+        "sensitivity": "fsa"
+      },
+      "intended_changes": [
+        "sensitivity: direct_autograd -> fsa"
+      ]
+    },
+    "H_STAGE1-FSA": {
+      "baseline": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0",
+      "baseline_config": {
+        "model": "ChemKAN",
+        "chemical_system": "hydrogen",
+        "experiment_name": "base_on_n4",
+        "seed": 0,
+        "sensitivity_backend": "direct_autograd",
+        "device": "cpu",
+        "architecture": {
+          "hidden_dim": 3,
+          "num_basis": 4,
+          "n_mu": 3,
+          "use_base_act": true
+        },
+        "parameter_count": 344,
+        "optimizer": "Adam",
+        "learning_rate": 0.002,
+        "epochs": {
+          "stage1": 10000,
+          "stage2": 0
+        },
+        "solver": {
+          "method": "tsit5",
+          "rtol": 1e-06,
+          "atol": 1e-08
+        },
+        "loss": "normalized trajectory MSE (Eq. 18) + alpha*PINN",
+        "pinn": {
+          "stage1": true,
+          "stage2": true,
+          "alpha_pinn": 0.0001
+        },
+        "normalization": {
+          "input_scaling": "minmax",
+          "stats": "train-only min-max"
+        },
+        "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)",
+        "noise": null,
+        "stage1_temperature": {
+          "source": "dense_cantera",
+          "n_points": 20000,
+          "provider": "ObservedTemperature",
+          "interpolation": "linear",
+          "cache_file": "hydrogen_temperature_20000.npz"
+        },
+        "thermo_init": {
+          "thermo_init": "random"
+        },
+        "stage1_from": null,
+        "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0",
+        "git_commit": "64df16c199c78040795da181639a86bb9080f199",
+        "created": "2026-08-31T21:46:53Z"
+      },
+      "output_dir": "results/experiments/fsa/hydrogen/stage1_fsa_seed0",
+      "argv": [
+        "chemkan/scripts/train_hydrogen.py",
+        "--seed",
+        "0",
+        "--hidden-dim",
+        "3",
+        "--num-basis",
+        "4",
+        "--n-mu",
+        "3",
+        "--use-base-act",
+        "--stage1-epochs",
+        "10000",
+        "--stage2-epochs",
+        "0",
+        "--lr",
+        "0.002",
+        "--alpha-pinn",
+        "0.0001",
+        "--input-scaling",
+        "minmax",
+        "--solver-method",
+        "tsit5",
+        "--rtol",
+        "1e-06",
+        "--atol",
+        "1e-08",
+        "--device",
+        "cpu",
+        "--stage1-temperature-source",
+        "dense-cantera",
+        "--stage1-temperature-points",
+        "20000",
+        "--experiment-name",
+        "base_on_n4",
+        "--count-nfe",
+        "--stage2-probe",
+        "--stage2-probe-epochs",
+        "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000",
+        "--stage2-snapshot-epochs",
+        "500",
+        "--thermo-init",
+        "random",
+        "--sensitivity",
+        "fsa",
+        "--checkpoint-every",
+        "500",
+        "--run-dir",
+        "results/experiments/fsa/hydrogen/stage1_fsa_seed0"
+      ],
+      "cwd": "repository root (as the baselines were launched)",
+      "env": {
+        "OMP_NUM_THREADS": "2"
+      },
+      "parsed_and_checked": {
+        "seed": 0,
+        "lr": 0.002,
+        "hidden_dim": 3,
+        "num_basis": 4,
+        "n_mu": 3,
+        "use_base_act": true,
+        "stage1_epochs": 10000,
+        "stage2_epochs": 0,
+        "pinn_stage1": true,
+        "pinn_stage2": true,
+        "alpha_pinn": 0.0001,
+        "input_scaling": "minmax",
+        "solver_method": "tsit5",
+        "rtol": 1e-06,
+        "atol": 1e-08,
+        "stage1_temperature_points": 20000,
+        "thermo_init": "random",
+        "sensitivity": "fsa"
+      },
+      "intended_changes": [
+        "sensitivity: direct_autograd -> fsa"
+      ]
+    },
+    "H0-FSA": {
+      "baseline": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
+      "baseline_config": {
+        "model": "ChemKAN",
+        "chemical_system": "hydrogen",
+        "experiment_name": "base_on_n4",
+        "seed": 0,
+        "sensitivity_backend": "direct_autograd",
+        "device": "cpu",
+        "architecture": {
+          "hidden_dim": 3,
+          "num_basis": 4,
+          "n_mu": 3,
+          "use_base_act": true
+        },
+        "parameter_count": 344,
+        "optimizer": "Adam",
+        "learning_rate": 0.002,
+        "epochs": {
+          "stage1": 10000,
+          "stage2": 10000
+        },
+        "solver": {
+          "method": "tsit5",
+          "rtol": 1e-06,
+          "atol": 1e-08
+        },
+        "loss": "normalized trajectory MSE (Eq. 18) + alpha*PINN",
+        "pinn": {
+          "stage1": true,
+          "stage2": true,
+          "alpha_pinn": 0.0001
+        },
+        "normalization": {
+          "input_scaling": "minmax",
+          "stats": "train-only min-max"
+        },
+        "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)",
+        "noise": null,
+        "stage1_temperature": {
+          "source": "dense_cantera",
+          "n_points": 20000,
+          "provider": "ObservedTemperature",
+          "interpolation": "linear",
+          "cache_file": "hydrogen_temperature_20000.npz"
+        },
+        "thermo_init": {
+          "thermo_init": "random"
+        },
+        "stage1_from": {
+          "source": "checkpoint_stage1.pt",
+          "path": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_stage1.pt",
+          "stage1_checkpoint_sha256": "6b25dfcf49305ba85f7b29d5a3fd3c91871b8cbe15c2e8facc9357a850175837",
+          "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0",
+          "architecture": {
+            "hidden_dim": 3,
+            "num_basis": 4,
+            "n_mu": 3,
+            "use_base_act": true
+          },
+          "stage1_final_loss": 0.31487777829170227,
+          "stage1_epochs": 10000
+        },
+        "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
+        "git_commit": "64df16c199c78040795da181639a86bb9080f199",
+        "created": "2026-08-31T23:12:47Z"
+      },
+      "output_dir": "results/experiments/fsa/hydrogen/random_stage2_10000_fsa_seed0",
+      "argv": [
+        "chemkan/scripts/train_hydrogen.py",
+        "--seed",
+        "0",
+        "--hidden-dim",
+        "3",
+        "--num-basis",
+        "4",
+        "--n-mu",
+        "3",
+        "--use-base-act",
+        "--stage1-epochs",
+        "10000",
+        "--stage2-epochs",
+        "10000",
+        "--lr",
+        "0.002",
+        "--alpha-pinn",
+        "0.0001",
+        "--input-scaling",
+        "minmax",
+        "--solver-method",
+        "tsit5",
+        "--rtol",
+        "1e-06",
+        "--atol",
+        "1e-08",
+        "--device",
+        "cpu",
+        "--stage1-temperature-source",
+        "dense-cantera",
+        "--stage1-temperature-points",
+        "20000",
+        "--experiment-name",
+        "base_on_n4",
+        "--count-nfe",
+        "--stage2-probe",
+        "--stage2-probe-epochs",
+        "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000",
+        "--stage2-snapshot-epochs",
+        "500",
+        "--thermo-init",
+        "random",
+        "--stage1-from",
+        "results/experiments/fsa/hydrogen/stage1_fsa_seed0/checkpoint_stage1.pt",
+        "--sensitivity",
+        "fsa",
+        "--checkpoint-every",
+        "500",
+        "--run-dir",
+        "results/experiments/fsa/hydrogen/random_stage2_10000_fsa_seed0"
+      ],
+      "cwd": "repository root (as the baselines were launched)",
+      "env": {
+        "OMP_NUM_THREADS": "2"
+      },
+      "parsed_and_checked": {
+        "seed": 0,
+        "lr": 0.002,
+        "hidden_dim": 3,
+        "num_basis": 4,
+        "n_mu": 3,
+        "use_base_act": true,
+        "stage1_epochs": 10000,
+        "stage2_epochs": 10000,
+        "pinn_stage1": true,
+        "pinn_stage2": true,
+        "alpha_pinn": 0.0001,
+        "input_scaling": "minmax",
+        "solver_method": "tsit5",
+        "rtol": 1e-06,
+        "atol": 1e-08,
+        "stage1_temperature_points": 20000,
+        "thermo_init": "random",
+        "sensitivity": "fsa"
+      },
+      "intended_changes": [
+        "sensitivity: direct_autograd -> fsa",
+        "stage1_from: archived direct-autograd Stage 1 -> H_STAGE1-FSA's checkpoint_stage1.pt (the same file for H0-FSA and Hnorm1-FSA)"
+      ]
+    },
+    "Hnorm1-FSA": {
+      "baseline": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000",
+      "baseline_config": {
+        "model": "ChemKAN",
+        "chemical_system": "hydrogen",
+        "experiment_name": "base_on_n4",
+        "seed": 0,
+        "sensitivity_backend": "direct_autograd",
+        "device": "cpu",
+        "architecture": {
+          "hidden_dim": 3,
+          "num_basis": 4,
+          "n_mu": 3,
+          "use_base_act": true
+        },
+        "parameter_count": 344,
+        "optimizer": "Adam",
+        "learning_rate": 0.002,
+        "epochs": {
+          "stage1": 10000,
+          "stage2": 10000
+        },
+        "solver": {
+          "method": "tsit5",
+          "rtol": 1e-06,
+          "atol": 1e-08
+        },
+        "loss": "normalized trajectory MSE (Eq. 18) + alpha*PINN",
+        "pinn": {
+          "stage1": true,
+          "stage2": true,
+          "alpha_pinn": 0.0001
+        },
+        "normalization": {
+          "input_scaling": "minmax",
+          "stats": "train-only min-max"
+        },
+        "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)",
+        "noise": null,
+        "stage1_temperature": {
+          "source": "dense_cantera",
+          "n_points": 20000,
+          "provider": "ObservedTemperature",
+          "interpolation": "linear",
+          "cache_file": "hydrogen_temperature_20000.npz"
+        },
+        "thermo_init": {
+          "thermo_init": "scaled-random",
+          "mechanism": "h2o2.yaml",
+          "scaling_mode": "match-cantera-norm",
+          "thermo_linear_init_seed": 1,
+          "original_random_vector": [
+            0.1717544049024582,
+            -0.14712607860565186,
+            -0.0646204948425293,
+            0.15645632147789001,
+            -0.3138123154640198,
+            0.19990575313568115,
+            -0.06857510656118393,
+            0.16958129405975342,
+            0.0463389977812767
+          ],
+          "original_random_norm": 0.5038334727287292,
+          "requested_scale_factor": null,
+          "effective_scale_factor": 339849.28063479025,
+          "resulting_vector": [
+            58370.609375,
+            -50000.69140625,
+            -21961.228515625,
+            53171.5703125,
+            -106648.890625,
+            67937.828125,
+            -23305.201171875,
+            57632.08203125,
+            15748.275390625
+          ],
+          "resulting_norm": 171227.453125,
+          "cantera_reference_norm": 171227.44326658684,
+          "sign_match_vs_cantera": "6/9",
+          "reference_temperature": 1050.0,
+          "reference_phi": 0.5,
+          "cp_mass_J_per_kg_K": 1360.6309330699291,
+          "species_order": [
+            "H2",
+            "H",
+            "O",
+            "O2",
+            "OH",
+            "H2O",
+            "HO2",
+            "H2O2",
+            "N2"
+          ],
+          "note": "Cantera vector used for its L2 NORM ONLY; direction/signs/ratios are random. sign_match is descriptive only and never used to accept/reject a draw."
+        },
+        "stage1_from": {
+          "source": "checkpoint_stage1.pt",
+          "path": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_stage1.pt",
+          "stage1_checkpoint_sha256": "6b25dfcf49305ba85f7b29d5a3fd3c91871b8cbe15c2e8facc9357a850175837",
+          "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0",
+          "architecture": {
+            "hidden_dim": 3,
+            "num_basis": 4,
+            "n_mu": 3,
+            "use_base_act": true
+          },
+          "stage1_final_loss": 0.31487777829170227,
+          "stage1_epochs": 10000
+        },
+        "run_id": "chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000",
+        "git_commit": "64df16c199c78040795da181639a86bb9080f199",
+        "created": "2026-09-01T16:29:13Z"
+      },
+      "output_dir": "results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa",
+      "argv": [
+        "chemkan/scripts/train_hydrogen.py",
+        "--seed",
+        "0",
+        "--hidden-dim",
+        "3",
+        "--num-basis",
+        "4",
+        "--n-mu",
+        "3",
+        "--use-base-act",
+        "--stage1-epochs",
+        "10000",
+        "--stage2-epochs",
+        "10000",
+        "--lr",
+        "0.002",
+        "--alpha-pinn",
+        "0.0001",
+        "--input-scaling",
+        "minmax",
+        "--solver-method",
+        "tsit5",
+        "--rtol",
+        "1e-06",
+        "--atol",
+        "1e-08",
+        "--device",
+        "cpu",
+        "--stage1-temperature-source",
+        "dense-cantera",
+        "--stage1-temperature-points",
+        "20000",
+        "--experiment-name",
+        "base_on_n4",
+        "--count-nfe",
+        "--stage2-probe",
+        "--stage2-probe-epochs",
+        "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000",
+        "--stage2-snapshot-epochs",
+        "500",
+        "--thermo-init",
+        "scaled-random",
+        "--thermo-match-cantera-norm",
+        "--thermo-linear-init-seed",
+        "1",
+        "--thermo-init-temperature",
+        "1050.0",
+        "--thermo-init-phi",
+        "0.5",
+        "--stage1-from",
+        "results/experiments/fsa/hydrogen/stage1_fsa_seed0/checkpoint_stage1.pt",
+        "--sensitivity",
+        "fsa",
+        "--checkpoint-every",
+        "500",
+        "--run-dir",
+        "results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa"
+      ],
+      "cwd": "repository root (as the baselines were launched)",
+      "env": {
+        "OMP_NUM_THREADS": "2"
+      },
+      "parsed_and_checked": {
+        "seed": 0,
+        "lr": 0.002,
+        "hidden_dim": 3,
+        "num_basis": 4,
+        "n_mu": 3,
+        "use_base_act": true,
+        "stage1_epochs": 10000,
+        "stage2_epochs": 10000,
+        "pinn_stage1": true,
+        "pinn_stage2": true,
+        "alpha_pinn": 0.0001,
+        "input_scaling": "minmax",
+        "solver_method": "tsit5",
+        "rtol": 1e-06,
+        "atol": 1e-08,
+        "stage1_temperature_points": 20000,
+        "thermo_init": "scaled-random",
+        "sensitivity": "fsa",
+        "thermo_match_cantera_norm": true,
+        "thermo_init_scale_factor": null,
+        "thermo_linear_init_seed": 1,
+        "thermo_init_temperature": 1050.0,
+        "thermo_init_phi": 0.5
+      },
+      "intended_changes": [
+        "sensitivity: direct_autograd -> fsa",
+        "stage1_from: archived direct-autograd Stage 1 -> H_STAGE1-FSA's checkpoint_stage1.pt (the same file for H0-FSA and Hnorm1-FSA)"
+      ]
+    }
+  }
+}

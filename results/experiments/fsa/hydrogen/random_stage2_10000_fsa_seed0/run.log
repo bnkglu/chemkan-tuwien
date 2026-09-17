@@ -1,0 +1,5 @@
+2026-09-14 07:40:09,414 INFO run start 2026-09-14T04:40:09Z | run_id=hydrogen/random_stage2_10000_fsa_seed0 | system=hydrogen | dir=results/experiments/fsa/hydrogen/random_stage2_10000_fsa_seed0
+2026-09-14 07:40:09,436 INFO wrote results/experiments/fsa/hydrogen/random_stage2_10000_fsa_seed0/config.json
+2026-09-14 07:40:09,436 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.201826e-01
+2026-09-14 07:40:09,793 INFO stage-2 probe -> results/experiments/fsa/hydrogen/random_stage2_10000_fsa_seed0/stage2_probe.csv
+2026-09-14 07:40:09,794 INFO stage-2 snapshots at epochs [500]

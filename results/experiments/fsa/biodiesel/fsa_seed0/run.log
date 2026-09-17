@@ -1,0 +1,6 @@
+2026-09-13 20:08:22,149 INFO run start 2026-09-13T17:08:22Z | run_id=biodiesel/fsa_seed0 | system=biodiesel | dir=results/experiments/fsa/biodiesel/fsa_seed0
+2026-09-13 20:08:22,171 INFO wrote results/experiments/fsa/biodiesel/fsa_seed0/config.json
+2026-09-13 21:12:24,641 INFO final training loss: 3.106575e-02
+2026-09-13 21:12:24,646 INFO wrote results/experiments/fsa/biodiesel/fsa_seed0/checkpoint_final.pt
+2026-09-13 21:12:24,646 INFO removed results/experiments/fsa/biodiesel/fsa_seed0/checkpoint_resume.pt (run completed)
+2026-09-13 21:12:24,646 INFO run completed 2026-09-13T18:12:24Z

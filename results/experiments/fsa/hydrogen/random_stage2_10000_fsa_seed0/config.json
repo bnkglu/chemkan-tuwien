@@ -1,0 +1,323 @@
+{
+  "model": "ChemKAN",
+  "chemical_system": "hydrogen",
+  "experiment_name": "base_on_n4",
+  "seed": 0,
+  "sensitivity_backend": "fsa",
+  "device": "cpu",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 4,
+    "n_mu": 3,
+    "use_base_act": true
+  },
+  "parameter_count": 344,
+  "optimizer": "Adam",
+  "learning_rate": 0.002,
+  "epochs": {
+    "stage1": 10000,
+    "stage2": 10000
+  },
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "loss": "normalized trajectory MSE (Eq. 18) + alpha*PINN",
+  "pinn": {
+    "stage1": true,
+    "stage2": true,
+    "alpha_pinn": 0.0001
+  },
+  "normalization": {
+    "input_scaling": "minmax",
+    "stats": "train-only min-max"
+  },
+  "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)",
+  "noise": null,
+  "stage1_temperature": {
+    "source": "dense_cantera",
+    "n_points": 20000,
+    "provider": "ObservedTemperature",
+    "interpolation": "linear",
+    "cache_file": "hydrogen_temperature_20000.npz"
+  },
+  "thermo_init": {
+    "thermo_init": "random"
+  },
+  "stage1_from": {
+    "source": "checkpoint_stage1.pt",
+    "path": "results/experiments/fsa/hydrogen/stage1_fsa_seed0/checkpoint_stage1.pt",
+    "stage1_checkpoint_sha256": "037160da5a591fe11937c8cd7d077143242b299f0f397a1955f9e124896a794c",
+    "run_id": "hydrogen/stage1_fsa_seed0",
+    "architecture": {
+      "hidden_dim": 3,
+      "num_basis": 4,
+      "n_mu": 3,
+      "use_base_act": true
+    },
+    "stage1_final_loss": 0.32018259167671204,
+    "stage1_epochs": 10000
+  },
+  "fsa": {
+    "formulation": "continuous forward sensitivity analysis: dS/dt = (dF/dx) S + dF/dtheta, S(t0) = 0, integrated together with the state as one augmented ODE z = [x, S] by the same Tsit5 solver; dF/dx and dF/dtheta by torch.func.jacrev of the existing dynamics wrapper (functional_call), vmapped over independent trajectories; dL/dtheta = sum_j S(t_j)^T dL/dx(t_j) with dL/dx from the unchanged loss on a detached leaf.",
+    "error_control": "torchdiffeq default: RMS norm over the whole augmented [state, sensitivity] tensor, with the run's rtol/atol applied to every component (no sensitivity-specific scaling, tolerances or norm).",
+    "sensitivity_initial_condition": "S(t0) = 0, created fresh for every solve",
+    "parameter_packing": {
+      "stage1": {
+        "total": 285,
+        "group_counts": {
+          "theta_kin": 285
+        },
+        "order": [
+          {
+            "name": "kinetic.add.edges.w_rbf",
+            "shape": [
+              3,
+              10,
+              4
+            ],
+            "offset": 0,
+            "numel": 120,
+            "group": "theta_kin"
+          },
+          {
+            "name": "kinetic.add.edges.w_base",
+            "shape": [
+              3,
+              10
+            ],
+            "offset": 120,
+            "numel": 30,
+            "group": "theta_kin"
+          },
+          {
+            "name": "kinetic.lean.edges.w_rbf",
+            "shape": [
+              9,
+              3,
+              4
+            ],
+            "offset": 150,
+            "numel": 108,
+            "group": "theta_kin"
+          },
+          {
+            "name": "kinetic.lean.edges.w_base",
+            "shape": [
+              9,
+              3
+            ],
+            "offset": 258,
+            "numel": 27,
+            "group": "theta_kin"
+          }
+        ]
+      },
+      "stage2": {
+        "total": 344,
+        "group_counts": {
+          "theta_kin": 285,
+          "theta_thermo": 9,
+          "theta_cor": 50
+        },
+        "order": [
+          {
+            "name": "model.kinetic.add.edges.w_rbf",
+            "shape": [
+              3,
+              10,
+              4
+            ],
+            "offset": 0,
+            "numel": 120,
+            "group": "theta_kin"
+          },
+          {
+            "name": "model.kinetic.add.edges.w_base",
+            "shape": [
+              3,
+              10
+            ],
+            "offset": 120,
+            "numel": 30,
+            "group": "theta_kin"
+          },
+          {
+            "name": "model.kinetic.lean.edges.w_rbf",
+            "shape": [
+              9,
+              3,
+              4
+            ],
+            "offset": 150,
+            "numel": 108,
+            "group": "theta_kin"
+          },
+          {
+            "name": "model.kinetic.lean.edges.w_base",
+            "shape": [
+              9,
+              3
+            ],
+            "offset": 258,
+            "numel": 27,
+            "group": "theta_kin"
+          },
+          {
+            "name": "model.thermo.linear.weight",
+            "shape": [
+              1,
+              9
+            ],
+            "offset": 285,
+            "numel": 9,
+            "group": "theta_thermo"
+          },
+          {
+            "name": "model.thermo.correction.edges.w_rbf",
+            "shape": [
+              1,
+              10,
+              4
+            ],
+            "offset": 294,
+            "numel": 40,
+            "group": "theta_cor"
+          },
+          {
+            "name": "model.thermo.correction.edges.w_base",
+            "shape": [
+              1,
+              10
+            ],
+            "offset": 334,
+            "numel": 10,
+            "group": "theta_cor"
+          }
+        ]
+      }
+    },
+    "initial_model": {
+      "tensors": {
+        "param:kinetic.add.edges.w_rbf": {
+          "sha256": "8f4702de7b4993f0a1b2a46922eab910f08e5294ce22a941f60ede1687f45640",
+          "shape": [
+            3,
+            10,
+            4
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:kinetic.add.edges.w_base": {
+          "sha256": "d1efb25d9d6e9c8a983346f4320c9a3ed201881a97d78b9942add682c364fac2",
+          "shape": [
+            3,
+            10
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:kinetic.lean.edges.w_rbf": {
+          "sha256": "dfd82adab5c0b2e30dcffd213043ca7d1683c4ee6f750be915a86f925937b186",
+          "shape": [
+            9,
+            3,
+            4
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:kinetic.lean.edges.w_base": {
+          "sha256": "32647d92672286b493405200c53424d9f43f925c37b3a33fbab410b9990fc89b",
+          "shape": [
+            9,
+            3
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:thermo.linear.weight": {
+          "sha256": "f2086f3238103e54cfe504a10213db0fb18acb1be37d8640e1cbefe1b31bb2e9",
+          "shape": [
+            1,
+            9
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:thermo.correction.edges.w_rbf": {
+          "sha256": "d7d10b6bb40ad6e864128307e135115d47cc5b20a3a1e6b5c66de61c159d89f4",
+          "shape": [
+            1,
+            10,
+            4
+          ],
+          "dtype": "torch.float32"
+        },
+        "param:thermo.correction.edges.w_base": {
+          "sha256": "778bee18e59711326cdd81679f706ef4b8c332062593e4273cb082ec8e02b4d1",
+          "shape": [
+            1,
+            10
+          ],
+          "dtype": "torch.float32"
+        },
+        "buffer:kinetic.add.edges.centers": {
+          "sha256": "8889bbb2c2d3cccb8a0ccac2044524a0e55ab25d7dfd639c60353b0746e87524",
+          "shape": [
+            4
+          ],
+          "dtype": "torch.float32"
+        },
+        "buffer:kinetic.lean.edges.centers": {
+          "sha256": "8889bbb2c2d3cccb8a0ccac2044524a0e55ab25d7dfd639c60353b0746e87524",
+          "shape": [
+            4
+          ],
+          "dtype": "torch.float32"
+        },
+        "buffer:thermo.correction.edges.centers": {
+          "sha256": "8889bbb2c2d3cccb8a0ccac2044524a0e55ab25d7dfd639c60353b0746e87524",
+          "shape": [
+            4
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "rbf_grids": {
+        "kinetic.add.edges": {
+          "h": 0.6666666666666666,
+          "centers": [
+            -1.0,
+            -0.3333333134651184,
+            0.3333333134651184,
+            1.0
+          ]
+        },
+        "kinetic.lean.edges": {
+          "h": 0.6666666666666666,
+          "centers": [
+            -1.0,
+            -0.3333333134651184,
+            0.3333333134651184,
+            1.0
+          ]
+        },
+        "thermo.correction.edges": {
+          "h": 0.6666666666666666,
+          "centers": [
+            -1.0,
+            -0.3333333134651184,
+            0.3333333134651184,
+            1.0
+          ]
+        }
+      }
+    },
+    "initial_model_note": "tensors at configuration time: after thermo initialization and, with --stage1-from, after loading the Stage-1 kinetic core (i.e. the Stage-2 initial model); otherwise the Stage-1 initial model.",
+    "stage1_from_sensitivity": "fsa",
+    "stage2_only_ablation": false
+  },
+  "dtype": "torch.float32",
+  "torch_num_threads": 2,
+  "run_id": "hydrogen/random_stage2_10000_fsa_seed0",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "created": "2026-09-14T04:40:09Z"
+}

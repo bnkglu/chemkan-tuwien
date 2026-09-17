@@ -1,0 +1,82 @@
+{
+  "section": "E_independence",
+  "created": "2026-09-13T16:37:56Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "2f5997d29075338c8f16a2f6aa481f03ab7ceed8e1f18979fe386659d6076913",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_2f5997d29075.patch"
+  },
+  "torch": "2.13.0",
+  "torch_num_threads": 1,
+  "status": "FAIL",
+  "cases": [
+    {
+      "problem": "biodiesel/trained",
+      "batch": 20,
+      "max_abs_cross_derivative": 0.0,
+      "batch_vs_individual": [
+        {
+          "train_index": 0,
+          "state_normalized_max": 6.303300451120958e-11,
+          "sensitivity_relative": 2.574126564720834e-11
+        },
+        {
+          "train_index": 7,
+          "state_normalized_max": 3.675278037908874e-11,
+          "sensitivity_relative": 2.1778737462902048e-11
+        }
+      ],
+      "pass": true
+    },
+    {
+      "problem": "stage1/trained",
+      "batch": 35,
+      "max_abs_cross_derivative": 0.0,
+      "stage1_other_trajectories_bit_identical": true,
+      "stage1_own_trajectory_changed": true,
+      "batch_vs_individual": [
+        {
+          "train_index": 2,
+          "state_normalized_max": 5.194682075140775e-09,
+          "sensitivity_relative": 2.067699498601147e-09
+        },
+        {
+          "train_index": 14,
+          "state_normalized_max": 1.9175188520459812e-07,
+          "sensitivity_relative": 5.0883080456578604e-08
+        }
+      ],
+      "pass": false
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "batch": 35,
+      "max_abs_cross_derivative": 0.0,
+      "batch_vs_individual": [
+        {
+          "train_index": 2,
+          "state_normalized_max": 3.4447272403771766e-11,
+          "sensitivity_relative": 2.4185041618310677e-11
+        },
+        {
+          "train_index": 14,
+          "state_normalized_max": 5.795871625596758e-10,
+          "sensitivity_relative": 3.1386593526699543e-09
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "criteria": {
+    "structural": "d F_b / d x_c == 0 exactly for every b != c (float64 jacrev)",
+    "stage1_temperature": "perturbing T_obs of trajectory c leaves F_b bit-identical",
+    "batch_vs_individual_at_L2": {
+      "state_normalized_max": 1e-07,
+      "sensitivity_relative_max": 1e-05
+    }
+  },
+  "seconds": 82.0
+}

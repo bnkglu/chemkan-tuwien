@@ -1,0 +1,160 @@
+{
+  "section": "D_state_consistency",
+  "created": "2026-09-13T16:36:34Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "1bb5695c3749de533eccba0334d2d72a82f4de137f1a713b9cb73874d136e669",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_1bb5695c3749.patch"
+  },
+  "torch": "2.13.0",
+  "torch_num_threads": 1,
+  "status": "PASS",
+  "cases": [
+    {
+      "problem": "biodiesel/trained",
+      "levels": {
+        "L0": {
+          "err_augmented": 4.5967885316229783e-07,
+          "err_state_only": 1.4344952573004227e-06,
+          "augmented_vs_state_only": 1.0970034013288629e-06
+        },
+        "L1": {
+          "err_augmented": 1.2335259419366594e-08,
+          "err_state_only": 4.110679885183434e-08,
+          "augmented_vs_state_only": 3.371218891240091e-08
+        },
+        "L2": {
+          "err_augmented": 2.9037049349716594e-10,
+          "err_state_only": 1.086044263314977e-09,
+          "augmented_vs_state_only": 9.382342770996982e-10
+        }
+      },
+      "sensitivity_L1_vs_L2": 3.6938433179193496e-09,
+      "pass": true
+    },
+    {
+      "problem": "stage1/trained",
+      "levels": {
+        "L0": {
+          "err_augmented": 1.3457110697628618e-05,
+          "err_state_only": 0.00014377847588643215,
+          "augmented_vs_state_only": 0.0001431508424706686
+        },
+        "L1": {
+          "err_augmented": 6.031304504297694e-07,
+          "err_state_only": 1.2700545456026054e-06,
+          "augmented_vs_state_only": 1.2709810497248164e-06
+        },
+        "L2": {
+          "err_augmented": 9.643252130314194e-08,
+          "err_state_only": 1.0201452988912432e-07,
+          "augmented_vs_state_only": 1.8164420952429023e-07
+        }
+      },
+      "sensitivity_L1_vs_L2": 6.152392631280815e-07,
+      "pass": true
+    },
+    {
+      "problem": "stage2/H0-init",
+      "levels": {
+        "L0": {
+          "err_augmented": 1.0937863449970462e-05,
+          "err_state_only": 0.00015515072889220533,
+          "augmented_vs_state_only": 0.00015565160625179443
+        },
+        "L1": {
+          "err_augmented": 8.250177495751633e-08,
+          "err_state_only": 1.3141680875879023e-06,
+          "augmented_vs_state_only": 1.2748359108399533e-06
+        },
+        "L2": {
+          "err_augmented": 1.941690534225326e-09,
+          "err_state_only": 1.831237211288427e-08,
+          "augmented_vs_state_only": 1.730375890930049e-08
+        }
+      },
+      "sensitivity_L1_vs_L2": 7.734458270259075e-08,
+      "pass": true
+    },
+    {
+      "problem": "stage2/Hnorm1-init",
+      "levels": {
+        "L0": {
+          "err_augmented": 3.395330008345593e-07,
+          "err_state_only": 6.313161204019479e-05,
+          "augmented_vs_state_only": 6.307593346759673e-05
+        },
+        "L1": {
+          "err_augmented": 9.653243140560297e-09,
+          "err_state_only": 7.600837505266102e-07,
+          "augmented_vs_state_only": 7.59006997861924e-07
+        },
+        "L2": {
+          "err_augmented": 1.5372980770548533e-10,
+          "err_state_only": 1.1994224587984907e-08,
+          "augmented_vs_state_only": 1.2038296897287794e-08
+        }
+      },
+      "sensitivity_L1_vs_L2": 3.942677590303812e-08,
+      "pass": true
+    },
+    {
+      "problem": "stage2/H0-final",
+      "levels": {
+        "L0": {
+          "err_augmented": 4.761914207633215e-06,
+          "err_state_only": 0.0004560341081934802,
+          "augmented_vs_state_only": 0.00045555681843579144
+        },
+        "L1": {
+          "err_augmented": 1.2774389899310215e-07,
+          "err_state_only": 4.114981105126827e-06,
+          "augmented_vs_state_only": 4.126986127511841e-06
+        },
+        "L2": {
+          "err_augmented": 1.7912746505412681e-09,
+          "err_state_only": 4.106782649452473e-08,
+          "augmented_vs_state_only": 4.105471621063803e-08
+        }
+      },
+      "sensitivity_L1_vs_L2": 8.582413084359464e-08,
+      "pass": true
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "levels": {
+        "L0": {
+          "err_augmented": 1.1689526988140178e-06,
+          "err_state_only": 0.0002004549261367285,
+          "augmented_vs_state_only": 0.00020045406073660745
+        },
+        "L1": {
+          "err_augmented": 2.0828278877727716e-08,
+          "err_state_only": 1.9492945570463456e-06,
+          "augmented_vs_state_only": 1.949861640847621e-06
+        },
+        "L2": {
+          "err_augmented": 4.089972869040424e-10,
+          "err_state_only": 1.60810336478664e-08,
+          "augmented_vs_state_only": 1.6075934284954718e-08
+        }
+      },
+      "sensitivity_L1_vs_L2": 2.8062525520080894e-07,
+      "pass": true
+    }
+  ],
+  "reference_tolerance": [
+    1e-12,
+    1e-14
+  ],
+  "criteria": {
+    "metric": "max over (t, b, i) of |x - x_ref| / train_range_i, x_ref = state-only solve at rtol/atol = 1e-12/1e-14 (float64)",
+    "per_level": "err_augmented <= 10 * err_state_only + 1e-10",
+    "at_L2": "err_augmented <= 1e-6 and |x_augmented - x_state_only| <= 1e-6",
+    "sensitivity_refinement": "||S_L1 - S_L2|| / ||S_L2|| <= 1e-3 (reported per model)"
+  },
+  "seconds": 244.8
+}

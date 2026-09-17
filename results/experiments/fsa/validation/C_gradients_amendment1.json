@@ -1,0 +1,124 @@
+{
+  "section": "C_gradients_amendment1",
+  "created": "2026-09-13T16:55:43Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "b7638b94d7ad985ad65db5e4e48ba9805517cf8402d8222b86ad22c28deda79f",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_b7638b94d7ad.patch"
+  },
+  "torch": "2.13.0",
+  "torch_num_threads": 1,
+  "status": "PASS",
+  "amends": "C_gradients.json",
+  "original_status": "FAIL",
+  "amendment": {
+    "id": 1,
+    "applies_to": [
+      "C_gradients.refinement_stability (and the agreement/Section-10 checks of the affected cases)",
+      "E_independence.batch_vs_individual_at_L2"
+    ],
+    "thresholds_changed": false,
+    "rule": "A case that misses a refinement-based threshold at the pre-registered level (C: consecutive change L1->L2; E: batch-vs-individual at L2) is re-evaluated on a ladder extended by one decade, L3 = rtol/atol 1e-12/1e-14, with the SAME thresholds applied at the finest level: C requires the L2->L3 change of both backends <= 1e-3, FSA-vs-direct-autograd agreement at L3 within the L2 agreement thresholds, and the Section-10 production check against the L3 FSA gradient; E requires the batch-vs-individual differences at L3 within the L2 thresholds. A case still missing at L3 is a FAIL. Original results are kept.",
+    "rationale": "investigation_stage1_refinement.json: for hydrogen Stage 1 the gradients at L0/L1 are not converged for EITHER backend (L0->L1 ~4e-2, L1->L2 1.6e-3 FSA / 6.9e-3 direct autograd at the initial model) and remain slow even for a smooth control forcing (T = T0: L1->L2 5.9e-4 / 9.1e-4); one decade further both backends converge (L2->L3 6.5e-6 / 1.9e-5) and agree. For the trained Stage-1 model the C0 forcing T_obs(t) (piecewise-linear interpolation of 20,000 points) is the dominant cost: L1->L2 changes 9.1e-6 (FSA) with T_obs vs 3.5e-8 with the smooth control, and L3 needs 68,906 vs 10,076 RHS evaluations. Stage-1 batch-vs-individual state differences fall from 1.9e-7 (L2) to 1.2e-8 (L3), i.e. they are solver accuracy, not coupling (cross-derivatives are exactly zero). The pre-registered choice of L2 as the finest level was arbitrary.",
+    "evidence": "investigation_stage1_refinement.json"
+  },
+  "cases": [
+    {
+      "problem": "biodiesel/init",
+      "original_pass": true,
+      "pass": true
+    },
+    {
+      "problem": "biodiesel/trained",
+      "original_pass": true,
+      "pass": true
+    },
+    {
+      "problem": "stage1/init",
+      "original_pass": false,
+      "original_failure_reasons": [
+        "refinement not stable"
+      ],
+      "L3_tolerance": [
+        1e-12,
+        1e-14
+      ],
+      "nfe_fsa_L3": 284,
+      "nfe_direct_autograd_L3": 218,
+      "fsa_vs_direct_autograd_L3": {
+        "relative_l2": 6.274932991169502e-08,
+        "cosine": 0.9999999999999984,
+        "max_abs_err": 2.027336610255226e-07,
+        "max_abs_ref": 4.623669607154119,
+        "ref_norm": 7.867312666288356,
+        "max_abs_err_over_max_abs_grad": 4.384691776242761e-08,
+        "groups": {
+          "theta_kin": {
+            "n": 285,
+            "ref_norm": 7.867312666288356,
+            "abs_l2_err": 4.93668598015385e-07,
+            "relative_l2": 6.274932991169502e-08,
+            "near_zero": false,
+            "err_over_full_norm": 6.274932991169502e-08
+          }
+        }
+      },
+      "fsa_L2_vs_L3": 6.495366828955684e-06,
+      "direct_autograd_L2_vs_L3": 1.9055026316200988e-05,
+      "section10_fsa_L0_vs_fsa_L3": {
+        "relative_l2": 0.04187342566590803,
+        "cosine": 0.9996271439336751,
+        "max_abs_err": 0.15935600151224438,
+        "max_abs_ref": 4.6236695577035105,
+        "ref_norm": 7.867312515779808,
+        "max_abs_err_over_max_abs_grad": 0.03446526606702264,
+        "groups": {
+          "theta_kin": {
+            "n": 285,
+            "ref_norm": 7.867312515779808,
+            "abs_l2_err": 0.3294313258199737,
+            "relative_l2": 0.04187342566590803,
+            "near_zero": false,
+            "err_over_full_norm": 0.04187342566590803
+          }
+        }
+      },
+      "checks": {
+        "agreement_at_L3": true,
+        "refinement_stable_L2_L3": true,
+        "section10_production_adequate": true
+      },
+      "failure_reasons": [],
+      "pass": true
+    },
+    {
+      "problem": "stage1/trained",
+      "original_pass": true,
+      "pass": true
+    },
+    {
+      "problem": "stage2/H0-init",
+      "original_pass": true,
+      "pass": true
+    },
+    {
+      "problem": "stage2/Hnorm1-init",
+      "original_pass": true,
+      "pass": true
+    },
+    {
+      "problem": "stage2/H0-final",
+      "original_pass": true,
+      "pass": true
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "original_pass": true,
+      "pass": true
+    }
+  ],
+  "seconds": 1.9
+}

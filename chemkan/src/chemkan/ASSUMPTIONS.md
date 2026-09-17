@@ -58,10 +58,11 @@ plus the 344-parameter count, not an explicitly stated grid size. Biodiesel
 - **Method**: `tsit5` — the **same integrator as the paper**, provided by the pinned
   GitHub `torchdiffeq` commit (stock PyPI `torchdiffeq` does not expose Tsit5). See §9
   for the exact pin. — `solver.py`, `scripts/train_{biodiesel,hydrogen}.py`
-- **Gradients**: `torchdiffeq.odeint` with **direct autograd** (backprop through the
-  solver). This is **NOT** the paper's Forward Sensitivity Analysis and is **not claimed
-  equivalent** to it; `odeint_adjoint` is also deliberately not used. **FSA remains a
-  reproduction gap** (see §9). — `solver.py`
+- **Gradients**: selected by `sensitivity`. `direct_autograd` (every run before the FSA
+  work, and still the default) backpropagates through `torchdiffeq.odeint`; it is **not**
+  the paper's Forward Sensitivity Analysis. `fsa` integrates the continuous forward
+  sensitivity equations with the state (§9). `odeint_adjoint` is deliberately not used.
+  — `solver.py`, `fsa.py`
 - **Tolerances**: `rtol=1e-6`, `atol=1e-8` are implementation choices, not paper values.
 - **Observed Stage-1 temperature** is **linearly interpolated** between saved training
   times (endpoints clamped); the paper does not specify the scheme at adaptive solver
@@ -214,12 +215,58 @@ longer available to read back its `direct_url.json`); a fresh install from this 
 was verified to expose `tsit5`. `requirements.txt` and `pyproject.toml` carry the same
 pin, so a clean install guarantees `method="tsit5"` is available.
 
-**Sensitivity (still a gap).** The paper differentiates the ODE solve with **Forward
-Sensitivity Analysis (FSA)**. This reproduction instead backpropagates directly through
-`odeint` (`sensitivity="direct_autograd"`). FSA is **not implemented**, and direct
-autograd is a distinct mechanism that is **not claimed equivalent** to FSA.
-`SolverConfig` rejects any sensitivity value other than `"direct_autograd"`. A true FSA
-path is deliberately out of scope for now and remains a **TODO / open reproduction gap**.
+**Sensitivity.** The paper differentiates the ODE solve with **Forward Sensitivity
+Analysis (FSA)** (p. 8) but does not print the sensitivity equations. `SolverConfig`
+accepts two backends:
+
+- `direct_autograd` — backprop through `odeint`. Every run made before the FSA work used
+  it; it stays the default and is unchanged (the regression in
+  `results/experiments/fsa/validation/da_regression.json` reproduces archived history rows
+  bit-for-bit). It is a different mechanism from FSA.
+- `fsa` — `chemkan/fsa.py`. The sensitivity equations are obtained by differentiating
+  the paper's Eqs. 13 and 15 (paper notation, `u = [u_tilde, T]`):
+  - biodiesel and hydrogen Stage 1 (only `u_tilde` is integrated; `T` is an external
+    input — the isothermal constant, or `T_obs(t)` held fixed with respect to
+    `theta_kin` at each solver time): `S_kin = d u_tilde / d theta_kin`,
+    `dS_kin/dt = (d KAN_kin / d u_tilde) S_kin + d KAN_kin / d theta_kin`, `S_kin(t0) = 0`;
+  - hydrogen Stage 2 (the full `u` is integrated): for `g` in {kin, thermo, cor},
+    `S_g = du / d theta_g`, `dS_g/dt = (df/du) S_g + df/d theta_g`, `S_g(t0) = 0`, with
+    `f` the stacked Eqs. 13 and 15.
+
+  `chemkan/fsa.py` implements both cases with one generic routine whose docstring and
+  variable names write the stage's integrated state as `x` (`x = u_tilde` in biodiesel /
+  Stage 1, `x = u` in Stage 2) and its right-hand side as `F`; the recorded formulation
+  string in FSA run configs uses the same generic names. They denote exactly the
+  equations above. The
+  Jacobians are `torch.func.jacrev` of the EXISTING dynamics wrapper through
+  `functional_call` (same normalizer, temperature provider and model code), vmapped over
+  independent trajectories. State and sensitivities are one augmented ODE advanced by
+  the same Tsit5 with the same `rtol`/`atol` and torchdiffeq's default RMS error norm
+  over the whole augmented tensor; no sensitivity-specific error control was introduced.
+  No autograd graph is built through the solver; `dL/dtheta = sum_j S(t_j)^T dL/du(t_j)`
+  (species rows `u_tilde` only in biodiesel / Stage 1) with `dL/du` from the unchanged
+  loss on a detached leaf.
+
+**Methodological reference.** The paper does not print the sensitivity equations; the
+formulation follows the standard continuous forward sensitivity analysis as documented in
+SciMLSensitivity.jl, "Sensitivity Math Details"
+(<https://docs.sciml.ai/SciMLSensitivity/stable/sensitivity_math/>):
+`d/dt (du/dp_j) = (df/du)(du/dp_j) + df/dp_j`, computed simultaneously with the original
+ODE. That page notes the Jacobian-vector product can be formed without building the
+Jacobian; this implementation instead forms the per-trajectory Jacobians `df/du` and
+`df/dtheta` explicitly with `torch.func.jacrev` (a forward-mode JVP variant of the same
+equation was measured about 12x slower here). The reference is used for the sensitivity
+mathematics only; the solver remains torchdiffeq's Tsit5.
+
+Inference is the ordinary state-only solve for both backends. Validation (analytic
+problem, functional equivalence, FSA-vs-direct-autograd gradients under tolerance
+refinement, state consistency, trajectory independence, production dtype, resume) is in
+`chemkan/scripts/fsa/` with artifacts in `results/experiments/fsa/validation/`.
+
+**Implementation choices of the FSA path (not paper-specified).** The augmented error
+norm (torchdiffeq's default RMS over state and sensitivities), float32 production dtype
+inherited from the baselines, and two torch threads per training process for the FSA
+runs (a runtime choice recorded in each config; it does not enter the mathematics).
 
 ## 10. Hydrogen two-stage training procedure (terminology)
 

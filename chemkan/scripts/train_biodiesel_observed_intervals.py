@@ -53,13 +53,14 @@ import time
 
 import torch
 from _data import input_scaling_meta, load_biodiesel, resolve_device
-from _run import RunManager, check_resume_config
+from _run import RunManager, check_resume_config, model_tensor_record
 
 from chemkan.dynamics import KineticDynamics
+from chemkan.fsa import ParameterPacking, fsa_loss_and_gradients, fsa_provenance
 from chemkan.losses import trajectory_mse
 from chemkan.model import KineticCore
 from chemkan.normalization import MinMaxNormalizer
-from chemkan.solver import SolverConfig, integrate
+from chemkan.solver import SENSITIVITY_BACKENDS, SolverConfig, integrate
 from chemkan.temperature import ConstantTemperature
 
 try:                                                    # optional: interactive progress bar
@@ -97,17 +98,31 @@ def accumulate_interval_gradients(dynamics, obs, obs_norm, t, loss_norm, solver,
     over a single endpoint and its state/trajectory reductions are unchanged. A prediction
     is never carried into the next interval.
 
-    With ``backward=True`` each interval is backpropagated immediately, so only one
-    interval graph is alive at a time and the parameter ``.grad`` buffers accumulate the
-    sum's gradient exactly; a DETACHED scalar is returned. With ``backward=False`` the
-    graph-connected sum is returned instead (used for the final no-grad recomputation and
-    by the focused checks).
+    With ``backward=True`` each interval's gradient is formed immediately by
+    ``solver.sensitivity`` and ADDED to the parameter ``.grad`` buffers, so they
+    accumulate the sum's gradient exactly; a DETACHED scalar is returned. Under direct
+    autograd only one interval graph is alive at a time; under FSA every interval is an
+    independent augmented solve whose sensitivities start from zero at ``t[j]`` (the
+    restart state is an observation, not a function of the parameters). With
+    ``backward=False`` a state-only solve is used and the graph-connected sum is returned
+    instead (used for the final no-grad recomputation and by the focused checks).
     """
     n_intervals = int(obs.shape[0]) - 1
     if n_intervals < 1:
         raise ValueError("need at least two observation times to form an interval")
     total = None
+    # the optimized parameters (only the FSA backend needs them explicitly)
+    params = (list(dynamics.kinetic.parameters())
+              if backward and solver.sensitivity == "fsa" else None)
     for j in range(n_intervals):
+        if params is not None:
+            # FSA: fresh S(t[j]) = 0 augmented solve; S^T dL/dx is ADDED to .grad
+            loss_j = fsa_loss_and_gradients(
+                dynamics, params, obs[j], t[j:j + 2], solver,
+                lambda pred, j=j: trajectory_mse(loss_norm.normalize(pred[-1:]),
+                                                 obs_norm[j + 1:j + 2])).detach()
+            total = loss_j if total is None else total + loss_j
+            continue
         pred = integrate(dynamics, obs[j], t[j:j + 2], solver)       # (2, B, m) physical
         loss_j = trajectory_mse(loss_norm.normalize(pred[-1:]),      # (1, B, m)
                                 obs_norm[j + 1:j + 2])               # (1, B, m)
@@ -158,6 +173,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--solver-method", default="tsit5")
     p.add_argument("--rtol", type=float, default=1e-6)
     p.add_argument("--atol", type=float, default=1e-8)
+    p.add_argument("--sensitivity", default="direct_autograd", choices=SENSITIVITY_BACKENDS,
+                   help="training-gradient backend: 'direct_autograd' (default) or 'fsa' "
+                        "(forward sensitivity analysis; one fresh solve per interval).")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     # run directory -- required: this experiment writes only into its own new area
     p.add_argument("--run-dir", required=True,
@@ -190,11 +208,13 @@ def main():
         raise SystemExit("need at least two observation times to form an interval")
 
     solver = SolverConfig(method=args.solver_method, rtol=args.rtol, atol=args.atol,
-                          sensitivity="direct_autograd")
+                          sensitivity=args.sensitivity)
 
     core = KineticCore(species_dim=species_dim, hidden_dim=args.hidden_dim,
                        num_basis=args.num_basis, n_mu=args.n_mu,
                        use_base_act=args.use_base_act).to(device)
+    # Initial tensors, hashed BEFORE any resume state is loaded (FSA provenance only).
+    initial_model = model_tensor_record(core)
 
     # Full-state [Y1..Ym, T] train-only input normalizer, built exactly as in
     # train_biodiesel.py (species stats from the archive + T's TRAIN min/max).
@@ -292,6 +312,16 @@ def main():
                        "normalizer": "train-only min-max (never refit on test data)",
                        "test_reference": "clean test trajectories (Eq. 22)"},
     }
+    if solver.sensitivity == "fsa":
+        # FSA-only provenance; direct-autograd configs keep their exact historical keys.
+        config["fsa"] = fsa_provenance(
+            {"kinetic": ParameterPacking.from_module(dynamics, core.parameters())})
+        config["fsa"]["initial_model"] = initial_model
+        config["fsa"]["interval_sensitivities"] = (
+            "each of the N-1 intervals is an independent augmented solve with S(t[j]) = 0; "
+            "interval gradients are accumulated in .grad before ONE Adam step per epoch")
+        config["dtype"] = str(obs.dtype)
+        config["torch_num_threads"] = torch.get_num_threads()
     if resume_state is not None:
         check_resume_config(resume_state.get("config", {}), config)
         if args.epochs < start_epoch:
@@ -324,6 +354,8 @@ def main():
         "training_procedure": _PROCEDURE,
         "n_intervals": n_intervals,
     }
+    if "fsa" in config:
+        provenance["fsa"] = config["fsa"]
 
     snap = None
     if args.snapshot_epochs.strip() and run.enabled:

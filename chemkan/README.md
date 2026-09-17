@@ -22,9 +22,9 @@ Data generation **and** the model/training stack are implemented:
   state and derivatives stay physical.
 - **Integration**: `torchdiffeq.odeint` with **Tsit5** (the paper's integrator, from a
   pinned GitHub `torchdiffeq` commit).
-- **Sensitivity**: **direct autograd** through the solver. The paper uses Forward
-  Sensitivity Analysis; FSA is **not implemented yet** and is a known reproduction gap
-  (see `src/chemkan/ASSUMPTIONS.md` §9).
+- **Sensitivity**: `--sensitivity direct_autograd` (default; backprop through the solver,
+  used by every earlier run) or `--sensitivity fsa` (the paper's forward sensitivity
+  analysis, `src/chemkan/fsa.py`; see `src/chemkan/ASSUMPTIONS.md` §9).
 
 See **[`code-overview.md`](code-overview.md)** for a module-by-module
 walkthrough and **[`src/chemkan/ASSUMPTIONS.md`](src/chemkan/ASSUMPTIONS.md)** for every

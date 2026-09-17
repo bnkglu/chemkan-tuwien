@@ -1,0 +1,15 @@
+2026-09-14 07:40:13,617 INFO run start 2026-09-14T04:40:13Z | run_id=hydrogen/normmatched_dir1_stage2_10000_fsa | system=hydrogen | dir=results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa
+2026-09-14 07:40:13,644 INFO wrote results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa/config.json
+2026-09-14 07:40:13,644 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.201826e-01
+2026-09-14 07:40:13,983 INFO stage-2 probe -> results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa/stage2_probe.csv
+2026-09-14 07:40:13,984 INFO stage-2 snapshots at epochs [500]
+2026-09-15 11:03:38,723 INFO run start 2026-09-15T08:03:38Z | run_id=hydrogen/normmatched_dir1_stage2_10000_fsa | system=hydrogen | dir=results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa
+2026-09-15 11:03:38,751 INFO wrote results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa/config.json
+2026-09-15 11:03:38,752 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.201826e-01
+2026-09-15 11:03:39,048 INFO stage-2 probe -> results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa/stage2_probe.csv
+2026-09-15 11:03:39,048 INFO stage-2 snapshots at epochs [500]
+2026-09-15 11:05:19,580 INFO run start 2026-09-15T08:05:19Z | run_id=hydrogen/normmatched_dir1_stage2_10000_fsa | system=hydrogen | dir=results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa
+2026-09-15 11:05:19,582 INFO resuming hydrogen at stage=stage2 epoch=500 (original config preserved)
+2026-09-15 11:05:19,582 INFO Stage 1 skipped (loaded kinetic core); recorded loss 3.201826e-01
+2026-09-15 11:05:19,881 INFO stage-2 probe -> results/experiments/fsa/hydrogen/normmatched_dir1_stage2_10000_fsa/stage2_probe.csv
+2026-09-15 11:05:19,881 INFO stage-2 snapshots at epochs [500]

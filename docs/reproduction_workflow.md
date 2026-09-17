@@ -14,10 +14,11 @@ the whole paper. The reproduction notebooks are the analysis/presentation layer 
 load trained checkpoints and compatible predictions, compute paper metrics, and export
 figures/tables.
 
-> **Sensitivity backend.** All current reproduction runs use `sensitivity = direct_autograd`
-> (backprop through the Tsit5 solve). Forward Sensitivity Analysis (FSA) is **not**
-> implemented; do not label these results as FSA. The run/artifact layout already leaves
-> room for a future `fsa_seed0/` alongside `direct_autograd_seed0/`.
+> **Sensitivity backend.** The runs under `results/reproduction/` use
+> `sensitivity = direct_autograd` (backprop through the Tsit5 solve); do not label them as
+> FSA. Forward Sensitivity Analysis is available as `--sensitivity fsa`; its validation
+> and the three FSA comparison runs live separately under `results/experiments/fsa/`
+> (see "Forward sensitivity analysis" below).
 
 ---
 
@@ -415,17 +416,30 @@ loading a mismatched core. **Do not retrain Stage 1** to avoid passing these fla
 existing checkpoint is the fixed branch point that makes the Stage-2 arms comparable to one
 another.
 
-### Direct autograd vs FSA (reminder)
+### Forward sensitivity analysis
 
-The current reproduction is `direct_autograd`. FSA is a documented gap (see
-`chemkan/src/chemkan/solver.py`); adding it later means a new `fsa_seed0/` run directory,
-never overwriting a `direct_autograd_seed0/` run.
+`--sensitivity fsa` (all three trainers) forms the training gradients by continuous
+forward sensitivity analysis (`chemkan/src/chemkan/fsa.py`, `ASSUMPTIONS.md` §9). FSA runs
+never overwrite `direct_autograd` runs; they live under `results/experiments/fsa/`.
 
-**The planned FSA-vs-direct-autograd comparison must reuse the same historical Stage-1
-checkpoint and the same N=5/base-OFF architecture** (flags above), so that the *sensitivity
-backend is the only variable*. Changing the Stage-1 checkpoint, the architecture, the seed,
-the initialization or the budget at the same time would make the comparison
-uninterpretable.
+```bash
+cd chemkan/scripts
+python fsa/validate_fsa.py                   # Sections A-G -> results/experiments/fsa/validation
+python fsa/regress_direct_autograd.py        # direct-autograd control still reproduces the archive
+python fsa/validate_resume.py                # 10 updates vs 5 + resume + 5
+python fsa/run_smoke.py                      # short FSA runs through the real CLIs
+python fsa/fsa_runs.py resolve               # record the four jobs' configurations (once)
+python fsa/fsa_runs.py launch B0-FSA         # and H_STAGE1-FSA, then H0-FSA / Hnorm1-FSA
+python fsa/fsa_runs.py verify                # configs + initial tensors vs the baselines
+python fsa/compare_fsa.py                    # B0/H0/Hnorm1 vs their FSA counterparts
+```
+
+The main hydrogen FSA pipeline is FSA Stage 1 -> FSA Stage 2 (N=4/base-ON), both Stage-2
+runs loading the same FSA Stage-1 checkpoint; `train_hydrogen.py` refuses to load a
+Stage-1 checkpoint trained with the other backend unless
+`--allow-stage1-backend-mismatch` labels the run a Stage-2-only ablation. Such an
+ablation (both backends' Stage 2 from one Stage-1 checkpoint) is the controlled way to
+isolate the sensitivity backend in Stage 2; it is a separate, optional experiment.
 
 ---
 

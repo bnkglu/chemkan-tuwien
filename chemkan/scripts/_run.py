@@ -18,6 +18,7 @@ convenient human-readable mirror.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import logging
 import os
@@ -43,7 +44,8 @@ _MANAGED_ARTIFACTS = [CHECKPOINT_FINAL, CHECKPOINT_RESUME, CONFIG_JSON, RUN_LOG,
 # are excluded from the strict compare and enforced separately (may grow, never shrink
 # below the completed epoch); provenance stamps are added by write_config, not the caller.
 _RESUME_IGNORED_CONFIG_KEYS = {"device", "created", "git_commit", "run_id",
-                               "epochs", "checkpoint_every", "parameter_count"}
+                               "epochs", "checkpoint_every", "parameter_count",
+                               "torch_num_threads"}
 
 
 def check_resume_config(saved: dict, requested: dict, ignore=_RESUME_IGNORED_CONFIG_KEYS):
@@ -63,6 +65,31 @@ def check_resume_config(saved: dict, requested: dict, ignore=_RESUME_IGNORED_CON
                 f"    requested = {requested.get(key)!r}\n"
                 f"Refusing to change the scientific configuration of an existing run. "
                 f"Start a new run directory instead (or omit --resume to see overwrite options).")
+
+
+def tensor_sha256(tensor: torch.Tensor) -> str:
+    """Canonical content hash of one tensor: dtype, shape and C-contiguous CPU bytes."""
+    t = tensor.detach().to("cpu").contiguous()
+    h = hashlib.sha256(f"{t.dtype}|{tuple(t.shape)}|".encode())
+    h.update(t.numpy().tobytes() if t.dtype != torch.bfloat16 else t.float().numpy().tobytes())
+    return h.hexdigest()
+
+
+def model_tensor_record(module: torch.nn.Module) -> dict:
+    """Per-tensor content hashes of a model's parameters and buffers, plus RBF grids.
+
+    Used to verify initializations (not only seeds) across runs: two models with equal
+    records hold bit-identical tensors. ``rbf_grids`` records each edge block's width
+    ``h`` and centers, which are Python-level settings not covered by parameter hashes.
+    """
+    tensors = {f"param:{k}": v for k, v in module.named_parameters()}
+    tensors.update({f"buffer:{k}": v for k, v in module.named_buffers()})
+    record = {k: {"sha256": tensor_sha256(v), "shape": list(v.shape), "dtype": str(v.dtype)}
+              for k, v in tensors.items()}
+    grids = {name: {"h": float(sub.h), "centers": [float(c) for c in sub.centers]}
+             for name, sub in module.named_modules()
+             if hasattr(sub, "h") and hasattr(sub, "centers")}
+    return {"tensors": record, "rbf_grids": grids}
 
 
 def git_commit() -> str:

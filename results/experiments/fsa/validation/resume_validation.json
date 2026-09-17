@@ -1,0 +1,65 @@
+{
+  "created": "2026-09-13T16:41:43Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "c02b5d0348616f7bbd814f8cae66145e85dfc096ac35db75dc920a93581aaeb6",
+    "uncommitted_changes": true
+  },
+  "status": "PASS",
+  "protocol": "10 uninterrupted updates vs 5 updates + simulated interrupt + --resume + 5 updates; timing fields excluded",
+  "cases": [
+    {
+      "case": "biodiesel full batch",
+      "model_tensors_equal": true,
+      "differing_tensors": [],
+      "optimizer_state_after_10_equal": true,
+      "differing_optimizer_entries": [],
+      "optimizer_steps_after_10": [
+        10
+      ],
+      "rng_state_equal": true,
+      "history_rows_equal": true,
+      "history_rows": 10,
+      "interrupted_segment_rows": null,
+      "sensitivity_backend": "fsa",
+      "pass": true
+    },
+    {
+      "case": "hydrogen Stage 1",
+      "model_tensors_equal": true,
+      "differing_tensors": [],
+      "optimizer_state_after_10_equal": true,
+      "differing_optimizer_entries": [],
+      "optimizer_steps_after_10": [
+        10
+      ],
+      "rng_state_equal": true,
+      "history_rows_equal": true,
+      "history_rows": 10,
+      "interrupted_segment_rows": null,
+      "sensitivity_backend": "fsa",
+      "checkpoint_stage1.pt_equal": true,
+      "pass": true
+    },
+    {
+      "case": "hydrogen Stage 2 from FSA Stage 1",
+      "model_tensors_equal": true,
+      "differing_tensors": [],
+      "optimizer_state_after_10_equal": true,
+      "differing_optimizer_entries": [],
+      "optimizer_steps_after_10": [
+        10
+      ],
+      "rng_state_equal": true,
+      "history_rows_equal": true,
+      "history_rows": 10,
+      "interrupted_segment_rows": null,
+      "sensitivity_backend": "fsa",
+      "pass": true,
+      "stage1_from_sensitivity": "fsa",
+      "stage2_initial_kinetic_equals_fsa_stage1": true
+    }
+  ]
+}

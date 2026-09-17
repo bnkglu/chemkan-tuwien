@@ -12,6 +12,8 @@ The paper reproduction trains for 1e4 epochs (the default here). For a quick smo
 run use e.g. ``python scripts/train_biodiesel.py --epochs 100``. Compare input scaling
 with ``--input-scaling none`` (raw-input ablation) vs. the default ``minmax``, and weight
 initialization with ``--init xavier`` (Glorot-uniform ablation) vs. the default ``default``.
+``--sensitivity fsa`` forms the training gradients by forward sensitivity analysis
+(``chemkan.fsa``) instead of the default direct autograd; everything else is unchanged.
 """
 
 from __future__ import annotations
@@ -23,13 +25,14 @@ import time
 
 import torch
 from _data import available_noise_percents, input_scaling_meta, load_biodiesel, resolve_device
-from _run import RunManager, check_resume_config
+from _run import RunManager, check_resume_config, model_tensor_record
 
 from chemkan.dynamics import KineticDynamics
+from chemkan.fsa import ParameterPacking, fsa_loss_and_gradients, fsa_provenance
 from chemkan.losses import trajectory_mse
 from chemkan.model import KineticCore
 from chemkan.normalization import MinMaxNormalizer
-from chemkan.solver import SolverConfig, integrate
+from chemkan.solver import SENSITIVITY_BACKENDS, SolverConfig, integrate
 from chemkan.temperature import ConstantTemperature
 from chemkan.training import train_kinetic_stage
 
@@ -95,7 +98,8 @@ def train_kinetic_minibatch(core, T_const, input_normalizer, Y0, t, target_norm,
     ``KineticDynamics`` over the batch's temperature subset around that SAME core object.
     """
     n_train = int(Y0.shape[0])
-    opt = torch.optim.Adam(core.parameters(), lr=lr)
+    params = list(core.parameters())
+    opt = torch.optim.Adam(params, lr=lr)
     if optimizer_state is not None:
         opt.load_state_dict(optimizer_state)
     n_batches = batches_per_epoch(n_train, batch_size)
@@ -117,9 +121,14 @@ def train_kinetic_minibatch(core, T_const, input_normalizer, Y0, t, target_norm,
             dyn = KineticDynamics(core, ConstantTemperature(T_const[idx]),
                                   input_normalizer=input_normalizer)
             opt.zero_grad()                              # every batch starts from zero grads
-            pred = integrate(dyn, Y0[idx], t, solver)    # (T, k, m) full rollout from Y0 only
-            loss = trajectory_mse(loss_norm.normalize(pred), target_norm[:, idx, :])
-            loss.backward()
+            if solver.sensitivity == "direct_autograd":
+                pred = integrate(dyn, Y0[idx], t, solver)    # (T, k, m) full rollout from Y0 only
+                loss = trajectory_mse(loss_norm.normalize(pred), target_norm[:, idx, :])
+                loss.backward()
+            else:                                        # FSA: same rollout, same loss
+                loss = fsa_loss_and_gradients(
+                    dyn, params, Y0[idx], t, solver,
+                    lambda pred: trajectory_mse(loss_norm.normalize(pred), target_norm[:, idx, :]))
             opt.step()                                   # exactly one update per batch
             step += 1
             k = int(idx.numel())
@@ -242,6 +251,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--solver-method", default="tsit5")
     p.add_argument("--rtol", type=float, default=1e-6)
     p.add_argument("--atol", type=float, default=1e-8)
+    p.add_argument("--sensitivity", default="direct_autograd", choices=SENSITIVITY_BACKENDS,
+                   help="training-gradient backend: 'direct_autograd' (default; backprop "
+                        "through odeint, every earlier run) or 'fsa' (forward sensitivity "
+                        "analysis, chemkan.fsa). Inference is a state-only solve either way.")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     p.add_argument("--out", default="biodiesel_kinetic.pt",
                    help="legacy flat checkpoint path (used only when --run-dir is not given)")
@@ -275,7 +288,7 @@ def main():
     species_dim = data["species_TBm"].shape[-1]              # data-derived, not hard-coded
     test = load_biodiesel(split="test", noise_percent=args.noise_percent) if args.eval_every else None
     solver = SolverConfig(method=args.solver_method, rtol=args.rtol, atol=args.atol,
-                          sensitivity="direct_autograd")     # every field explicit
+                          sensitivity=args.sensitivity)      # every field explicit
 
     core = KineticCore(species_dim=species_dim, hidden_dim=args.hidden_dim,
                        num_basis=args.num_basis, n_mu=args.n_mu,
@@ -285,6 +298,8 @@ def main():
     touched = apply_initialization(core, args.init)
     if touched:
         logging.info("%s init applied to: %s", args.init, ", ".join(touched))
+    # Initial tensors, hashed BEFORE any resume state is loaded (FSA provenance only).
+    initial_model = model_tensor_record(core)
 
     # Full-state [Y1..Ym, T] train-only input normalizer. The biodiesel archive stores
     # species-only stats + per-trajectory constant T, so we append T's TRAIN min/max.
@@ -414,6 +429,13 @@ def main():
             "normalizer": "train-only min-max (never refit on test data)",
         },
     }
+    if solver.sensitivity == "fsa":
+        # FSA-only provenance; direct-autograd configs keep their exact historical keys.
+        config["fsa"] = fsa_provenance(
+            {"kinetic": ParameterPacking.from_module(dynamics, core.parameters())})
+        config["fsa"]["initial_model"] = initial_model
+        config["dtype"] = str(Y0.dtype)
+        config["torch_num_threads"] = torch.get_num_threads()
     if resume_state is not None:
         # A resumed run may not silently change its science. Epoch total may GROW but
         # never fall below the already-completed epoch; original provenance is preserved.
@@ -461,6 +483,8 @@ def main():
         "state_representation": "physical",
         "input_scaling": input_scaling_meta(args.input_scaling, full_norm),
     }
+    if "fsa" in config:
+        provenance["fsa"] = config["fsa"]
 
     epoch_cb, snap = history.on_epoch, None
     if args.snapshot_epochs.strip() and run.enabled:
