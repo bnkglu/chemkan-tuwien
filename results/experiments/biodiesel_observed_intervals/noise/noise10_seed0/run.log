@@ -1,0 +1,7 @@
+2026-09-17 10:26:34,094 INFO run start 2026-09-17T10:26:34Z | run_id=biodiesel_observed_intervals/noise10_seed0 | system=biodiesel_observed_intervals | dir=results/experiments/biodiesel_observed_intervals/noise/noise10_seed0
+2026-09-17 10:26:34,098 INFO wrote results/experiments/biodiesel_observed_intervals/noise/noise10_seed0/config.json
+2026-09-17 13:16:25,873 INFO final interval objective: 1.022544e-01
+2026-09-17 13:16:25,875 INFO final full-rollout train MSE: 3.103540e-01 | clean test MSE: 3.455616e-01
+2026-09-17 13:16:25,877 INFO wrote results/experiments/biodiesel_observed_intervals/noise/noise10_seed0/checkpoint_final.pt
+2026-09-17 13:16:25,877 INFO removed results/experiments/biodiesel_observed_intervals/noise/noise10_seed0/checkpoint_resume.pt (run completed)
+2026-09-17 13:16:25,877 INFO run completed 2026-09-17T13:16:25Z
