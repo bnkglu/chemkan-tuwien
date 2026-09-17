@@ -281,3 +281,47 @@ def test_initial_parameters_match_the_original_trainer(tmp_path):
         assert all(torch.equal(a[k], b[k]) for k in a)
     # 156 TRAINABLE parameters (state_dict also carries the fixed RBF-centre buffers).
     assert sum(p.numel() for p in build(0).parameters()) == 156
+
+
+def _run_main(monkeypatch, run_dir, *extra):
+    import train_biodiesel_observed_intervals as mod
+    monkeypatch.setattr("sys.argv", [
+        "train_biodiesel_observed_intervals.py", "--seed", "0", "--epochs", "1",
+        "--eval-every", "1", "--run-dir", str(run_dir), *extra])
+    mod.main()
+    import json
+    header = (run_dir / "history.csv").read_text().splitlines()[0].split(",")
+    return header, json.loads((run_dir / "config.json").read_text())
+
+
+def test_clean_run_format_is_unchanged(tmp_path, monkeypatch):
+    """Without --noise-percent: same history columns and a clean config, as before."""
+    header, cfg = _run_main(monkeypatch, tmp_path / "clean")
+    assert header == ["epoch", "total_loss", "full_rollout_train_mse",
+                      "full_rollout_test_mse_clean", "eval_seconds", "elapsed_seconds"]
+    assert cfg["noise"] is None
+    assert cfg["dataset"] == "biodiesel.npz (train split, clean)"
+
+
+def test_noisy_run_starts_and_scores_on_the_noisy_observations(tmp_path, monkeypatch):
+    """--noise-percent: the interval objective receives the stored noisy observations."""
+    import train_biodiesel_observed_intervals as mod
+    from _data import load_biodiesel
+
+    seen = {}
+    real = mod.accumulate_interval_gradients
+
+    def capture(dynamics, obs, obs_norm, *a, **k):
+        seen.setdefault("obs", obs.detach().clone())
+        return real(dynamics, obs, obs_norm, *a, **k)
+
+    monkeypatch.setattr(mod, "accumulate_interval_gradients", capture)
+    header, cfg = _run_main(monkeypatch, tmp_path / "noisy", "--noise-percent", "15")
+
+    noisy = load_biodiesel(split="train", noise_percent=15)
+    assert torch.equal(seen["obs"], noisy["targets_TBm"])            # starts AND targets
+    assert not torch.equal(seen["obs"][1:], noisy["species_TBm"][1:])  # really noisy after t=0
+    assert torch.equal(seen["obs"][0], noisy["species_TBm"][0])        # t = 0 is noise-free
+    assert "full_rollout_test_mse_noisy" in header
+    assert cfg["noise"]["percent"] == 15
+    assert cfg["noise"]["source"] == "biodiesel.npz train_states_noise15"

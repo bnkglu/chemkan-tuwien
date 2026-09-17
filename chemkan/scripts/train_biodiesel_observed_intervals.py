@@ -52,7 +52,7 @@ import logging
 import time
 
 import torch
-from _data import input_scaling_meta, load_biodiesel, resolve_device
+from _data import available_noise_percents, input_scaling_meta, load_biodiesel, resolve_device
 from _run import RunManager, check_resume_config, model_tensor_record
 
 from chemkan.dynamics import KineticDynamics
@@ -162,6 +162,11 @@ def build_parser() -> argparse.ArgumentParser:
                    help="seed for model init / training reproducibility. The initial "
                         "parameter tensors match train_biodiesel.py at the same seed.")
     p.add_argument("--input-scaling", default="minmax", choices=["minmax", "none"])
+    p.add_argument("--noise-percent", type=int, default=None,
+                   help="train on the stored noisy observations at this whole-percent level "
+                        "(as train_biodiesel.py --noise-percent). Omitted = clean data, "
+                        "unchanged behaviour. The noisy observations are both each "
+                        "interval's start state and its endpoint target.")
     p.add_argument("--eval-every", type=int, default=100,
                    help="full-rollout evaluation every N updates (0 = only at the "
                         "initial and final states). An experiment choice, not a paper "
@@ -197,9 +202,13 @@ def main():
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
 
-    # --- data: CLEAN biodiesel only (this experiment adds no noise dimension) ---------
-    data = load_biodiesel(split="train", noise_percent=None)
-    test = load_biodiesel(split="test", noise_percent=None)
+    # --- data: clean, or the stored noisy observations (same loader as train_biodiesel.py)
+    noise = args.noise_percent
+    if noise is not None and noise not in available_noise_percents():
+        raise SystemExit(f"noise level {noise}% is not stored in biodiesel.npz "
+                         f"(have {available_noise_percents()})")
+    data = load_biodiesel(split="train", noise_percent=noise)
+    test = load_biodiesel(split="test", noise_percent=noise)
     species_dim = data["species_TBm"].shape[-1]         # data-derived, never hard-coded
     t = data["t"].to(device)                            # (N,) absolute observation times
     n_times = int(t.numel())
@@ -228,8 +237,9 @@ def main():
     dynamics = KineticDynamics(core, ConstantTemperature(T_const),
                                input_normalizer=input_normalizer).to(device)
 
-    # Training observations. Clean run -> targets_TBm is the clean trajectory; it is both
-    # the per-interval initial state and the per-interval endpoint target.
+    # Training observations: targets_TBm is the clean trajectory, or with --noise-percent the
+    # stored noisy observations. Either way it is both the per-interval initial state and the
+    # per-interval endpoint target. (t = 0 is noise-free in every stored noise array.)
     obs = data["targets_TBm"].to(device)                        # (N, B, m) physical
     obs_norm = loss_norm.normalize(obs)                         # (N, B, m) normalized target
 
@@ -241,6 +251,8 @@ def main():
     test_Y0 = test["Y0"].to(device)
     test_t = test["t"].to(device)
     test_ref = loss_norm.normalize(test["species_TBm"].to(device))   # clean (Eq. 22)
+    test_ref_noisy = (loss_norm.normalize(test["targets_TBm"].to(device))
+                      if noise is not None else None)                  # noisy test observations
 
     def interval_objective() -> torch.Tensor:
         """Accumulate every interval's gradient into ``.grad``; return the summed value."""
@@ -258,11 +270,17 @@ def main():
         try:
             with torch.no_grad():
                 tr = full_rollout_mse(dynamics, Y0, t, train_ref, loss_norm, solver)
-                te = full_rollout_mse(test_dyn, test_Y0, test_t, test_ref, loss_norm, solver)
+                te_pred = loss_norm.normalize(integrate(test_dyn, test_Y0, test_t, solver))
+                te = trajectory_mse(te_pred, test_ref)
+                te_noisy = (trajectory_mse(te_pred, test_ref_noisy)
+                            if test_ref_noisy is not None else None)
         finally:
             torch.set_rng_state(rng_state)
-        return {"full_rollout_train_mse": float(tr), "full_rollout_test_mse_clean": float(te),
-                "eval_seconds": round(time.perf_counter() - started, 4)}
+        out = {"full_rollout_train_mse": float(tr), "full_rollout_test_mse_clean": float(te)}
+        if te_noisy is not None:
+            out["full_rollout_test_mse_noisy"] = float(te_noisy)
+        out["eval_seconds"] = round(time.perf_counter() - started, 4)
+        return out
 
     # --- run-directory plumbing (organization only; math unchanged) -------------------
     run = RunManager(args.run_dir, "biodiesel_observed_intervals", resume=args.resume)
@@ -301,10 +319,15 @@ def main():
                               "archive is used as-is; no data is regenerated."},
         "pinn": {"enabled": False},
         "normalization": {"input_scaling": args.input_scaling, "stats": "train-only min-max"},
-        "dataset": "biodiesel.npz (train split, clean)",
-        "noise": None,
+        "dataset": ("biodiesel.npz (train split, clean)" if noise is None
+                    else f"biodiesel.npz (train split, noise {noise}%)"),
+        "noise": None if noise is None else {
+            "percent": noise,
+            "source": f"biodiesel.npz train_states_noise{noise:02d}",
+            "interval_start_states": "the noisy observations (t = 0 is noise-free)",
+        },
         "evaluation": {"eval_every": args.eval_every,
-                       "columns": ["full_rollout_train_mse", "full_rollout_test_mse_clean"],
+                       "columns": ["full_rollout_train_mse", "full_rollout_test_mse_clean"] + (["full_rollout_test_mse_noisy"] if noise is not None else []),
                        "convention": _EVAL_CONVENTION,
                        "parameter_state": "before this epoch's optimizer update -- the same "
                                           "state that produced the epoch's training loss; "
@@ -334,8 +357,9 @@ def main():
 
     history = run.history(
         "history.csv",
-        ["epoch", "total_loss", "full_rollout_train_mse", "full_rollout_test_mse_clean",
-         "eval_seconds", "elapsed_seconds"],
+        ["epoch", "total_loss", "full_rollout_train_mse", "full_rollout_test_mse_clean"]
+        + (["full_rollout_test_mse_noisy"] if noise is not None else [])
+        + ["eval_seconds", "elapsed_seconds"],
         resume_from=start_epoch)
 
     provenance = {
@@ -344,7 +368,7 @@ def main():
         "data": {"species": data["species"], "species_dim": species_dim},
         "training": {"learning_rate": args.lr, "epochs": args.epochs,
                      "seed": args.seed, "alpha_pinn": None, "use_pinn": False,
-                     "noise_percent": None},
+                     "noise_percent": noise},
         "solver": {"method": solver.method, "rtol": solver.rtol,
                    "atol": solver.atol, "sensitivity": solver.sensitivity},
         "state_representation": "physical",
