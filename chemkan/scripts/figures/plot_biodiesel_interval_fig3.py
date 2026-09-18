@@ -1,7 +1,9 @@
-"""Plot the clean interval-trained model at the paper's Figure 3 condition.
+"""Plot the interval-trained models at the paper's Figure 3 condition.
 
-Writes separate endpoint-diagnostic and 0%-noise full-rollout figures. Uses the
-existing reference archive and final seed-0 checkpoint; never trains a model.
+Writes the endpoint diagnostic for the clean seed-0 model, its verified prediction and
+metrics tables, and the Figure-3 layout with one interval-trained model per noise column
+(0 / 5 / 10 / 15 %). Uses the existing reference archive and final checkpoints; never
+trains a model.
 """
 
 from __future__ import annotations
@@ -22,7 +24,9 @@ import torch
 from _data import DATA_DIR, load_biodiesel, load_input_scaling
 from chemkan.normalization import MinMaxNormalizer
 from evaluate_biodiesel import build_kinetic_core, integrate_biodiesel, solver_from_ckpt
-from fig03_biodiesel_trajectories import plot_clean_condition_column
+from fig03_biodiesel_trajectories import (
+    NOISE_LEVELS, make_figure as make_noise_columns, plot_clean_condition_column,
+)
 from common import save_figure, use_headless_backend
 
 CONDITION_TEXT = "TG = 1.94, ROH = 1.43, DG = MG = GL = RCO2R = 0; T = 334.8 K"
@@ -103,18 +107,14 @@ def plot_endpoint_comparison(condition, result, dense):
     save(fig, "fig3_endpoint_diagnostic")
 
 
-def plot_clean_column(condition, dense, *, full_rollout_loss=None):
-    fig = plot_clean_condition_column(
-        condition, dense, "Observed-interval training, seed 0; 10,000 epochs",
-        full_rollout_loss=full_rollout_loss)
-    save(fig, "fig3")
+def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=False,
+                tables_dir=None):
+    """Return the verified clean-column figure and metrics; save only when requested.
 
-
-def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=False):
-    """Return the verified full-rollout figure and metrics; save only when requested.
-
-    Notebook 11 and the standard Figure 3 entry point share this reconstruction,
-    including the legacy RBF widths and the observation-grid consistency checks.
+    The standard Figure 3 entry point shares this reconstruction, including the legacy
+    RBF widths and the observation-grid consistency checks. ``output_path`` saves the
+    single-column figure; ``tables_dir`` writes the prediction and metrics tables there
+    instead of beside ``output_path``, so the tables can be produced without the figure.
     """
     path = checkpoint_path("observed_interval", 0)
     train = load_biodiesel("train")
@@ -183,8 +183,9 @@ def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=Fal
                             "mechanistic biodiesel ODE.",
         "solver": result["solver"], "grids": result["grids"],
     }
-    if output_path is not None:
-        tables = Path(output_path).parent.parent / "tables"
+    tables = (Path(tables_dir) if tables_dir is not None else
+              Path(output_path).parent.parent / "tables" if output_path is not None else None)
+    if tables is not None:
         tables.mkdir(parents=True, exist_ok=True)
         write_csv(tables / "interval_fig3_seed0_predictions.csv", sparse_rows)
         write_csv(tables / "interval_fig3_seed0_dense.csv", dense_rows)
@@ -195,14 +196,31 @@ def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=Fal
     return fig, metadata
 
 
+def interval_run_dirs():
+    """One interval-trained seed-0 run per Figure-3 noise column; 0 % is the clean run."""
+    return {pct: (EXP / "seed0" if pct == 0 else EXP / f"noise/noise{pct:02d}_seed0")
+            for pct in NOISE_LEVELS}
+
+
 def main():
     use_headless_backend()
-    fig, metrics = make_figure(EXP / "figures/fig3", include_endpoint_diagnostic=True)
+    # Verified clean seed-0 reconstruction: endpoint diagnostic and the metrics tables.
+    # Its single-column figure is not saved; the noise-column figure below supersedes it.
+    fig, metrics = make_figure(include_endpoint_diagnostic=True, tables_dir=EXP / "tables")
     plt.close(fig)
     print("Figure 3 condition, seed 0: conditional interval loss = "
           f"{metrics['conditional_interval_loss_timesummed']:.9g}; full-rollout loss = "
           f"{metrics['full_rollout_loss_timesummed']:.9g}")
-    print("Saved two PDF/PNG figures and their prediction tables and metadata.")
+
+    # The paper's layout: six species by four training-noise columns, one model each.
+    columns, results = make_noise_columns(run_dirs=interval_run_dirs(),
+                                          output_path=EXP / "figures/fig3_noise_columns")
+    plt.close(columns)
+    for pct in NOISE_LEVELS:
+        r = results["levels"][pct]
+        print(f"{pct:2d}% noise: Eq.18 vs clean {r['loss_clean'].mean():.6f} | "
+              f"vs its observations {r['loss_obs'].mean():.6f}")
+    print("Saved the endpoint diagnostic, the noise-column figure, and the seed-0 tables.")
 
 
 if __name__ == "__main__":

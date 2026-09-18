@@ -75,12 +75,13 @@ comes from the existing `biodiesel_fig3_condition.npz` mechanistic simulation.
   The orange endpoints condition on intermediate observations from this unseen case.
   Their error is a conditional evaluation metric, not a training loss or an autonomous
   prediction from the initial condition.
-- [Figure 3 clean column for the interval-trained model](figures/fig3.pdf)
-  ([PNG](figures/fig3.png)): six species in six rows,
-  with the clean reference, clean observations, and the model's complete rollout.
-  No intermediate observation is supplied to this rollout. The evaluation procedure
-  corresponds to Figure 3; the training procedure is explicitly identified as the
-  observed-interval experiment.
+- [Figure 3 for the interval-trained models, all four noise columns](figures/fig3_noise_columns.pdf)
+  ([PNG](figures/fig3_noise_columns.png)): six species in six rows, 0 / 5 / 10 / 15 %
+  training noise in four columns, with the clean reference, that column's observations,
+  and the model's complete rollout. No intermediate observation is supplied to these
+  rollouts. The evaluation procedure corresponds to Figure 3; the training procedure is
+  explicitly identified as the observed-interval experiment. The single-column version
+  of this figure (`fig3.pdf`) was superseded by this one and removed.
 
 For this single condition, the conditional interval loss is **0.000122895**, and the
 full-rollout loss is **0.004982419**. Both average over species and sum over observation
@@ -93,32 +94,47 @@ Dense curves use 601 display times, while the loss uses the original 30 observat
 times. The plotting solve includes all observation times and is checked against the
 separate observation-grid solve. No model predictions are clipped.
 
-Regenerate these two figures only:
+Regenerate the noise-column figure, the endpoint diagnostic and the verified seed-0
+metrics tables:
 
 ```bash
 /Users/berke/uni_projects/chemkan-venv/bin/python \
   chemkan/scripts/figures/fig03_biodiesel_trajectories.py --observed-intervals
 ```
 
+Section 4 of `chemkan/notebooks/11_biodiesel_observed_intervals.ipynb` draws the same
+four-column figure inline.
+
 Sources: [script](../../../chemkan/scripts/figures/plot_biodiesel_interval_fig3.py),
 [metrics](tables/interval_fig3_seed0_metrics.json),
 [predictions at observation times](tables/interval_fig3_seed0_predictions.csv),
 [dense plotted curves](tables/interval_fig3_seed0_dense.csv).
 
-### Other Figure 3 noise columns
+### The Figure 3 noise columns
 
-The original full-trajectory training method already has completed seed-0 models at
-0%, 5%, 10%, and 15% noise. The observed-interval experiment currently has completed
-clean models only. Its 5%, 10%, and 15% columns would need separate models trained on
-those noisy observations. Adding noisy dots to this clean model's prediction would
-not demonstrate learning from noisy data.
+**Done (2026-09-17).** The interval trainer takes `--noise-percent`, which uses the
+stored noisy observations as both the reset states and the endpoint targets, keeping the
+same train-only scaling, architecture, RBF grids, learning rate and epoch budget, and
+reports complete-rollout errors against the clean held-out trajectories. Seed-0 interval
+runs exist at 1, 2, 3, 5, 7, 10 and 15 % in `noise/noiseNN_seed0/`, so the figure's four
+columns (0 / 5 / 10 / 15 %) are drawn from four separately trained models.
 
-The interval trainer currently loads clean data explicitly. A noise extension must use
-the selected noisy observations as both the reset states and endpoint targets, retain
-the same train-only scaling, architecture, RBF grids, learning rate, and epoch budget,
-and report complete-rollout errors against clean held-out trajectories. A paired 5%
-seed-0 pilot would be a useful next diagnostic before extending to 10%, 15%, and more
-seeds. It is not necessary to postpone reporting the completed clean experiment.
+At this single condition the interval models degrade with noise far faster than the
+original-method models (Eq. 18 loss against the clean reference, seed 0):
+
+| training noise | observed-interval | original |
+|---|---|---|
+| 0 % | 0.00498 | 0.07357 |
+| 5 % | 0.03803 | 0.02832 |
+| 10 % | 0.21634 | 0.03340 |
+| 15 % | 0.49440 | 0.02566 |
+
+Interval training is the better model on clean data here and the worse one at every
+noise level, which is consistent with its procedure: each of the 29 intervals restarts
+**from an observed state**, so noisy observations enter as corrupted initial conditions
+rather than only as comparison targets. One condition and one seed — the aggregate
+comparison is the Fig. 5A layout across noise levels, which has not been assembled for
+the interval models yet. Numbers: `tables/fig3_noise_columns_method_comparison.csv`.
 
 ## Standard entry points and paper numbering
 
@@ -133,7 +149,12 @@ The wrapper draws the supplemental interval diagnostics, calls the standard Figu
 and Figure 5B scripts with `--observed-intervals`.
 It performs no training. Add `--dry-run` to inspect its commands.
 
-- [fig3](figures/fig3.pdf): clean column at the paper's initial condition.
+- [fig3_noise_columns](figures/fig3_noise_columns.pdf): the paper's initial condition at
+  0 / 5 / 10 / 15 % training noise, one interval-trained model per column. Drawn by
+  section 4 of `chemkan/notebooks/11_biodiesel_observed_intervals.ipynb`, which calls
+  `fig03_biodiesel_trajectories.make_figure` with `run_dirs` pointed at the interval
+  runs. The wrapper's `--observed-intervals` flag writes the same figure; it no longer
+  produces the superseded single-column `fig3.pdf`.
 - [fig5b](figures/fig5b.pdf): two panels distinguish the actual interval objective for
   all three seeds from full-rollout training/test evaluation for seed-0 original
   ChemKAN, interval-trained ChemKAN, and reference DeepONet. Raw evaluation times
