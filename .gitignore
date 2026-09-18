@@ -82,6 +82,11 @@ lightning_logs/
 # Run logs for reproduction runs
 !**/run.log
 
+# Julia/LeanKAN reconstruction: PyTorch reference exports and Julia parameter files are
+# small (< 1 MB each) and back the equivalence reports; resume snapshots stay transient.
+!results/experiments/julia_leankan/**/*.npz
+**/resume.jls
+
 # Session scratch (review lists, not part of the science)
 .scratch/
 

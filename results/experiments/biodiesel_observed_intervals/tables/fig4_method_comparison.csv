@@ -1,0 +1,17 @@
+method,model,width,n_mu,parameters,train_loss,test_loss,reused,source
+observed_interval,ChemKAN,2,1,78,0.1112564355134964,0.20089778304100037,False,results/experiments/biodiesel_observed_intervals/scaling/h02_seed0/checkpoint_final.pt
+observed_interval,ChemKAN,3,2,117,0.03766242414712906,0.04968038946390152,False,results/experiments/biodiesel_observed_intervals/scaling/h03_seed0/checkpoint_final.pt
+observed_interval,ChemKAN,4,2,156,0.05406234413385391,0.07932357490062714,True,results/experiments/biodiesel_observed_intervals/seed0/checkpoint_epoch_5000.pt
+observed_interval,ChemKAN,10,5,390,0.02203892357647419,0.07030327618122101,False,results/experiments/biodiesel_observed_intervals/scaling/h10_seed0/checkpoint_final.pt
+observed_interval,ChemKAN,17,9,663,0.18750879168510437,0.3808702826499939,False,results/experiments/biodiesel_observed_intervals/scaling/h17_seed0/checkpoint_final.pt
+original,ChemKAN,2,1,78,0.3669866621494293,0.46150583028793335,False,results/reproduction/chemkan/biodiesel/scaling/h02_seed0/checkpoint_final.pt
+original,ChemKAN,3,2,117,0.04685179144144058,0.07188231498003006,False,results/reproduction/chemkan/biodiesel/scaling/h03_seed0/checkpoint_final.pt
+original,ChemKAN,4,2,156,0.0683738961815834,0.11164325475692749,True,results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0/checkpoint_epoch_5000.pt
+original,ChemKAN,10,5,390,0.05237250402569771,0.06487270444631577,False,results/reproduction/chemkan/biodiesel/scaling/h10_seed0/checkpoint_final.pt
+original,ChemKAN,17,9,663,0.0899452418088913,0.14363065361976624,False,results/reproduction/chemkan/biodiesel/scaling/h17_seed0/checkpoint_final.pt
+original,DeepONet,3,,85,0.7530118823051453,0.8642420768737793,False,results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0/checkpoint_final.pt
+original,DeepONet,5,,169,0.31511735916137695,0.3667267858982086,False,results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w05_seed0/checkpoint_final.pt
+original,DeepONet,6,,220,0.31599605083465576,0.38201960921287537,False,results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w06_seed0/checkpoint_final.pt
+original,DeepONet,8,,340,0.021653462201356888,0.07190263271331787,False,results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w08_seed0/checkpoint_final.pt
+original,DeepONet,10,,484,0.18073990941047668,0.23344579339027405,False,results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w10_seed0/checkpoint_final.pt
+original,DeepONet,13,,745,0.00437635462731123,0.036479443311691284,False,results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w13_seed0/checkpoint_final.pt

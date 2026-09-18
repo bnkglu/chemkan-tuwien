@@ -1,0 +1,16 @@
+{
+    "epochs": 50,
+    "test": {
+        "mse": 12.797739923497,
+        "pinn": 0,
+        "total": 12.797739923497
+    },
+    "final_train_loss_after_last_update": 13.100435813173373,
+    "training_wall_seconds_this_segment": 37.24544978141785,
+    "train": {
+        "mse": 13.100435813173373,
+        "pinn": 0,
+        "total": 13.100435813173373
+    },
+    "created": "2026-09-18T17:03:15Z"
+}

@@ -1,0 +1,109 @@
+{
+    "optimizer": "Optimisers.Adam (torch.optim.Adam formula/defaults)",
+    "chemical_system": "biodiesel",
+    "model": "ChemKAN-KineticCore (Julia, vendored LeanKAN layers)",
+    "julia_threads_used_for_trajectories": false,
+    "dtype": "Float64",
+    "provenance": {
+        "julia_threads": 1,
+        "julia_version": "1.12.7",
+        "packages": {
+            "OrdinaryDiffEqTsit5": "2.1.4",
+            "ForwardDiff": "1.4.6",
+            "ComponentArrays": "0.15.49",
+            "LuxCore": "1.5.3",
+            "SciMLBase": "3.55.0",
+            "Lux": "1.31.4",
+            "Optimisers": "0.4.9",
+            "Zygote": "0.7.13",
+            "NNlib": "0.9.45",
+            "SciMLSensitivity": "7.119.8",
+            "WeightInitializers": "1.3.4"
+        },
+        "created": "2026-09-18T17:02:36Z",
+        "code_state": {
+            "git_head": "6c05946b6fd2978c03faa68b4c5fcb22f9b35d7a",
+            "uncommitted_changes": true
+        },
+        "blas_threads": 1,
+        "vendored_leankan_sha256": {
+            "utils.jl": "c4a07b21ac51e13daa4cb0526c8a0e8d00acb9b0572420d50b48b3696354d61c",
+            "kdense_multKAN.jl": "86cf13dd75af296848a936f8391fe05f7aff64d1a1802caae192f94e9c17c864",
+            "kdense_leanKAN.jl": "46c5a8dabf64f42df1f8581cb9e88eee277d57af6803a69789b878f0f051e070",
+            "kdense.jl": "195a5d82aa4996b0de34c4ee3a58b92852612fe3433763cf70c403c88ec5b228",
+            "KolmogorovArnold.jl": "733370741a5937936eb419c3af26473a34886d3bd61930e7deb193037e02c153"
+        }
+    },
+    "history_semantics": "total_loss is the loss at the parameters the epoch STARTS from (as PyTorch history.csv)",
+    "experiment_name": "main",
+    "architecture": {
+        "num_basis": 3,
+        "n_mu": 2,
+        "use_base_act": false,
+        "hidden_dim": 4,
+        "species_dim": 6
+    },
+    "layer_convention": {
+        "name": "matched",
+        "equivalent_gaussian_sigma": 1,
+        "normalizer": "tanh (their fast_act -> NNlib.tanh_fast)",
+        "basis": "their rbf: exp(-((x - c)/d)^2), d = 1.4142135623730951 * h",
+        "denominator_d": 1.4142135623730951,
+        "grid_spacing_h": 1,
+        "base_act": "silu_tanh applied to the raw layer input",
+        "default_init": "pytorch_like"
+    },
+    "batching": "full batch: one Adam step per epoch over all trajectories",
+    "solver": {
+        "maxiters": 10000000,
+        "method": "Tsit5 (OrdinaryDiffEqTsit5)",
+        "trajectory_coupling": "none: one ODEProblem and one step-size sequence per trajectory",
+        "sensitivity": "fsa",
+        "rtol": 1.0e-6,
+        "sensealg": "SciMLSensitivity.ForwardSensitivity(autojacvec = false)",
+        "atol": 1.0e-8,
+        "error_norm": "OrdinaryDiffEq default (RMS over the whole solved state; for FSA the extended [state, sensitivity] vector)"
+    },
+    "dataset_sha256": {
+        "biodiesel": "347e39d3113896d85628c3c8ac0a85d9be30bf946e57807d229c8b9f25f32023"
+    },
+    "normalization": {
+        "input_scaling": "minmax",
+        "stats": "train-only min-max"
+    },
+    "parameter_count": 156,
+    "noise_percent": null,
+    "solver_tolerance_source": "user-specified",
+    "learning_rate": 0.002,
+    "argv": [
+        "--run-dir",
+        "results/experiments/julia_leankan/training_equivalence/biodiesel_50ep_transfer/julia_fsa",
+        "--init",
+        "transfer",
+        "--init-from",
+        "results/experiments/julia_leankan/reference/biodiesel/init_seed0_params.npz",
+        "--epochs",
+        "50",
+        "--lr",
+        "2e-3",
+        "--rtol",
+        "1e-6",
+        "--atol",
+        "1e-8",
+        "--sensitivity",
+        "fsa",
+        "--print-every",
+        "25",
+        "--overwrite"
+    ],
+    "loss": "normalized trajectory MSE (Eq. 18)",
+    "dataset": "biodiesel.npz (train split)",
+    "epochs": 50,
+    "initialization": {
+        "rng": null,
+        "mode": "transfer",
+        "rbf_grids": "transferred PyTorch centers buffers",
+        "from": "results/experiments/julia_leankan/reference/biodiesel/init_seed0_params.npz"
+    },
+    "seed": 0
+}

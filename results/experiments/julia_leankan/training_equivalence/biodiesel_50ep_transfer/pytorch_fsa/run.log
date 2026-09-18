@@ -1,0 +1,5 @@
+2026-09-18 19:01:59,179 INFO run start 2026-09-18T17:01:59Z | run_id=biodiesel/pytorch_fsa | system=biodiesel | dir=results/experiments/julia_leankan/training_equivalence/biodiesel_50ep_transfer/pytorch_fsa
+2026-09-18 19:01:59,204 INFO wrote results/experiments/julia_leankan/training_equivalence/biodiesel_50ep_transfer/pytorch_fsa/config.json
+2026-09-18 19:02:10,309 INFO final training loss: 1.343921e+01
+2026-09-18 19:02:10,318 INFO wrote results/experiments/julia_leankan/training_equivalence/biodiesel_50ep_transfer/pytorch_fsa/checkpoint_final.pt
+2026-09-18 19:02:10,319 INFO run completed 2026-09-18T17:02:10Z
