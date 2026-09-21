@@ -5,8 +5,11 @@
 # the SAME argmax-dT/dt estimator, so a coarse 50-point reference derivative is never
 # compared against a dense model derivative. The evaluated set is fixed by which REFERENCE
 # trajectories ignite (30 of 36; the six 950 K cases do not ignite in the window), never by
-# whether the model succeeds. A non-igniting prediction is recorded as
-# no_ignition_in_window with its delay left undefined.
+# whether the model succeeds: it is the paper's own 30-condition set (T0 = 1000-1200 K).
+# The delay is the paper's definition throughout -- argmax dT/dt, with no minimum-rise
+# requirement -- and is reported for every evaluated prediction. No ignited/not verdict is
+# applied anywhere; each row carries temperature rise and peak dT/dt for BOTH reference and
+# prediction, so a flat curve with a confident delay cannot be read as an ignition.
 source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/_checkpoints.sh"
 require_python
@@ -24,5 +27,5 @@ for_each_hydrogen_set _ign
 figure_script fig08_hydrogen_ignition.py
 say "Output"
 info "${FIGURES#"$REPO"/}/hydrogen/fig08b_hydrogen_ignition_delay.pdf"
-info "${TABLES#"$REPO"/}/hydrogen_ignition_delay_*.csv  (per-condition status)"
+info "${TABLES#"$REPO"/}/hydrogen_ignition_delay_*.csv  (delay + rise + peak dT/dt)"
 verdict "Fig. 8B"

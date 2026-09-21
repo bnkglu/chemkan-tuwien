@@ -11,7 +11,8 @@ touches a run directory.
 
 Model rebuilding, solver reconstruction and integration are reused from
 ``evaluate_hydrogen``; the ignition-delay definition is reused from
-``hydrogen_thermo_intervention`` (time of maximum dT/dt, undefined below a 100 K rise).
+``hydrogen_thermo_intervention`` (time of maximum dT/dt; defined for every trajectory
+and reported beside its temperature rise).
 
 Grids: every number in the CSV is computed on the dataset's own 50-point grid over
 [0, 0.6 ms], which is the grid all existing hydrogen diagnostics (and the Stage-2 probe)
@@ -52,7 +53,8 @@ import matplotlib.pyplot as plt                                       # noqa: E4
 from _data import DATA_DIR, load_input_scaling, resolve_device        # noqa: E402
 from evaluate_hydrogen import (build_chemkan, integrate_hydrogen,     # noqa: E402
                                solver_from_ckpt)
-from hydrogen_thermo_intervention import ignition_delay               # noqa: E402
+from hydrogen_thermo_intervention import (ignition_delay,             # noqa: E402
+                                           temperature_rise)
 
 DIAG = _REPO / "results/reproduction/chemkan/hydrogen/diagnostics"
 FIG_DIR = _REPO / "results/reproduction/chemkan/hydrogen/figures"
@@ -188,8 +190,9 @@ def main():
             delay_d = ignition_delay(t_dense, Td)
 
             def _rel(d, ref_d):
-                return ("" if (d is None or ref_d is None or ref_d == 0)
-                        else f"{(d - ref_d) / ref_d:.4f}")
+                # Delays are argmax dT/dt and always defined; only a zero reference delay
+                # would make the relative error undefined.
+                return "" if ref_d == 0 else f"{(d - ref_d) / ref_d:.4f}"
 
             rel = _rel(delay, R["delay"])
             rows.append({
@@ -202,14 +205,14 @@ def main():
                 "peak_T_K": f"{Tc.max():.1f}",
                 "reference_peak_T_K": f"{R['peak']:.1f}",
                 "peak_error_K": f"{Tc.max() - R['peak']:.1f}",
-                "ignition_delay_s": "" if delay is None else f"{delay:.6e}",
-                "reference_ignition_delay_s": ("" if R["delay"] is None
-                                               else f"{R['delay']:.6e}"),
+                "ignition_delay_s": f"{delay:.6e}",              # argmax dT/dt, no threshold
+                "temperature_rise_K": f"{temperature_rise(Tc):.3f}",
+                "reference_ignition_delay_s": f"{R['delay']:.6e}",
                 "ignition_delay_relative_error": rel,
-                "ignition_delay_s_dense": "" if delay_d is None else f"{delay_d:.6e}",
+                "ignition_delay_s_dense": f"{delay_d:.6e}",
+                "temperature_rise_K_dense": f"{temperature_rise(Td):.3f}",
                 "ignition_delay_relative_error_dense": _rel(delay_d, R["delay_dense"]),
-                "reference_ignition_delay_s_dense": ("" if R["delay_dense"] is None
-                                                     else f"{R['delay_dense']:.6e}"),
+                "reference_ignition_delay_s_dense": f"{R['delay_dense']:.6e}",
                 "min_T_K": f"{Tc.min():.1f}",
                 "min_T_K_dense": f"{Td.min():.1f}",
                 "final_T_K": f"{Tc[-1]:.1f}",
@@ -217,14 +220,9 @@ def main():
                 "thermo_linear_norm": f"{np.linalg.norm(w):.6e}",
                 "checkpoint": str(ckpt_path.relative_to(_REPO)),
             })
-            d_str = "none" if delay is None else f"{delay * 1e3:.4f} ms"
             print(f"  [{role:8s}] peak {Tc.max():7.1f} K (ref {R['peak']:7.1f}), "
-                  f"final {Tc[-1]:7.1f} K, delay {d_str}")
-            # plotting-grid consistency check (reported, not enforced)
-            dd = ignition_delay(t_dense, Td)
-            if (dd is None) != (delay is None):
-                print(f"    note: ignition detection differs between the 50-point grid "
-                      f"({delay}) and the {args.dense_points}-point plotting grid ({dd})")
+                  f"final {Tc[-1]:7.1f} K, argmax dT/dt {delay * 1e3:.4f} ms, "
+                  f"rise {temperature_rise(Tc):.1f} K")
 
     # ---- CSV ----------------------------------------------------------------
     TAB_DIR.mkdir(parents=True, exist_ok=True)

@@ -175,16 +175,15 @@ def stage2_rows(D):
                     ign = (BASE_TABLES if "FSA" not in label else TABLES) / f"hydrogen_ignition_delay_{stem}.json"
                     grid = (BASE_GRID if "FSA" not in label else TABLES) / f"{stem}_generalization_441.json"
                     if ign.exists():
+                        # Neutral fields only: the delay is argmax dT/dt for each of the
+                        # paper's 30 conditions, read together with the temperature rises.
+                        # No ignited/not count exists any more.
                         j = json.loads(ign.read_text())
-                        row.update(ignition_conditions=j["conditions_total"],
-                                   reference_igniting=j["reference_igniting"],
-                                   model_igniting=j["model_igniting"])
-                        csvp = ign.with_suffix(".csv")
-                        if csvp.exists():
-                            c = pd.read_csv(csvp)
-                            ok = c[c.status == "ignited"]
-                            row["ignition_median_abs_relative_error"] = (
-                                float(ok.relative_error.abs().median()) if len(ok) else np.nan)
+                        row.update(
+                            ignition_conditions=j["evaluated_conditions"],
+                            ignition_median_abs_relative_error=j["median_abs_relative_delay_error"],
+                            ignition_median_model_rise_K=j["median_model_temperature_rise_K"],
+                            ignition_median_reference_rise_K=j["median_reference_temperature_rise_K"])
                     if grid.exists():
                         g = json.loads(grid.read_text())
                         row.update(grid441_mse_min=g["mse_min"], grid441_mse_median=g["mse_median"],
@@ -264,7 +263,8 @@ def main():
     for r in s2:
         print({k: r.get(k) for k in ("run", "budget", "train_mse", "test_mse", "train_peak_T_K",
                                      "train_delay_error_pct", "held_peak_T_K", "held_delay_error_pct",
-                                     "gate_both", "model_igniting", "thermo_norm")})
+                                     "gate_both", "ignition_median_model_rise_K",
+                                     "thermo_norm")})
 
 
 if __name__ == "__main__":

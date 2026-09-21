@@ -134,11 +134,55 @@ def test_multiple_reference_states_give_distinct_coefficients():
     assert not np.allclose(c_lo, c_hi), "coefficients should depend on the state"
 
 
-def test_ignition_delay_returns_none_when_flat():
-    from hydrogen_thermo_intervention import ignition_delay
+def test_ignition_delay_is_the_paper_definition_with_neutral_diagnostics():
+    """argmax dT/dt for every trajectory; no threshold, no binary ignited/not verdict."""
+    from hydrogen_thermo_intervention import (ignition_delay, peak_temperature_rate,
+                                              temperature_rise)
     t = np.linspace(0, 6e-4, 50)
-    assert ignition_delay(t, np.full(50, 1050.0)) is None            # never ignites
-    assert ignition_delay(t, np.linspace(1050, 2600, 50)) is not None
+    flat, rising = np.full(50, 1050.0), np.linspace(1050, 2600, 50)
+
+    # The paper states no minimum rise, so a delay comes back even for a flat curve.
+    assert isinstance(ignition_delay(t, flat), float)
+    assert isinstance(ignition_delay(t, rising), float)
+
+    # A step at a known time is recovered.
+    step = np.where(t < 3e-4, 1050.0, 2600.0)
+    assert ignition_delay(t, step) == pytest.approx(3e-4, abs=t[1] - t[0])
+
+    # The neutral diagnostics, not a flag, are what separate the two curves.
+    assert temperature_rise(flat) == 0.0
+    assert temperature_rise(rising) == pytest.approx(1550.0)
+    # A flat curve has a numerically negligible peak rate; a rising one does not.
+    assert peak_temperature_rate(t, flat) == pytest.approx(0.0, abs=1e-6)
+    assert peak_temperature_rate(t, rising) > 1e6
+
+
+def test_evaluate_case_reports_neutral_diagnostics_not_a_verdict(monkeypatch):
+    """The intervention evaluator must not emit a binary ignition field.
+
+    A flat prediction still gets the paper's argmax-dT/dt delay; its temperature rise and
+    peak dT/dt -- not an ``ignites`` flag -- are what show nothing happened.
+    """
+    import hydrogen_thermo_intervention as hti
+    from chemkan.normalization import MinMaxNormalizer
+
+    m = len(SPECIES)
+    t = np.linspace(0, 6e-4, 12)
+    ref = np.zeros((12, m + 1)); ref[:, 0] = 0.02; ref[:, -1] = np.linspace(1050, 2600, 12)
+
+    def flat_integrate(model_, inorm, solver, u0, tt, device="cpu"):
+        out = torch.zeros(len(tt), 1, m + 1)
+        out[:, 0, -1] = 1050.0
+        return out
+
+    monkeypatch.setattr(hti, "integrate_hydrogen", flat_integrate)
+    norm = MinMaxNormalizer(torch.zeros(m + 1), torch.ones(m + 1) * 3000)
+    r = hti.evaluate_case(_model(), None, None, norm, t, ref)
+
+    assert "ignites" not in r
+    assert isinstance(r["ignition_delay_s"], float)
+    assert r["T_rise"] == 0.0
+    assert r["peak_dTdt"] == pytest.approx(0.0, abs=1e-6)
 
 
 # --------------------------------------------------------------------------
@@ -258,10 +302,13 @@ def test_probe_writes_schema_and_does_not_touch_parameters(tmp_path):
 
     rows = list(_csv.DictReader((tmp_path / "stage2_probe.csv").open()))
     assert [r["epoch"] for r in rows] == ["0", "2"]
-    for field in ("stage2_loss", "temperature_MSE", "peak_T_K", "ignites",
-                  "ignition_delay_s", "thermo_linear_norm", "coeff_H2", "coeff_N2"):
+    for field in ("stage2_loss", "temperature_MSE", "peak_T_K", "temperature_rise_K",
+                  "peak_dTdt_K_per_s", "ignition_delay_s", "thermo_linear_norm",
+                  "coeff_H2", "coeff_N2"):
         assert field in rows[0]
-    assert rows[0]["ignites"] == "False"                    # flat T -> no ignition
+    assert "ignites" not in rows[0]                         # no binary ignition verdict
+    assert float(rows[0]["temperature_rise_K"]) == 0.0      # flat T, stated as a number
+    assert float(rows[0]["ignition_delay_s"]) >= 0.0        # argmax dT/dt always defined
     after = model.state_dict()
     assert all(torch.equal(before[k], after[k]) for k in before), "probe mutated parameters"
 

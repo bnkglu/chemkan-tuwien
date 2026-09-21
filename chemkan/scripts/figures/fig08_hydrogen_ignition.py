@@ -34,14 +34,24 @@ def load_delays(csv_path):
 
 
 def summarize(rows):
-    """Ignition counts, status tally and the relative delay error where the model ignites."""
+    """Delay error and the neutral diagnostics, over every evaluated condition.
+
+    No ignition threshold is applied anywhere: the delay is argmax dT/dt for each of the
+    paper's 30 conditions. The temperature rise and peak dT/dt are reported beside it, so
+    a flat trajectory posting a small delay error cannot be read as an ignition.
+    """
     relative = [abs(float(r["relative_error"])) for r in rows if r["relative_error"]]
+    rise_model = [float(r["chemkan_temperature_rise_K"]) for r in rows
+                  if r["chemkan_temperature_rise_K"]]
+    rise_ref = [float(r["reference_temperature_rise_K"]) for r in rows
+                if r["reference_temperature_rise_K"]]
     statuses = {}
     for r in rows:
         statuses[r["status"]] = statuses.get(r["status"], 0) + 1
     return {"conditions": len(rows),
-            "ignited": sum(1 for r in rows if r["status"].startswith("ignited")),
             "statuses": statuses,
+            "median_model_temperature_rise_K": float(np.median(rise_model)) if rise_model else None,
+            "median_reference_temperature_rise_K": float(np.median(rise_ref)) if rise_ref else None,
             "median_relative_error": float(np.median(relative)) if relative else None,
             "max_relative_error": float(max(relative)) if relative else None}
 
@@ -51,25 +61,32 @@ def plot_figure(tables):
     for ax, (label, rows) in zip(axes, tables.items()):
         temperatures = sorted({float(r["T0_K"]) for r in rows})
         colours = plt.cm.viridis(np.linspace(0, .9, len(temperatures)))
-        n_ignited = sum(1 for r in rows if r["status"].startswith("ignited"))
+        rise_model = np.median([float(r["chemkan_temperature_rise_K"]) for r in rows
+                                if r["chemkan_temperature_rise_K"]])
+        rise_ref = np.median([float(r["reference_temperature_rise_K"]) for r in rows
+                              if r["reference_temperature_rise_K"]])
         for colour, T0 in zip(colours, temperatures):
             at_T0 = [r for r in rows if float(r["T0_K"]) == T0]
             ax.plot([float(r["phi"]) for r in at_T0],
                     [float(r["reference_delay_s"]) * 1e3 for r in at_T0],
                     "p-", color=colour, ms=8, label=f"ref {T0:.0f} K")
-            ignited = [r for r in at_T0 if r["chemkan_delay_s"]]
-            if ignited:
-                ax.plot([float(r["phi"]) for r in ignited],
-                        [float(r["chemkan_delay_s"]) * 1e3 for r in ignited],
+            # Every evaluated condition is plotted: the delay is argmax dT/dt with no
+            # threshold deciding whether it "counts". The panel subtitle carries the
+            # temperature rise, which is what separates an ignition from a flat curve.
+            drawn = [r for r in at_T0 if r["chemkan_delay_s"]]
+            if drawn:
+                ax.plot([float(r["phi"]) for r in drawn],
+                        [float(r["chemkan_delay_s"]) * 1e3 for r in drawn],
                         "^--", color=colour, ms=8, mfc="none", label=f"ChemKAN {T0:.0f} K")
         ax.set_xlabel("equivalence ratio")
         ax.grid(alpha=.3)
-        ax.set_title(f"{label}\nmodel ignites in {n_ignited}/{len(rows)} "
-                     f"reference-igniting cases", fontsize=9)
+        ax.set_title(f"{label}\nmedian temperature rise: model {rise_model:.0f} K vs "
+                     f"reference {rise_ref:.0f} K", fontsize=9)
     axes[0].set_ylabel("ignition delay [ms]")
     axes[0].legend(fontsize=6, ncol=2)
-    fig.suptitle("Fig. 8B - pentagon = Cantera reference, open triangle = ChemKAN "
-                 "(absent where the model does not ignite)")
+    fig.suptitle("Fig. 8B - pentagon = Cantera reference, open triangle = ChemKAN\n"
+                 "delay = argmax dT/dt (paper Sec. III B) for every evaluated condition; "
+                 "read it with the temperature rise in each panel title", fontsize=10)
     fig.tight_layout()
     return fig
 
@@ -94,11 +111,16 @@ def main():
     args = p.parse_args()
     _, results = make_figure(output_path=args.output)
     for label, s in results.items():
-        print(f"{label}: {s['conditions']} reference-igniting conditions | "
+        print(f"{label}: {s['conditions']} evaluated conditions (the paper's set) | "
               f"statuses {s['statuses']}")
         if s["median_relative_error"] is not None:
+            # Always printed together: a small delay error on a flat trajectory is not
+            # an ignition, and the rise is what says so.
             print(f"    |relative delay error|: median {s['median_relative_error']:.1%}  "
                   f"max {s['max_relative_error']:.1%}")
+            print(f"    median temperature rise: model "
+                  f"{s['median_model_temperature_rise_K']:.0f} K vs reference "
+                  f"{s['median_reference_temperature_rise_K']:.0f} K")
     print(f"wrote {args.output}.pdf/.png")
 
 

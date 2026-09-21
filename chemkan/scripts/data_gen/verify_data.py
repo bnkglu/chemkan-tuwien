@@ -69,8 +69,14 @@ def check_combustion(d: dict) -> bool:
     ok &= report("train normalized below 0", max(0.0, -hat.min()), 1e-12)
     ok &= report("train normalized above 1", max(0.0, hat.max() - 1.0), 1e-12)
 
-    tau = d["ignition_delay"]
-    print(f"  info: {int(np.isfinite(tau).sum())}/{len(tau)} cases ignited")
+    tau = d["ignition_delay"]                      # argmax dT/dt, no threshold
+    rise = d["temperature_rise"] if "temperature_rise" in d else None
+    if rise is None:
+        print(f"  info: argmax dT/dt recorded for {len(tau)} cases")
+    else:
+        print(f"  info: temperature rise {rise.min():.1f}-{rise.max():.1f} K over "
+              f"{len(tau)} cases; argmax dT/dt in "
+              f"{np.nanmin(tau) * 1e3:.3f}-{np.nanmax(tau) * 1e3:.3f} ms")
     return ok
 
 

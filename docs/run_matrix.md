@@ -126,12 +126,14 @@ markers are omitted from our current Figure-4 plot; its table retains the paper 
 E5–E7 were exercised end-to-end against `H0` today, writing only to a scratch directory:
 
 - **E5**: 441/441 conditions integrated, 0 failures, 4.3 s; MSE median `2.66`, max `3.22`.
-- **E6**: the reference ignites in **30 of 36** conditions (the six 950 K cases do not, as
-  the paper says), and `H0` ignites in **0** of those 30 — recorded per condition as
-  `no_ignition_in_window`, never as an argmax of a flat curve.
+- **E6**: evaluated on the paper's own 30-condition set (the six 950 K cases, where the
+  reference rises 0.0 K, are excluded, as the paper says). Every condition is recorded with
+  the paper's argmax dT/dt delay next to its temperature rise and peak dT/dt; no
+  ignited/not threshold is applied. `H0`'s median temperature rise is **9 K** against the
+  reference's 1581 K, which is what shows its delays describe a flat curve.
 - **E7**: ChemKAN median 1.478 s vs Cantera 0.222 s over the same task → **0.15×**, i.e.
-  locally *slower*, with 0/30 ignitions and a median peak-temperature error of 1546 K
-  attached to the number.
+  locally *slower*, with a median temperature rise of 9 K over the paper's 30 conditions
+  (reference 1581 K) and a median peak-temperature error of 1546 K attached to the number.
 
 These are dry-run measurements of the tooling, not the reported results; the reported
 values will be regenerated into `results/` during the hydrogen phase.

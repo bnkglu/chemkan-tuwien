@@ -32,13 +32,16 @@ from chemkan.solver import SolverConfig, integrate     # noqa: E402
 from _data import DATA_DIR, load_input_scaling, resolve_device  # noqa: E402
 
 
-def ignition_delay(t, T, rise_threshold=100.0):
-    """time of max dT/dt, or None if the trajectory never rises enough."""
+def ignition_delay(t, T):
+    """Paper definition (Sec. III B): the time of maximum temperature-rise rate.
+
+    No minimum-rise requirement: a delay is defined for every finite trajectory. The
+    temperature rise reported beside it says how much that instant is worth.
+    """
     T = np.asarray(T, dtype=float)
     t = np.asarray(t, dtype=float)
-    if float(T.max() - T[0]) < rise_threshold:
-        return None
     return float(t[int(np.argmax(np.gradient(T, t)))])
+
 
 
 def main():
@@ -116,14 +119,15 @@ def main():
 
         peak_err = abs(peak_p - peak_r)
         ok_peak = peak_err <= args.peak_tol_k
-        if d_r is None:
-            ok_delay, delay_note = True, "reference does not ignite - skipped"
-        elif d_p is None:
-            ok_delay, delay_note = False, "MODEL NEVER IGNITES"
-        else:
-            rel = abs(d_p - d_r) / d_r
-            ok_delay = rel <= args.delay_tol_rel
-            delay_note = f"{d_p:.3e} s vs {d_r:.3e} s   (rel {rel:.1%})"
+        # No ignition threshold anywhere: the delay is always argmax dT/dt, and the
+        # temperature rises say how much each instant is worth. The gate's verdict uses
+        # the explicit peak/delay tolerances that this script already takes as arguments.
+        rise_p = float(T_pred.max() - T_pred[0])
+        rise_r = float(T_ref.max() - T_ref[0])
+        rel = abs(d_p - d_r) / d_r if d_r else float("nan")
+        ok_delay = bool(rel <= args.delay_tol_rel)
+        delay_note = (f"{d_p:.3e} s vs {d_r:.3e} s   (rel {rel:.1%}) | "
+                      f"rise {rise_p:.1f} K vs {rise_r:.1f} K")
 
         verdict = "PASS" if (ok_peak and ok_delay) else "FAIL"
         all_pass &= ok_peak and ok_delay

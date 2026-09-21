@@ -44,7 +44,8 @@ from pathlib import Path
 import cantera as ct
 import numpy as np
 
-from common import fit_minmax, ignition_delay, metadata, save, stiffness_ratio
+from common import (fit_minmax, ignition_delay, metadata, peak_temperature_rate,
+                    save, stiffness_ratio, temperature_rise)
 from reactor import integrate_case, species_index
 
 MECH = "h2o2.yaml"
@@ -124,19 +125,21 @@ def generate(cfg) -> dict:
     # diagnostic grid than the saved trajectories. The saved states keep --n-points.
     t_ign = np.linspace(0.0, cfg.t_end, max(cfg.n_points, cfg.ignition_points))
     if len(t_ign) == len(t):
-        tau_ign = np.array([ignition_delay(t, s[:, -1]) for s in states])
+        T_ign = [s[:, -1] for s in states]
     else:
-        tau_ign = np.array([
-            ignition_delay(
-                t_ign,
-                integrate_case(MECH, FUEL, OXIDIZER, T0, phi, t_ign,
-                               cfg.pressure, keep, cfg.rtol, cfg.atol)[:, -1])
-            for T0, phi in ics
-        ])
-    n_ignited = int(np.isfinite(tau_ign).sum())
+        T_ign = [integrate_case(MECH, FUEL, OXIDIZER, T0, phi, t_ign,
+                                cfg.pressure, keep, cfg.rtol, cfg.atol)[:, -1]
+                 for T0, phi in ics]
+    # Neutral diagnostics only: the delay is argmax dT/dt for every case, and the rise and
+    # peak rate say how much that instant is worth. No ignition threshold is applied here.
+    tau_ign = np.array([ignition_delay(t_ign, T) for T in T_ign])
+    rise_ign = np.array([temperature_rise(T) for T in T_ign])
+    rate_ign = np.array([peak_temperature_rate(t_ign, T) for T in T_ign])
 
     print(f"  {len(states)} cases | {len(train_states)} train / {len(test_states)} test")
-    print(f"  {n_ignited}/{len(states)} ignited within {cfg.t_end * 1e3:.2f} ms")
+    print(f"  temperature rise over {cfg.t_end * 1e3:.2f} ms: "
+          f"{rise_ign.min():.1f}-{rise_ign.max():.1f} K "
+          f"(peak dT/dt {rate_ign.min():.2e}-{rate_ign.max():.2e} K/s)")
     print(f"  ignition delay computed on {len(t_ign)}-point diagnostic grid")
     print(f"  T range: {states[..., -1].min():.0f}-{states[..., -1].max():.0f} K")
     print(f"  stiffness proxy (worst case): {max(stiffness_ratio(t, s) for s in states):.1e}")
@@ -155,7 +158,9 @@ def generate(cfg) -> dict:
         "test_ics": ics[is_test],
         "u_min": u_min,
         "u_max": u_max,
-        "ignition_delay": tau_ign,
+        "ignition_delay": tau_ign,          # argmax dT/dt, no threshold applied
+        "temperature_rise": rise_ign,       # K, neutral diagnostic
+        "peak_temperature_rate": rate_ign,  # K/s, neutral diagnostic
         "pressure": np.array(cfg.pressure),
         "metadata": np.array(metadata(
             system="hydrogen",
@@ -170,6 +175,9 @@ def generate(cfg) -> dict:
             normalization="train-only min-max (Eq. 18)",
             ignition_points=cfg.ignition_points,
             ignition_delay_grid="dense diagnostic grid; saved states use n_points",
+            ignition_delay_definition="argmax dT/dt (ChemKAN Sec. III B); no minimum-rise "
+                                      "threshold. Read with temperature_rise and "
+                                      "peak_temperature_rate.",
         )),
     }
 

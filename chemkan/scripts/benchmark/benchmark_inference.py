@@ -18,7 +18,8 @@ requested output times over 0-0.6 ms for the same 36 coarse initial conditions.
 
 Accuracy is measured in the same run and reported beside the timing: a model that fails
 to reproduce the dynamics is fast for the wrong reason, so the peak-temperature error and
-ignition outcome stay attached to the speed-up.
+temperature rise and peak dT/dt stay attached to the speed-up -- as continuous numbers,
+with no ignited/not verdict.
 
     python benchmark_inference.py \
         --run-dir ../../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0 \
@@ -65,6 +66,42 @@ def repo_relative(path) -> str:
 FUEL = "H2"
 OXIDIZER = {"O2": 1.0, "N2": 3.76}
 
+# The paper's Fig. 8B set, written out explicitly and never derived from a threshold. The
+# remaining 950 K row is reported beside it, so no condition is dropped.
+PAPER_FIG8B_T0_K = (1000.0, 1050.0, 1100.0, 1150.0, 1200.0)
+
+# Largest tolerated gap (K) between a stored peak-temperature error and the one recomputed
+# from a run's committed predictions. The benchmark integrates all 36 conditions in one
+# batch while the prediction files were written per split, and torchdiffeq batches share
+# one step sequence, so the two differ at the millikelvin level; 0.05 K bounds that noise
+# with a wide margin while still catching a different checkpoint or grid.
+ACCURACY_CONSISTENCY_TOL_K = 0.05
+
+
+def _stats(x) -> dict:
+    x = np.asarray(x, dtype=float)
+    return {"median": float(np.median(x)), "min": float(x.min()), "max": float(x.max())}
+
+
+def temperature_diagnostics(t, T_pred, T_ref, T0) -> dict:
+    """Continuous accuracy diagnostics with no ignited/not verdict.
+
+    ``T_pred`` and ``T_ref`` are (points, conditions). Conditions are grouped by the paper's
+    explicit Fig. 8B set and the 950 K row; each group reports temperature rise and peak
+    dT/dt for model and reference, so a flat prediction is visible as a number.
+    """
+    rate = lambda T: np.gradient(T, t, axis=0).max(axis=0)
+    rise_p, rise_r = T_pred.max(axis=0) - T_pred[0], T_ref.max(axis=0) - T_ref[0]
+    rate_p, rate_r = rate(T_pred), rate(T_ref)
+    groups = {"paper_fig8b_set_T0_1000_1200K": np.isin(T0, PAPER_FIG8B_T0_K),
+              "T0_950K": np.isclose(T0, 950.0)}
+    return {name: {"conditions": int(sel.sum()),
+                   "model_temperature_rise_K": _stats(rise_p[sel]),
+                   "reference_temperature_rise_K": _stats(rise_r[sel]),
+                   "model_peak_dTdt_K_per_s_median": float(np.median(rate_p[sel])),
+                   "reference_peak_dTdt_K_per_s_median": float(np.median(rate_r[sel]))}
+            for name, sel in groups.items()}
+
 
 def time_chemkan(dyn, u0, t, solver, warmup: int, reps: int) -> tuple[list[float], np.ndarray]:
     with torch.no_grad():
@@ -95,6 +132,60 @@ def time_cantera(mech, pressure, ics, t, keep, rtol, atol, warmup: int, reps: in
     return times, states
 
 
+def recompute_accuracy_only(run_dir: Path, out: Path, label: str) -> None:
+    """Replace only the accuracy diagnostics of an existing benchmark JSON.
+
+    Reads the run's committed ``predictions/{train,test}_predictions.npz`` instead of
+    re-integrating, so every timing block stays exactly as measured. Refuses to write unless
+    the predictions carry the benchmarked checkpoint's SHA-256, their reference equals the
+    dataset, and they reproduce the stored peak-temperature error.
+    """
+    path = out / f"hydrogen_inference_benchmark_{label}.json"
+    result = json.loads(path.read_text())
+    canon = np.load(DATA_DIR / "hydrogen.npz", allow_pickle=True)
+    is_test, states, ics = canon["is_test"], canon["states"], canon["ics"]
+    t = np.asarray(canon["t"], dtype=float)
+
+    split = {s: np.load(run_dir / "predictions" / f"{s}_predictions.npz", allow_pickle=True)
+             for s in ("train", "test")}
+    for name, z in split.items():
+        sha = json.loads(str(z["provenance"]))["checkpoint_sha256"]
+        if sha != result["checkpoint_sha256"]:
+            raise SystemExit(f"{name} predictions come from checkpoint {sha[:12]}, not the "
+                             f"benchmarked {result['checkpoint_sha256'][:12]}")
+    pred = np.empty((len(t), len(ics), states.shape[-1]))
+    ref = np.empty_like(pred)
+    pred[:, ~is_test], pred[:, is_test] = split["train"]["predictions"], split["test"]["predictions"]
+    ref[:, ~is_test], ref[:, is_test] = split["train"]["reference"], split["test"]["reference"]
+    if not np.allclose(ref.transpose(1, 0, 2), states, rtol=0, atol=1e-3):
+        raise SystemExit("prediction reference does not match hydrogen.npz")
+
+    T_pred, T_ref = pred[..., -1], states[..., -1].T
+    peak_err = np.abs(T_pred.max(axis=0) - T_ref.max(axis=0))
+    stored = result["accuracy"]["peak_temperature_abs_error_K"]
+    gaps = {"median": abs(float(np.median(peak_err)) - stored["median"]),
+            "max": abs(float(peak_err.max()) - stored["max"])}
+    if max(gaps.values()) > ACCURACY_CONSISTENCY_TOL_K:
+        raise SystemExit(f"committed predictions do not reproduce the stored peak-T error "
+                         f"(gaps {gaps}); refusing to mix trajectories")
+
+    acc = result["accuracy"]
+    for retired in ("reference_igniting_conditions", "chemkan_igniting_within_reference_set",
+                    "chemkan_igniting_where_reference_does_not"):
+        acc.pop(retired, None)                       # 100 K verdicts, retired
+    acc["temperature_diagnostics"] = temperature_diagnostics(t, T_pred, T_ref, ics[:, 0])
+    acc["temperature_diagnostics_source"] = {
+        "predictions": [repo_relative(run_dir / "predictions" / f"{s}_predictions.npz")
+                        for s in ("train", "test")],
+        "recomputed_at": utc_now(),
+        "timing_blocks": "unchanged from the original measurement",
+        "peak_error_consistency_gap_K": gaps,
+    }
+    path.write_text(json.dumps(result, indent=2, default=str))
+    logging.info("rewrote the accuracy block of %s (timings untouched; peak-T gap %.2e K)",
+                 path, max(gaps.values()))
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -110,8 +201,15 @@ def main():
     p.add_argument("--cantera-tolerance-sweep", action="store_true")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     p.add_argument("--force", action="store_true")
+    p.add_argument("--accuracy-only", action="store_true",
+                   help="rewrite only the accuracy block of an existing benchmark JSON from "
+                        "the run's committed predictions; no timing is re-measured")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    if args.accuracy_only:
+        recompute_accuracy_only(Path(args.run_dir), Path(args.out),
+                                args.label or Path(args.run_dir).name)
+        return
 
     dev = resolve_device(args.device)
     run_dir = Path(args.run_dir)
@@ -169,13 +267,6 @@ def main():
     # Accuracy, measured in the same run so it cannot be reported apart from the timing.
     T_pred, T_ref = kan_pred[..., -1], states_ref[..., -1].T          # (P, 36)
     peak_err = np.abs(T_pred.max(axis=0) - T_ref.max(axis=0))
-    pred_ign = (T_pred.max(axis=0) - T_pred[0]) >= 100.0
-    ref_ign = (T_ref.max(axis=0) - T_ref[0]) >= 100.0
-    # Count WITHIN the reference-igniting set; a model can also ignite where the
-    # reference does not, which is a different error and is reported separately.
-    ignited = int((pred_ign & ref_ign).sum())
-    ref_ignited = int(ref_ign.sum())
-    false_ignitions = int((pred_ign & ~ref_ign).sum())
 
     result = {
         "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
@@ -200,11 +291,9 @@ def main():
                     "batched": False,
                     "note": "36 separate reactor integrations, as the generator runs them"},
         "accuracy": {
-            "reference_igniting_conditions": ref_ignited,
-            "chemkan_igniting_within_reference_set": ignited,
-            "chemkan_igniting_where_reference_does_not": false_ignitions,
             "peak_temperature_abs_error_K": {"median": float(np.median(peak_err)),
                                              "max": float(peak_err.max())},
+            "temperature_diagnostics": temperature_diagnostics(t_np, T_pred, T_ref, ics[:, 0]),
             "caveat": "timing is only meaningful beside this accuracy; a model that does "
                       "not reproduce the dynamics is not a valid speed-up claim",
         },
@@ -228,10 +317,11 @@ def main():
     for r in cantera_results:
         if r.get("status") != "ok":
             logging.info("  Cantera at rtol=%g atol=%g: %s", r["rtol"], r["atol"], r["status"])
-    logging.info("accuracy: model ignites in %d/%d reference-igniting conditions "
-                 "(+%d spurious ignitions where the reference does not); "
-                 "median peak-T error %.1f K",
-                 ignited, ref_ignited, false_ignitions, float(np.median(peak_err)))
+    paper = result["accuracy"]["temperature_diagnostics"]["paper_fig8b_set_T0_1000_1200K"]
+    logging.info("accuracy: median peak-T error %.1f K | paper set: median temperature rise "
+                 "model %.0f K vs reference %.0f K",
+                 float(np.median(peak_err)), paper["model_temperature_rise_K"]["median"],
+                 paper["reference_temperature_rise_K"]["median"])
 
 
 if __name__ == "__main__":

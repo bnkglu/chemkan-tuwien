@@ -324,7 +324,9 @@ python benchmark_inference.py --run-dir <run> --out ../../../results/reproductio
   50-point reference derivative with a dense model derivative is exactly what this avoids.
   The evaluated set is fixed by which REFERENCE trajectories ignite (30 of 36 — the six
   950 K cases do not ignite in the window), never by whether the model succeeds; a
-  non-igniting prediction is recorded as `no_ignition_in_window` with its delay undefined.
+  prediction is reported with its temperature rise and peak dT/dt next to the paper's
+  argmax dT/dt delay. No ignition threshold is applied anywhere, because the paper states
+  no minimum-rise requirement; the neutral diagnostics carry that information instead.
 - **The inference benchmark** is a *local* PyTorch-vs-Cantera measurement and is not
   comparable to the paper's Arrhenius.jl 2.0x. It records hardware, dtype, thread count,
   solver/tolerances, warm-up, repetitions and timing scope, and reports ignition outcome

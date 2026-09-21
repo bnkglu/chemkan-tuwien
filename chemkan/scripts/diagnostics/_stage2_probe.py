@@ -7,7 +7,7 @@ path, so the probe can never contribute gradients or otherwise change training.
 Recorded per probe epoch:
 
     epoch, stage2_loss, temperature_MSE (normalized), peak_T at the probe condition,
-    ignites / ignition_delay_s, thermo_linear_norm, and the full coefficient vector.
+    ignition_delay_s / temperature_rise_K / peak_dTdt_K_per_s, thermo_linear_norm, and the full coefficient vector.
 """
 
 from __future__ import annotations
@@ -41,7 +41,8 @@ class Stage2Probe:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._fields = (["epoch", "stage2_loss", "temperature_MSE", "peak_T_K",
-                         "ignites", "ignition_delay_s", "thermo_linear_norm"]
+                         "ignition_delay_s", "temperature_rise_K",
+                         "peak_dTdt_K_per_s", "thermo_linear_norm"]
                         + [f"coeff_{s}" for s in self.species])
         self._fh = self.path.open("w", newline="")
         self._w = csv.DictWriter(self._fh, fieldnames=self._fields)
@@ -49,10 +50,10 @@ class Stage2Probe:
         self._fh.flush()
 
     # -- measurement ---------------------------------------------------------
-    def _ignition_delay(self, T, rise_threshold: float = 100.0):
-        if float(T.max() - T[0]) < rise_threshold:
-            return None
+    def _ignition_delay(self, T):
+        """Paper definition (Sec. III B): the time of maximum temperature-rise rate."""
         return float(self.t[int(np.argmax(np.gradient(T, self.t)))])
+
 
     def probe(self, epoch: int, stage2_loss=None):
         """Measure and append one row. Never touches gradients or parameters."""
@@ -70,13 +71,14 @@ class Stage2Probe:
         T = pred[:, -1]
         dN = (self.full_norm.normalize(torch.as_tensor(pred, dtype=torch.float32))
               - self.full_norm.normalize(torch.as_tensor(self.ref, dtype=torch.float32))).numpy()
-        delay = self._ignition_delay(T)
+        delay = self._ignition_delay(T)      # paper definition, always defined
         row = {"epoch": epoch,
                "stage2_loss": "" if stage2_loss is None else f"{float(stage2_loss):.6e}",
                "temperature_MSE": f"{float((dN[:, -1] ** 2).sum()):.6e}",
                "peak_T_K": round(float(T.max()), 1),
-               "ignites": delay is not None,
-               "ignition_delay_s": "" if delay is None else f"{delay:.6e}",
+               "ignition_delay_s": f"{delay:.6e}",   # paper definition: argmax dT/dt
+               "temperature_rise_K": round(float(T.max() - T[0]), 2),
+               "peak_dTdt_K_per_s": f"{float(np.max(np.gradient(T, self.t))):.6e}",
                "thermo_linear_norm": f"{float(np.linalg.norm(w)):.6e}"}
         row.update({f"coeff_{s}": f"{float(v):.6g}" for s, v in zip(self.species, w)})
         self._w.writerow(row)

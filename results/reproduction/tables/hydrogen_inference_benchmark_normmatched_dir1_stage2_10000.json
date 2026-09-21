@@ -72,14 +72,55 @@
     "note": "36 separate reactor integrations, as the generator runs them"
   },
   "accuracy": {
-    "reference_igniting_conditions": 30,
-    "chemkan_igniting_within_reference_set": 30,
-    "chemkan_igniting_where_reference_does_not": 2,
     "peak_temperature_abs_error_K": {
       "median": 38.10206115745825,
       "max": 189.28921769454257
     },
-    "caveat": "timing is only meaningful beside this accuracy; a model that does not reproduce the dynamics is not a valid speed-up claim"
+    "caveat": "timing is only meaningful beside this accuracy; a model that does not reproduce the dynamics is not a valid speed-up claim",
+    "temperature_diagnostics": {
+      "paper_fig8b_set_T0_1000_1200K": {
+        "conditions": 30,
+        "model_temperature_rise_K": {
+          "median": 1556.6240234375,
+          "min": 1133.942138671875,
+          "max": 1642.7734375
+        },
+        "reference_temperature_rise_K": {
+          "median": 1580.730689902127,
+          "min": 1160.7467195818053,
+          "max": 1683.1890093331363
+        },
+        "model_peak_dTdt_K_per_s_median": 19270320.18025717,
+        "reference_peak_dTdt_K_per_s_median": 33543269.2738533
+      },
+      "T0_950K": {
+        "conditions": 6,
+        "model_temperature_rise_K": {
+          "median": 52.422149658203125,
+          "min": 3.46478271484375,
+          "max": 189.298095703125
+        },
+        "reference_temperature_rise_K": {
+          "median": 0.00021947508605535404,
+          "min": 0.00021101639492826507,
+          "max": 0.00022514921249694453
+        },
+        "model_peak_dTdt_K_per_s_median": 122228.34269205708,
+        "reference_peak_dTdt_K_per_s_median": 0.5244005948649516
+      }
+    },
+    "temperature_diagnostics_source": {
+      "predictions": [
+        "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000/predictions/train_predictions.npz",
+        "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000/predictions/test_predictions.npz"
+      ],
+      "recomputed_at": "2026-09-21T17:05:24Z",
+      "timing_blocks": "unchanged from the original measurement",
+      "peak_error_consistency_gap_K": {
+        "median": 0.001434326171875,
+        "max": 0.0086669921875
+      }
+    }
   },
   "hardware": {
     "platform": "macOS-26.3-arm64-arm-64bit",

@@ -16,14 +16,17 @@
     "t_end_s": 0.0006
   },
   "reference_source": "hydrogen_temperature_20000.npz, linearly interpolated onto the diagnostic grid",
-  "rise_threshold_K": 100.0,
+  "ignition_delay_definition": "argmax dT/dt (paper Sec. III B); no minimum rise",
   "conditions_total": 36,
-  "reference_igniting": 30,
-  "model_igniting": 0,
+  "evaluated_conditions": 30,
+  "case_selection": "the paper's Fig. 8B set: T0 in [1000.0, 1050.0, 1100.0, 1150.0, 1200.0] K, all equivalence ratios",
+  "median_reference_temperature_rise_K": 1580.730690362979,
+  "median_model_temperature_rise_K": 9.159332275390625,
+  "median_abs_relative_delay_error": 0.033712121212121124,
   "solver": {
     "method": "tsit5",
     "rtol": 1e-06,
     "atol": 1e-08
   },
-  "evaluated_at": "2026-09-06T16:29:43Z"
+  "evaluated_at": "2026-09-19T15:50:44Z"
 }

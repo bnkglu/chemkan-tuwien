@@ -15,11 +15,18 @@ The reference temperature comes from the dense Cantera cache
 same interpolation the Stage-1 temperature provider uses. The model is integrated from
 its initial state only, on that identical grid.
 
-A prediction whose temperature never rises by ``--rise-threshold`` inside the window is
-recorded as *no ignition in window*, with its delay and error left undefined rather than
-reported as the argmax of a nearly flat curve. Conditions whose integration fails are
-recorded separately. Every reference-igniting condition is retained either way: the set
-of evaluated conditions is fixed by the REFERENCE, never by whether the model succeeds.
+The delay is the paper's definition throughout: no minimum-rise requirement is imposed on
+it, so ``chemkan_delay_s`` is always the argmax for a finite trajectory. No binary
+ignited/not verdict is applied to a prediction anywhere. Instead every row carries neutral
+diagnostics for BOTH sides -- ``*_temperature_rise_K`` and ``*_peak_dTdt_K_per_s`` -- so a
+flat trajectory with a confident-looking delay cannot be mistaken for an ignition.
+
+The evaluated set is the paper's own: Fig. 8B reports the 30 conditions that ignite in the
+window, and the paper states the lowest-temperature cases do not. Those are the six
+T0 = 950 K cases, so the evaluated set is T0 in {1000, 1050, 1100, 1150, 1200} K across the
+six equivalence ratios. It is written out explicitly rather than derived from a threshold,
+and the stored reference confirms it (950 K rises by exactly 0.0 K, every other case by at
+least 1160 K). Conditions whose integration fails are recorded separately.
 
     python evaluate_hydrogen_ignition.py \
         --run-dir ../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0 \
@@ -55,11 +62,12 @@ def repo_relative(path) -> str:
         return "/".join(parts[parts.index("results"):])
     return str(path)
 
-RISE_THRESHOLD_K = 100.0        # REPRODUCTION CHOICE, matching the data generator's rule
+# The paper's Fig. 8B set: the 30 reference-igniting conditions. Stated explicitly, never
+# derived from a threshold.
+PAPER_FIG8B_T0_K = (1000.0, 1050.0, 1100.0, 1150.0, 1200.0)
 
-
-def ignition_delay(t: np.ndarray, T: np.ndarray, rise_threshold: float):
-    """Time of maximum dT/dt, or None when the trajectory never rises enough.
+def ignition_delay_index(t: np.ndarray, T: np.ndarray):
+    """argmax of dT/dt -- the paper's definition -- or None for a non-finite trajectory.
 
     ``np.gradient`` uses second-order central differences inside the window and
     second-order one-sided differences at both endpoints, so an argmax landing on the
@@ -69,9 +77,13 @@ def ignition_delay(t: np.ndarray, T: np.ndarray, rise_threshold: float):
     t = np.asarray(t, dtype=float)
     if not np.isfinite(T).all():
         return None
-    if float(T.max() - T[0]) < rise_threshold:
-        return None
     return int(np.argmax(np.gradient(T, t)))
+
+
+def temperature_rise(T: np.ndarray) -> float:
+    """max(T) - T[0] in kelvin."""
+    T = np.asarray(T, dtype=float)
+    return float(T.max() - T[0])
 
 
 def main():
@@ -84,8 +96,6 @@ def main():
                    help="dense diagnostic grid resolution over the 0-0.6 ms window")
     p.add_argument("--cache-points", type=int, default=20000,
                    help="dense reference temperature cache resolution")
-    p.add_argument("--rise-threshold", type=float, default=RISE_THRESHOLD_K,
-                   help="minimum temperature rise counted as ignition, K")
     p.add_argument("--held-out", default="1150:1.3")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     p.add_argument("--force", action="store_true")
@@ -139,33 +149,37 @@ def main():
     T_pred = pred[..., -1]                                          # (P, 36)
 
     T0_h, phi_h = (float(v) for v in args.held_out.split(":"))
-    rows, n_ref_ignite, n_model_ignite = [], 0, 0
+    rows = []
     for i in range(len(ics)):
-        k_ref = ignition_delay(t_dense, T_ref[:, i], args.rise_threshold)
-        if k_ref is None:
-            continue                       # reference does not ignite in window: out of scope
-        n_ref_ignite += 1
+        # Case selection: the paper's 30 igniting conditions, by initial temperature.
+        if not any(np.isclose(ics[i, 0], T0) for T0 in PAPER_FIG8B_T0_K):
+            continue                       # not part of the paper's Fig. 8B set
+        k_ref = ignition_delay_index(t_dense, T_ref[:, i])
         d_ref = float(t_dense[k_ref])
         finite = bool(np.isfinite(T_pred[:, i]).all())
-        k_pred = ignition_delay(t_dense, T_pred[:, i], args.rise_threshold) if finite else None
+        k_pred = ignition_delay_index(t_dense, T_pred[:, i]) if finite else None
+        rise_pred = temperature_rise(T_pred[:, i]) if finite else ""
+        rate_pred = (float(np.max(np.gradient(T_pred[:, i], t_dense))) if finite else "")
         if not finite:
             status, d_pred, abs_err, rel_err = "integration_failed", "", "", ""
-        elif k_pred is None:
-            status, d_pred, abs_err, rel_err = "no_ignition_in_window", "", "", ""
         else:
-            n_model_ignite += 1
-            status = "ignited"
+            # Paper definition for every evaluated trajectory; no threshold decides
+            # whether it counts. Read the delay together with the rise and peak rate.
             d_pred = float(t_dense[k_pred])
             abs_err = d_pred - d_ref
             rel_err = abs_err / d_ref
-            if k_pred in (0, len(t_dense) - 1):
-                status = "ignited_at_window_edge"     # argmax on a one-sided derivative
+            status = ("argmax_at_window_edge" if k_pred in (0, len(t_dense) - 1)
+                      else "evaluated")
         rows.append({
             "T0_K": float(ics[i, 0]), "phi": float(ics[i, 1]),
             "reference_delay_s": d_ref, "chemkan_delay_s": d_pred,
             "absolute_error_s": abs_err, "relative_error": rel_err,
             "is_held_out": bool(np.isclose(ics[i, 0], T0_h) and np.isclose(ics[i, 1], phi_h)),
             "reference_peak_T_K": float(T_ref[:, i].max()),
+            "reference_temperature_rise_K": temperature_rise(T_ref[:, i]),
+            "reference_peak_dTdt_K_per_s": float(np.max(np.gradient(T_ref[:, i], t_dense))),
+            "chemkan_temperature_rise_K": rise_pred,
+            "chemkan_peak_dTdt_K_per_s": rate_pred,
             "chemkan_peak_T_K": float(T_pred[:, i].max()) if finite else "",
             "status": status,
         })
@@ -194,17 +208,29 @@ def main():
                             "t_start_s": float(t_dense[0]), "t_end_s": float(t_dense[-1])},
         "reference_source": f"hydrogen_temperature_{args.cache_points}.npz, linearly "
                             f"interpolated onto the diagnostic grid",
-        "rise_threshold_K": args.rise_threshold,
+        "ignition_delay_definition": "argmax dT/dt (paper Sec. III B); no minimum rise",
         "conditions_total": int(len(ics)),
-        "reference_igniting": n_ref_ignite,
-        "model_igniting": n_model_ignite,
+        "evaluated_conditions": len(rows),
+        "case_selection": ("the paper's Fig. 8B set: T0 in "
+                           f"{list(PAPER_FIG8B_T0_K)} K, all equivalence ratios"),
+        "median_reference_temperature_rise_K": float(np.median(
+            [r["reference_temperature_rise_K"] for r in rows])),
+        "median_model_temperature_rise_K": float(np.median(
+            [r["chemkan_temperature_rise_K"] for r in rows
+             if r["chemkan_temperature_rise_K"] != ""])),
+        "median_abs_relative_delay_error": float(np.median(
+            [abs(r["relative_error"]) for r in rows if r["relative_error"] != ""])),
         "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol},
         "evaluated_at": utc_now(),
     }
     (out / f"hydrogen_ignition_delay_{label}.json").write_text(
         json.dumps(summary, indent=2, default=str))
-    logging.info("reference ignites in %d/%d conditions; model ignites in %d of those",
-                 n_ref_ignite, len(ics), n_model_ignite)
+    logging.info("%d evaluated conditions | median temperature rise: model %.1f K vs "
+                 "reference %.1f K | median |relative delay error| %.1f%%",
+                 summary["evaluated_conditions"],
+                 summary["median_model_temperature_rise_K"],
+                 summary["median_reference_temperature_rise_K"],
+                 100 * summary["median_abs_relative_delay_error"])
 
 
 if __name__ == "__main__":

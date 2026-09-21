@@ -46,13 +46,31 @@ from chemkan.normalization import MinMaxNormalizer                   # noqa: E40
 CONDITIONS = [(1050.0, 0.9, "training"), (1150.0, 1.3, "held-out")]
 
 
-def ignition_delay(t, T, rise_threshold: float = 100.0):
-    """Time of maximum dT/dt, or None if the trajectory never rises enough."""
+def ignition_delay(t, T):
+    """Ignition delay as the paper defines it: the time of maximum temperature-rise rate.
+
+    ChemKAN Sec. III B: "ignition here is defined as the point of maximum temperature
+    rise rate". No minimum-rise requirement is stated and none is applied, so a delay is
+    defined for every finite trajectory. Report it with the neutral diagnostics below --
+    ``temperature_rise`` and ``peak_temperature_rate`` -- which describe how much that
+    instant is worth without imposing a binary ignited/not verdict.
+    """
     T = np.asarray(T, dtype=float)
     t = np.asarray(t, dtype=float)
-    if float(T.max() - T[0]) < rise_threshold:
-        return None
     return float(t[int(np.argmax(np.gradient(T, t)))])
+
+
+def temperature_rise(T) -> float:
+    """Total temperature rise of a trajectory, max(T) - T[0], in kelvin."""
+    T = np.asarray(T, dtype=float)
+    return float(T.max() - T[0])
+
+
+def peak_temperature_rate(t, T) -> float:
+    """max dT/dt in K/s, at the instant ``ignition_delay`` reports."""
+    T = np.asarray(T, dtype=float)
+    t = np.asarray(t, dtype=float)
+    return float(np.max(np.gradient(T, t)))
 
 
 def apply_thermo_coefficients(model, coeffs):
@@ -81,11 +99,13 @@ def evaluate_case(model, input_norm, solver, full_norm, t, ref, device="cpu") ->
     dN = (full_norm.normalize(torch.as_tensor(pred, dtype=torch.float32))
           - full_norm.normalize(torch.as_tensor(ref, dtype=torch.float32))).numpy()
     per_state = (dN ** 2).sum(0)                                 # Eq. 18 per state
-    delay = ignition_delay(t, Tp)
     return {
         "initial_T": float(Tp[0]), "peak_T": float(Tp.max()), "final_T": float(Tp[-1]),
-        "T_rise": float(Tp.max() - Tp[0]),
-        "ignition_delay_s": delay, "ignites": delay is not None,
+        # Neutral diagnostics only -- no ignited/not verdict. The delay is argmax dT/dt for
+        # every trajectory; T_rise and peak_dTdt say how much that instant is worth.
+        "T_rise": temperature_rise(Tp),
+        "peak_dTdt": peak_temperature_rate(t, Tp),
+        "ignition_delay_s": ignition_delay(t, Tp),
         "trajectory_MSE": float(per_state.mean()), "temperature_MSE": float(per_state[-1]),
     }
 
@@ -132,7 +152,7 @@ def main():
                          condition=f"{T0:.0f}/{phi}", role=role, T_ref_K="", cp_mass="",
                          **base))
         print(f"[{role}] BASELINE: peak {base['peak_T']:.0f} K, rise {base['T_rise']:.0f} K, "
-              f"ignites={base['ignites']}, traj MSE {base['trajectory_MSE']:.3f}")
+              f"peak dT/dt {base['peak_dTdt']:.2e} K/s, traj MSE {base['trajectory_MSE']:.3f}")
 
         for name, info in coefficients_at_states(t, ref, species=species, mech=args.mech).items():
             model_i = apply_thermo_coefficients(baseline, info["coeffs"])
@@ -143,7 +163,7 @@ def main():
                              role=role, T_ref_K=round(info["T"], 1),
                              cp_mass=round(info["cp_mass"], 1), **r))
             print(f"[{role}] coeffs@{name:14s} (T={info['T']:6.0f} K): peak {r['peak_T']:6.0f} K, "
-                  f"rise {r['T_rise']:6.0f} K, ignites={str(r['ignites']):5s}, "
+                  f"rise {r['T_rise']:6.0f} K, peak dT/dt {r['peak_dTdt']:.2e} K/s, "
                   f"traj MSE {r['trajectory_MSE']:.3f}")
         print()
 

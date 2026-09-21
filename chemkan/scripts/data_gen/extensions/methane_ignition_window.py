@@ -35,6 +35,7 @@ import cantera as ct
 import numpy as np
 
 from common import ignition_delay
+
 from reactor import integrate_case, species_index
 
 MECH     = "gri30.yaml"
@@ -76,7 +77,7 @@ SWEEP_CH4 = {
 
 
 def run_sweep(sweep: dict, names: list[str], keep: np.ndarray) -> list[tuple]:
-    """Run one sweep and return a list of (T0, ignited) tuples."""
+    """Run one sweep and return (T0, temperature_rise_K, argmax_dTdt_s, peak_dTdt) rows."""
     t_end = sweep["t_end_ms"] * 1e-3           # ms -> s
     t     = np.linspace(0.0, t_end, N_POINTS)
 
@@ -84,8 +85,8 @@ def run_sweep(sweep: dict, names: list[str], keep: np.ndarray) -> list[tuple]:
     print(f"  {sweep['label']}")
     print(f"  phi = {PHI}, pressure = 1 atm, N_points = {N_POINTS}")
     print(f"{'=' * 70}")
-    print(f"  {'T0 (K)':>8}  {'T_final (K)':>12}  {'dT (K)':>10}  {'tau_ign (ms)':>14}  {'ignited?':>8}")
-    print(f"  {'-'*8}  {'-'*12}  {'-'*10}  {'-'*14}  {'-'*8}")
+    print(f"  {'T0 (K)':>8}  {'T_final (K)':>12}  {'dT (K)':>10}  {'tau_ign (ms)':>14}  {'peak dT/dt':>12}")
+    print(f"  {'-'*8}  {'-'*12}  {'-'*10}  {'-'*14}  {'-'*12}")
 
     results = []
     for T0 in sweep["T0s"]:
@@ -94,15 +95,14 @@ def run_sweep(sweep: dict, names: list[str], keep: np.ndarray) -> list[tuple]:
         T_traj  = states[:, -1]          # last column is temperature
         T_final = T_traj[-1]
         dT      = T_final - T0
-        # ignition_delay returns nan when the total temperature rise stays below
-        # 100 K -- meaning the mixture did not ignite within the time window.
+        # argmax dT/dt with no threshold, so it is always defined; the temperature rise
+        # dT printed beside it is what says whether that instant means anything.
         tau     = ignition_delay(t, T_traj)
-        ignited = np.isfinite(tau)
 
-        tau_str = f"{tau * 1e3:>12.3f}" if ignited else f"{'> window':>12}"
-        ign_str = "YES" if ignited else "NO"
-        print(f"  {T0:>8.0f}  {T_final:>12.1f}  {dT:>10.1f}  {tau_str}  {ign_str:>8}")
-        results.append((T0, ignited))
+        rate = float(np.max(np.gradient(T_traj, t)))
+        print(f"  {T0:>8.0f}  {T_final:>12.1f}  {dT:>10.1f}  {tau * 1e3:>14.3f}  "
+              f"{rate:>12.2e}")
+        results.append((T0, dT, tau, rate))
 
     print()
     return results
@@ -129,9 +129,11 @@ def main() -> None:
     print("Summary")
     print("-------")
     for sweep, results in all_results:
-        for T0, ignited in results:
-            status = "ignited" if ignited else "did not ignite"
-            print(f"  T0 = {T0:.0f} K, window = {sweep['t_end_ms']:.1f} ms  ->  {status}")
+        for T0, dT, tau, rate in results:
+            # Neutral report: rise, argmax dT/dt and peak rate. No ignited/not verdict.
+            print(f"  T0 = {T0:.0f} K, window = {sweep['t_end_ms']:.1f} ms  ->  "
+                  f"rise {dT:8.1f} K, argmax dT/dt {tau * 1e3:7.3f} ms, "
+                  f"peak {rate:.2e} K/s")
     print()
 
 

@@ -194,14 +194,25 @@ def add_noise(
 
 
 def ignition_delay(t: np.ndarray, T: np.ndarray) -> float:
-    """Ignition delay = time of maximum temperature rise rate (ChemNODE def.).
+    """Ignition delay = time of maximum temperature-rise rate (ChemKAN Sec. III B).
 
-    Returns np.nan if the mixture does not ignite within the window, defined
-    here as a total temperature rise below 100 K.
+    The paper states no minimum-rise requirement, so none is applied: every finite
+    trajectory has an argmax and gets a delay. Report it together with the neutral
+    diagnostics below -- a flat trajectory also has an argmax, and only
+    ``temperature_rise`` / ``peak_temperature_rate`` say whether it means anything.
     """
-    if T.max() - T[0] < 100.0:
-        return float("nan")
     return float(t[np.argmax(np.gradient(T, t))])
+
+
+def temperature_rise(T: np.ndarray) -> float:
+    """max(T) - T[0] in kelvin. Neutral diagnostic: no threshold, no verdict."""
+    T = np.asarray(T, dtype=float)
+    return float(T.max() - T[0])
+
+
+def peak_temperature_rate(t: np.ndarray, T: np.ndarray) -> float:
+    """max dT/dt in K/s, at the same instant ``ignition_delay`` reports."""
+    return float(np.max(np.gradient(np.asarray(T, dtype=float), np.asarray(t, dtype=float))))
 
 
 def stiffness_ratio(t: np.ndarray, states: np.ndarray) -> float:

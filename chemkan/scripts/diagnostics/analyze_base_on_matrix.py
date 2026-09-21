@@ -34,7 +34,8 @@ for _p in (str(_SCRIPTS.parent / "src"), str(_SCRIPTS), str(_HERE.parent)):
 from _data import DATA_DIR, load_hydrogen, load_input_scaling                # noqa: E402
 from evaluate_hydrogen import (build_chemkan, integrate_hydrogen,            # noqa: E402
                                solver_from_ckpt)
-from hydrogen_thermo_intervention import ignition_delay                       # noqa: E402
+from hydrogen_thermo_intervention import (ignition_delay,                     # noqa: E402
+                                           peak_temperature_rate, temperature_rise)
 from chemkan.losses import trajectory_mse                                     # noqa: E402
 from chemkan.normalization import MinMaxNormalizer                            # noqa: E402
 
@@ -127,14 +128,19 @@ def condition_metrics(model, inorm, solver, D: Data, T0, phi):
         Td = integrate_hydrogen(model, inorm, solver, u0,
                                 torch.as_tensor(D.t_dense, dtype=torch.float32))[:, 0, -1].numpy()
     rdn = D.reference_T_dense(T0, phi)
+    # Paper definition (argmax dT/dt) for both sides, with no ignition threshold; the
+    # temperature rise and peak rate below say how much each instant is worth.
     d_model, d_ref = ignition_delay(D.t_dense, Td), ignition_delay(D.t_dense, rdn)
-    err = np.nan if (d_model is None or not d_ref) else 100.0 * (d_model - d_ref) / d_ref
+    err = np.nan if not d_ref else 100.0 * (d_model - d_ref) / d_ref
     gate = (abs(Td.max() - rdn.max()) <= PEAK_TOL_K and np.isfinite(err)
             and abs(err) / 100.0 <= DELAY_TOL_REL)
     return dict(peak_T_K=float(Td.max()), ref_peak_T_K=float(rdn.max()),
                 peak_error_K=float(Td.max() - rdn.max()),
                 T_min_K=float(Td.min()), cools_below_T0=bool(Td.min() < T0 - 1.0),
-                delay_dense_ms=np.nan if d_model is None else d_model * 1e3,
+                delay_dense_ms=d_model * 1e3,
+                model_temperature_rise_K=temperature_rise(Td),
+                model_peak_dTdt_K_per_s=peak_temperature_rate(D.t_dense, Td),
+                ref_temperature_rise_K=temperature_rise(rdn),
                 ref_delay_dense_ms=d_ref * 1e3, delay_error_pct=err, gate=bool(gate),
                 T_dense=Td)
 
@@ -175,9 +181,9 @@ def probe(run_dir):
     p = Path(run_dir) / "stage2_probe.csv"
     if not p.exists():
         return None
-    df = pd.read_csv(p)
-    df["ignites"] = df["ignites"].astype(str).str.lower().eq("true")
-    return df
+    # Historical probe files carry an `ignites` column written by the retired 100 K rule;
+    # it is left as raw data and never interpreted. peak_T_K is the continuous quantity.
+    return pd.read_csv(p)
 
 
 def run_wall_hours(run_dir):
