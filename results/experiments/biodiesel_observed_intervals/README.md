@@ -72,10 +72,10 @@ Both scripts refuse to replace a completed run: `checkpoint_final.pt` means fini
 experiment script has no `--overwrite` flag at all.
 
 **Seed 0's original-training arm is reused, not re-run.** It is
-`results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0` — same data, same
+`results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0` — same data, same
 settings, and its initialization was confirmed to reproduce bit-exactly under the current
 checkout (epoch-0 loss `1276.571044921875`). Notebook 11 reads it through
-`results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0`, a re-run of the same
+`results/reproduction/legacy/biodiesel/chemkan/noise/clean_replay_seed0`, a re-run of the same
 configuration whose final weights are identical to the main run's and which also logged the
 test loss every epoch.
 

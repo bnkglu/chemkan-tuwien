@@ -129,7 +129,7 @@ python generate_hydrogen.py --temperature-only --n-points 20000 \
 cd chemkan/scripts
 python train_biodiesel.py \
     --epochs 10000 --seed 0 \
-    --run-dir ../../results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0
+    --run-dir ../../results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0
 ```
 
 - Produces in the run dir: `checkpoint_final.pt`, `config.json`, `run.log`, `history.csv`,
@@ -156,7 +156,7 @@ existing clean runs bitwise, with the same four history columns.
 ```bash
 cd chemkan/scripts
 python train_biodiesel.py --noise-percent 15 --epochs 10000 --eval-every 1 --seed 0 \
-    --run-dir ../../results/reproduction/chemkan/biodiesel/noise/noise15_seed0
+    --run-dir ../../results/reproduction/legacy/biodiesel/chemkan/noise/noise15_seed0
 ```
 
 The evaluation runs inside the loss function, i.e. at the parameter state **before** that
@@ -172,7 +172,7 @@ Figs. 3 and 5A and is not replaced:
 
 ```bash
 python train_biodiesel.py --epochs 10000 --eval-every 1 --seed 0 \
-    --run-dir ../../results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0
+    --run-dir ../../results/reproduction/legacy/biodiesel/chemkan/noise/clean_replay_seed0
 ```
 
 ### Step 5b — DeepONet baseline (Figs. 4, 5, 6)
@@ -180,9 +180,9 @@ python train_biodiesel.py --epochs 10000 --eval-every 1 --seed 0 \
 ```bash
 cd deeponet
 python train_biodiesel_deeponet.py --noise-percent 15 --epochs 10000 --eval-every 1 \
-    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise15_seed0
+    --run-dir ../results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu/noise/noise15_seed0
 python train_biodiesel_deeponet.py --width 6 --epochs 50000 \
-    --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w06_seed0
+    --run-dir ../results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu/scaling/w06_seed0
 ```
 
 - Same dataset, same train-only normalizer, same Eq. 18 reduction as the ChemKAN runs, and
@@ -225,7 +225,7 @@ cd chemkan/scripts
 python train_hydrogen.py \
     --stage1-temperature-source dense-cantera --stage1-temperature-points 20000 \
     --stage1-epochs 10000 --stage2-epochs 10000 --seed 0 \
-    --run-dir ../../results/reproduction/chemkan/hydrogen/main/direct_autograd_seed0
+    --run-dir ../../results/reproduction/legacy/hydrogen/chemkan/main/direct_autograd_seed0
 ```
 
 - Requires the 20k cache from Step 4. Produces `checkpoint_final.pt`, `config.json`,
@@ -244,15 +244,15 @@ runtime **without retraining**.
 ```bash
 cd chemkan/scripts
 # biodiesel: metrics.json + prediction artifacts (train and test)
-python evaluate_biodiesel.py --run-dir ../../results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0 \
+python evaluate_biodiesel.py --run-dir ../../results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0 \
     --split test  --metrics --save-predictions
-python evaluate_biodiesel.py --run-dir ../../results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0 \
+python evaluate_biodiesel.py --run-dir ../../results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0 \
     --split train --metrics --save-predictions
 
 # hydrogen
-python evaluate_hydrogen.py --run-dir ../../results/reproduction/chemkan/hydrogen/main/direct_autograd_seed0 \
+python evaluate_hydrogen.py --run-dir ../../results/reproduction/legacy/hydrogen/chemkan/main/direct_autograd_seed0 \
     --split test  --metrics --save-predictions
-python evaluate_hydrogen.py --run-dir ../../results/reproduction/chemkan/hydrogen/main/direct_autograd_seed0 \
+python evaluate_hydrogen.py --run-dir ../../results/reproduction/legacy/hydrogen/chemkan/main/direct_autograd_seed0 \
     --split train --metrics --save-predictions
 ```
 
@@ -302,15 +302,15 @@ cd chemkan/scripts
 
 # Fig. 8A -- 441 per-condition MSEs, plus flags and failures, never pre-averaged
 python evaluate_hydrogen_grid.py --run-dir <run> \
-    --out ../../results/reproduction/chemkan/hydrogen/generalization --save-predictions
+    --out ../../results/reproduction/legacy/hydrogen/chemkan/generalization --save-predictions
 
 # Fig. 8B -- ignition delay on a shared dense grid for reference AND model
 python evaluate_hydrogen_ignition.py --run-dir <run> \
-    --out ../../results/reproduction/tables
+    --out ../../results/reproduction/legacy/hydrogen/tables
 
 # Table I -- local PyTorch-vs-Cantera inference benchmark
 cd benchmark
-python benchmark_inference.py --run-dir <run> --out ../../../results/reproduction/tables
+python benchmark_inference.py --run-dir <run> --out ../../../results/reproduction/legacy/hydrogen/tables
 ```
 
 - **Grid evaluation** normalizes with the canonical `hydrogen.npz` TRAIN statistics — never
@@ -344,7 +344,7 @@ cd chemkan/scripts/diagnostics
 python assemble_fig4_scaling.py
 ```
 
-It writes to `results/reproduction/tables/`.
+It writes to `results/reproduction/legacy/biodiesel/tables/`.
 
 ## Shortcut — per-figure scripts
 
@@ -374,14 +374,14 @@ Each notebook: locates the run, loads `checkpoint_final.pt`, calls the repositor
 `evaluate_*` functions, loads a compatible prediction artifact **or** regenerates it from
 the checkpoint (never using another checkpoint's predictions), computes the paper metrics,
 displays results in paper order, and saves final figures to
-`results/reproduction/figures/{biodiesel,hydrogen}/` and tables to
-`results/reproduction/tables/`.
+`results/reproduction/legacy/{biodiesel,hydrogen}/figures/` and tables to
+`results/reproduction/legacy/{biodiesel,hydrogen}/tables/`.
 
 **Status: Figures 3-8 and Table I are all evaluated.** Notebook 07 produces Figs. 3, 4, 5A,
 5B and 6; Notebook 08 produces Figs. 7, 8A, 8B and Table I from the saved hydrogen
 checkpoints with no retraining. *Evaluation completed is not the same as paper result
 matched* — the per-result verdict lives in
-`results/reproduction/tables/reproduction_comparison.csv`.
+`results/reproduction/legacy/reproduction_comparison.csv`.
 
 ### Regenerating the two untracked evaluation inputs
 
@@ -408,7 +408,7 @@ from was trained under the **N=5 / base-OFF** reading. `train_hydrogen.py` refus
 
 ```bash
 python scripts/train_hydrogen.py \
-  --stage1-from ../results/reproduction/chemkan/hydrogen/diagnostics/stage1_seed0/checkpoint_stage1.pt \
+  --stage1-from ../results/reproduction/legacy/hydrogen/chemkan/diagnostics/stage1_seed0/checkpoint_stage1.pt \
   --num-basis 5 --no-use-base-act \
   ...
 ```
@@ -454,15 +454,15 @@ The primary hydrogen run (`main/base_off_direct_autograd_seed0`) trains to compl
   *"Thermodynamic linear-path diagnosis"* (after the temperature diagnosis).
 - **Scripts:** `chemkan/scripts/diagnostics/` — `_thermo_coeffs.py` (Cantera `-h_k/cp`)
   and `hydrogen_thermo_intervention.py` (coefficient intervention).
-- **Diagnostic runs:** `results/reproduction/chemkan/hydrogen/diagnostics/` — never in
+- **Diagnostic runs:** `results/reproduction/legacy/hydrogen/chemkan/diagnostics/` — never in
   `main/`, never overwriting the primary checkpoint.
 
 **Coefficient intervention** (reads the checkpoint, writes no checkpoint):
 
 ```bash
 python3 chemkan/scripts/diagnostics/hydrogen_thermo_intervention.py \
-    --run-dir results/reproduction/chemkan/hydrogen/main/base_off_direct_autograd_seed0
-# -> results/reproduction/tables/hydrogen_thermo_intervention.csv
+    --run-dir results/reproduction/legacy/hydrogen/chemkan/main/base_off_direct_autograd_seed0
+# -> results/reproduction/legacy/hydrogen/tables/hydrogen_thermo_intervention.csv
 ```
 
 **Controlled initialization hypothesis test** (same Stage-1 state, everything else
@@ -472,13 +472,13 @@ identical; `--thermo-init random` is the default and reproduces current behavior
 # A) random init (control)
 python3 chemkan/scripts/train_hydrogen.py --thermo-init random --seed 0 \
     --stage1-epochs 10000 --stage2-epochs 1000 \
-    --run-dir results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_random_seed0
+    --run-dir results/reproduction/legacy/hydrogen/chemkan/diagnostics/thermo_init_random_seed0
 
 # B) physics-seeded init (treatment)
 python3 chemkan/scripts/train_hydrogen.py --thermo-init cantera --seed 0 \
     --thermo-init-temperature 1050 --thermo-init-phi 0.9 \
     --stage1-epochs 10000 --stage2-epochs 1000 \
-    --run-dir results/reproduction/chemkan/hydrogen/diagnostics/thermo_init_cantera_seed0
+    --run-dir results/reproduction/legacy/hydrogen/chemkan/diagnostics/thermo_init_cantera_seed0
 ```
 
 Use `--stage2-epochs 100 / 500 / 1000` for a short pilot. `--thermo-init cantera` records

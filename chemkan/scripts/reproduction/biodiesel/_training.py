@@ -26,16 +26,17 @@ try:
 except ImportError as exc:
     raise SystemExit("Set CHEMKAN_PYTHON to the project Python environment with torch installed.") from exc
 
-from biodiesel_deeponet import REFERENCE_ARCHITECTURE_VERSION, architecture, build
+from biodiesel_deeponet import (LEGACY_ARCHITECTURE_VERSION, REFERENCE_ARCHITECTURE_VERSION,
+                                 architecture, build)
 from evaluate_biodiesel_deeponet import build_model
 from evaluate_biodiesel import build_kinetic_core
 from _data import load_biodiesel, available_noise_percents
 import train_biodiesel_deeponet as don_trainer
 import train_biodiesel as ck_trainer
 
-RESULTS = ROOT / "results/reproduction"
-CK = RESULTS / "chemkan/biodiesel"
-DON = RESULTS / "baselines/deeponet/biodiesel"
+RESULTS = ROOT / "results/reproduction/legacy"      # pre-author-clarification runs
+CK = RESULTS / "biodiesel/chemkan"
+DON = RESULTS / "biodiesel/deeponet"
 STAMP_KEYS = {"run_id", "created", "git_commit", "device"}
 
 
@@ -175,7 +176,7 @@ def make_jobs(args):
             specs += [("scaling", w, None, args.scaling_epochs) for w in (3, 5, 6, 8, 10, 13)]
         for group, width, noise, epochs in specs:
             name = f"noise{noise:02d}" if group == "noise" else f"w{width:02d}"
-            config = read_config(DON / group / f"{name}_seed0/config.json")
+            config = read_config(DON / LEGACY_ARCHITECTURE_VERSION / group / f"{name}_seed0/config.json")
             config["architecture"] = architecture(build(width, seed=args.seed))
             config.update(seed=args.seed, device=args.device, epochs=epochs)
             jobs.append(dict(model="DeepONet", group=group, width=width, noise=noise, config=config,

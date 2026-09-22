@@ -23,7 +23,8 @@ import fig08_hydrogen_ignition as fig08b
 from common import (
     FIGURES_BIODIESEL,
     FIGURES_HYDROGEN,
-    TABLES,
+    TABLES_BIODIESEL,
+    TABLES_HYDROGEN,
     loss_reduction,
     use_headless_backend,
 )
@@ -55,17 +56,17 @@ def _fig04():
 
 def _fig06():
     fig06.make_figure(output_path=FIGURES_BIODIESEL / "fig06_biodiesel_15pct_profiles",
-                      metrics_path=TABLES / "biodiesel_fig6_profile_metrics.json")
+                      metrics_path=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics.json")
     fig06.make_case0_figure(
         output_path=FIGURES_BIODIESEL / "fig06_biodiesel_15pct_profiles_case0",
-        metrics_path=TABLES / "biodiesel_fig6_profile_metrics_case0.json")
+        metrics_path=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics_case0.json")
 
 
 def _fig07():
     """Both Figure-7 views; the companion reuses the main view's evaluation."""
     _, results = fig07.make_figure(
         output_dir=FIGURES_HYDROGEN,
-        table_path=TABLES / "fig07_hydrogen_per_state_mse.csv",
+        table_path=TABLES_HYDROGEN / "fig07_hydrogen_per_state_mse.csv",
         time_averaged=TIME_AVERAGED)
     if not TIME_AVERAGED:      # the companion shows mass fractions, not loss
         fig07.make_true_scale_figure(output_dir=FIGURES_HYDROGEN, precomputed=results)

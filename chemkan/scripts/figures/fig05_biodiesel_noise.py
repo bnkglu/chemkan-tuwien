@@ -30,7 +30,7 @@ from common import (
     DEEPONET_VERSION,
     FIGURES_BIODIESEL,
     ROOT,
-    TABLES,
+    TABLES_BIODIESEL,
     load_checkpoint,
     loss_reduction,
     relative_to_root,
@@ -133,7 +133,7 @@ def plot_figure(rows, levels, divisor=1.0, note=""):
 def make_figure(metrics_path=None, output_path=None, *,
                 deeponet_version=DEEPONET_VERSION, time_averaged=False, show=False):
     """Paper Figure 5A. Returns ``(fig, results)`` with the plotted series per model."""
-    metrics_path = metrics_path or TABLES / "biodiesel_fig5a_metrics.csv"
+    metrics_path = metrics_path or TABLES_BIODIESEL / "biodiesel_fig5a_metrics.csv"
     rows, levels = load_metrics(metrics_path)
     validate_metrics(rows, deeponet_version)
     n_times = observation_times("biodiesel.npz")
@@ -199,7 +199,7 @@ def load_interval_clean_final_rows():
 
     for row in sorted(paired, key=lambda row: int(row["seed"])):
         seed = int(row["seed"])
-        original = (ROOT / "results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0"
+        original = (ROOT / "results/reproduction/legacy/biodiesel/chemkan/noise/clean_replay_seed0"
                     if seed == 0 else INTERVAL_EXPERIMENT / f"baseline_original_seed{seed}")
         for method, prefix, run_dir in (
                 ("original", "orig", original),
@@ -216,7 +216,7 @@ def load_interval_clean_final_rows():
                         raise ValueError(f"Final comparison differs from {run_dir}: {key}")
             add_rows(method, seed, values, comparison_path, metadata)
 
-    canonical_path = TABLES / "biodiesel_fig5a_metrics.csv"
+    canonical_path = TABLES_BIODIESEL / "biodiesel_fig5a_metrics.csv"
     canonical, _ = load_metrics(canonical_path)
     validate_metrics(canonical, DEEPONET_VERSION)
     reference = [row for row in canonical if row["model"] == "DeepONet"

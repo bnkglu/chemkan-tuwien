@@ -52,8 +52,8 @@ from chemkan.temperature import ObservedTemperature                 # noqa: E402
 SCRIPTS = Path(__file__).resolve().parents[1]
 FSA = P.RESULTS / "experiments/fsa"
 TABLES, FIGURES = FSA / "tables", FSA / "figures"
-BASE_TABLES = P.RESULTS / "reproduction/tables"
-BASE_GRID = P.RESULTS / "reproduction/chemkan/hydrogen/generalization"
+BASE_TABLES = P.RESULTS / "reproduction/legacy/hydrogen/tables"
+BASE_GRID = P.RESULTS / "reproduction/legacy/hydrogen/chemkan/generalization"
 PAIRS = {"B0": (P.B0_DIR, FSA_DIRS["B0-FSA"]),
          "H_STAGE1": (P.H_STAGE1_DIR, FSA_DIRS["H_STAGE1-FSA"]),
          "H0": (P.H0_DIR, FSA_DIRS["H0-FSA"]),

@@ -27,7 +27,7 @@ from common import (
     DEEPONET_BIODIESEL,
     FIGURES_BIODIESEL,
     ROOT,
-    TABLES,
+    TABLES_BIODIESEL,
     add_repo_paths,
     loss_reduction,
     relative_to_root,
@@ -259,9 +259,9 @@ def make_figure(n_mu="scaled", deeponet_version="reference", output_path=None,
     fits = fit_scaling(points)
 
     if points_path is None:
-        points_path = TABLES / f"biodiesel_fig4_points{suffix}.csv"
+        points_path = TABLES_BIODIESEL / f"biodiesel_fig4_points{suffix}.csv"
     if fits_path is None:
-        fits_path = TABLES / f"biodiesel_fig4_fits{suffix}.csv"
+        fits_path = TABLES_BIODIESEL / f"biodiesel_fig4_fits{suffix}.csv"
     for path, rows in ((points_path, points), (fits_path, fits)):
         with open(path, "w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=list(rows[0]))

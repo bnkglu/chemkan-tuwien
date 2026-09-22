@@ -72,7 +72,7 @@ done
 
 `--eval-every 1` is what produces the per-epoch noise-free test column Figure 5b needs.
 The default-init curves are the existing committed runs and were **not** retrained:
-`results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0` for the 0 % panel (the
+`results/reproduction/legacy/biodiesel/chemkan/noise/clean_replay_seed0` for the 0 % panel (the
 committed figure's own source, bitwise identical to the main run) and
 `.../noise/noise{02,07,15}_seed0` for the rest.
 

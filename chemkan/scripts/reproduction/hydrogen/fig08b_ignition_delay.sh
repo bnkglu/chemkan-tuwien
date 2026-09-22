@@ -20,12 +20,12 @@ require_hydrogen_checkpoints
 _ign() {
   run "ignition-delay evaluation for $1" -- \
     bash -c "cd '$REPO/chemkan/scripts' && '$PY' evaluate_hydrogen_ignition.py \
-      --run-dir '$2' --out '$TABLES' --force"
+      --run-dir '$2' --out '$TABLES_HYDROGEN' --force"
 }
 for_each_hydrogen_set _ign
 
 figure_script fig08_hydrogen_ignition.py
 say "Output"
-info "${FIGURES#"$REPO"/}/hydrogen/fig08b_hydrogen_ignition_delay.pdf"
-info "${TABLES#"$REPO"/}/hydrogen_ignition_delay_*.csv  (delay + rise + peak dT/dt)"
+info "${FIGURES_HYDROGEN#"$REPO"/}/fig08b_hydrogen_ignition_delay.pdf"
+info "${TABLES_HYDROGEN#"$REPO"/}/hydrogen_ignition_delay_*.csv  (delay + rise + peak dT/dt)"
 verdict "Fig. 8B"

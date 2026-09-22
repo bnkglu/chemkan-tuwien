@@ -11,11 +11,11 @@ Artifacts follow the ChemKAN run-directory layout (``chemkan/scripts/_run.py``):
 
     # Fig. 5 noise sweep (10,000 epochs, per-epoch clean-test history)
     python train_biodiesel_deeponet.py --noise-percent 15 --epochs 10000 --eval-every 1 \
-        --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/noise/noise15_seed0
+        --run-dir ../results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu/noise/noise15_seed0
 
     # Fig. 4 width sweep (50,000 epochs, no per-epoch test history needed)
     python train_biodiesel_deeponet.py --width 6 --epochs 50000 \
-        --run-dir ../results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w6_seed0
+        --run-dir ../results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu/scaling/w6_seed0
 """
 
 from __future__ import annotations

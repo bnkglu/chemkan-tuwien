@@ -16,7 +16,7 @@ import csv
 
 import matplotlib.pyplot as plt
 import numpy as np
-from common import FIGURES_HYDROGEN, TABLES, require_file, save_figure, use_headless_backend
+from common import FIGURES_HYDROGEN, TABLES_HYDROGEN, require_file, save_figure, use_headless_backend
 
 DEFAULT_STEMS = {
     "H0 (primary, random init)": "random_stage2_10000_seed0",
@@ -93,7 +93,7 @@ def plot_figure(tables):
 
 def make_figure(table_paths=None, output_path=None, *, show=False):
     """Paper Figure 8B. Returns ``(fig, results)`` with a summary per initialization."""
-    paths = {label: TABLES / f"hydrogen_ignition_delay_{stem}.csv"
+    paths = {label: TABLES_HYDROGEN / f"hydrogen_ignition_delay_{stem}.csv"
              for label, stem in DEFAULT_STEMS.items()}
     paths.update(table_paths or {})
     tables = {label: load_delays(path) for label, path in paths.items()}

@@ -7,10 +7,10 @@ construction the baselines started from), so validation runs on the actual probl
 scientific runs train, never on a stand-in model.
 
 Baselines (repository-relative):
-    B0        results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0
-    H_STAGE1  results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0
-    H0        results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0
-    Hnorm1    results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000
+    B0        results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0
+    H_STAGE1  results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/stage1_seed0
+    H0        results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/random_stage2_10000_seed0
+    Hnorm1    results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/normmatched_dir1_stage2_10000
 """
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ from chemkan.temperature import ConstantTemperature, ObservedTemperature
 
 ROOT = Path(__file__).resolve().parents[3]
 RESULTS = ROOT / "results"
-B0_DIR = RESULTS / "reproduction/chemkan/biodiesel/main/direct_autograd_seed0"
-BASE_ON = RESULTS / "reproduction/chemkan/hydrogen/diagnostics/base_on_n4"
+B0_DIR = RESULTS / "reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0"
+BASE_ON = RESULTS / "reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4"
 H_STAGE1_DIR = BASE_ON / "stage1_seed0"
 H0_DIR = BASE_ON / "random_stage2_10000_seed0"
 HNORM1_DIR = BASE_ON / "normmatched_dir1_stage2_10000"

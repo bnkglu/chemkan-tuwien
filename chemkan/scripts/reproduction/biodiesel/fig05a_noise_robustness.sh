@@ -21,6 +21,6 @@ run "refresh the biodiesel report tables" -- \
   "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
 figure_script fig05_biodiesel_noise.py
 say "Output"
-info "${FIGURES#"$REPO"/}/biodiesel/fig05a_biodiesel_noise_robustness.pdf"
-info "${TABLES#"$REPO"/}/biodiesel_fig5a_metrics.csv"
+info "${FIGURES_BIODIESEL#"$REPO"/}/fig05a_biodiesel_noise_robustness.pdf"
+info "${TABLES_BIODIESEL#"$REPO"/}/biodiesel_fig5a_metrics.csv"
 verdict "Fig. 5A"

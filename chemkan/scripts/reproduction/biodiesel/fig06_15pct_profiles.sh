@@ -19,5 +19,5 @@ reference_deeponet_run noise noise15_seed0
 
 figure_script fig06_biodiesel_profiles.py
 say "Output"
-info "${FIGURES#"$REPO"/}/biodiesel/fig06_biodiesel_15pct_profiles.pdf"
+info "${FIGURES_BIODIESEL#"$REPO"/}/fig06_biodiesel_15pct_profiles.pdf"
 verdict "Fig. 6"

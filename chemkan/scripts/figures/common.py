@@ -14,12 +14,13 @@ ROOT = Path(__file__).resolve().parents[3]
 
 # Reproduction artifacts. Figure scripts default to these and accept overrides, so a
 # notebook can point any figure at a different run directory.
-FIGURES_BIODIESEL = ROOT / "results/reproduction/figures/biodiesel"
-FIGURES_HYDROGEN = ROOT / "results/reproduction/figures/hydrogen"
-TABLES = ROOT / "results/reproduction/tables"
-CHEMKAN_BIODIESEL = ROOT / "results/reproduction/chemkan/biodiesel"
-CHEMKAN_HYDROGEN = ROOT / "results/reproduction/chemkan/hydrogen"
-DEEPONET_BIODIESEL = ROOT / "results/reproduction/baselines/deeponet/biodiesel"
+FIGURES_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/figures"
+FIGURES_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/figures"
+TABLES_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/tables"
+TABLES_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/tables"
+CHEMKAN_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/chemkan"
+CHEMKAN_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/chemkan"
+DEEPONET_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/deeponet"
 DATA = ROOT / "chemkan/data/generated"
 
 # The DeepONet architecture the corrected reproduction uses (see notebook 07).

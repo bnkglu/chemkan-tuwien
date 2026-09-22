@@ -4,7 +4,7 @@ Status: **corrected biodiesel runs complete and Notebook 07 refreshed.** All 26
 original runs remain preserved. The 14 `reference_final_trunk_relu` DeepONet runs
 and three new fixed-`n_mu=2` ChemKAN runs completed; two ChemKAN checkpoints are reused.
 The 19 points passed config, checkpoint/data hash, epoch-budget and history checks.
-See `results/reproduction/tables/biodiesel_completed_run_audit.csv` for sources and timing.
+See `results/reproduction/legacy/biodiesel/tables/biodiesel_completed_run_audit.csv` for sources and timing.
 
 | group | runs | state |
 |---|---|---|
@@ -20,7 +20,7 @@ The 5 % ChemKAN run was interrupted once by an external process kill and **resum
 its epoch-7,500 snapshot; its history is contiguous over all 10,000 epochs and its
 configuration was preserved by the resume guard.
 
-**Verdicts are in `results/reproduction/tables/reproduction_comparison.csv`**, which
+**Verdicts are in `results/reproduction/legacy/reproduction_comparison.csv`**, which
 separates "evaluation completed" from "paper result matched" for all 20 compared results.
 
 ## B. Prerequisite data actions — approval required
@@ -48,7 +48,7 @@ The eight corrected DeepONet runs are also complete and supply the current plots
 
 | Noise | Serves | Run directory | Architecture | Prereq |
 |---|---|---|---|---|
-| 1 % | 5A | `results/reproduction/chemkan/biodiesel/noise/noise01_seed0` | h=4, N=3, n_mu=2, base OFF, 156 | — |
+| 1 % | 5A | `results/reproduction/legacy/biodiesel/chemkan/noise/noise01_seed0` | h=4, N=3, n_mu=2, base OFF, 156 | — |
 | 2 % | 5A, 5B | `.../noise/noise02_seed0` | ″ | — |
 | 3 % | 5A | `.../noise/noise03_seed0` | ″ | **B1** (one of only two B1-dependent runs) |
 | 5 % | 3, 5A | `.../noise/noise05_seed0` | ″ | — |
@@ -59,7 +59,7 @@ The eight corrected DeepONet runs are also complete and supply the current plots
 ```bash
 cd chemkan/scripts
 python train_biodiesel.py --noise-percent 15 --epochs 10000 --eval-every 1 --seed 0 \
-    --run-dir ../../results/reproduction/chemkan/biodiesel/noise/noise15_seed0
+    --run-dir ../../results/reproduction/legacy/biodiesel/chemkan/noise/noise15_seed0
 ```
 
 Measured cost: 15.5 s per 200 epochs with per-epoch evaluation → **≈ 13 min per run**,
@@ -69,13 +69,13 @@ Measured cost: 15.5 s per 200 epochs with per-epoch evaluation → **≈ 13 min 
 
 | Serves | Run directory | Notes |
 |---|---|---|
-| **Fig. 5B, 0 % panel only** | `results/reproduction/chemkan/biodiesel/noise/clean_replay_seed0` | 0 % noise, 10,000 epochs, `--eval-every 1`. `B0`'s `history.csv` has training loss only and a final checkpoint cannot reconstruct earlier test losses. **Both** curves of the 0 % panel come from this run, so they share one parameter trajectory; no history is spliced. `B0` remains the established 0 % result for Figs. 3 and 5A. The replay's final metrics are reported beside `B0`'s as a reproducibility comparison only. |
+| **Fig. 5B, 0 % panel only** | `results/reproduction/legacy/biodiesel/chemkan/noise/clean_replay_seed0` | 0 % noise, 10,000 epochs, `--eval-every 1`. `B0`'s `history.csv` has training loss only and a final checkpoint cannot reconstruct earlier test losses. **Both** curves of the 0 % panel come from this run, so they share one parameter trajectory; no history is spliced. `B0` remains the established 0 % result for Figs. 3 and 5A. The replay's final metrics are reported beside `B0`'s as a reproducibility comparison only. |
 
 ### C3 — DeepONet, 8 legacy and 8 corrected noise runs complete
 
 | Noise | Run directory |
 |---|---|
-| 0, 1, 2, 3, 5, 7, 10, 15 % | `results/reproduction/baselines/deeponet/biodiesel/noise/noise{00,01,02,03,05,07,10,15}_seed0` |
+| 0, 1, 2, 3, 5, 7, 10, 15 % | `results/reproduction/legacy/biodiesel/deeponet/legacy_final_trunk_linear/noise/noise{00,01,02,03,05,07,10,15}_seed0` |
 
 Architecture: branch `[7,8,8,8]`, trunk `[1,7,8]`, Hadamard, head `Linear(8,6)` →
 **340 measured** parameters against the paper's **308** (documented, unexplained; no
@@ -119,9 +119,9 @@ markers are omitted from our current Figure-4 plot; its table retains the paper 
 | E2 | Fig. 3 | ChemKAN 0/5/10/15 % checkpoints | integrate `biodiesel_fig3_condition.npz` from its initial state | per-column predictions + vector PDF |
 | E3 | Fig. 5A/5B/6 | all C1–C3 checkpoints | `evaluate_biodiesel*.py … --noise-percent <n> --metrics --save-predictions` | three final metrics per model/noise from the **final checkpoint**, never from a history row |
 | E4 | Fig. 7 | `H0`, then `Hnorm1` | `evaluate_hydrogen.py --run-dir <run> --split {train,test} --metrics --save-predictions` | trajectories at φ=0.9/T0=1050 and φ=1.3/T0=1150 |
-| E5 | Fig. 8A | `H0`, then `Hnorm1` | `evaluate_hydrogen_grid.py --run-dir <run> --out results/reproduction/chemkan/hydrogen/generalization --save-predictions` | 441 per-condition MSEs + flags + failures (CSV/JSON/npz) |
-| E6 | Fig. 8B | `H0`, then `Hnorm1` | `evaluate_hydrogen_ignition.py --run-dir <run> --out results/reproduction/tables` | 30-condition ignition table on a shared 601-point grid |
-| E7 | Table I | `H0` | `benchmark/benchmark_inference.py --run-dir <run> --out results/reproduction/tables` | local PyTorch-vs-Cantera timing with accuracy attached |
+| E5 | Fig. 8A | `H0`, then `Hnorm1` | `evaluate_hydrogen_grid.py --run-dir <run> --out results/reproduction/legacy/hydrogen/chemkan/generalization --save-predictions` | 441 per-condition MSEs + flags + failures (CSV/JSON/npz) |
+| E6 | Fig. 8B | `H0`, then `Hnorm1` | `evaluate_hydrogen_ignition.py --run-dir <run> --out results/reproduction/legacy/hydrogen/tables` | 30-condition ignition table on a shared 601-point grid |
+| E7 | Table I | `H0` | `benchmark/benchmark_inference.py --run-dir <run> --out results/reproduction/legacy/hydrogen/tables` | local PyTorch-vs-Cantera timing with accuracy attached |
 
 E5–E7 were exercised end-to-end against `H0` today, writing only to a scratch directory:
 

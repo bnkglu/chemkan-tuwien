@@ -29,8 +29,8 @@ and the stored reference confirms it (950 K rises by exactly 0.0 K, every other 
 least 1160 K). Conditions whose integration fails are recorded separately.
 
     python evaluate_hydrogen_ignition.py \
-        --run-dir ../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0 \
-        --out ../../results/reproduction/tables
+        --run-dir ../../results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/random_stage2_10000_seed0 \
+        --out ../../results/reproduction/legacy/hydrogen/tables
 """
 
 from __future__ import annotations

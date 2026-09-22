@@ -244,7 +244,7 @@ def test_diagnostic_never_writes_into_the_run_dir():
                     reason="hydrogen.npz absent")
 def test_intervention_cli_runs_and_writes_only_its_table(tmp_path):
     _cantera_or_skip()
-    run_dir = _ROOT.parent / ("results/reproduction/chemkan/hydrogen/main/"
+    run_dir = _ROOT.parent / ("results/reproduction/legacy/hydrogen/chemkan/main/"
                               "base_off_direct_autograd_seed0")
     if not (run_dir / "checkpoint_final.pt").exists():
         pytest.skip("primary hydrogen checkpoint not available")
@@ -420,7 +420,7 @@ def test_scaled_random_does_not_copy_cantera_values(tmp_path):
 
 _H2 = (_ROOT / "data/generated/hydrogen.npz")
 _CACHE = (_ROOT / "data/generated/hydrogen_temperature_20000.npz")
-_STAGE1 = (_ROOT.parent / "results/reproduction/chemkan/hydrogen/diagnostics/"
+_STAGE1 = (_ROOT.parent / "results/reproduction/legacy/hydrogen/chemkan/diagnostics/"
            "stage1_seed0/checkpoint_stage1.pt")
 _needs_data = pytest.mark.skipif(not (_H2.exists() and _CACHE.exists() and _STAGE1.exists()),
                                  reason="hydrogen data / stage-1 checkpoint absent")
@@ -539,7 +539,7 @@ def test_provenance_records_every_required_field(tmp_path):
 # Cantera reference-state semantics (corrected): exact IC resolution
 # --------------------------------------------------------------------------
 
-_HIST_CANTERA = (_ROOT.parent / "results/reproduction/chemkan/hydrogen/diagnostics/"
+_HIST_CANTERA = (_ROOT.parent / "results/reproduction/legacy/hydrogen/chemkan/diagnostics/"
                  "thermo_init_cantera_stage2_10000_seed0/config.json")
 
 
@@ -607,9 +607,9 @@ def test_norm_match_at_1050_phi05_hits_the_historical_norm(tmp_path):
 # Thermo-initialization trajectory comparison (DIAGNOSTIC plotting artifact)
 # --------------------------------------------------------------------------------------
 
-_TRAJ_CSV = (_ROOT.parent / "results/reproduction/chemkan/hydrogen/tables"
+_TRAJ_CSV = (_ROOT.parent / "results/reproduction/legacy/hydrogen/chemkan/tables"
              / "hydrogen_thermo_initialization_trajectory_comparison.csv")
-_TRAJ_FIGS = _ROOT.parent / "results/reproduction/chemkan/hydrogen/figures"
+_TRAJ_FIGS = _ROOT.parent / "results/reproduction/legacy/hydrogen/chemkan/figures"
 
 
 def test_trajectory_comparison_module_declares_the_expected_runs_and_conditions():

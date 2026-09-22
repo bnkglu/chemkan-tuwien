@@ -29,7 +29,7 @@ cause is asserted where the artifacts do not establish one.
 now been *evaluated* end to end from committed artifacts. Most of the paper's reported
 *numbers* are still **not** reproduced. The row-by-row verdict, with an artifact path for
 every claim, is
-[`results/reproduction/tables/reproduction_comparison.csv`](results/reproduction/tables/reproduction_comparison.csv):
+[`results/reproduction/legacy/reproduction_comparison.csv`](results/reproduction/legacy/reproduction_comparison.csv):
 across its 20 compared results: **1 matched** (Table I's network / parameter / species
 counts), **1 partially matched**, 1 partially matched for the labelled hydrogen
 initialization comparison only, 2 qualitatively similar but not quantitatively matched,

@@ -56,9 +56,9 @@ from evaluate_hydrogen import (build_chemkan, integrate_hydrogen,     # noqa: E4
 from hydrogen_thermo_intervention import (ignition_delay,             # noqa: E402
                                            temperature_rise)
 
-DIAG = _REPO / "results/reproduction/chemkan/hydrogen/diagnostics"
-FIG_DIR = _REPO / "results/reproduction/chemkan/hydrogen/figures"
-TAB_DIR = _REPO / "results/reproduction/chemkan/hydrogen/tables"
+DIAG = _REPO / "results/reproduction/legacy/hydrogen/chemkan/diagnostics"
+FIG_DIR = _REPO / "results/reproduction/legacy/hydrogen/chemkan/figures"
+TAB_DIR = _REPO / "results/reproduction/legacy/hydrogen/chemkan/tables"
 
 CONDITIONS = [(1050.0, 0.9, "training"), (1150.0, 1.3, "held-out")]
 

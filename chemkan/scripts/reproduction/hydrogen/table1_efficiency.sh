@@ -20,7 +20,7 @@ warn "timing is only meaningful on an idle machine; close other heavy work first
 _bench() {
   run "inference benchmark for $1 (2 warm-up + 5 repetitions)" -- \
     bash -c "cd '$REPO/chemkan/scripts/benchmark' && '$PY' benchmark_inference.py \
-      --run-dir '$2' --out '$TABLES' --warmup 2 --reps 5 --cantera-tolerance-sweep --force"
+      --run-dir '$2' --out '$TABLES_HYDROGEN' --warmup 2 --reps 5 --cantera-tolerance-sweep --force"
 }
 for_each_hydrogen_set _bench
 
@@ -28,6 +28,6 @@ for_each_hydrogen_set _bench
 # executes the notebook. Every hydrogen FIGURE is drawn by its own script.
 render_notebook 08_hydrogen_reproduction.ipynb
 say "Output"
-info "${TABLES#"$REPO"/}/hydrogen_efficiency.csv"
-info "${TABLES#"$REPO"/}/hydrogen_inference_benchmark_*.json"
+info "${TABLES_HYDROGEN#"$REPO"/}/hydrogen_efficiency.csv"
+info "${TABLES_HYDROGEN#"$REPO"/}/hydrogen_inference_benchmark_*.json"
 verdict "Table I"

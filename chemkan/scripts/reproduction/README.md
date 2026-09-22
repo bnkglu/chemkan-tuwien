@@ -49,13 +49,13 @@ Both commands support `--seed`, `--device`, `--output-root`, and `--help`.
 - **DeepONet:** eight noise runs (0/1/2/3/5/7/10/15%, 10,000 epochs) and six scaling
   widths (3/5/6/8/10/13, 50,000 epochs). Only `reference_final_trunk_relu` is trained.
   Adam, lr=1e-3, seed 0, data, scaling and Eq. 18 loss are preserved. Output root:
-  `results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/`.
+  `results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu/`.
   Use `--only noise` or `--only scaling` to select a subset; `--noise-epochs` and
   `--scaling-epochs` change the budgets for a separately labelled experiment.
 - **Fixed n_mu=2:** widths 2/3/4/10/17, 5,000 epochs, matching the Figure-4 ChemKAN
   budget. At the default seed/device, h=3 reuses the completed 5,000-epoch run and h=4
   reuses the clean replay's epoch-5,000 snapshot. Only h=2/10/17 need new training.
-  New runs go to `results/reproduction/chemkan/biodiesel/scaling_nmu2/`.
+  New runs go to `results/reproduction/legacy/biodiesel/chemkan/scaling_nmu2/`.
   `--epochs 10000 --output-root <another-directory>` creates a separate longer-budget
   experiment; it does not reuse the 5,000-step checkpoints.
 
@@ -77,7 +77,7 @@ training only; they do not render notebooks or run hydrogen.
 ## Existing figure wrappers
 
 One wrapper per paper result, ending with the corresponding row in
-`results/reproduction/tables/reproduction_comparison.csv`. Biodiesel DeepONet results
+`results/reproduction/legacy/reproduction_comparison.csv`. Biodiesel DeepONet results
 rendered by these wrappers use **reference_final_trunk_relu**. Missing corrected
 checkpoints produce an instruction to run `deeponet_reference.sh`.
 
@@ -162,7 +162,7 @@ and rebuild the biodiesel tables and both Figure-4 plots without training:
 
 Execute Notebook 07 to refresh its inline outputs and Figures 5A/5B/6 too. Training
 times are stored in each run's history and summarized in
-`results/reproduction/tables/biodiesel_completed_run_audit.csv`; rendering time is separate.
+`results/reproduction/legacy/biodiesel/tables/biodiesel_completed_run_audit.csv`; rendering time is separate.
 
 Run `table1_efficiency.sh` on an otherwise idle machine — it is a wall-clock measurement,
 and a loaded CPU makes it meaningless.

@@ -25,7 +25,7 @@ from common import (
     DEEPONET_BIODIESEL,
     DEEPONET_VERSION,
     FIGURES_BIODIESEL,
-    TABLES,
+    TABLES_BIODIESEL,
     add_repo_paths,
     load_checkpoint,
     require_file,
@@ -185,11 +185,11 @@ def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output", default=FIGURES_BIODIESEL / "fig06_biodiesel_15pct_profiles")
-    p.add_argument("--metrics", default=TABLES / "biodiesel_fig6_profile_metrics.json")
+    p.add_argument("--metrics", default=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics.json")
     p.add_argument("--case0-output",
                    default=FIGURES_BIODIESEL / "fig06_biodiesel_15pct_profiles_case0")
     p.add_argument("--case0-metrics",
-                   default=TABLES / "biodiesel_fig6_profile_metrics_case0.json")
+                   default=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics_case0.json")
     p.add_argument("--skip-case0", action="store_true")
     args = p.parse_args()
 

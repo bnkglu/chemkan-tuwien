@@ -3,7 +3,7 @@ r"""Base-activation architecture sensitivity: N=5/base-OFF vs N=4/base-ON (DIAGN
 Recomputes every metric from checkpoints / probe CSVs / history CSVs using the repository
 evaluation functions. Nothing is trained; nothing is modified. Importable from Notebook 09
 (``compute_matrix``, ``figure_*``) and runnable as a CLI that writes the CSV/figure
-artifacts under ``results/reproduction/chemkan/hydrogen/{tables,figures}``.
+artifacts under ``results/reproduction/legacy/hydrogen/chemkan/{tables,figures}``.
 
 Terminology (kept strict throughout):
     base activation ON  -- PAPER-EXPLICIT structural feature of Eq. 11
@@ -39,7 +39,7 @@ from hydrogen_thermo_intervention import (ignition_delay,                     # 
 from chemkan.losses import trajectory_mse                                     # noqa: E402
 from chemkan.normalization import MinMaxNormalizer                            # noqa: E402
 
-H2 = _REPO / "results/reproduction/chemkan/hydrogen"
+H2 = _REPO / "results/reproduction/legacy/hydrogen/chemkan"
 DIAG = H2 / "diagnostics"
 BASE_ON = DIAG / "base_on_n4"
 FIGURES, TABLES = H2 / "figures", H2 / "tables"

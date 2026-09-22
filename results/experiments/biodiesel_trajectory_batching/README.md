@@ -11,7 +11,7 @@ training trajectories. Analysis: [`chemkan/notebooks/13_biodiesel_trajectory_bat
 | `full_rollout_bs5_normal_clean_seed0/` | 5 | 4 | 10,000 | 40,000 |
 | `timing_probe_bs1_100ep/` | 1 | 20 | 100 | 2,000 |
 
-The full-batch (B = 20) reference is `results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0`.
+The full-batch (B = 20) reference is `results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0`.
 `timing_probe_bs1_100ep/` is a short run used only for the runtime projection in
 `timing_probe_bs1.json`.
 

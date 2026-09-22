@@ -7,12 +7,17 @@ datasets live under `chemkan/data/generated/` and are **not** duplicated here.
 
 ```
 results/reproduction/
-├── chemkan/
-│   ├── biodiesel/{main,noise,scaling,scaling_nmu2,sensitivity}/<run>/
-│   └── hydrogen/{main,diagnostics,generalization}/<run>/   (+ figures/, tables/, EXPERIMENTS.md)
-├── baselines/deeponet/<run>/
-├── figures/{biodiesel,hydrogen}/
-└── tables/
+└── legacy/
+    ├── reproduction_comparison.csv
+    ├── biodiesel/
+    │   ├── chemkan/{main,noise,scaling,scaling_nmu2,sensitivity}/<run>/
+    │   ├── deeponet/{reference_final_trunk_relu,legacy_final_trunk_linear}/{noise,scaling}/<run>/
+    │   ├── figures/
+    │   └── tables/
+    └── hydrogen/
+        ├── chemkan/{main,diagnostics,generalization}/<run>/   (+ figures/, tables/, EXPERIMENTS.md)
+        ├── figures/
+        └── tables/
 ```
 
 ## One directory per run

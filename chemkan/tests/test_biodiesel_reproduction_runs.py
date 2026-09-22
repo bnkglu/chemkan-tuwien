@@ -66,7 +66,7 @@ def test_completed_reference_run_is_skipped_only_when_full_config_matches(tmp_pa
     config_path = directory / "config.json"
     config_path.write_text(json.dumps(job["config"]))
     # Synthetic completed-checkpoint fixture: all writes stay in pytest's temp dir.
-    source = runner.DON / "noise/noise00_seed0/checkpoint_final.pt"
+    source = runner.DON / "legacy_final_trunk_linear/noise/noise00_seed0/checkpoint_final.pt"
     checkpoint = torch.load(source, map_location="cpu", weights_only=False)
     checkpoint["architecture"] = deepcopy(job["config"]["architecture"])
     checkpoint["model_state"] = runner.build(8, seed=0).state_dict()

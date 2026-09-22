@@ -29,8 +29,8 @@ run "refresh the biodiesel report tables" -- \
   "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
 figure_script fig05_biodiesel_loss.py
 say "Output"
-info "${FIGURES#"$REPO"/}/biodiesel/fig05b_biodiesel_loss_dynamics.pdf"
-info "${TABLES#"$REPO"/}/biodiesel_fig5b_overfit_assessment.json"
+info "${FIGURES_BIODIESEL#"$REPO"/}/fig05b_biodiesel_loss_dynamics.pdf"
+info "${TABLES_BIODIESEL#"$REPO"/}/biodiesel_fig5b_overfit_assessment.json"
 info "No run meets OUR overfitting criterion. Its thresholds (test rise >10%, further"
 info "smoothed training fall >5%), the 201-epoch window and the 90%-of-budget cutoff are"
 info "our diagnostic choices, not the paper's; the JSON stores the measurements so the"

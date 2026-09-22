@@ -63,7 +63,7 @@ def checkpoint_path(method, seed):
     if method == "observed_interval":
         directory = EXP / f"seed{seed}"
     elif seed == 0:
-        directory = ROOT / "results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0"
+        directory = ROOT / "results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0"
     else:
         directory = EXP / f"baseline_original_seed{seed}"
     return directory / "checkpoint_final.pt"

@@ -29,15 +29,18 @@ NO_RENDER="${NO_RENDER:-0}"
 RENDER_NOTEBOOKS="${RENDER_NOTEBOOKS:-0}"
 
 RESULTS="$REPO/results/reproduction"
-CKB="$RESULTS/chemkan/biodiesel"
+# The pipeline reproduces the pre-author-clarification (legacy) results under $LEGACY.
+LEGACY="$RESULTS/legacy"
+CKB="$LEGACY/biodiesel/chemkan"
 # Default figures use corrected checkpoints; legacy runs remain at their original paths.
-# DOB_REF is nested under DOB_LEGACY: address each explicitly, never glob recursively.
-DOB_LEGACY="$RESULTS/baselines/deeponet/biodiesel"
-DOB_REF="$DOB_LEGACY/reference_final_trunk_relu"
+DOB_LEGACY="$LEGACY/biodiesel/deeponet/legacy_final_trunk_linear"
+DOB_REF="$LEGACY/biodiesel/deeponet/reference_final_trunk_relu"
 DOB="$DOB_REF"
-HYD="$RESULTS/chemkan/hydrogen/diagnostics/base_on_n4"
-TABLES="$RESULTS/tables"
-FIGURES="$RESULTS/figures"
+HYD="$LEGACY/hydrogen/chemkan/diagnostics/base_on_n4"
+TABLES_BIODIESEL="$LEGACY/biodiesel/tables"
+TABLES_HYDROGEN="$LEGACY/hydrogen/tables"
+FIGURES_BIODIESEL="$LEGACY/biodiesel/figures"
+FIGURES_HYDROGEN="$LEGACY/hydrogen/figures"
 
 # The two hydrogen checkpoints, by their documented labels.
 H0_DIR="$HYD/random_stage2_10000_seed0"           # primary reproduction (fails to ignite)
@@ -141,7 +144,7 @@ render_notebook() {          # render_notebook <notebook basename>
 
 verdict() {                  # verdict <figure label as it appears in the table>
   local key="$1"
-  local csv="$TABLES/reproduction_comparison.csv"
+  local csv="$LEGACY/reproduction_comparison.csv"
   say "Verdict for $key"
   if [ ! -f "$csv" ]; then
     warn "no comparison table yet at ${csv#"$REPO"/}"

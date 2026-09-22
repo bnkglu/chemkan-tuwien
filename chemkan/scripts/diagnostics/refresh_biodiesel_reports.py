@@ -18,11 +18,12 @@ for folder in ("chemkan/src", "chemkan/scripts", "deeponet"):
 from evaluate_biodiesel import evaluate_biodiesel
 from evaluate_biodiesel_deeponet import evaluate as evaluate_don
 
-TABLES = ROOT / "results/reproduction/tables"
-FIGURES = ROOT / "results/reproduction/figures/biodiesel"
-CK = ROOT / "results/reproduction/chemkan/biodiesel"
+LEGACY = ROOT / "results/reproduction/legacy"
+TABLES = LEGACY / "biodiesel/tables"
+FIGURES = ROOT / "results/reproduction/legacy/biodiesel/figures"
+CK = ROOT / "results/reproduction/legacy/biodiesel/chemkan"
 VERSION = "reference_final_trunk_relu"
-DON = ROOT / "results/reproduction/baselines/deeponet/biodiesel" / VERSION
+DON = ROOT / "results/reproduction/legacy/biodiesel/deeponet" / VERSION
 LEVELS = (0, 1, 2, 3, 5, 7, 10, 15)
 
 
@@ -147,7 +148,7 @@ def assess_overfitting(directory):
 
 
 def refresh_comparison(metrics, assessment):
-    rows = read_csv(TABLES / "reproduction_comparison.csv")
+    rows = read_csv(LEGACY / "reproduction_comparison.csv")
     values = {(r["model"], r["noise_percent"]): r for r in metrics if r["role"] == "plotted"}
     fits = {(r["model"], r["metric"]): r for r in read_csv(TABLES / "biodiesel_fig4_fits.csv")}
     for row in rows:
@@ -181,7 +182,7 @@ def refresh_comparison(metrics, assessment):
             row["our_result"] = "ChemKAN and corrected DeepONet at Figure 3's condition: TG0=1.94, ROH0=1.43, T=334.8 K"
             row["status"] = "evaluation completed; plotted condition is a reproduction choice"
             row["remaining_difference"] = "Corrected reference_final_trunk_relu. This condition is unseen; its initial concentrations are consistent with the paper's plotted curves, but Figure 6's temperature is not independently established."
-    write_csv(TABLES / "reproduction_comparison.csv", rows)
+    write_csv(LEGACY / "reproduction_comparison.csv", rows)
 
 
 def main():

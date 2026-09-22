@@ -21,7 +21,7 @@ default initialization, full batch, clean data, Tsit5 rtol 1e-6 / atol 1e-8.
   [`../../paper_alignment_audit_20260910/grid01_email_check.json`](../../paper_alignment_audit_20260910/grid01_email_check.json),
   which identifies it by checkpoint SHA-256 (`4f957289…`, matching this directory's
   `checkpoint_final.pt`). The same file evaluates the default run
-  `results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0` (`06d4a34c…`) as the
+  `results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0` (`06d4a34c…`) as the
   baseline. It reports final and late-window (epochs 8,000–9,999) train/test losses for both.
 - **Where it is used:** [`docs/reproduction_summary.md`](../../../../docs/reproduction_summary.md)
   cites that evaluation as "additive-grid".

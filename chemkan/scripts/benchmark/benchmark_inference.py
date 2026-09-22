@@ -22,8 +22,8 @@ temperature rise and peak dT/dt stay attached to the speed-up -- as continuous n
 with no ignited/not verdict.
 
     python benchmark_inference.py \
-        --run-dir ../../../results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0 \
-        --out ../../../results/reproduction/tables
+        --run-dir ../../../results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/random_stage2_10000_seed0 \
+        --out ../../../results/reproduction/legacy/hydrogen/tables
 """
 
 from __future__ import annotations

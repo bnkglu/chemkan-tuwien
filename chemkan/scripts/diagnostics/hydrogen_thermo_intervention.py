@@ -16,7 +16,7 @@ state dependent, the intervention is repeated for several reference states (init
 pre-ignition / ignition / post-ignition) to show whether the effect is robust.
 
     python3 chemkan/scripts/diagnostics/hydrogen_thermo_intervention.py \
-        --run-dir results/reproduction/chemkan/hydrogen/main/base_off_direct_autograd_seed0
+        --run-dir results/reproduction/legacy/hydrogen/chemkan/main/base_off_direct_autograd_seed0
 """
 
 from __future__ import annotations
@@ -115,7 +115,7 @@ def main():
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run-dir", required=True, help="run directory holding checkpoint_final.pt")
     p.add_argument("--out-csv", default=None,
-                   help="default: results/reproduction/tables/hydrogen_thermo_intervention.csv")
+                   help="default: results/reproduction/legacy/hydrogen/tables/hydrogen_thermo_intervention.csv")
     p.add_argument("--mech", default=MECH)
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     args = p.parse_args()
@@ -173,7 +173,7 @@ def main():
     print("verified: baseline model unchanged; only thermo.linear.weight was replaced.")
 
     out = Path(args.out_csv) if args.out_csv else (
-        _SCRIPTS.parents[1] / "results/reproduction/tables/hydrogen_thermo_intervention.csv")
+        _SCRIPTS.parents[1] / "results/reproduction/legacy/hydrogen/tables/hydrogen_thermo_intervention.csv")
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]))

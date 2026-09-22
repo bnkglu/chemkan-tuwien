@@ -7,5 +7,5 @@ FLAGS=(); [ "$DRY_RUN" = "1" ] && FLAGS+=(--dry-run); [ "$NO_RENDER" = "1" ] && 
 "$D/biodiesel/all.sh" "${FLAGS[@]}"
 "$D/hydrogen/all.sh"  "${FLAGS[@]}"
 say "Full comparison"
-info "${TABLES#"$REPO"/}/reproduction_comparison.csv - Figures 3-8 and Table I,"
+info "${LEGACY#"$REPO"/}/reproduction_comparison.csv - Figures 3-8 and Table I,"
 info "with 'evaluation completed' kept distinct from 'paper result matched'."

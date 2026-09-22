@@ -19,5 +19,5 @@ done
 
 figure_script fig03_biodiesel_trajectories.py
 say "Output"
-info "${FIGURES#"$REPO"/}/biodiesel/fig03_biodiesel_noise_columns.pdf"
+info "${FIGURES_BIODIESEL#"$REPO"/}/fig03_biodiesel_noise_columns.pdf"
 verdict "Fig. 3"

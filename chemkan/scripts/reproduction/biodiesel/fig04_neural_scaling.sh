@@ -32,8 +32,8 @@ run "validate completed sweeps and render both Figure-4 comparisons" -- \
   "$PY" "$REPO/chemkan/scripts/diagnostics/refresh_biodiesel_reports.py"
 
 say "Output"
-info "${FIGURES#"$REPO"/}/biodiesel/fig04_biodiesel_neural_scaling{,_nmu2}.pdf"
-info "${TABLES#"$REPO"/}/biodiesel_fig4_points.csv   (per-point late-epoch oscillation bands)"
-info "${TABLES#"$REPO"/}/biodiesel_fig4_fits.csv     (descriptive all-point regressions)"
+info "${FIGURES_BIODIESEL#"$REPO"/}/fig04_biodiesel_neural_scaling{,_nmu2}.pdf"
+info "${TABLES_BIODIESEL#"$REPO"/}/biodiesel_fig4_points.csv   (per-point late-epoch oscillation bands)"
+info "${TABLES_BIODIESEL#"$REPO"/}/biodiesel_fig4_fits.csv     (descriptive all-point regressions)"
 info "Fits describe all measured points; the paper fits a pre-saturation subset."
 verdict "Fig. 4"

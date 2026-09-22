@@ -16,12 +16,12 @@ require_hydrogen_checkpoints
 _grid() {
   run "441-condition evaluation for $1" -- \
     bash -c "cd '$REPO/chemkan/scripts' && '$PY' evaluate_hydrogen_grid.py \
-      --run-dir '$2' --out '$RESULTS/chemkan/hydrogen/generalization' --save-predictions --force"
+      --run-dir '$2' --out '$LEGACY/hydrogen/chemkan/generalization' --save-predictions --force"
 }
 for_each_hydrogen_set _grid
 
 figure_script fig08_hydrogen_generalization.py
 say "Output"
-info "${FIGURES#"$REPO"/}/hydrogen/fig08a_hydrogen_generalization_441.pdf"
-info "${RESULTS#"$REPO"/}/chemkan/hydrogen/generalization/*_generalization_441.csv"
+info "${FIGURES_HYDROGEN#"$REPO"/}/fig08a_hydrogen_generalization_441.pdf"
+info "${LEGACY#"$REPO"/}/hydrogen/chemkan/generalization/*_generalization_441.csv"
 verdict "Fig. 8A"

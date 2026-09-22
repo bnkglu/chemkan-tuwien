@@ -23,7 +23,7 @@ from common import (
     CHEMKAN_HYDROGEN,
     DATA,
     FIGURES_HYDROGEN,
-    TABLES,
+    TABLES_HYDROGEN,
     add_repo_paths,
     load_checkpoint,
     loss_reduction,
@@ -353,7 +353,7 @@ def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
-    p.add_argument("--table", default=TABLES / "fig07_hydrogen_per_state_mse.csv")
+    p.add_argument("--table", default=TABLES_HYDROGEN / "fig07_hydrogen_per_state_mse.csv")
     p.add_argument("--time-averaged", action="store_true",
                    help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
     args = p.parse_args()

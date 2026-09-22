@@ -43,9 +43,9 @@ not a controlled benchmark.
   its two non-overlapping segments, 7,882 s + 33,181 s.
 
 Sources:
-- direct autograd biodiesel: `results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0`
+- direct autograd biodiesel: `results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0`
 - FSA biodiesel: `biodiesel/fsa_seed0`
-- direct autograd hydrogen Stage 1: `results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0`
+- direct autograd hydrogen Stage 1: `results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/stage1_seed0`
 - FSA hydrogen Stage 1: `hydrogen/stage1_fsa_seed0`
 - comparison tables: [`tables/`](tables/)
 

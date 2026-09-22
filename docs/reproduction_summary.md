@@ -11,7 +11,7 @@ evidence that the *implementation* is correct from the question of whether it *m
 paper*, because those are different claims with different support.
 
 Row-by-row verdicts:
-[`reproduction_comparison.csv`](../results/reproduction/tables/reproduction_comparison.csv)
+[`reproduction_comparison.csv`](../results/reproduction/legacy/reproduction_comparison.csv)
 (20 rows) · full evidence: notebooks
 [07](../chemkan/notebooks/07_biodiesel_reproduction.ipynb) and
 [08](../chemkan/notebooks/08_hydrogen_reproduction.ipynb).
@@ -50,7 +50,7 @@ biodiesel, 50 for hydrogen).
 
 ### Figure 3 — trajectory reconstruction under noise
 
-![Fig. 3](../results/reproduction/figures/biodiesel/fig03_biodiesel_noise_columns.png)
+![Fig. 3](../results/reproduction/legacy/biodiesel/figures/fig03_biodiesel_noise_columns.png)
 
 Paper: a 156-parameter ChemKAN reconstructs all six species from sparse noisy data.
 Ours: the architecture matches exactly (`P = 39h` at `h=4`, N=3, base OFF — measured from
@@ -60,7 +60,7 @@ overshoot. The noisy columns are not visibly worse than the clean one.
 
 ### Figure 4 — neural scaling
 
-![Fig. 4](../results/reproduction/figures/biodiesel/fig04_biodiesel_neural_scaling.png)
+![Fig. 4](../results/reproduction/legacy/biodiesel/figures/fig04_biodiesel_neural_scaling.png)
 
 Widths span the parameter range of the paper's Figure 4 axis
 ([`fig4_width_matrix.md`](fig4_width_matrix.md)). The paper gives no width table, so they
@@ -76,23 +76,23 @@ are not paper-specified architectures.
 Ours are **descriptive regressions over every measured point**; the paper fits a
 pre-saturation subset. The ChemKAN R² of ~0.19 means the fitted line explains almost none
 of the variance — the slope is reported, not relied on.
-[`biodiesel_fig4_fits.csv`](../results/reproduction/tables/biodiesel_fig4_fits.csv)
+[`biodiesel_fig4_fits.csv`](../results/reproduction/legacy/biodiesel/tables/biodiesel_fig4_fits.csv)
 
 A second sweep at fixed `n_mu = 2` gives **positive** slopes (+0.69 / +0.68, R² 0.88 /
 0.87): in that sweep, increasing width did not improve loss.
-[`..._nmu2.csv`](../results/reproduction/tables/biodiesel_fig4_fits_nmu2.csv)
+[`..._nmu2.csv`](../results/reproduction/legacy/biodiesel/tables/biodiesel_fig4_fits_nmu2.csv)
 
-![Fig. 4 n_mu=2](../results/reproduction/figures/biodiesel/fig04_biodiesel_neural_scaling_nmu2.png)
+![Fig. 4 n_mu=2](../results/reproduction/legacy/biodiesel/figures/fig04_biodiesel_neural_scaling_nmu2.png)
 
 ### Figure 5A — noise robustness
 
-![Fig. 5A](../results/reproduction/figures/biodiesel/fig05a_biodiesel_noise_robustness.png)
+![Fig. 5A](../results/reproduction/legacy/biodiesel/figures/fig05a_biodiesel_noise_robustness.png)
 
 The paper's central claim is that ChemKAN's noise-free (Eq. 22) test error degrades
 gracefully while DeepONet's degrades ~5×. Ours does not reproduce the trend in either
 model: over 0→15 % noise, ChemKAN's clean-test error goes to **0.77×** and DeepONet's to
 **0.83×** — both flat to slightly *lower*, not higher.
-[`biodiesel_fig5a_metrics.csv`](../results/reproduction/tables/biodiesel_fig5a_metrics.csv)
+[`biodiesel_fig5a_metrics.csv`](../results/reproduction/legacy/biodiesel/tables/biodiesel_fig5a_metrics.csv)
 
 The paper's small training-loss *increments* (+3.78×10⁻⁵ at 0→1 %) come out **negative**
 for us (−3.04×10⁻²). Both endpoints are single fixed checkpoints, and `B0`'s training loss
@@ -102,7 +102,7 @@ currently measurable at the precision the comparison needs.
 
 ### Figure 5B — loss dynamics
 
-![Fig. 5B](../results/reproduction/figures/biodiesel/fig05b_biodiesel_loss_dynamics.png)
+![Fig. 5B](../results/reproduction/legacy/biodiesel/figures/fig05b_biodiesel_loss_dynamics.png)
 
 **No run meets our overfitting criterion**, ChemKAN or DeepONet. The paper's DeepONet 7 %
 minimum near epoch 5000 appears in ours at epoch 6659, but the subsequent clean-test rise
@@ -110,21 +110,21 @@ is 1.2 % while the smoothed training loss also *falls* 1.8 % — which is not th
 signature of overfitting. The 10 %/5 % thresholds, 201-epoch smoothing window and 90 %
 cutoff are **our diagnostic choices, not paper requirements**, and absence of the
 signature is not proof of no overfitting.
-[`biodiesel_fig5b_overfit_assessment.json`](../results/reproduction/tables/biodiesel_fig5b_overfit_assessment.json)
+[`biodiesel_fig5b_overfit_assessment.json`](../results/reproduction/legacy/biodiesel/tables/biodiesel_fig5b_overfit_assessment.json)
 
 The 0 % ChemKAN panel comes from a clean replay that reproduces `B0` **bitwise** (see §4);
 `B0` remains the established 0 % result for Figs. 3 and 5A.
 
 ### Figure 6 — 15 % noise profiles
 
-![Fig. 6](../results/reproduction/figures/biodiesel/fig06_biodiesel_15pct_profiles.png)
+![Fig. 6](../results/reproduction/legacy/biodiesel/figures/fig06_biodiesel_15pct_profiles.png)
 
 Both 15 %-noise models track the hidden clean trajectory, with clean MSE 0.0257 (ChemKAN)
 and 0.0262 (DeepONet) — near-identical, where the paper describes the DeepONet profiles as
 visibly jagged. We plot **Figure 3's published condition**, which is unseen and therefore
 directly comparable to Fig. 3; the paper plots an unidentified training trajectory. That
 choice is ours and is labelled as such.
-[`biodiesel_fig6_profile_metrics.json`](../results/reproduction/tables/biodiesel_fig6_profile_metrics.json)
+[`biodiesel_fig6_profile_metrics.json`](../results/reproduction/legacy/biodiesel/tables/biodiesel_fig6_profile_metrics.json)
 
 ---
 
@@ -138,7 +138,7 @@ does not establish a cause.
 
 ### Figure 7 — reconstruction at the two published conditions
 
-![Fig. 7 H0](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_H0.png)
+![Fig. 7 H0](../results/reproduction/legacy/hydrogen/figures/fig07_hydrogen_trajectories_H0.png)
 
 **Temperature dominates `H0`'s error; its kinetic accuracy remains imperfect.** Panels
 (A) and (D) show the prediction flat at `T₀` while the reference climbs past 2500 K — the
@@ -153,7 +153,7 @@ order at its training conditions. So
 calling `H0` a blanket failure misreads the figure, and calling it a kinetics success
 overstates it.
 
-![Fig. 7 Hnorm1](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_Hnorm1.png)
+![Fig. 7 Hnorm1](../results/reproduction/legacy/hydrogen/figures/fig07_hydrogen_trajectories_Hnorm1.png)
 
 **`Hnorm1`'s advantage is predominantly temperature.** Its ten-state loss is far lower
 (0.296 / 0.209 against `H0`'s 2.867 / 3.146), and temperature accounts for **98.6 %** of
@@ -173,7 +173,7 @@ gain is not purely thermal. The norm-matched initialization largely recovers the
 thermodynamic path while leaving the kinetics roughly where they were, and on unseen data
 it trades a little species accuracy for a large temperature gain. That is one
 initialization, not a seed study, and it does not establish a cause.
-[`fig07_hydrogen_per_state_mse.csv`](../results/reproduction/tables/fig07_hydrogen_per_state_mse.csv)
+[`fig07_hydrogen_per_state_mse.csv`](../results/reproduction/legacy/hydrogen/tables/fig07_hydrogen_per_state_mse.csv)
 
 **Two distinct mismatches live in this figure and must not be merged.**
 
@@ -197,10 +197,10 @@ A companion view plots the identical data at **true mass fraction with no multip
 on a symlog axis. It shows what the multiplier view hides — predicted mass fractions going
 negative at the held-out condition (`H0`: O₂, HO₂, H₂O₂; `Hnorm1`: HO₂, H₂O₂):
 
-![Fig. 7 companion, H0](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_H0_true_scale.png)
+![Fig. 7 companion, H0](../results/reproduction/legacy/hydrogen/figures/fig07_hydrogen_trajectories_H0_true_scale.png)
 
 *(`H0` shown; the `Hnorm1` companion is
-[`fig07_hydrogen_trajectories_Hnorm1_true_scale.png`](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_Hnorm1_true_scale.png).)*
+[`fig07_hydrogen_trajectories_Hnorm1_true_scale.png`](../results/reproduction/legacy/hydrogen/figures/fig07_hydrogen_trajectories_Hnorm1_true_scale.png).)*
 
 ### Figure 8A — 441-condition generalization
 
@@ -208,11 +208,11 @@ Shown at the paper's displayed **0–10 ×10⁻⁴** range, smaller MSE lighter 
 Every one of the 441 errors exceeds that upper bound for both models, so this view is
 uniformly dark — that saturation *is* the result, and no error was rescaled to fit:
 
-![Fig. 8A paper scale](../results/reproduction/figures/hydrogen/fig08a_hydrogen_generalization_441.png)
+![Fig. 8A paper scale](../results/reproduction/legacy/hydrogen/figures/fig08a_hydrogen_generalization_441.png)
 
 The full-range view reveals the spatial structure:
 
-![Fig. 8A full range](../results/reproduction/figures/hydrogen/fig08a_hydrogen_generalization_441_full_range.png)
+![Fig. 8A full range](../results/reproduction/legacy/hydrogen/figures/fig08a_hydrogen_generalization_441_full_range.png)
 
 | | paper | `H0` | `Hnorm1` |
 |---|---|---|---|
@@ -225,7 +225,7 @@ reconstructed from the paper's reported count and figure spacing.
 
 ### Figure 8B — ignition delay
 
-![Fig. 8B](../results/reproduction/figures/hydrogen/fig08b_hydrogen_ignition_delay.png)
+![Fig. 8B](../results/reproduction/legacy/hydrogen/figures/fig08b_hydrogen_ignition_delay.png)
 
 Reference and model share one 601-point grid and one estimator (`argmax dT/dt`), so the
 comparison is like-for-like. Ignition delay is the time of maximum `dT/dt` (paper
@@ -251,7 +251,7 @@ Cantera. This is a PyTorch-vs-Cantera measurement on different hardware with a d
 timing scope, so it is **not directly comparable** to the paper's Arrhenius.jl figure and
 the two are reported side by side rather than merged. Cantera could not integrate at the
 model's own tolerances, so results are recorded per tolerance setting.
-[`hydrogen_efficiency.csv`](../results/reproduction/tables/hydrogen_efficiency.csv)
+[`hydrogen_efficiency.csv`](../results/reproduction/legacy/hydrogen/tables/hydrogen_efficiency.csv)
 
 ---
 
@@ -267,7 +267,7 @@ code, not the science.
 | Clean replay vs `B0` | **bitwise identical** — identical weights and identical training loss at all 10,000 epochs; the replay only adds the per-epoch clean-test columns `B0` lacks |
 | Fig.-4 `h=4` snapshot | the epoch-5000 snapshot is **bitwise identical** to an independently trained 5,000-epoch run |
 | Determinism | training is bitwise reproducible under CPU contention (200 epochs × 4 parallel columns, identical) |
-| Run provenance | 19 audited checkpoint references — 8 DeepONet noise, 6 DeepONet scaling, 5 ChemKAN scaling — each verified by SHA-256 against its checkpoint. Only the 11 scaling rows are Figure-4 points. ([`biodiesel_completed_run_audit.csv`](../results/reproduction/tables/biodiesel_completed_run_audit.csv)) |
+| Run provenance | 19 audited checkpoint references — 8 DeepONet noise, 6 DeepONet scaling, 5 ChemKAN scaling — each verified by SHA-256 against its checkpoint. Only the 11 scaling rows are Figure-4 points. ([`biodiesel_completed_run_audit.csv`](../results/reproduction/legacy/biodiesel/tables/biodiesel_completed_run_audit.csv)) |
 | Test suite | **291 passing** (at commit `07001c4`) |
 
 ---

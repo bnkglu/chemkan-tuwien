@@ -16,7 +16,7 @@ seed 0, Adam lr = 2e-3, Tsit5, `direct_autograd`, **5,000 epochs**. With 7 input
 
 | h | n_mu | measured P | run directory |
 |---|---|---|---|
-| 2 | 1 | 78 | `results/reproduction/chemkan/biodiesel/scaling/h02_seed0` |
+| 2 | 1 | 78 | `results/reproduction/legacy/biodiesel/chemkan/scaling/h02_seed0` |
 | 3 | 2 | 117 | `.../scaling/h03_seed0` |
 | 4 | 2 | 156 | `.../noise/clean_replay_seed0/checkpoint_epoch_5000.pt` — **reused, not retrained** |
 | 10 | 5 | 390 | `.../scaling/h10_seed0` |
@@ -47,7 +47,7 @@ includes a second comparison with fixed `n_mu=2` ChemKAN; both use the corrected
 
 | w | measured P | run directory |
 |---|---|---|
-| 3 | 85 | `results/reproduction/baselines/deeponet/biodiesel/reference_final_trunk_relu/scaling/w03_seed0` |
+| 3 | 85 | `results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu/scaling/w03_seed0` |
 | 5 | 169 | `.../scaling/w05_seed0` |
 | 6 | 220 | `.../scaling/w06_seed0` |
 | 8 | **340** | `.../scaling/w08_seed0` — the comparison architecture |

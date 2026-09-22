@@ -9,7 +9,7 @@ ignites; this does not.
 Run from the repository root:
 
     python3 chemkan/scripts/check_ignition.py \
-        --run-dir results/reproduction/chemkan/hydrogen/main/direct_autograd_seed0
+        --run-dir results/reproduction/legacy/hydrogen/chemkan/main/direct_autograd_seed0
 
 The gate exits non-zero if any checked condition is out of tolerance, so it can be
 used as a guard before generating the paper figures/tables from a checkpoint.

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Progress of the base-ON (N=4) hydrogen matrix. Read-only; safe to run any time.
 R="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-B="$R/results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4"
+B="$R/results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4"
 ARMS=(stage1_seed0 random_stage2_10000_seed0 cantera_stage2_10000_seed0 \
       scaled_random_1e5_dir0_stage2_10000 normmatched_dir0_stage2_10000 \
       normmatched_dir1_stage2_10000 normmatched_dir2_stage2_10000)
