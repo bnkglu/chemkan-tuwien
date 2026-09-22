@@ -6,8 +6,9 @@ Welcome to the `chemkan-tuwien` project! This repository contains the source cod
 
 **Current status:** data generation **and** the model/training stack are implemented under
 `chemkan/` — KAN layers, `KineticCore` + thermodynamic superstructure, biodiesel and
-two-stage hydrogen training/evaluation, Tsit5 integration via `torchdiffeq`, and a
-direct-autograd sensitivity path (Forward Sensitivity Analysis is still a TODO). See
+two-stage hydrogen training/evaluation, Tsit5 integration via `torchdiffeq`, and two
+sensitivity backends: direct autograd (the default) and Forward Sensitivity Analysis
+(`--sensitivity fsa`). See
 [`chemkan/README.md`](chemkan/README.md) and [`chemkan/code-overview.md`](chemkan/code-overview.md).
 
 **Reproduction runs:** the step-by-step workflow (data generation → dense H₂ temperature
@@ -15,7 +16,9 @@ cache → training → evaluation → notebooks → figures/tables) is documente
 [`docs/reproduction_workflow.md`](docs/reproduction_workflow.md). Trained runs and their
 artifacts follow the layout in [`results/reproduction/README.md`](results/reproduction/README.md)
 (one directory per run: `checkpoint_final.pt`, `config.json`, `run.log`, `history*.csv`,
-`metrics.json`, `predictions/`). All current runs use `sensitivity = direct_autograd`.
+`metrics.json`, `predictions/`). The runs under `results/reproduction/` use
+`sensitivity = direct_autograd`; the FSA runs are under
+[`results/experiments/fsa/`](results/experiments/fsa/README.md).
 
 ## Reproduction status
 
@@ -30,8 +33,14 @@ every claim, is
 across its 20 compared results: **1 matched** (Table I's network / parameter / species
 counts), **1 partially matched**, 1 partially matched for the labelled hydrogen
 initialization comparison only, 2 qualitatively similar but not quantitatively matched,
-1 consistent but weakly discriminating, and **14 evaluated and not matched**. Forward
-Sensitivity Analysis (FSA) remains unimplemented and is a separate later task.
+1 consistent but weakly discriminating, and **14 evaluated and not matched**.
+
+**Forward Sensitivity Analysis (FSA).** FSA is implemented and numerically validated. In
+the completed biodiesel and hydrogen Stage-1 experiments, changing the sensitivity backend
+from direct autograd to FSA does not materially change the achieved loss, although FSA
+required substantially more training time in these runs (recorded wall time, not a
+controlled benchmark). Hydrogen Stage-2 FSA training is currently incomplete, so the
+thermodynamic/temperature reproduction with FSA remains unresolved. Details: [`results/experiments/fsa/README.md`](results/experiments/fsa/README.md).
 
 ### Hydrogen — reproduction NOT complete
 
@@ -47,8 +56,8 @@ default (since 2026-09-03) and produced only the §22 ablation
 (`hydrogen/diagnostics/base_on_n4/*`). No stored result was re-run or relabelled when the
 default changed. The findings below are **N=5/base-OFF** except where stated.
 
-- **Stage 2 does not reproduce ignition** *(N=5/base-OFF)*. The default run stays within ~10 K of `T₀` and
-  never raises the ignition flag, at 500 and at 10 000 epochs.
+- **Stage 2 does not reproduce the temperature rise** *(N=5/base-OFF)*. The default run's
+  temperature stays within ~10 K of `T₀`, at 500 and at 10 000 epochs.
 - **The failed model has a severe thermodynamic `dT/dt` deficit.** Driven with *reference*
   species rates, the *learned* `θ_thermo` still under-predicts peak `dT/dt` by ~134×/~145×.
   The deficit sits in the Eq. 14 **Linear** branch; `KAN_cor` contributes ~0.1 % of the
@@ -62,22 +71,27 @@ default changed. The findings below are **N=5/base-OFF** except where stated.
 - **The N=4 / base-ON interpretation does not remove the failure.** Matched at 344
   parameters, default-random test MSE is 3.16 (N=5/base-OFF) vs 3.15 (N=4/base-ON).
 - **Figs. 7, 8A, 8B and Table I are now evaluated from the saved checkpoints** (no hydrogen
-  retraining). The primary run `H0` (N=4/base-ON, random thermo init) ignites in **0 of the
-  30** reference-igniting conditions; all 441 generalization conditions were evaluated with
-  0 integration failures, median trajectory MSE 2.66. `H0` is retained as the primary
-  result including its failure.
-- **One separately labelled initialization (`Hnorm1`) does recover ignition** — 30/30
-  reference-igniting conditions, median relative delay error 28.9 %, 441-grid median MSE
-  0.254 — while also igniting in 2 conditions where the reference does not. This is **one
+  retraining). Ignition delay is the time of maximum `dT/dt` (paper Sec. III B, no
+  threshold), always reported beside the temperature rise. On the paper's 30 Fig. 8B
+  conditions (T₀ 1000–1200 K), the primary run `H0` (N=4/base-ON, random thermo init) has a
+  median temperature rise of **9 K** against the reference's **1581 K**; its median delay
+  error (3.4 %) is measured on that nearly flat curve. All 441 generalization conditions
+  were evaluated with 0 integration failures, median trajectory MSE 2.66. `H0` is retained
+  as the primary result including its failure.
+- **One separately labelled initialization (`Hnorm1`) does recover the temperature rise** —
+  median **1557 K** on the same 30 conditions, median relative delay error 28.9 %,
+  441-grid median MSE 0.254. At the six 950 K conditions, where the reference rises by
+  less than 0.001 K, `Hnorm1` rises by a median 52 K (max 189 K). This is **one
   initialization, not a seed study**, and it does not replace `H0` or establish a cause.
 - **Table I counts match; the speed-up does not.** 1 network, 344 measured parameters,
   9 species + T, as reported. A local PyTorch-vs-Cantera benchmark measures **0.14x** (`H0`)
   and **0.50x** (`Hnorm1`) — i.e. slower than Cantera, not the paper's 2.0x against
   Arrhenius.jl. Different reference implementation, hardware and timing scope, so the two
   are reported side by side and not merged.
-- **FSA remains a major paper-explicit missing method.** Forward Sensitivity Analysis is
-  not implemented; all runs use direct autograd. No result here speaks to whether FSA
-  would change the outcome.
+- **The effect of FSA on the hydrogen outcome is unresolved.** The results above use
+  direct autograd. FSA is implemented and its hydrogen Stage 1 reaches a final loss close
+  to direct autograd's, but Stage-2 FSA training is incomplete
+  ([`results/experiments/fsa/`](results/experiments/fsa/README.md)).
 
 **Two separate Figure-7/8A mismatches, not one.** They have different status and must not
 be merged:
@@ -92,7 +106,8 @@ be merged:
    typo. No data, prediction or loss is affected: losses are computed before any multiplier.
 2. **Prediction accuracy.** Our models genuinely differ from the reference trajectories.
    The diagnostics locate weak temperature evolution in `H0`; `Hnorm1` improves it
-   substantially. The remaining gap's cause is **unresolved**, and FSA has not been tested.
+   substantially. The remaining gap's cause is **unresolved**; Stage-2 FSA training is
+   incomplete, so FSA's effect on it is unresolved too.
 
 **Figure 8A is shown at two scales.** The first pair uses the paper's displayed
 **0–10 ×10⁻⁴** range with smaller MSE lighter, as in the paper; every one of the 441 errors

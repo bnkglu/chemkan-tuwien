@@ -361,3 +361,25 @@ These rules must not be reinterpreted after seeing results.
 - FSA implementation (paper's stated sensitivity method) — **not implemented**.
 - Thermodynamic reparameterization (e.g. normalized-derivative Eq. 14) — **not implemented**.
 - Decide only **after** analyzing the five 500-epoch arms above.
+
+## Status update (2026-09-21) — FSA
+
+The FSA entries above (§6E "Next", §8, §9) record the status when they were written and
+are kept unchanged. Since then:
+
+- FSA is implemented (`--sensitivity fsa`, `chemkan/src/chemkan/fsa.py`) and numerically
+  validated (`results/experiments/fsa/validation/README.md`).
+- Hydrogen Stage 1 (N=4 / base-ON) was completed with FSA. Its final Stage-1 loss, 0.3202,
+  is close to direct autograd's 0.3149.
+- Hydrogen Stage-2 FSA training is incomplete, so the thermodynamic/temperature
+  reproduction with FSA — including the §8 question whether FSA would or would not fix
+  the default initialization — remains unresolved.
+- The FSA Stage-2 runs start from the FSA Stage-1 checkpoint, while the direct-autograd
+  runs above start from `base_on_n4/stage1_seed0`. The existing setup is an end-to-end
+  backend comparison, not a controlled Stage-2-only ablation of the sensitivity backend.
+- The ignition statements in the entries above (`never_ignites`, ignition-flag histories,
+  the 100 K rise requirement) use the rule retired in commit `07001c4`. Ignition delay is
+  now the time of maximum `dT/dt` with no threshold, reported beside the temperature rise
+  and peak `dT/dt`.
+
+Details: `results/experiments/fsa/README.md`.

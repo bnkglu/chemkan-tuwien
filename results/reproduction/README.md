@@ -18,8 +18,8 @@ results/reproduction/
 ## One directory per run
 
 Each real training run gets its own directory whose **name** (plus `config.json`) carries
-the experiment identity — e.g. `chemkan/hydrogen/main/direct_autograd_seed0/`. A future
-FSA run is `fsa_seed0/` and never overwrites `direct_autograd_seed0/`. The directory path
+the experiment identity — e.g. `chemkan/hydrogen/main/direct_autograd_seed0/`. FSA runs
+live under `results/experiments/fsa/` and never overwrite `direct_autograd_seed0/`. The directory path
 also defines the run's `run_id` (e.g. `chemkan/hydrogen/main/direct_autograd_seed0`), which
 is stored in `config.json`, the checkpoint, and every prediction artifact.
 
@@ -57,8 +57,9 @@ and regenerated from the checkpoint. Existing artifacts are not overwritten with
 
 ## Direct autograd vs FSA
 
-Current runs use `sensitivity = direct_autograd` (recorded in config + checkpoint). FSA is
-not implemented; do not read these as FSA results.
+The runs in this tree use `sensitivity = direct_autograd` (recorded in config + checkpoint);
+do not read them as FSA results. The FSA runs and their comparison with these runs are in
+[`results/experiments/fsa/README.md`](../experiments/fsa/README.md).
 
 ## What is committed
 

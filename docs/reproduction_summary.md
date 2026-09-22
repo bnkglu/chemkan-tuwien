@@ -31,11 +31,11 @@ Row-by-row verdicts:
 | Fig. 5A — DeepONet/ChemKAN clean-test ratio 4.4× at 15 % | 0.86× | not matched |
 | Fig. 5B — DeepONet overfits at 7 % (minimum near epoch 5,000) and 15 % (near 1,000); ChemKAN does not | DeepONet clean-test minima at epochs 6,659 (7 %) and 7,692 (15 %); no run meets our overfitting criterion | does not discriminate |
 | Fig. 6 — 15 % models track the hidden clean trajectory; DeepONet profiles jagged | both track it: clean MSE 0.0257 (ChemKAN), 0.0262 (DeepONet), at Fig. 3's condition | evaluated; plotted condition is our choice |
-| Fig. 7 — one 344-parameter ChemKAN reconstructs 9 species + T | species reconstructed by both runs; `H0` does not ignite (T is 89–95 % of its loss), `Hnorm1` does | not matched (`H0`) |
+| Fig. 7 — one 344-parameter ChemKAN reconstructs 9 species + T | species reconstructed by both runs; `H0`'s temperature barely rises (T is 89–95 % of its loss), `Hnorm1`'s does | not matched (`H0`) |
 | Fig. 8A — ~10⁻⁴ at the 1000 K training points | 1.50–2.31 (`H0`), 0.50–0.95 (`Hnorm1`) | not matched |
 | Fig. 8A — order 10⁻³ at the unseen 987.5 K points | 1.30–2.30 (`H0`), 0.93–3.47 (`Hnorm1`) | not matched |
 | Fig. 8A — 441 conditions, 406 unseen; no aggregate error reported | all 441 evaluated, 0 failures; median 2.658 (`H0`), 0.254 (`Hnorm1`) | evaluated |
-| Fig. 8B — ignition delays for the 30 igniting cases; accuracy described as strong, no error metric reported | `H0` 0/30; `Hnorm1` 30/30, median rel. error 28.9 % | not matched (`H0`) |
+| Fig. 8B — ignition delays for the 30 igniting cases; accuracy described as strong, no error metric reported | median temperature rise `H0` 9 K, `Hnorm1` 1557 K vs reference 1581 K; median rel. delay error `H0` 3.4 % (on a nearly flat curve), `Hnorm1` 28.9 % | not matched (`H0`) |
 | Table I — 1 network, 344 parameters, 9 species + T | 1 / 344 measured / 9 + T | **matched** |
 | Table I — 2.0× speed-up vs Arrhenius.jl | 0.14× (`H0`), 0.50× (`Hnorm1`) vs Cantera, locally | not matched; different reference and hardware |
 
@@ -141,8 +141,8 @@ does not establish a cause.
 ![Fig. 7 H0](../results/reproduction/figures/hydrogen/fig07_hydrogen_trajectories_H0.png)
 
 **Temperature dominates `H0`'s error; its kinetic accuracy remains imperfect.** Panels
-(A) and (D) show the prediction flat at `T₀` while the reference climbs past 2500 K — no
-ignition at either condition. Panels (B), (C), (E) and (F) show the species genuinely
+(A) and (D) show the prediction flat at `T₀` while the reference climbs past 2500 K — the
+predicted temperature barely rises at either condition. Panels (B), (C), (E) and (F) show the species genuinely
 reacting and broadly tracking the reference: H₂ falls, H₂O rises, OH peaks. Numerically,
 temperature is **88.9 %** of the ten-state loss at the training condition and **94.7 %** at
 the held-out one, against a nine-species mean of 0.352 and 0.186.
@@ -190,7 +190,8 @@ initialization, not a seed study, and it does not establish a cause.
 2. **Prediction accuracy.** The models genuinely differ from the reference, and the two
    runs differ in where the error sits: `H0` overwhelmingly in the thermodynamic path,
    `Hnorm1` mostly in the kinetics it did not improve. Neither is accurate on the species.
-   The cause of the remaining gap is **unresolved**, and FSA has not been tested.
+   The cause of the remaining gap is **unresolved**; Stage-2 FSA training is incomplete, so
+   FSA's effect on it is unresolved too.
 
 A companion view plots the identical data at **true mass fraction with no multipliers**,
 on a symlog axis. It shows what the multiplier view hides — predicted mass fractions going
@@ -227,9 +228,14 @@ reconstructed from the paper's reported count and figure spacing.
 ![Fig. 8B](../results/reproduction/figures/hydrogen/fig08b_hydrogen_ignition_delay.png)
 
 Reference and model share one 601-point grid and one estimator (`argmax dT/dt`), so the
-comparison is like-for-like. `H0` ignites in **0 of 30** reference-igniting conditions.
-`Hnorm1` ignites in **30/30**, median absolute relative delay error **28.9 %**, and also
-ignites in **2** conditions where the reference does not.
+comparison is like-for-like. Ignition delay is the time of maximum `dT/dt` (paper
+Sec. III B, no threshold), reported beside the temperature rise, over the paper's 30
+conditions (T₀ 1000–1200 K). The reference's median temperature rise is **1581 K**.
+`H0` rises by a median **9 K**; its median absolute relative delay error, **3.4 %**, is
+measured on that nearly flat curve and does not indicate a correct ignition. `Hnorm1`
+rises by a median **1557 K**, with a median absolute relative delay error of **28.9 %**.
+At the six 950 K conditions, where the reference rises by less than 0.001 K, `Hnorm1`
+rises by a median 52 K (max 189 K) and `H0` by at most 0.35 K.
 
 ### Table I — efficiency
 
@@ -262,7 +268,7 @@ code, not the science.
 | Fig.-4 `h=4` snapshot | the epoch-5000 snapshot is **bitwise identical** to an independently trained 5,000-epoch run |
 | Determinism | training is bitwise reproducible under CPU contention (200 epochs × 4 parallel columns, identical) |
 | Run provenance | 19 audited checkpoint references — 8 DeepONet noise, 6 DeepONet scaling, 5 ChemKAN scaling — each verified by SHA-256 against its checkpoint. Only the 11 scaling rows are Figure-4 points. ([`biodiesel_completed_run_audit.csv`](../results/reproduction/tables/biodiesel_completed_run_audit.csv)) |
-| Test suite | **263 passing** |
+| Test suite | **291 passing** (at commit `07001c4`) |
 
 ---
 
@@ -282,9 +288,18 @@ code, not the science.
 - **DeepONet activation placement is reference-derived, not paper-stated.** Reported runs
   use `reference_final_trunk_relu`; the earlier `legacy_final_trunk_linear` checkpoints and
   their labelled reports are retained.
-- **FSA is not implemented.** All runs use direct autograd. No result here speaks to
-  whether Forward Sensitivity Analysis would change any outcome. This is the largest
-  paper-explicit missing method and is a separate task.
+- **FSA is implemented; its effect on the hydrogen outcome is unresolved.** The
+  results in this summary use direct autograd. FSA is implemented and numerically
+  validated. In the completed biodiesel and hydrogen Stage-1 experiments, changing the
+  sensitivity backend from direct autograd to FSA does not materially change the achieved
+  loss, although FSA required substantially more training time in these runs (recorded
+  wall time, not a controlled benchmark). In the completed
+  0 %-noise seed-0 biodiesel run, FSA reaches essentially the same late-training
+  optimization loss as direct autograd, so replacing direct autograd with FSA does not
+  close the observed loss-scale gap in this run. Hydrogen Stage-2 FSA training is
+  currently incomplete, so the thermodynamic/temperature reproduction with FSA remains
+  unresolved.
+  [`results/experiments/fsa/README.md`](../results/experiments/fsa/README.md)
 - **The hydrogen failure has no single established cause.** Grid size `N`, the `θ_thermo`
   initialization and any derivative scaling inside Eq. 14 are all unstated in the paper, so
   several explanations remain simultaneously open. Diagnostics:

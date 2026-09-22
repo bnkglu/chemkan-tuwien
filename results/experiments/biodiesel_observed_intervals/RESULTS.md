@@ -107,3 +107,10 @@ processes, so it reflects scheduling as well as the method.
 - The loss-scale gap to the paper is **not** explained here. FSA is still unimplemented and
   direct autograd is not claimed equivalent to it; this experiment does not test that.
 - No pre-existing file, run, checkpoint, figure, table, or document was modified.
+
+**Status update (2026-09-21).** The FSA statement above records the status when this
+experiment was written. FSA has since been implemented and validated. In the completed
+0 %-noise seed-0 run, FSA reaches essentially the same late-training optimization loss as
+direct autograd (median over epochs 8,000–10,000: 0.0356 vs 0.0358), so replacing direct
+autograd with FSA does not close the observed loss-scale gap in this run. See
+`results/experiments/fsa/README.md`.
