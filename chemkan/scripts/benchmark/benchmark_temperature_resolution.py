@@ -15,22 +15,24 @@ This is a diagnostic only:
 
 Run from the repository root:
 
-    python scripts/data_gen/benchmark_temperature_resolution.py
+    python chemkan/scripts/benchmark/benchmark_temperature_resolution.py
 
 Optional:
 
-    python scripts/data_gen/benchmark_temperature_resolution.py \
+    python chemkan/scripts/benchmark/benchmark_temperature_resolution.py \
         --resolutions 20000 50000 100000 200000 \
         --eval-points 50000
 
 Evaluation times (--times):
     random  (default) independent random off-grid times, model-independent;
     solver  the actual recorded Tsit5 RHS query times from one batched Stage-1
-            integration (notebook 9.5b) -- training-relevant, clusters in the
+            integration (notebook 05, §9.5b) -- training-relevant, clusters in the
             autoignition window. Uses the trained checkpoint by default:
 
-    python scripts/data_gen/benchmark_temperature_resolution.py \
+    python chemkan/scripts/benchmark/benchmark_temperature_resolution.py \
         --times solver --resolutions 2000 20000 200000
+
+A saved run of this benchmark is in results/experiments/hydrogen_temperature_resolution/.
 """
 
 from __future__ import annotations
