@@ -36,6 +36,15 @@ SEEDS = (0, 1, 2)
 METHODS = ("original", "observed_interval")
 METHOD_LABELS = ("Full-trajectory training", "Observed-interval training")
 COLORS = ("#0072B2", "#D55E00", "#009E73")
+# Look of the observed-interval figures. Always applied through interval_style(), never
+# written to the global rcParams, so figures drawn afterwards keep their own style.
+INTERVAL_STYLE = {"font.size": 10, "axes.spines.top": False,
+                  "axes.spines.right": False, "pdf.fonttype": 42}
+
+
+def interval_style():
+    """Scope INTERVAL_STYLE to one figure: create and save the figure inside this context."""
+    return plt.rc_context(INTERVAL_STYLE)
 
 
 def read_csv(path):
@@ -122,39 +131,41 @@ def save(fig, name):
 
 
 def convergence(histories):
-    fig, ax = plt.subplots(figsize=(8, 4.6), layout="constrained")
-    for seed, color in zip(SEEDS, COLORS):
-        epochs = np.array([int(row["epoch"]) for row in histories[seed]])
-        loss = np.array([float(row["total_loss"]) for row in histories[seed]])
-        ax.semilogy(epochs, loss, color=color, lw=1, label=f"Seed {seed}")
-    ax.set_xlabel("Training epoch")
-    ax.set_ylabel("Observed-interval training objective")
-    ax.grid(alpha=.18, which="major")
-    ax.legend(frameon=False)
-    fig.suptitle("Observed-interval objective convergence\n"
-                 "Sum over 29 endpoints; mean over 6 species and 20 training conditions",
-                 fontsize=12)
-    save(fig, "interval_objective_convergence")
+    with interval_style():
+        fig, ax = plt.subplots(figsize=(8, 4.6), layout="constrained")
+        for seed, color in zip(SEEDS, COLORS):
+            epochs = np.array([int(row["epoch"]) for row in histories[seed]])
+            loss = np.array([float(row["total_loss"]) for row in histories[seed]])
+            ax.semilogy(epochs, loss, color=color, lw=1, label=f"Seed {seed}")
+        ax.set_xlabel("Training epoch")
+        ax.set_ylabel("Observed-interval training objective")
+        ax.grid(alpha=.18, which="major")
+        ax.legend(frameon=False)
+        fig.suptitle("Observed-interval objective convergence\n"
+                     "Sum over 29 endpoints; mean over 6 species and 20 training conditions",
+                     fontsize=12)
+        save(fig, "interval_objective_convergence")
 
 
 def species_bars(evaluations, species):
-    fig, ax = plt.subplots(figsize=(10, 4.9), layout="constrained")
-    x, width = np.arange(len(species)), .34
-    for i, (method, label, color) in enumerate(zip(METHODS, METHOD_LABELS, COLORS)):
-        values = np.stack([evaluations[method, seed]["sq"].sum(0).mean(0)
-                           for seed in SEEDS])
-        positions = x + (i - .5) * width
-        ax.bar(positions, values.mean(0), width, color=color, alpha=.8, label=label)
-    ax.set_xticks(x, species)
-    ax.set_yscale("log")
-    ax.set_ylabel("Squared normalized endpoint error\n(sum over intervals; mean over training conditions)")
-    ax.set_title("Interval error by species at 10,000 epochs\n"
-                 "Both training methods evaluated with observed-state resets")
-    ax.legend(frameon=False)
-    ax.grid(axis="y", alpha=.18)
-    fig.supxlabel("Bars: mean of 3 seeds. "
-                  "Mean across the 6 species equals the interval objective.", fontsize=9)
-    save(fig, "interval_objective_per_species")
+    with interval_style():
+        fig, ax = plt.subplots(figsize=(10, 4.9), layout="constrained")
+        x, width = np.arange(len(species)), .34
+        for i, (method, label, color) in enumerate(zip(METHODS, METHOD_LABELS, COLORS)):
+            values = np.stack([evaluations[method, seed]["sq"].sum(0).mean(0)
+                               for seed in SEEDS])
+            positions = x + (i - .5) * width
+            ax.bar(positions, values.mean(0), width, color=color, alpha=.8, label=label)
+        ax.set_xticks(x, species)
+        ax.set_yscale("log")
+        ax.set_ylabel("Squared normalized endpoint error\n(sum over intervals; mean over training conditions)")
+        ax.set_title("Interval error by species at 10,000 epochs\n"
+                     "Both training methods evaluated with observed-state resets")
+        ax.legend(frameon=False)
+        ax.grid(axis="y", alpha=.18)
+        fig.supxlabel("Bars: mean of 3 seeds. "
+                      "Mean across the 6 species equals the interval objective.", fontsize=9)
+        save(fig, "interval_objective_per_species")
 
 
 def main():
@@ -202,8 +213,6 @@ def main():
 
     for directory in ("figures", "tables"):
         (EXP / directory).mkdir(exist_ok=True)
-    plt.rcParams.update({"font.size": 10, "axes.spines.top": False,
-                         "axes.spines.right": False, "pdf.fonttype": 42})
     convergence(histories)
     species_bars(evaluations, data["species"])
     write_csv(EXP / "tables/interval_objective_summary.csv", summary)

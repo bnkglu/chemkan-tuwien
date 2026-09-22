@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Reuse the verified legacy-checkpoint reconstruction and headless plot setup.
 from plot_biodiesel_interval_objective import (
-    COLORS, EXP, ROOT, checkpoint_path, evaluate_checkpoint, read_csv,
+    COLORS, EXP, ROOT, checkpoint_path, evaluate_checkpoint, interval_style, read_csv,
     restore_grid_widths, save, write_csv,
 )
 
@@ -25,7 +25,7 @@ from _data import DATA_DIR, load_biodiesel, load_input_scaling
 from chemkan.normalization import MinMaxNormalizer
 from evaluate_biodiesel import build_kinetic_core, integrate_biodiesel, solver_from_ckpt
 from fig03_biodiesel_trajectories import (
-    NOISE_LEVELS, make_figure as make_noise_columns, plot_clean_condition_column,
+    NOISE_LEVELS, make_figure as make_fig3_columns, plot_clean_condition_column,
 )
 from common import save_figure, use_headless_backend
 
@@ -81,30 +81,31 @@ def dense_rollout(path, condition, recorded_sparse):
 
 
 def plot_endpoint_comparison(condition, result, dense):
-    fig, axes = plt.subplots(2, 3, figsize=(12, 7), layout="constrained", sharex=True)
-    for k, ax in enumerate(axes.flat):
-        ax.plot(condition["t_dense"], condition["states_dense"][:, k], color=".35",
-                lw=1.2, label="Clean reference trajectory")
-        ax.plot(condition["t_dense"], dense[:, k], color=COLORS[0], lw=1.7,
-                label="Complete rollout from initial condition")
-        ax.scatter(condition["t"], condition["states"][:, k], facecolors="none",
-                   edgecolors=".35", s=27, linewidths=.8, zorder=3,
-                   label="Clean observations (30 points)")
-        ax.scatter(condition["t"][1:], result["endpoints"][:, 0, k],
-                   color=COLORS[1], marker="x", s=25, linewidths=1.1, zorder=4,
-                   label="Independent interval endpoint predictions")
-        ax.set_title(condition["species"][k])
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("Concentration (archive units)")
-        ax.grid(alpha=.15)
-    handles, labels = axes.flat[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="outside lower center", ncol=2, fontsize=9,
-               frameon=False)
-    fig.suptitle("Figure 3 endpoint diagnostic | Clean interval-trained model, seed 0\n"
-                 f"{CONDITION_TEXT}\n"
-                 "Orange endpoints use fresh observed states; the blue rollout uses only the initial condition",
-                 fontsize=11)
-    save(fig, "fig3_endpoint_diagnostic")
+    with interval_style():
+        fig, axes = plt.subplots(2, 3, figsize=(12, 7), layout="constrained", sharex=True)
+        for k, ax in enumerate(axes.flat):
+            ax.plot(condition["t_dense"], condition["states_dense"][:, k], color=".35",
+                    lw=1.2, label="Clean reference trajectory")
+            ax.plot(condition["t_dense"], dense[:, k], color=COLORS[0], lw=1.7,
+                    label="Complete rollout from initial condition")
+            ax.scatter(condition["t"], condition["states"][:, k], facecolors="none",
+                       edgecolors=".35", s=27, linewidths=.8, zorder=3,
+                       label="Clean observations (30 points)")
+            ax.scatter(condition["t"][1:], result["endpoints"][:, 0, k],
+                       color=COLORS[1], marker="x", s=25, linewidths=1.1, zorder=4,
+                       label="Independent interval endpoint predictions")
+            ax.set_title(condition["species"][k])
+            ax.set_xlabel("Time (s)")
+            ax.set_ylabel("Concentration (archive units)")
+            ax.grid(alpha=.15)
+        handles, labels = axes.flat[0].get_legend_handles_labels()
+        fig.legend(handles, labels, loc="outside lower center", ncol=2, fontsize=9,
+                   frameon=False)
+        fig.suptitle("Figure 3 endpoint diagnostic | Clean interval-trained model, seed 0\n"
+                     f"{CONDITION_TEXT}\n"
+                     "Orange endpoints use fresh observed states; the blue rollout uses only the initial condition",
+                     fontsize=11)
+        save(fig, "fig3_endpoint_diagnostic")
 
 
 def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=False,
@@ -131,14 +132,13 @@ def make_figure(output_path=None, *, show=False, include_endpoint_diagnostic=Fal
     condition, data, condition_path = load_condition()
     result = evaluate_checkpoint(path, data, loss_norm)
     dense = dense_rollout(path, condition, result["full"])
-    plt.rcParams.update({"font.size": 10, "axes.spines.top": False,
-                         "axes.spines.right": False, "pdf.fonttype": 42})
     if include_endpoint_diagnostic:
         plot_endpoint_comparison(condition, result, dense)
-    fig = plot_clean_condition_column(
-        condition, dense, "Observed-interval training, seed 0; 10,000 epochs",
-        full_rollout_loss=result["full_loss"])
-    save_figure(fig, output_path, dpi=180)
+    with interval_style():
+        fig = plot_clean_condition_column(
+            condition, dense, "Observed-interval training, seed 0; 10,000 epochs",
+            full_rollout_loss=result["full_loss"])
+        save_figure(fig, output_path, dpi=180)
 
     sparse_rows = []
     for j, time in enumerate(condition["t"]):
@@ -202,6 +202,17 @@ def interval_run_dirs():
             for pct in NOISE_LEVELS}
 
 
+def make_noise_columns(run_dirs=None, *, output_path=None, show=False):
+    """Observed-interval Figure 3 (one interval model per noise column) in INTERVAL_STYLE.
+
+    Wraps the shared Figure-3 function, which also draws the reproduction's default-styled
+    Figure 3; it saves inside itself, so the style covers drawing and saving.
+    """
+    with interval_style():
+        return make_fig3_columns(run_dirs=run_dirs or interval_run_dirs(),
+                                 output_path=output_path, show=show)
+
+
 def main():
     use_headless_backend()
     # Verified clean seed-0 reconstruction: endpoint diagnostic and the metrics tables.
@@ -213,8 +224,7 @@ def main():
           f"{metrics['full_rollout_loss_timesummed']:.9g}")
 
     # The paper's layout: six species by four training-noise columns, one model each.
-    columns, results = make_noise_columns(run_dirs=interval_run_dirs(),
-                                          output_path=EXP / "figures/fig3_noise_columns")
+    columns, results = make_noise_columns(output_path=EXP / "figures/fig3_noise_columns")
     plt.close(columns)
     for pct in NOISE_LEVELS:
         r = results["levels"][pct]
