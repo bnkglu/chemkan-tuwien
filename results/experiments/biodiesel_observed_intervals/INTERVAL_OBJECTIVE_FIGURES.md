@@ -52,7 +52,7 @@ checkpoints and shared library are unchanged.
 From the repository root, using the existing project environment:
 
 ```bash
-/Users/berke/uni_projects/chemkan-venv/bin/python \
+python \
   chemkan/scripts/figures/plot_biodiesel_interval_objective.py
 ```
 
@@ -98,7 +98,7 @@ Regenerate the noise-column figure, the endpoint diagnostic and the verified see
 metrics tables:
 
 ```bash
-/Users/berke/uni_projects/chemkan-venv/bin/python \
+python \
   chemkan/scripts/figures/fig03_biodiesel_trajectories.py --observed-intervals
 ```
 
@@ -141,7 +141,7 @@ the interval models yet. Numbers: `tables/fig3_noise_columns_method_comparison.c
 Generate the interval experiment's figures through the existing figure scripts:
 
 ```bash
-CHEMKAN_PYTHON=/Users/berke/uni_projects/chemkan-venv/bin/python \
+CHEMKAN_PYTHON=python \
   bash chemkan/scripts/reproduction/biodiesel/observed_intervals_figures.sh
 ```
 

@@ -1,7 +1,7 @@
 # Notes — implementing KAN from scratch (recap)
 
 Working companion to `01_implement_kan.ipynb` and
-`docs/implementing_chemkan_from_scratch.md`. Covers what we built and the mechanics
+`docs/implementing_chemkan_from_scratch_guide.md`. Covers what we built and the mechanics
 behind it (indices, shapes, broadcasting, einsum).
 
 ---

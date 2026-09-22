@@ -28,10 +28,10 @@ end therefore use the repo's FNN for branch and trunk, adding only that layer.
 
 Dependency / provenance
 -----------------------
-PATH 2 reads the UPSTREAM reference implementation, which is NOT vendored in this
-repository: https://github.com/lululxvi/deeponet (Lu, Jin, Pang, Zhang & Karniadakis,
-Nat. Mach. Intell. 3, 218-229, 2021). Version/commit used: not recorded. Obtain a
-checkout and pass it via --repo; without one, PATH 2 is unavailable.
+PATH 2 reads the UPSTREAM reference implementation https://github.com/lululxvi/deeponet
+(Lu, Jin, Pang, Zhang & Karniadakis, Nat. Mach. Intell. 3, 218-229, 2021). It is vendored
+in this directory (``src/``, ``seq2seq/``, ``fractional/``; CC BY-NC-SA 4.0, see
+``LICENSE``); the upstream commit it was copied from is not recorded.
 
 The biodiesel DeepONet reconstruction itself is in ``biodiesel_deeponet_smoke.py`` and
 has NO dependency on this upstream checkout.
@@ -39,9 +39,10 @@ has NO dependency on this upstream checkout.
 Usage
 -----
     pip install torch deepxde        # deepxde optional; PATH 1 is skipped without it
-    python deeponet_param_audit.py --repo /path/to/deeponet
+    python deeponet_param_audit.py
 
-If --repo is omitted the script looks for ./deeponet next to itself.
+--repo defaults to this directory (the vendored copy); pass --repo /path/to/deeponet only
+to audit a different checkout.
 """
 
 import argparse
@@ -68,8 +69,8 @@ def find_repo(explicit=None):
         if (c / "seq2seq" / "learner" / "nn" / "fnn.py").exists():
             return c
     raise SystemExit(
-        "Could not find the deeponet repo. Unzip deeponet.zip next to this "
-        "script, or pass --repo /path/to/deeponet"
+        "Could not find the deeponet repo (expected seq2seq/learner/nn/fnn.py next to "
+        "this script); pass --repo /path/to/deeponet"
     )
 
 

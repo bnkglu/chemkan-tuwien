@@ -8,9 +8,9 @@ datasets live under `chemkan/data/generated/` and are **not** duplicated here.
 ```
 results/reproduction/
 ├── chemkan/
-│   ├── biodiesel/{main,noise,scaling}/<run>/
-│   └── hydrogen/{main,generalization}/<run>/
-├── baselines/{deeponet,chemnode}/<run>/
+│   ├── biodiesel/{main,noise,scaling,scaling_nmu2,sensitivity}/<run>/
+│   └── hydrogen/{main,diagnostics,generalization}/<run>/   (+ figures/, tables/, EXPERIMENTS.md)
+├── baselines/deeponet/<run>/
 ├── figures/{biodiesel,hydrogen}/
 └── tables/
 ```
