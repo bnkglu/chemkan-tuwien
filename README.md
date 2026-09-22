@@ -20,6 +20,15 @@ artifacts follow the layout in [`results/reproduction/README.md`](results/reprod
 `sensitivity = direct_autograd`; the FSA runs are under
 [`results/experiments/legacy/fsa_runs/`](results/experiments/legacy/fsa_runs/README.md).
 
+**Legacy and current results:** every trained result in this repository was produced under
+the protocol used before the 2026-09-22 author clarifications. These results live under
+`results/reproduction/legacy/` and `results/experiments/legacy/`, and the status below
+describes them. `legacy` marks the protocol generation, not a judgement of the results.
+Runs made under the clarified protocol will go to the current paths
+(`results/reproduction/{biodiesel,hydrogen}/…`). Generic validation that does not depend on
+the protocol, such as the FSA implementation checks in `results/experiments/validation/fsa/`,
+stays current.
+
 ## Reproduction status
 
 Nothing below is claimed as a completed paper reproduction unless it says so. No single

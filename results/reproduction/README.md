@@ -3,6 +3,24 @@
 Trained ChemKAN / baseline runs and the figures/tables derived from them. Physical
 datasets live under `chemkan/data/generated/` and are **not** duplicated here.
 
+## Legacy and current results
+
+`legacy/` holds every reproduction run produced under the protocol used before the
+2026-09-22 author clarifications, together with the figures and tables derived from those
+runs. `legacy` marks the protocol generation, not a judgement of the results. Runs made
+under the clarified protocol will be written to the current locations
+`biodiesel/{chemkan,deeponet}/` and `hydrogen/chemkan/`, which do not exist yet.
+
+Moving the runs did not rewrite their provenance. The `run_id` stored in each `config.json`,
+checkpoint and prediction artifact, and the paths recorded in `run.log`, still show where
+the run was written at training time (e.g. `chemkan/hydrogen/main/…`). Prediction artifacts
+are matched to checkpoints by stored `run_id`, architecture and SHA-256, never by
+directory, so the move does not affect that check.
+
+Experiments follow the same split: `results/experiments/legacy/{biodiesel,hydrogen}/`
+(the cross-domain FSA run records in `results/experiments/legacy/fsa_runs/`), while generic
+validation lives in `results/experiments/validation/`.
+
 ## Structure
 
 ```
