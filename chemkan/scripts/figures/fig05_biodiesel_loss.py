@@ -362,8 +362,10 @@ def make_interval_clean_figure(*, output_path=None, time_averaged=False, show=Fa
     if output_path is not None:
         table_dir = Path(output_path).parent.parent / "tables"
         table_dir.mkdir(parents=True, exist_ok=True)
-        for name, rows in ((f"fig5b_clean_trajectory_losses{suffix}.csv", rollout_rows),
-                           (f"fig5b_interval_objective_losses{suffix}.csv", local_rows)):
+        tables = [(f"fig5b_clean_trajectory_losses{suffix}.csv", rollout_rows)]
+        if not time_averaged:          # the interval objective is never divided by N_t
+            tables.append(("fig5b_interval_objective_losses.csv", local_rows))
+        for name, rows in tables:
             path = table_dir / name
             with path.open("w", newline="") as stream:
                 writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
