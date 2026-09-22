@@ -67,7 +67,7 @@ INTERVAL_MODEL_LABELS = {
     "observed_interval": "Observed-interval ChemKAN",
     "deeponet": "Reference DeepONet (seed 0)",
 }
-INTERVAL_EXPERIMENT = ROOT / "results/experiments/biodiesel_observed_intervals"
+INTERVAL_EXPERIMENT = ROOT / "results/experiments/legacy/biodiesel/observed_intervals"
 INTERVAL_METRIC_CONVENTION = (
     "normalized full-trajectory MSE: mean over species, sum over observation times, "
     "mean over trajectories; train-only min-max normalization"

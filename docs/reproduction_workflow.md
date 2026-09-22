@@ -17,7 +17,8 @@ figures/tables.
 > **Sensitivity backend.** The runs under `results/reproduction/` use
 > `sensitivity = direct_autograd` (backprop through the Tsit5 solve); do not label them as
 > FSA. Forward Sensitivity Analysis is available as `--sensitivity fsa`; its validation
-> and the three FSA comparison runs live separately under `results/experiments/fsa/`
+> lives under `results/experiments/validation/fsa/`, and the FSA comparison runs under
+> `results/experiments/legacy/{biodiesel,hydrogen}/fsa/` and `results/experiments/legacy/fsa_runs/`
 > (see "Forward sensitivity analysis" below).
 
 ---
@@ -422,11 +423,13 @@ another.
 
 `--sensitivity fsa` (all three trainers) forms the training gradients by continuous
 forward sensitivity analysis (`chemkan/src/chemkan/fsa.py`, `ASSUMPTIONS.md` §9). FSA runs
-never overwrite `direct_autograd` runs; they live under `results/experiments/fsa/`.
+never overwrite `direct_autograd` runs; they live under
+`results/experiments/legacy/{biodiesel,hydrogen}/fsa/`, with the cross-domain records in
+`results/experiments/legacy/fsa_runs/` and the validation in `results/experiments/validation/fsa/`.
 
 ```bash
 cd chemkan/scripts
-python fsa/validate_fsa.py                   # Sections A-G -> results/experiments/fsa/validation
+python fsa/validate_fsa.py                   # Sections A-G -> results/experiments/validation/fsa
 python fsa/regress_direct_autograd.py        # direct-autograd control still reproduces the archive
 python fsa/validate_resume.py                # 10 updates vs 5 + resume + 5
 python fsa/run_smoke.py                      # short FSA runs through the real CLIs

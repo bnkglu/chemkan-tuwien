@@ -368,7 +368,7 @@ The FSA entries above (§6E "Next", §8, §9) record the status when they were w
 are kept unchanged. Since then:
 
 - FSA is implemented (`--sensitivity fsa`, `chemkan/src/chemkan/fsa.py`) and numerically
-  validated (`results/experiments/fsa/validation/README.md`).
+  validated (`results/experiments/validation/fsa/README.md`).
 - Hydrogen Stage 1 (N=4 / base-ON) was completed with FSA. Its final Stage-1 loss, 0.3202,
   is close to direct autograd's 0.3149.
 - Hydrogen Stage-2 FSA training is incomplete, so the thermodynamic/temperature
@@ -382,4 +382,4 @@ are kept unchanged. Since then:
   now the time of maximum `dT/dt` with no threshold, reported beside the temperature rise
   and peak `dT/dt`.
 
-Details: `results/experiments/fsa/README.md`.
+Details: `results/experiments/legacy/fsa_runs/README.md`.

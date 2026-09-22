@@ -16,7 +16,7 @@ reproduction with FSA remains unresolved.
 
 ## Validation
 
-[`validation/README.md`](validation/README.md): core validation passed. Checks C (FSA vs
+[`results/experiments/validation/fsa/README.md`](../../validation/fsa/README.md): core validation passed. Checks C (FSA vs
 direct-autograd gradients) and E (trajectory independence) passed after the documented
 refinement extension (amendment 1, one finer tolerance level). The optional
 finite-difference check G is inconclusive for one very small gradient (magnitude 3.67e-08,
@@ -35,7 +35,7 @@ not a controlled benchmark.
 - **Biodiesel.** In the completed 0 %-noise seed-0 run, FSA reaches essentially the same
   late-training optimization loss as direct autograd, so replacing direct autograd with FSA
   does not close the observed loss-scale gap in this run. Final-checkpoint values are in
-  [`tables/biodiesel_B0_fsa_comparison.csv`](tables/biodiesel_B0_fsa_comparison.csv).
+  [`results/experiments/legacy/biodiesel/fsa/tables/biodiesel_B0_fsa_comparison.csv`](../biodiesel/fsa/tables/biodiesel_B0_fsa_comparison.csv).
   Single end points are not used for the comparison because the loss oscillates late in
   training; see notebook 14.
 - **Hydrogen Stage 1.** The final losses of the two backends are close.
@@ -44,10 +44,11 @@ not a controlled benchmark.
 
 Sources:
 - direct autograd biodiesel: `results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0`
-- FSA biodiesel: `biodiesel/fsa_seed0`
+- FSA biodiesel: `results/experiments/legacy/biodiesel/fsa/fsa_seed0`
 - direct autograd hydrogen Stage 1: `results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/stage1_seed0`
-- FSA hydrogen Stage 1: `hydrogen/stage1_fsa_seed0`
-- comparison tables: [`tables/`](tables/)
+- FSA hydrogen Stage 1: `results/experiments/legacy/hydrogen/fsa/stage1_fsa_seed0`
+- comparison tables: [`biodiesel/fsa/tables/`](../biodiesel/fsa/tables/), [`hydrogen/fsa/tables/`](../hydrogen/fsa/tables/)
+  and the cross-domain [`fsa_comparison.json`](fsa_comparison.json)
 
 ## Hydrogen Stage 2 (incomplete)
 
@@ -70,16 +71,16 @@ norm-matched (Hnorm1) FSA run stopped much earlier and is not used for a compari
 
 - **Committed artifacts.** The committed Stage-2 FSA artifacts contain the partial
   histories/probes and retained epoch-500 model snapshots, in
-  `hydrogen/random_stage2_10000_fsa_seed0/` (random thermo initialization, H0) and
-  `hydrogen/normmatched_dir1_stage2_10000_fsa/` (norm-matched initialization, Hnorm1).
+  `results/experiments/legacy/hydrogen/fsa/random_stage2_10000_fsa_seed0/` (random thermo initialization, H0) and
+  `results/experiments/legacy/hydrogen/fsa/normmatched_dir1_stage2_10000_fsa/` (norm-matched initialization, Hnorm1).
 - **End-to-end comparison.** The FSA Stage-2 runs start from the FSA Stage-1 checkpoint
-  (`hydrogen/stage1_fsa_seed0`). The direct-autograd Stage-2 runs start from
+  (`results/experiments/legacy/hydrogen/fsa/stage1_fsa_seed0`). The direct-autograd Stage-2 runs start from
   `base_on_n4/stage1_seed0`. The existing setup is therefore an end-to-end backend
   comparison, not a controlled Stage-2-only ablation of the sensitivity backend.
 
 ## See also
 
-- [`chemkan/notebooks/14_forward_sensitivity_analysis.ipynb`](../../../chemkan/notebooks/14_forward_sensitivity_analysis.ipynb):
+- [`chemkan/notebooks/14_forward_sensitivity_analysis.ipynb`](../../../../chemkan/notebooks/14_forward_sensitivity_analysis.ipynb):
   method, validation and training curves.
-- [`docs/reproduction_workflow.md`](../../../docs/reproduction_workflow.md), "Forward
+- [`docs/reproduction_workflow.md`](../../../../docs/reproduction_workflow.md), "Forward
   sensitivity analysis": commands.

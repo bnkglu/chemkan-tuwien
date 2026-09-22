@@ -14,7 +14,7 @@ Sections (each ends PASS / FAIL / INCONCLUSIVE; G is optional):
     G  optional central finite differences with an epsilon sweep
 
 The acceptance criteria below are written to ``acceptance_criteria.json`` BEFORE any
-section runs. Results go to ``results/experiments/fsa/validation`` (one JSON per section
+section runs. Results go to ``results/experiments/validation/fsa`` (one JSON per section
 plus ``summary.json``). Direct-autograd reference gradients are computed only here, never
 inside FSA training.
 
@@ -45,7 +45,7 @@ from chemkan.fsa import FunctionalDynamics, integrate_with_sensitivities  # noqa
 from chemkan.solver import SolverConfig, integrate                  # noqa: E402
 from chemkan.training import loss_and_gradients                     # noqa: E402
 
-OUT = P.RESULTS / "experiments/fsa/validation"
+OUT = P.RESULTS / "experiments/validation/fsa"
 
 PRODUCTION = (1e-6, 1e-8)                  # rtol, atol of every archived baseline
 LEVELS = {"L0": (1e-6, 1e-8), "L1": (1e-8, 1e-10), "L2": (1e-10, 1e-12)}
@@ -182,7 +182,7 @@ def status(ok: bool | None) -> str:
 def write(name: str, payload: dict) -> Path:
     OUT.mkdir(parents=True, exist_ok=True)
     payload = {"section": name, "created": utc_now(), "git_commit": git_commit(),
-               "code_state": P.code_state(OUT.parent / "code_patches"),
+               "code_state": P.code_state(OUT / "code_patches"),
                "torch": torch.__version__, "torch_num_threads": torch.get_num_threads(),
                **payload}
     path = OUT / f"{name}.json"

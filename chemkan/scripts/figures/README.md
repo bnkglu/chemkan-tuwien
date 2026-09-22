@@ -24,7 +24,7 @@ The interval-trained procedure is explicit in each title; Figure 5B uses full-ro
 losses, not the local interval objective. The all-in-one shell wrapper is
 `chemkan/scripts/reproduction/biodiesel/observed_intervals_figures.sh`.
 The extra interval diagnostics are documented in
-`results/experiments/biodiesel_observed_intervals/INTERVAL_OBJECTIVE_FIGURES.md`.
+`results/experiments/legacy/biodiesel/observed_intervals/INTERVAL_OBJECTIVE_FIGURES.md`.
 
 Run from the repository root, with the project environment
 (`~/uni_projects/chemkan-venv/bin/python`, shown as `python` below).

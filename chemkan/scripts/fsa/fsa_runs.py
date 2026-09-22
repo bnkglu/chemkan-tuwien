@@ -36,12 +36,14 @@ import _problems as P                                               # noqa: E402
 from _run import git_commit, model_tensor_record, tensor_sha256, utc_now  # noqa: E402
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-FSA = P.RESULTS / "experiments/fsa"
+# Legacy (pre-author-clarification) FSA runs: per-domain run dirs, shared records in fsa_runs/.
+LEGACY = P.RESULTS / "experiments/legacy"
+FSA = LEGACY / "fsa_runs"
 RESOLVED = FSA / "resolved_configurations.json"
-OUT = {"B0-FSA": FSA / "biodiesel/fsa_seed0",
-       "H_STAGE1-FSA": FSA / "hydrogen/stage1_fsa_seed0",
-       "H0-FSA": FSA / "hydrogen/random_stage2_10000_fsa_seed0",
-       "Hnorm1-FSA": FSA / "hydrogen/normmatched_dir1_stage2_10000_fsa"}
+OUT = {"B0-FSA": LEGACY / "biodiesel/fsa/fsa_seed0",
+       "H_STAGE1-FSA": LEGACY / "hydrogen/fsa/stage1_fsa_seed0",
+       "H0-FSA": LEGACY / "hydrogen/fsa/random_stage2_10000_fsa_seed0",
+       "Hnorm1-FSA": LEGACY / "hydrogen/fsa/normmatched_dir1_stage2_10000_fsa"}
 BASELINE = {"B0-FSA": P.B0_DIR, "H_STAGE1-FSA": P.H_STAGE1_DIR, "H0-FSA": P.H0_DIR,
             "Hnorm1-FSA": P.HNORM1_DIR}
 PROBE_EPOCHS = "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000"

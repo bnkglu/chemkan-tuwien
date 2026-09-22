@@ -7,5 +7,5 @@ figure_script plot_biodiesel_interval_objective.py
 figure_script fig03_biodiesel_trajectories.py --observed-intervals
 figure_script fig05_biodiesel_loss.py --observed-intervals
 
-info "Paper counterparts: results/experiments/biodiesel_observed_intervals/figures/fig3_noise_columns.pdf and fig5b.pdf"
+info "Paper counterparts: results/experiments/legacy/biodiesel/observed_intervals/figures/fig3_noise_columns.pdf and fig5b.pdf"
 info "The interval objective, species bars, and time/species heatmap are additional biodiesel diagnostics."

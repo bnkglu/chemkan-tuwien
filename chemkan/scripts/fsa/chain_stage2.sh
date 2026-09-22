@@ -5,8 +5,8 @@
 set -u
 cd "$(dirname "$0")/../../.."
 PY="${CHEMKAN_PYTHON:-$HOME/uni_projects/chemkan-venv/bin/python}"
-S1=results/experiments/fsa/hydrogen/stage1_fsa_seed0
-LOG=results/experiments/fsa/chain_stage2.log
+S1=results/experiments/legacy/hydrogen/fsa/stage1_fsa_seed0
+LOG=results/experiments/legacy/fsa_runs/chain_stage2.log
 echo "$(date -u +%FT%TZ) waiting for $S1" >> "$LOG"
 while pgrep -f "train_hydrogen.py .*stage1_fsa_seed0" > /dev/null; do sleep 60; done
 if [ ! -f "$S1/checkpoint_stage1.pt" ] || [ ! -f "$S1/checkpoint_final.pt" ]; then
@@ -14,7 +14,7 @@ if [ ! -f "$S1/checkpoint_stage1.pt" ] || [ ! -f "$S1/checkpoint_final.pt" ]; th
   exit 1
 fi
 echo "$(date -u +%FT%TZ) Stage 1 complete; launching H0-FSA and Hnorm1-FSA" >> "$LOG"
-nohup "$PY" chemkan/scripts/fsa/fsa_runs.py launch H0-FSA > results/experiments/fsa/launch_H0-FSA.log 2>&1 &
+nohup "$PY" chemkan/scripts/fsa/fsa_runs.py launch H0-FSA > results/experiments/legacy/fsa_runs/launch_H0-FSA.log 2>&1 &
 sleep 5
-nohup "$PY" chemkan/scripts/fsa/fsa_runs.py launch Hnorm1-FSA > results/experiments/fsa/launch_Hnorm1-FSA.log 2>&1 &
+nohup "$PY" chemkan/scripts/fsa/fsa_runs.py launch Hnorm1-FSA > results/experiments/legacy/fsa_runs/launch_Hnorm1-FSA.log 2>&1 &
 echo "$(date -u +%FT%TZ) launched" >> "$LOG"

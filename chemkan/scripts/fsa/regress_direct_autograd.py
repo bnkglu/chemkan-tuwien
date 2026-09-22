@@ -6,7 +6,7 @@ history rows with the archived ones. Any drift in model dynamics, loss, normaliz
 initialization, data or optimizer behavior shows up in these rows. Historical artifacts
 are only read; the short runs go to gitignored ``*smoke*`` directories.
 
-Writes ``results/experiments/fsa/validation/da_regression.json``.
+Writes ``results/experiments/validation/fsa/da_regression.json``.
 """
 
 from __future__ import annotations
@@ -25,8 +25,8 @@ import _problems as P                                               # noqa: E402
 from _run import git_commit, utc_now                                # noqa: E402
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-OUT = P.RESULTS / "experiments/fsa/validation"
-WORK = P.RESULTS / "experiments/fsa/smoke/da_regression"
+OUT = P.RESULTS / "experiments/validation/fsa"
+WORK = P.RESULTS / "experiments/validation/fsa/smoke/da_regression"
 PROBE_EPOCHS = "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000"
 REL_TOL = 1e-5            # allowed relative drift per logged value (bit-identity reported)
 TIMING = {"epoch", "elapsed_seconds", "epoch_wall_time_s"}

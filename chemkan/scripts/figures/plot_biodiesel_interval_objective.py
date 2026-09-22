@@ -31,7 +31,7 @@ from chemkan.temperature import ConstantTemperature
 from evaluate_biodiesel import build_kinetic_core, solver_from_ckpt
 from train_biodiesel_observed_intervals import accumulate_interval_gradients
 
-EXP = ROOT / "results/experiments/biodiesel_observed_intervals"
+EXP = ROOT / "results/experiments/legacy/biodiesel/observed_intervals"
 SEEDS = (0, 1, 2)
 METHODS = ("original", "observed_interval")
 METHOD_LABELS = ("Full-trajectory training", "Observed-interval training")

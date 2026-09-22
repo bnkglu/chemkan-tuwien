@@ -58,7 +58,7 @@ python \
 
 Source artifacts:
 
-- [Plotting script](../../../chemkan/scripts/figures/plot_biodiesel_interval_objective.py)
+- [Plotting script](../../../../../chemkan/scripts/figures/plot_biodiesel_interval_objective.py)
 - [Final metrics and recorded checks](tables/interval_objective_summary.csv)
 - [Interval/species error table](tables/interval_objective_error_by_time_species.csv)
 
@@ -105,7 +105,7 @@ python \
 Section 4 of `chemkan/notebooks/11_biodiesel_observed_intervals.ipynb` draws the same
 four-column figure inline.
 
-Sources: [script](../../../chemkan/scripts/figures/plot_biodiesel_interval_fig3.py),
+Sources: [script](../../../../../chemkan/scripts/figures/plot_biodiesel_interval_fig3.py),
 [metrics](tables/interval_fig3_seed0_metrics.json),
 [predictions at observation times](tables/interval_fig3_seed0_predictions.csv),
 [dense plotted curves](tables/interval_fig3_seed0_dense.csv).
@@ -166,7 +166,7 @@ It performs no training. Add `--dry-run` to inspect its commands.
 
 ## Generate the three email attachments in Notebook 11
 
-Run [Notebook 11](../../../chemkan/notebooks/11_biodiesel_observed_intervals.ipynb)
+Run [Notebook 11](../../../../../chemkan/notebooks/11_biodiesel_observed_intervals.ipynb)
 with the `chemkan-venv` kernel. Sections 4, 6, and 7 call the existing Figure 3,
 Figure 5B, and Figure 5A scripts directly as Python functions. Each call displays
 the same figure that it saves as PDF and PNG. The notebook also explains exactly

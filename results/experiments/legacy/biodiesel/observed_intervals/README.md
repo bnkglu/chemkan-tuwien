@@ -46,7 +46,7 @@ observed-interval run's update-0 full-rollout loss equals the original run's epo
 
 ```bash
 PY=~/uni_projects/chemkan-venv/bin/python
-EXP=results/experiments/biodiesel_observed_intervals
+EXP=results/experiments/legacy/biodiesel/observed_intervals
 
 # observed-interval runs
 for s in 0 1 2; do

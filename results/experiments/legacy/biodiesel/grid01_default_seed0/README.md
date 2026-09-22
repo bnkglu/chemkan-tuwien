@@ -18,14 +18,15 @@ default initialization, full batch, clean data, Tsit5 rtol 1e-6 / atol 1e-8.
 - **Grid values:** `config.json` does not record the modified grid. The values above are read
   from the saved RBF centers in `checkpoint_final.pt`.
 - **Evaluation:** the run is evaluated in
-  [`../../paper_alignment_audit_20260910/grid01_email_check.json`](../../paper_alignment_audit_20260910/grid01_email_check.json),
+  [`../../paper_alignment_audit_20260910/grid01_email_check.json`](../paper_alignment_audit_20260910/grid01_email_check.json),
   which identifies it by checkpoint SHA-256 (`4f957289…`, matching this directory's
   `checkpoint_final.pt`). The same file evaluates the default run
   `results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0` (`06d4a34c…`) as the
   baseline. It reports final and late-window (epochs 8,000–9,999) train/test losses for both.
-- **Where it is used:** [`docs/reproduction_summary.md`](../../../../docs/reproduction_summary.md)
+- **Where it is used:** [`docs/reproduction_summary.md`](../../../../../docs/reproduction_summary.md)
   cites that evaluation as "additive-grid".
 - **Original location:** the run was trained on 2026-09-10 at
-  `results/experiments/grid01_default_seed0/` and moved here on 2026-09-22. Its `config.json`
+  `results/experiments/grid01_default_seed0/`; on 2026-09-22 it moved to
+  `results/experiments/biodiesel/` and then, as a pre-author-clarification result, here. Its `config.json`
   (`run_id` `biodiesel/grid01_default_seed0`) and `run.log` keep the original path as
   written at training time.

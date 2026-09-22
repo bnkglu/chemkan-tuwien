@@ -15,7 +15,7 @@ the whole ladder on a SMOOTH CONTROL: the same model and trajectories with T hel
 trajectory's initial temperature (a constant, C-infinity forcing). Nothing here changes
 training; the control is never used to train.
 
-Writes ``results/experiments/fsa/validation/investigation_stage1_refinement.json``.
+Writes ``results/experiments/validation/fsa/investigation_stage1_refinement.json``.
 """
 
 from __future__ import annotations

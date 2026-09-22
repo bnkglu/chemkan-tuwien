@@ -11,8 +11,8 @@ state saved after update 10, and the history rows. Cases: biodiesel full batch, 
 Stage 1, and hydrogen Stage 2 started from the FSA Stage-1 checkpoint of case 2 (which
 also exercises the Stage-1 -> Stage-2 hand-over of an FSA-trained kinetic core).
 
-Writes ``results/experiments/fsa/validation/resume_validation.json``; the runs themselves
-go to the gitignored ``results/experiments/fsa/smoke/resume``.
+Writes ``results/experiments/validation/fsa/resume_validation.json``; the runs themselves
+go to the gitignored ``results/experiments/validation/fsa/smoke/resume``.
 """
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ import _problems as P                                               # noqa: E402
 from _run import git_commit, utc_now                                # noqa: E402
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-OUT = P.RESULTS / "experiments/fsa/validation"
-WORK = P.RESULTS / "experiments/fsa/smoke/resume"
+OUT = P.RESULTS / "experiments/validation/fsa"
+WORK = P.RESULTS / "experiments/validation/fsa/smoke/resume"
 TIMING = {"elapsed_seconds", "epoch_wall_time_s"}
 
 

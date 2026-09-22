@@ -221,7 +221,7 @@ accepts two backends:
 
 - `direct_autograd` — backprop through `odeint`. Every run made before the FSA work used
   it; it stays the default and is unchanged (the regression in
-  `results/experiments/fsa/validation/da_regression.json` reproduces archived history rows
+  `results/experiments/validation/fsa/da_regression.json` reproduces archived history rows
   bit-for-bit). It is a different mechanism from FSA.
 - `fsa` — `chemkan/fsa.py`. The sensitivity equations are obtained by differentiating
   the paper's Eqs. 13 and 15 (paper notation, `u = [u_tilde, T]`):
@@ -261,7 +261,7 @@ mathematics only; the solver remains torchdiffeq's Tsit5.
 Inference is the ordinary state-only solve for both backends. Validation (analytic
 problem, functional equivalence, FSA-vs-direct-autograd gradients under tolerance
 refinement, state consistency, trajectory independence, production dtype, resume) is in
-`chemkan/scripts/fsa/` with artifacts in `results/experiments/fsa/validation/`.
+`chemkan/scripts/fsa/` with artifacts in `results/experiments/validation/fsa/`.
 
 **Implementation choices of the FSA path (not paper-specified).** The augmented error
 norm (torchdiffeq's default RMS over state and sensitivities), float32 production dtype

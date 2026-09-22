@@ -299,7 +299,7 @@ code, not the science.
   close the observed loss-scale gap in this run. Hydrogen Stage-2 FSA training is
   currently incomplete, so the thermodynamic/temperature reproduction with FSA remains
   unresolved.
-  [`results/experiments/fsa/README.md`](../results/experiments/fsa/README.md)
+  [`results/experiments/legacy/fsa_runs/README.md`](../results/experiments/legacy/fsa_runs/README.md)
 - **The hydrogen failure has no single established cause.** Grid size `N`, the `θ_thermo`
   initialization and any derivative scaling inside Eq. 14 are all unstated in the paper, so
   several explanations remain simultaneously open. Diagnostics:
@@ -345,11 +345,11 @@ The additive-grid row changes only the additive branch's RBF grid, from centres
 The Xavier row changes only the weight initialization. Every row except the three paired
 seeds is a single seed-0 run.
 
-Sources: observed-interval [final comparison](../results/experiments/biodiesel_observed_intervals/tables/observed_intervals_final_comparison.csv),
-[runtime table](../results/experiments/biodiesel_observed_intervals/tables/observed_intervals_runtime.csv),
-batching [final comparison](../results/experiments/biodiesel_trajectory_batching/tables/batching_final_comparison.csv)
-and [batch-size-5 comparison](../results/experiments/biodiesel_trajectory_batching/tables/batching_bs5_comparison.csv),
-Xavier [final losses](../results/experiments/biodiesel_xavier_init/tables/xavier_final_losses.csv),
-additive-grid [evaluation](../results/experiments/paper_alignment_audit_20260910/grid01_email_check.json),
-and the RBF-labelled run's [metrics](../results/experiments/biodiesel_rbf_kanode/clean_seed0/metrics.json).
+Sources: observed-interval [final comparison](../results/experiments/legacy/biodiesel/observed_intervals/tables/observed_intervals_final_comparison.csv),
+[runtime table](../results/experiments/legacy/biodiesel/observed_intervals/tables/observed_intervals_runtime.csv),
+batching [final comparison](../results/experiments/legacy/biodiesel/trajectory_batching/tables/batching_final_comparison.csv)
+and [batch-size-5 comparison](../results/experiments/legacy/biodiesel/trajectory_batching/tables/batching_bs5_comparison.csv),
+Xavier [final losses](../results/experiments/legacy/biodiesel/xavier_init/tables/xavier_final_losses.csv),
+additive-grid [evaluation](../results/experiments/legacy/biodiesel/paper_alignment_audit_20260910/grid01_email_check.json),
+and the RBF-labelled run's [metrics](../results/experiments/legacy/biodiesel/rbf_kanode/clean_seed0/metrics.json).
 Runtimes are the runs' recorded wall times.

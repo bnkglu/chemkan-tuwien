@@ -113,4 +113,4 @@ experiment was written. FSA has since been implemented and validated. In the com
 0 %-noise seed-0 run, FSA reaches essentially the same late-training optimization loss as
 direct autograd (median over epochs 8,000–10,000: 0.0356 vs 0.0358), so replacing direct
 autograd with FSA does not close the observed loss-scale gap in this run. See
-`results/experiments/fsa/README.md`.
+`results/experiments/legacy/fsa_runs/README.md`.

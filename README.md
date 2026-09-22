@@ -18,7 +18,7 @@ artifacts follow the layout in [`results/reproduction/README.md`](results/reprod
 (one directory per run: `checkpoint_final.pt`, `config.json`, `run.log`, `history*.csv`,
 `metrics.json`, `predictions/`). The runs under `results/reproduction/` use
 `sensitivity = direct_autograd`; the FSA runs are under
-[`results/experiments/fsa/`](results/experiments/fsa/README.md).
+[`results/experiments/legacy/fsa_runs/`](results/experiments/legacy/fsa_runs/README.md).
 
 ## Reproduction status
 
@@ -40,7 +40,7 @@ the completed biodiesel and hydrogen Stage-1 experiments, changing the sensitivi
 from direct autograd to FSA does not materially change the achieved loss, although FSA
 required substantially more training time in these runs (recorded wall time, not a
 controlled benchmark). Hydrogen Stage-2 FSA training is currently incomplete, so the
-thermodynamic/temperature reproduction with FSA remains unresolved. Details: [`results/experiments/fsa/README.md`](results/experiments/fsa/README.md).
+thermodynamic/temperature reproduction with FSA remains unresolved. Details: [`results/experiments/legacy/fsa_runs/README.md`](results/experiments/legacy/fsa_runs/README.md).
 
 ### Hydrogen — reproduction NOT complete
 
@@ -91,7 +91,7 @@ default changed. The findings below are **N=5/base-OFF** except where stated.
 - **The effect of FSA on the hydrogen outcome is unresolved.** The results above use
   direct autograd. FSA is implemented and its hydrogen Stage 1 reaches a final loss close
   to direct autograd's, but Stage-2 FSA training is incomplete
-  ([`results/experiments/fsa/`](results/experiments/fsa/README.md)).
+  ([`results/experiments/legacy/fsa_runs/`](results/experiments/legacy/fsa_runs/README.md)).
 
 **Two separate Figure-7/8A mismatches, not one.** They have different status and must not
 be merged:

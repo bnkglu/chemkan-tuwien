@@ -58,7 +58,7 @@ is not a claim about the paper, which does not specify an initialization scheme.
 
 ```bash
 PY=~/uni_projects/chemkan-venv/bin/python
-EXP=results/experiments/biodiesel_xavier_init
+EXP=results/experiments/legacy/biodiesel/xavier_init
 
 $PY chemkan/scripts/train_biodiesel.py --seed 0 --epochs 10000 --eval-every 1 \
     --init xavier --experiment-name xavier_init --run-dir $EXP/clean_seed0

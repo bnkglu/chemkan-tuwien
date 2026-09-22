@@ -42,7 +42,7 @@ Example
 -------
     python chemkan/scripts/train_biodiesel_observed_intervals.py \
         --seed 0 --epochs 10000 --snapshot-epochs 5000 \
-        --run-dir results/experiments/biodiesel_observed_intervals/seed0
+        --run-dir results/experiments/legacy/biodiesel/observed_intervals/seed0
 """
 
 from __future__ import annotations
@@ -185,7 +185,7 @@ def build_parser() -> argparse.ArgumentParser:
     # run directory -- required: this experiment writes only into its own new area
     p.add_argument("--run-dir", required=True,
                    help="one directory per run, e.g. "
-                        "results/experiments/biodiesel_observed_intervals/seed0")
+                        "results/experiments/legacy/biodiesel/observed_intervals/seed0")
     p.add_argument("--experiment-name", default="observed_intervals")
     p.add_argument("--checkpoint-every", type=int, default=500,
                    help="overwrite checkpoint_resume.pt every N updates")

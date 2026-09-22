@@ -17,8 +17,10 @@ r"""Evaluate the FSA runs with the EXISTING procedures and compare them with the
    diagnostics of ``diagnostics/analyze_base_on_matrix.py`` (``evaluate_checkpoint``,
    ``stability``, ``run_wall_hours``, NFE from the history CSVs).
 
-Outputs: ``results/experiments/fsa/tables/*.csv|json`` and
-``results/experiments/fsa/figures/*.png``. These are single-seed, single-configuration
+Outputs (legacy FSA runs): per-domain tables in
+``results/experiments/legacy/{biodiesel,hydrogen}/fsa/tables/``, the hydrogen figure in
+``results/experiments/legacy/hydrogen/fsa/figures/``, and the cross-domain
+``fsa_comparison.json`` and training-loss figure in ``results/experiments/legacy/fsa_runs/``. These are single-seed, single-configuration
 results; they say nothing about noise or seed robustness, and end-to-end hydrogen
 differences cannot be attributed to Stage 1 or Stage 2 without a controlled ablation.
 """
@@ -50,8 +52,10 @@ from chemkan.solver import integrate                                # noqa: E402
 from chemkan.temperature import ObservedTemperature                 # noqa: E402
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-FSA = P.RESULTS / "experiments/fsa"
-TABLES, FIGURES = FSA / "tables", FSA / "figures"
+LEGACY = P.RESULTS / "experiments/legacy"
+FSA_RUNS = LEGACY / "fsa_runs"                                      # cross-domain outputs
+TABLES = {"biodiesel": LEGACY / "biodiesel/fsa/tables", "hydrogen": LEGACY / "hydrogen/fsa/tables"}
+H_FIGURES = LEGACY / "hydrogen/fsa/figures"
 BASE_TABLES = P.RESULTS / "reproduction/legacy/hydrogen/tables"
 BASE_GRID = P.RESULTS / "reproduction/legacy/hydrogen/chemkan/generalization"
 PAIRS = {"B0": (P.B0_DIR, FSA_DIRS["B0-FSA"]),
@@ -85,10 +89,10 @@ def run_evaluations(force: bool):
                     "--save-predictions", *(["--force"] if force else []))
         if name != "B0":
             label = d.name
-            if force or not (TABLES / f"hydrogen_ignition_delay_{label}.json").exists():
-                cli("evaluate_hydrogen_ignition.py", "--run-dir", str(d), "--out", str(TABLES), "--force")
-            if force or not (TABLES / f"{label}_generalization_441.json").exists():
-                cli("evaluate_hydrogen_grid.py", "--run-dir", str(d), "--out", str(TABLES), "--force")
+            if force or not (TABLES["hydrogen"] / f"hydrogen_ignition_delay_{label}.json").exists():
+                cli("evaluate_hydrogen_ignition.py", "--run-dir", str(d), "--out", str(TABLES["hydrogen"]), "--force")
+            if force or not (TABLES["hydrogen"] / f"{label}_generalization_441.json").exists():
+                cli("evaluate_hydrogen_grid.py", "--run-dir", str(d), "--out", str(TABLES["hydrogen"]), "--force")
         print(f"evaluated {name}-FSA", flush=True)
 
 
@@ -172,8 +176,8 @@ def stage2_rows(D):
                     row.update({f"stability_{k}": v for k, v in M.stability(h).items()})
                     row.update(history_summary(d, "history_stage2.csv"))
                     stem = d.name
-                    ign = (BASE_TABLES if "FSA" not in label else TABLES) / f"hydrogen_ignition_delay_{stem}.json"
-                    grid = (BASE_GRID if "FSA" not in label else TABLES) / f"{stem}_generalization_441.json"
+                    ign = (BASE_TABLES if "FSA" not in label else TABLES["hydrogen"]) / f"hydrogen_ignition_delay_{stem}.json"
+                    grid = (BASE_GRID if "FSA" not in label else TABLES["hydrogen"]) / f"{stem}_generalization_441.json"
                     if ign.exists():
                         # Neutral fields only: the delay is argmax dT/dt for each of the
                         # paper's 30 conditions, read together with the temperature rises.
@@ -199,7 +203,8 @@ def figures(D, curves):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    FIGURES.mkdir(parents=True, exist_ok=True)
+    H_FIGURES.mkdir(parents=True, exist_ok=True)
+    FSA_RUNS.mkdir(parents=True, exist_ok=True)
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
     for ax, (T0, phi, role) in zip(axes, M.CONDS):
         ax.plot(D.t_dense * 1e3, D.reference_T_dense(T0, phi), "k-", lw=2, label="Cantera reference")
@@ -213,7 +218,7 @@ def figures(D, curves):
         ax.set_ylabel("T [K]")
     axes[0].legend(fontsize=8)
     fig.tight_layout()
-    fig.savefig(FIGURES / "hydrogen_temperature_fsa_vs_direct_autograd.png", dpi=150)
+    fig.savefig(H_FIGURES / "hydrogen_temperature_fsa_vs_direct_autograd.png", dpi=150)
     plt.close(fig)
 
     fig, axes = plt.subplots(1, 4, figsize=(18, 3.8))
@@ -227,7 +232,7 @@ def figures(D, curves):
         ax.set_xlabel("epoch (= optimizer update)")
         ax.legend(fontsize=8)
     fig.tight_layout()
-    fig.savefig(FIGURES / "training_loss_fsa_vs_direct_autograd.png", dpi=150)
+    fig.savefig(FSA_RUNS / "training_loss_fsa_vs_direct_autograd.png", dpi=150)
     plt.close(fig)
 
 
@@ -237,7 +242,8 @@ def main():
     ap.add_argument("--skip-eval", action="store_true")
     ap.add_argument("--force", action="store_true", help="re-run the evaluation CLIs")
     a = ap.parse_args()
-    TABLES.mkdir(parents=True, exist_ok=True)
+    for d in (*TABLES.values(), FSA_RUNS):
+        d.mkdir(parents=True, exist_ok=True)
     if not a.skip_eval:
         run_evaluations(a.force)
     D = M.Data()
@@ -246,7 +252,7 @@ def main():
     for name, rows in (("biodiesel_B0_fsa_comparison", bd), ("hydrogen_stage1_fsa_comparison", s1),
                        ("hydrogen_stage2_fsa_comparison", s2)):
         if rows:
-            pd.DataFrame(rows).to_csv(TABLES / f"{name}.csv", index=False)
+            pd.DataFrame(rows).to_csv(TABLES[name.split("_")[0]] / f"{name}.csv", index=False)
     payload = {"created": utc_now(), "git_commit": git_commit(), "code_state": P.code_state(),
                "biodiesel": bd, "hydrogen_stage1": s1, "hydrogen_stage2": s2,
                "interpretation_limits": [
@@ -256,7 +262,7 @@ def main():
                    "without a controlled Stage-2-only ablation",
                    "Hnorm1 changes both the thermo direction and magnitude relative to H0",
                    "H0 is the primary hydrogen result; Hnorm1 is a labelled initialization comparison"]}
-    (TABLES / "fsa_comparison.json").write_text(json.dumps(payload, indent=2, default=float))
+    (FSA_RUNS / "fsa_comparison.json").write_text(json.dumps(payload, indent=2, default=float))
     if curves:
         figures(D, curves)
     print(json.dumps({"biodiesel": bd, "stage1": s1}, indent=1, default=float)[:3000])

@@ -3,7 +3,7 @@
 Full-trajectory biodiesel training with mini-batches of training trajectories instead of one
 full batch of all 20. Everything else follows the default biodiesel run (Adam lr 2e-3, default
 initialization, clean data, seed 0, 10,000 epochs). One epoch is one pass over the 20
-training trajectories. Analysis: [`chemkan/notebooks/13_biodiesel_trajectory_batching.ipynb`](../../../chemkan/notebooks/13_biodiesel_trajectory_batching.ipynb).
+training trajectories. Analysis: [`chemkan/notebooks/13_biodiesel_trajectory_batching.ipynb`](../../../../../chemkan/notebooks/13_biodiesel_trajectory_batching.ipynb).
 
 | directory | batch size | batches / epoch | epochs | optimizer steps |
 |---|---|---|---|---|

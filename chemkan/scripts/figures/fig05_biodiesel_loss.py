@@ -164,7 +164,7 @@ def main():
     args = p.parse_args()
     if args.observed_intervals:
         _, _, suffix = loss_reduction(0, args.time_averaged)
-        exp = ROOT / "results/experiments/biodiesel_observed_intervals"
+        exp = ROOT / "results/experiments/legacy/biodiesel/observed_intervals"
         make_interval_clean_figure(output_path=exp / f"figures/fig5b{suffix}",
                                    time_averaged=args.time_averaged)
         return
@@ -190,7 +190,7 @@ def make_interval_clean_figure(*, output_path=None, time_averaged=False, show=Fa
     the local training objective retains its own recorded endpoint-sum convention.
     With ``output_path=None``, neither figures nor companion tables are written.
     """
-    exp = ROOT / "results/experiments/biodiesel_observed_intervals"
+    exp = ROOT / "results/experiments/legacy/biodiesel/observed_intervals"
     n_times = observation_times("biodiesel.npz")
     divisor, note, suffix = loss_reduction(n_times, time_averaged)
     final_precision = 8 if time_averaged else 6

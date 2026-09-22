@@ -1,4 +1,4 @@
-"""Render results/experiments/fsa/validation/README.md from the validation JSON artifacts.
+"""Render results/experiments/validation/fsa/README.md from the validation JSON artifacts.
 
 Every number in the rendered page is read from a JSON file in the same directory; nothing
 is recomputed or typed in by hand.
@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import _problems as P                                               # noqa: E402
 
-V = P.RESULTS / "experiments/fsa/validation"
+V = P.RESULTS / "experiments/validation/fsa"
 
 
 def j(name):

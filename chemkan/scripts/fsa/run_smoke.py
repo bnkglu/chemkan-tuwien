@@ -1,6 +1,6 @@
 r"""Short FSA smoke tests through the real training CLIs (DIAGNOSTIC; not scientific runs).
 
-Runs, in order, each into the gitignored ``results/experiments/fsa/smoke/runs``:
+Runs, in order, each into the gitignored ``results/experiments/validation/fsa/smoke/runs``:
 
   bd_full      biodiesel, B0 settings, full batch, 20 updates + state-only evaluation
   bd_batch5    biodiesel trajectory mini-batches of 5 (support check), 1 epoch = 4 updates
@@ -19,7 +19,7 @@ per update vs the archived direct-autograd baseline at the same epochs ("reasona
 at most RUNTIME_RATIO_MAX times slower); NFE per update where the trainer records it.
 
 Smoke models and optimizer states are never used to start a scientific run.
-Writes ``results/experiments/fsa/validation/smoke_summary.json``.
+Writes ``results/experiments/validation/fsa/smoke_summary.json``.
 """
 
 from __future__ import annotations
@@ -45,8 +45,8 @@ from chemkan.solver import SolverConfig                             # noqa: E402
 from chemkan.training import loss_and_gradients                     # noqa: E402
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-OUT = P.RESULTS / "experiments/fsa/validation"
-WORK = P.RESULTS / "experiments/fsa/smoke/runs"
+OUT = P.RESULTS / "experiments/validation/fsa"
+WORK = P.RESULTS / "experiments/validation/fsa/smoke/runs"
 PROBE_EPOCHS = "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000"
 H_COMMON = ["--seed", "0", "--experiment-name", "base_on_n4", "--sensitivity", "fsa",
             "--count-nfe", "--stage1-temperature-source", "dense-cantera",
