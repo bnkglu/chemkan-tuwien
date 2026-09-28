@@ -79,7 +79,7 @@ def generate(cfg) -> dict:
           f"{ct.Solution(MECH).n_reactions} reactions")
     print(f"  species: {names}")
 
-    # Saved trajectories use 50 points by default; ignition delay uses a denser diagnostic grid.
+    # Saved trajectories use 100 points by default; ignition delay uses a denser diagnostic grid.
     t = np.linspace(0.0, cfg.t_end, cfg.n_points)
     T0s, phis = build_grid(cfg.grid)
     if cfg.phis:
@@ -265,8 +265,8 @@ def main():
     p.add_argument("--seed", type=int, default=0, help="unused; recorded in metadata")
     p.add_argument("--grid", choices=["coarse", "fine"], default="coarse")
     p.add_argument("--t-end", type=float, default=0.6e-3, help="seconds (0.6 ms)")
-    p.add_argument("--n-points", type=int, default=50,
-                   help="uniform samples over [0, 0.6 ms]; default 50 follows "
+    p.add_argument("--n-points", type=int, default=100,
+                   help="uniform samples over [0, 0.6 ms]; default 100 follows "
                         "ChemNODE-style saved trajectories. Use 601 for 1 us resolution.")
     p.add_argument("--ignition-points", type=int, default=601,
                    help="dense grid used only for ignition-delay diagnostics; "

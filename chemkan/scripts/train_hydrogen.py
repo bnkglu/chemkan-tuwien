@@ -33,6 +33,7 @@ ablation.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import sys
@@ -354,7 +355,7 @@ def main():
 
     # --- Stage 1: species only, observed temperature ------------------------------
     # Only the EXTERNAL temperature provider changes here. The Stage-1 output grid
-    # (t = data["t"], 50 points) and species targets stay on the canonical dataset.
+    # (t = data["t"]) and species targets stay on the canonical dataset.
     if args.stage1_temperature_source == "dense-cantera":
         dense = load_hydrogen_temperature(split="train",
                                           n_points=args.stage1_temperature_points)
@@ -440,7 +441,10 @@ def main():
         "pinn": {"stage1": args.pinn_stage1, "stage2": args.pinn_stage2,
                  "alpha_pinn": args.alpha_pinn},
         "normalization": {"input_scaling": args.input_scaling, "stats": "train-only min-max"},
-        "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)", "noise": None,
+        "dataset": (f"hydrogen.npz (train split, {data['t'].shape[0]} points, "
+                    f"{data['species_TBm'].shape[1]} conditions)"),
+        "dataset_sha256": hashlib.sha256((DATA_DIR / "hydrogen.npz").read_bytes()).hexdigest(),
+        "noise": None,
         "stage1_temperature": stage1_temp_meta,
         "thermo_init": thermo_init_meta,
         "stage1_from": stage1_from_meta,

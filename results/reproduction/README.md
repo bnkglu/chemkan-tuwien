@@ -11,6 +11,13 @@ runs. `legacy` marks the protocol generation, not a judgement of the results. Ru
 under the clarified protocol will be written to the current locations
 `biodiesel/{chemkan,deeponet}/` and `hydrogen/chemkan/`, which do not exist yet.
 
+All legacy hydrogen runs used the 50-point `hydrogen.npz` (every legacy hydrogen
+`config.json` records "50 points, 35 conditions"). Its last committed version is sha256
+`7c07454d…` (commit `07001c4`), recoverable from git history; the earlier version
+`0202b3f1…` (`b549b38`) has identical training arrays and differs only in ignition-delay
+metadata. Re-evaluating legacy hydrogen checkpoints must use the 50-point file, not the
+current 100-point one.
+
 Moving the runs did not rewrite their provenance. The `run_id` stored in each `config.json`,
 checkpoint and prediction artifact, and the paths recorded in `run.log`, still show where
 the run was written at training time (e.g. `chemkan/hydrogen/main/…`). Prediction artifacts

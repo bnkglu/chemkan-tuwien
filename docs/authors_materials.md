@@ -25,7 +25,7 @@ Status: **done** = current code/data follow it; **not yet** = current code/data 
 | B6 | The released example is a pared-down noisy case with a few minor differences from the paper; it converges in ~1e4 epochs. | 10,000 epochs (line 22) | n.a. |
 | H1 | 36 initial-condition combinations; the φ list in the text omits 0.5; Fig. 8 shows all 36. | n.a. | done (`hydrogen.npz`: 35 train + 1 test) |
 | H2 | Hydrogen uses no base activation, so grid size 5 is correct. | n.a. | not yet (default N=4 / base on; legacy `hydrogen/main/base_off_direct_autograd_seed0` used N=5 / base off) |
-| H3 | Training grid of 100 time steps; data from Arrhenius.jl `CVODE_BDF`, rtol = atol = 1e-14, checked against Cantera (dtmax 1e-5 s, dTmax 1 K), interpolated onto the 100 points. | n.a. | not yet (tracked `hydrogen.npz` has 50 points; a 100-point Cantera file exists locally, uncommitted) |
+| H3 | Training grid of 100 time steps; data from Arrhenius.jl `CVODE_BDF`, rtol = atol = 1e-14, checked against Cantera (dtmax 1e-5 s, dTmax 1 K), interpolated onto the 100 points. | n.a. | done (`hydrogen.npz`: 100 points on 0-0.6 ms; generated with Cantera, not Arrhenius.jl) |
 | H4 | Dense time/temperature kept separately as a linear interpolant, sampled inside the forward pass. | n.a. | done (Stage 1 `--stage1-temperature-source dense-cantera`, 20,000 points, linear) |
 | H5 | Recovering exact h_i/c_p values was neither expected nor tested. | n.a. | n.a. |
 | H6 | Thermodynamic linear weights all initialized to 1e-5, so dT/dt starts near zero; random init could overpredict T and destabilize training. | n.a. | not yet (`--thermo-init` offers random / cantera / scaled-random) |

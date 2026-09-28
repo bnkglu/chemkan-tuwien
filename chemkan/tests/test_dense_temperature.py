@@ -2,7 +2,7 @@
 
 Covers the temperature-only generator mode, the dense loader's validations, the
 reuse of ObservedTemperature (exact-at-node / linear-between), the invariants that
-must NOT change (50-point output grid, species targets, parameter counts, Stage-2
+must NOT change (100-point output grid, species targets, parameter counts, Stage-2
 independence), and the checkpoint metadata for both temperature sources.
 
 Tests that need Cantera or the generated archives skip cleanly when unavailable.
@@ -177,14 +177,14 @@ def test_dense_provider_linear_between():
 # 6 / 7  Stage-1 output grid + species target invariants (unchanged)
 # --------------------------------------------------------------------------
 
-def test_stage1_output_grid_is_50_points():
+def test_stage1_output_grid_is_100_points():
     data = _canonical_or_skip()
-    assert data["t"].shape == (50,)
+    assert data["t"].shape == (100,)
 
 
 def test_stage1_species_target_shape():
     data = _canonical_or_skip()
-    assert data["species_TBm"].shape == (50, 35, 9)
+    assert data["species_TBm"].shape == (100, 35, 9)
 
 
 # --------------------------------------------------------------------------
