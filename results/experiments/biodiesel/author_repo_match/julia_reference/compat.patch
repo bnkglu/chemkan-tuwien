@@ -1,0 +1,28 @@
+--- ChemKAN_biodiesel_example.jl (DENG-MIT/ChemKAN d7aa5ab)
++++ ChemKAN_biodiesel_example_compat.jl
+@@ -32,7 +32,7 @@
+ ns = 6;
+ nr = 3;
+ # alg = Tsit5(); 
+-alg = AutoTsit5(Rosenbrock23(autodiff=false));
++alg = AutoTsit5(Rosenbrock23(autodiff=AutoFiniteDiff()));
+ atol = 1e-5;
+ rtol = 1e-2;
+ 
+@@ -251,6 +251,7 @@
+ end
+ 
+ p_opt=deepcopy(p)
++opt_state = Flux.setup(opt, p)
+ 
+ if is_restart
+     @load "./checkpoint/mymodel_0_noise.bson" p p_opt opt list_loss_train list_loss_val list_loss_val_noisefree iter
+@@ -274,7 +275,7 @@
+     loss_val=loss_aggregate_test(p)
+     loss_val_noisefree=loss_aggregate_test_noise_free(p)
+     grad = ForwardDiff.gradient(x -> loss_aggregate_train(x), p)
+-    update!(opt, p, grad)
++    Flux.update!(opt_state, p, grad)
+ 
+     set_description(epochs, string(@sprintf("Loss train %.4e val %.4e val_noisefree val %.4e", loss_train, loss_val, loss_val_noisefree)))
+     cb(p, p_opt, loss_train, loss_val, loss_val_noisefree);

@@ -1,0 +1,55 @@
+{
+  "status": "completed",
+  "epochs_completed": 10000,
+  "wall_clock_s": 6351.02,
+  "loss_convention": "primary: released-example Flux mse; eq18 = 30 x mse",
+  "train_mse": {
+    "first": 0.2778281418389482,
+    "final_logged": 7.277438846907754e-05,
+    "min": 7.09666047383058e-05,
+    "min_epoch": 9904,
+    "last20pct_median": 7.802055102200834e-05,
+    "last20pct_min": 7.09666047383058e-05,
+    "last20pct_max": 0.0005663976348089776,
+    "all_finite": true
+  },
+  "val_mse": {
+    "first": 0.25103120537354784,
+    "final_logged": 0.00028498162952046203,
+    "min": 0.00026673584609499093,
+    "min_epoch": 9947,
+    "last20pct_median": 0.00034306021243797635,
+    "last20pct_min": 0.00026673584609499093,
+    "last20pct_max": 0.0009144412535419692,
+    "all_finite": true
+  },
+  "train_eq18_final_logged": 0.002183231654072326,
+  "val_eq18_final_logged": 0.008549448885613861,
+  "final_parameters": {
+    "training_solver_rtol1e-2": {
+      "train_mse": 7.298214094245176e-05,
+      "val_mse": 0.00028124997644653617,
+      "train_eq18": 0.0021894642282735527,
+      "val_eq18": 0.008437499293396085
+    },
+    "tight_solver_rtol1e-10": {
+      "train_mse": 7.549660164662134e-05,
+      "val_mse": 0.00031272563332198825,
+      "train_eq18": 0.00226489804939864,
+      "val_eq18": 0.009381768999659647
+    }
+  },
+  "julia_reference": {
+    "train_mse_final_logged": 4.9196e-05,
+    "val_mse_final_logged": 0.000212588,
+    "train_mse_min": 4.1816e-05,
+    "train_mse_min_epoch": 9957,
+    "val_mse_min": 0.000192183,
+    "val_mse_min_epoch": 9454,
+    "wall_clock_s": 2207.66
+  },
+  "ratio_to_julia": {
+    "train_final_logged": 1.479274503396161,
+    "val_final_logged": 1.3405348821215781
+  }
+}

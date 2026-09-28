@@ -1,0 +1,56 @@
+{
+  "status": "completed",
+  "epochs_completed": 10000,
+  "wall_clock_s": 14389.45,
+  "loss_convention": "primary: released-example Flux mse; eq18 = 30 x mse",
+  "train_mse": {
+    "first": 0.25419937615257837,
+    "final_logged": 7.970614434553396e-05,
+    "min": 7.970614434553396e-05,
+    "min_epoch": 10000,
+    "last20pct_median": 8.713076515249097e-05,
+    "last20pct_min": 7.970614434553396e-05,
+    "last20pct_max": 0.0003442503208955479,
+    "all_finite": true
+  },
+  "val_mse": {
+    "first": 0.29971357391876013,
+    "final_logged": 0.0006647964388578507,
+    "min": 0.0006419434145554383,
+    "min_epoch": 9368,
+    "last20pct_median": 0.0006876753781022602,
+    "last20pct_min": 0.0006419434145554383,
+    "last20pct_max": 0.0010679009666557412,
+    "all_finite": true
+  },
+  "train_eq18_final_logged": 0.002391184330366019,
+  "val_eq18_final_logged": 0.01994389316573552,
+  "final_parameters": {
+    "training_solver_rtol1e-2": {
+      "train_mse": 7.975641981419919e-05,
+      "val_mse": 0.0006633028843033254,
+      "train_eq18": 0.0023926925944259755,
+      "val_eq18": 0.01989908652909976
+    },
+    "tight_solver_rtol1e-10": {
+      "train_mse": 7.9767674949989e-05,
+      "val_mse": 0.000654942324365542,
+      "train_eq18": 0.00239303024849967,
+      "val_eq18": 0.01964826973096626
+    }
+  },
+  "legacy_b0_reference": {
+    "run": "results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0",
+    "train_eq18_last20pct_median": 0.03578290529549122,
+    "train_mse_last20pct_median": 0.0011927635098497073,
+    "train_eq18_min": 0.031129175797104836,
+    "train_mse_min": 0.001037639193236828,
+    "test_eq18_final_checkpoint": 0.08140052855014801,
+    "test_mse_final_checkpoint": 0.0027133509516716003
+  },
+  "ratio_to_legacy_b0": {
+    "train_last20pct_median": 0.07304948921808463,
+    "train_min": 0.07681489371743695,
+    "val_last20pct_median_vs_b0_final_test": 0.25344136838568837
+  }
+}
