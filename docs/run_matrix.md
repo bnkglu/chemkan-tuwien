@@ -173,3 +173,5 @@ Artifacts: `results/experiments/biodiesel/author_repo_match/`; details and findi
 | `run_batched_fsa_juliainit` | author | Julia `p_init` | batched | FSA | complete, 1,588 s |
 | `canonical_data_seed0` | canonical | seed 0 | loop | direct autograd | complete, 5,821 s (resumed once at epoch 2,500) |
 | `canonical_data_fsa_seed0` | canonical | seed 0 | loop | FSA | complete, 14,389 s |
+| `reaction_order/code_order_seed0` | author recipe, code-order kinetics | seed 0 | batched | direct autograd | complete, 335 s |
+| `reaction_order/paper_order_seed0` | author recipe, paper-order kinetics | seed 0 | batched | direct autograd | complete, 350 s |

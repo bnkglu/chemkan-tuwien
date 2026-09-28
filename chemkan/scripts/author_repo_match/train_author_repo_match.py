@@ -72,17 +72,22 @@ LEGACY_B0 = {"run": "results/reproduction/legacy/biodiesel/chemkan/main/direct_a
 HISTORY_COLUMNS = ["epoch", "train_mse", "val_mse", "train_eq18", "val_eq18", "elapsed_seconds"]
 
 
-def load_data(device) -> dict:
-    """The released example's own arrays (experiment-local dataset)."""
-    d = np.load(DATA)
+def load_data(device, path: Path = DATA) -> dict:
+    """The released example's own arrays (experiment-local dataset), or another file in the
+    same layout (``--data-file``, e.g. the reaction-order datasets)."""
+    d = np.load(path)
     n_train = int(d["n_train"])
     as_t = lambda a: torch.as_tensor(a, dtype=torch.float64, device=device)
+    source = {"data_source": "author_repo",
+              "path": str(path.resolve().relative_to(EXP.parents[2])),
+              "normalization": "released example: species min/max over train+test, "
+                               "T min/max over all ICs"}
+    if path != DATA:
+        source["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
     return {"t": as_t(d["t"]), "u0": as_t(d["u0_norm"]), "target": as_t(d["normdata"]),
             "n_train": n_train, "n_test": int(d["n_test"]),
             "train": slice(0, n_train), "test": slice(n_train, n_train + int(d["n_test"])),
-            "source": {"data_source": "author_repo", "path": str(DATA.relative_to(EXP.parents[2])),
-                       "normalization": "released example: species min/max over train+test, "
-                                        "T min/max over all ICs"}}
+            "source": source}
 
 
 def load_canonical_data(device) -> dict:
@@ -183,6 +188,9 @@ def main() -> int:
                     default="per_trajectory",
                     help="per_trajectory: one solve per trajectory, as Julia (default); "
                          "batched: one solve of all trajectories, as the canonical trainer")
+    ap.add_argument("--data-file", type=Path, default=None,
+                    help="with --data author_repo: train on this .npz (same layout as the "
+                         "default author_repo_match_biodiesel.npz) instead")
     ap.add_argument("--init-from", type=Path, default=None,
                     help="start from these 156 flat Julia parameters (p.txt layout, e.g. "
                          "julia_reference/p_init.txt) instead of the seeded glorot draw")
@@ -204,7 +212,10 @@ def main() -> int:
     torch.set_default_dtype(torch.float64)
     torch.set_num_threads(args.threads)
     device = torch.device("cpu")
-    data = load_data(device) if args.data == "author_repo" else load_canonical_data(device)
+    if args.data_file is not None and args.data != "author_repo":
+        raise SystemExit("--data-file requires --data author_repo")
+    data = (load_data(device, args.data_file or DATA) if args.data == "author_repo"
+            else load_canonical_data(device))
     solver = SolverConfig(method="tsit5", rtol=1e-2, atol=1e-6, sensitivity=args.sensitivity)
 
     core = build_core().to(device)

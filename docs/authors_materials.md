@@ -101,6 +101,21 @@ One run per configuration, so there is no seed spread; read the ratios as single
   `ln(A) = [18.60, 7.93, 19.13]`, which our `generate_biodiesel.py` follows. The author
   data and our canonical data are therefore different chemical systems, and the
   author-data and canonical-data rows above are not comparable with each other.
+- **Reaction-order test** (`results/experiments/biodiesel/author_repo_match/reaction_order/`).
+  Two datasets built with the same recipe (`build_reaction_order_datasets.py`), trained with
+  the same settings and seed (batched, direct autograd, Glorot seed 0); only the kinetics
+  differ (code order vs paper order).
+  - Late train paper/code = 0.83×, val = 1.14× (`code_order_seed0`, `paper_order_seed0`
+    `metrics.json`): no large effect on the loss. One seed per order, and each dataset is
+    normalized with its own ranges.
+  - Fig. 3 case (`fig3_case_trajectories.json`, `.png`): the code-order ground truth
+    matches the published Fig. 3 curves (e.g., DG ends near 0.47, MG near 0.17); paper order
+    gives DG 0.29 and MG 0.32, above the 0-0.2 MG axis (visual comparison with the paper,
+    not computed).
+  - `code_order_seed0` vs `run_batched_seed0` (same seed and settings; recipe data vs
+    Julia's exported arrays): late train 0.984×, val 0.985×. The recipe reproduces the
+    Julia-data result, so the paper-order dataset built with the same recipe is a fair
+    comparison.
 
 ### Released code vs paper vs email
 
@@ -130,7 +145,8 @@ Status: `code = email`; `code ≠ email`; `email silent, code ≠ paper`;
 
 ### Open items
 
-- Which reaction order produced the published figures.
+- Which reaction order produced the published figures: the evidence points to the code
+  order (Fig. 3 case, reaction-order test above); not confirmed by the authors.
 - Whether the derivative-aware error control explains why FSA tracks Julia (hypothesis).
 - Seed spread: one run per configuration.
 - Julia on our canonical data: not run.

@@ -1,0 +1,62 @@
+{
+  "experiment": "biodiesel/author_repo_match",
+  "purpose": "controlled match to the authors' RELEASED GitHub biodiesel example; not the canonical reproduction, not the paper protocol, not the 2026-09-22 email clarifications",
+  "reference": {
+    "repository": "DENG-MIT/ChemKAN",
+    "commit": "d7aa5abecbb595d504c86d031cd478a549c614cb",
+    "file": "ChemKAN_biodiesel_example.jl (run via the approved 3-line API compatibility copy, Julia 1.11.1)"
+  },
+  "seed": 0,
+  "dtype": "float64",
+  "torch_threads": 4,
+  "data": "experiments/biodiesel/author_repo_match/data/author_recipe_code_order_v1.npz",
+  "data_source": {
+    "data_source": "author_repo",
+    "path": "experiments/biodiesel/author_repo_match/data/author_recipe_code_order_v1.npz",
+    "normalization": "released example: species min/max over train+test, T min/max over all ICs",
+    "sha256": "c4a1f8d45d04fd6a107c78e7605f241357c7fa86ae32c21f8c74c85d2634ad38"
+  },
+  "architecture": {
+    "layers": "7 -> 4 -> 6",
+    "num_basis": 3,
+    "parameter_count": 156,
+    "use_base_act": false,
+    "layer1_input_tanh": false,
+    "layer2_input_tanh": true,
+    "n_mu": 2,
+    "centers": [
+      -1.0,
+      0.0,
+      1.0
+    ],
+    "rbf": "exp(-((x - c)/1)^2) (library gaussian with h = 1/sqrt(2))"
+  },
+  "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / 50",
+  "initialization": "glorot_uniform on C (out x G*in): U(-a, a), a = sqrt(6/(G*in + out))",
+  "optimizer": {
+    "name": "Adam",
+    "lr": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08
+  },
+  "epochs": 10000,
+  "batching": "full batch, one Adam step per epoch",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 0.01,
+    "atol": 1e-06,
+    "library": "torchdiffeq",
+    "per_trajectory_solves": false,
+    "sensitivity": "direct_autograd"
+  },
+  "loss": "Flux-style mse: mean over 6 species and 30 times per trajectory, then mean over trajectories; *_eq18 columns = 30 x that value",
+  "logged_state": "train/val losses at each epoch's STARTING parameters (before the Adam step), as in the Julia loop",
+  "noise": 0.0,
+  "git_commit": "e8b0c083843994517b4853fc84bf58238f2c5ab0",
+  "python": "3.11.3",
+  "torch": "2.13.0",
+  "created": "2026-09-28T20:06:02Z"
+}
