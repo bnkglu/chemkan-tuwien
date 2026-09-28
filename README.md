@@ -27,7 +27,10 @@ describes them. `legacy` marks the protocol generation, not a judgement of the r
 Runs made under the clarified protocol will go to the current paths
 (`results/reproduction/{biodiesel,hydrogen}/…`). Generic validation that does not depend on
 the protocol, such as the FSA implementation checks in `results/experiments/validation/fsa/`,
-stays current.
+stays current. The exception is `results/experiments/biodiesel/author_repo_match/`, a
+controlled match to the authors' released biodiesel example that belongs to neither
+protocol; it and the authors' email clarifications are described in
+[`docs/authors_materials.md`](docs/authors_materials.md).
 
 ## Reproduction status
 
@@ -50,6 +53,10 @@ from direct autograd to FSA does not materially change the achieved loss, althou
 required substantially more training time in these runs (recorded wall time, not a
 controlled benchmark). Hydrogen Stage-2 FSA training is currently incomplete, so the
 thermodynamic/temperature reproduction with FSA remains unresolved. Details: [`results/experiments/legacy/fsa_runs/README.md`](results/experiments/legacy/fsa_runs/README.md).
+Separately, under the authors' released-example settings on the authors' data (one run
+each, Julia's initial weights), batched FSA reached the Julia loss while direct autograd
+stayed about 1.5× above it; this does not change the legacy statement above
+([`docs/authors_materials.md`](docs/authors_materials.md) §2).
 
 ### Hydrogen — reproduction NOT complete
 

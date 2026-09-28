@@ -19,7 +19,10 @@ directory, so the move does not affect that check.
 
 Experiments follow the same split: `results/experiments/legacy/{biodiesel,hydrogen}/`
 (the cross-domain FSA run records in `results/experiments/legacy/fsa_runs/`), while generic
-validation lives in `results/experiments/validation/`.
+validation lives in `results/experiments/validation/`. The one exception is
+`results/experiments/biodiesel/author_repo_match/`, a controlled match to the authors'
+released biodiesel example that belongs to neither protocol
+([`docs/authors_materials.md`](../../docs/authors_materials.md)).
 
 ## Structure
 

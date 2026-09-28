@@ -157,3 +157,19 @@ values will be regenerated into `results/` during the hydrogen phase.
 The completed additional phase contains **14 corrected DeepONet runs and 3 fixed-n_mu=2
 ChemKAN runs**, plus two reused ChemKAN checkpoints. Notebook 07 now plots these results.
 Legacy reports are labelled and archived; hydrogen work is separate.
+
+## G. Author-matched biodiesel experiment (separate from both protocols)
+
+Released-example settings (10,000 epochs, lr 1e-2, rtol 1e-2, float64), one run each.
+Artifacts: `results/experiments/biodiesel/author_repo_match/`; details and findings:
+[`authors_materials.md`](authors_materials.md) §2.
+
+| run | data | start | solves | gradients | state |
+|---|---|---|---|---|---|
+| `run_seed0` | author | seed 0 | loop | direct autograd | complete, 6,702 s |
+| `run_batched_seed0` | author | seed 0 | batched | direct autograd | complete, 342 s |
+| `run_juliainit` | author | Julia `p_init` | loop | direct autograd | complete, 6,351 s |
+| `run_batched_juliainit` | author | Julia `p_init` | batched | direct autograd | complete, 371 s |
+| `run_batched_fsa_juliainit` | author | Julia `p_init` | batched | FSA | complete, 1,588 s |
+| `canonical_data_seed0` | canonical | seed 0 | loop | direct autograd | complete, 5,821 s (resumed once at epoch 2,500) |
+| `canonical_data_fsa_seed0` | canonical | seed 0 | loop | FSA | complete, 14,389 s |

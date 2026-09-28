@@ -300,6 +300,10 @@ code, not the science.
   currently incomplete, so the thermodynamic/temperature reproduction with FSA remains
   unresolved.
   [`results/experiments/legacy/fsa_runs/README.md`](../results/experiments/legacy/fsa_runs/README.md)
+  Separately, under the authors' released-example settings on the authors' data (one run
+  each, Julia's initial weights), batched FSA reached the Julia loss while direct autograd
+  stayed about 1.5× above it; this does not change the statement above
+  ([`authors_materials.md`](authors_materials.md) §2).
 - **The hydrogen failure has no single established cause.** Grid size `N`, the `θ_thermo`
   initialization and any derivative scaling inside Eq. 14 are all unstated in the paper, so
   several explanations remain simultaneously open. Diagnostics:
