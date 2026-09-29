@@ -3,7 +3,7 @@ reproduction; no repository default changes).
 
 Matches the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN, d7aa5ab):
   data      experiment-local ``data/author_repo_match_biodiesel.npz`` (the example's arrays);
-            ``--data canonical`` instead trains on OUR ``biodiesel.npz`` with legacy B0's
+            ``--data canonical`` instead trains on OUR ``biodiesel_legacy.npz`` with legacy B0's
             train-only normalization, to test the settings on our problem
   model     ``_author_match.build_core()``: 7 -> 4 -> 6, G = 3, 156 params, base off,
             layer-1 normalizer off, layer-2 tanh, n_mu = 2, Julia RBF exp(-(x - c)^2)
@@ -55,7 +55,7 @@ from chemkan.fsa import (NonFiniteFSAError, ParameterPacking,  # noqa: E402
 from chemkan.solver import SolverConfig, integrate  # noqa: E402
 
 DATA = EXP / "data/author_repo_match_biodiesel.npz"
-CANONICAL_DATA = "chemkan/data/generated/biodiesel.npz"
+CANONICAL_DATA = "chemkan/data/generated/biodiesel_legacy.npz"
 N_T = 30                                   # Eq. 18 sums over these 30 times; Flux mse averages
 JULIA = {"train_mse_final_logged": 4.9196e-5, "val_mse_final_logged": 2.12588e-4,
          "train_mse_min": 4.18160e-5, "train_mse_min_epoch": 9957,
@@ -90,34 +90,48 @@ def load_data(device, path: Path = DATA) -> dict:
             "source": source}
 
 
-def load_canonical_data(device) -> dict:
-    """Our canonical ``biodiesel.npz``, normalized with legacy B0's exact statistics.
+def load_canonical_data(device, data_file: Path | None = None,
+                        noise_percent: int | None = None) -> dict:
+    """A canonical-layout biodiesel archive (default ``biodiesel_legacy.npz``; e.g.
+    ``biodiesel_v2.npz`` via ``data_file``), normalized with legacy B0's convention.
 
-    Species: the archive's train-only ``u_min``/``u_max``; T: min/max of the TRAIN
-    temperatures -- the full-state normalizer ``train_biodiesel.py`` builds. Test states use
-    the same (train) statistics.
+    Species: the archive's train-only ``u_min``/``u_max`` (a noisy level's own statistics
+    when the archive stores them); T: min/max of the TRAIN temperatures -- the full-state
+    normalizer ``train_biodiesel.py`` builds. Test states use the same (train) statistics.
+    Training targets are the observations (noisy for ``noise_percent``); the test target is
+    the noise-free test copy, and ``test_noisy_target`` the noisy test observations.
     """
-    train, test = load_biodiesel(split="train"), load_biodiesel(split="test")
+    train = load_biodiesel(split="train", noise_percent=noise_percent, data_file=data_file)
+    test = load_biodiesel(split="test", noise_percent=noise_percent, data_file=data_file)
     f64 = lambda x: x.to(device=device, dtype=torch.float64)
     y_min, y_max = f64(train["u_min"]), f64(train["u_max"])
     T_min, T_max = f64(train["T_const"].min()), f64(train["T_const"].max())
 
-    def norm(d):
+    def norm(d, key="species_TBm"):
         Y0 = (f64(d["Y0"]) - y_min) / (y_max - y_min)
         T0 = ((f64(d["T_const"]) - T_min) / (T_max - T_min)).reshape(-1, 1)
-        target = ((f64(d["species_TBm"]) - y_min) / (y_max - y_min)).permute(1, 2, 0)
+        target = ((f64(d[key]) - y_min) / (y_max - y_min)).permute(1, 2, 0)
         return torch.cat([Y0, T0], dim=-1), target                    # (B, 7), (B, 6, T)
 
-    (u0_tr, y_tr), (u0_te, y_te) = norm(train), norm(test)
+    (u0_tr, y_tr), (u0_te, y_te) = norm(train, "targets_TBm"), norm(test)
     n_train, n_test = u0_tr.shape[0], u0_te.shape[0]
-    return {"t": f64(train["t"]), "u0": torch.cat([u0_tr, u0_te]), "target": torch.cat([y_tr, y_te]),
-            "n_train": n_train, "n_test": n_test,
-            "train": slice(0, n_train), "test": slice(n_train, n_train + n_test),
-            "source": {"data_source": "canonical", "path": CANONICAL_DATA,
-                       "normalization": "legacy B0: archive train-only species u_min/u_max, "
-                                        "T min/max over train temperatures",
-                       "species_min": y_min.tolist(), "species_max": y_max.tolist(),
-                       "T_min": float(T_min), "T_max": float(T_max)}}
+    source = {"data_source": "canonical",
+              "path": CANONICAL_DATA if data_file is None else str(data_file),
+              "normalization": "legacy B0: archive train-only species u_min/u_max, "
+                               "T min/max over train temperatures",
+              "species_min": y_min.tolist(), "species_max": y_max.tolist(),
+              "T_min": float(T_min), "T_max": float(T_max)}
+    if data_file is not None:
+        source.update(sha256=hashlib.sha256(Path(data_file).read_bytes()).hexdigest(),
+                      normalization_keys=train["normalization_keys"],
+                      noise_percent=noise_percent)
+    out = {"t": f64(train["t"]), "u0": torch.cat([u0_tr, u0_te]), "target": torch.cat([y_tr, y_te]),
+           "n_train": n_train, "n_test": n_test,
+           "train": slice(0, n_train), "test": slice(n_train, n_train + n_test),
+           "source": source}
+    if noise_percent:
+        out["test_noisy_target"] = norm(test, "targets_TBm")[1]
+    return out
 
 
 def predict(dyn, u0, t, solver, batched: bool = False) -> torch.Tensor:
@@ -180,7 +194,7 @@ def main() -> int:
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--data", choices=["author_repo", "canonical"], default="author_repo",
                     help="author_repo: the released example's own arrays (default); "
-                         "canonical: our biodiesel.npz with legacy B0's train-only statistics")
+                         "canonical: our biodiesel_legacy.npz with legacy B0's train-only statistics")
     ap.add_argument("--sensitivity", choices=["direct_autograd", "fsa"], default="direct_autograd",
                     help="training gradients: backprop through the solver (default) or "
                          "chemkan.fsa forward sensitivity analysis (the paper's method)")
@@ -189,13 +203,22 @@ def main() -> int:
                     help="per_trajectory: one solve per trajectory, as Julia (default); "
                          "batched: one solve of all trajectories, as the canonical trainer")
     ap.add_argument("--data-file", type=Path, default=None,
-                    help="with --data author_repo: train on this .npz (same layout as the "
-                         "default author_repo_match_biodiesel.npz) instead")
+                    help="with --data author_repo: an .npz in the author_repo_match_biodiesel "
+                         "layout; with --data canonical: a canonical-layout biodiesel archive "
+                         "(e.g. chemkan/data/generated/biodiesel_v2.npz) instead of biodiesel.npz")
+    ap.add_argument("--noise-percent", type=int, default=None,
+                    help="with --data canonical: train on this stored noise level; logs "
+                         "noise-free (val_mse) and noisy (val_mse_noisy) test loss per epoch")
+    ap.add_argument("--hidden", type=int, default=4,
+                    help="hidden width H of the 7 -> H -> 6 core; n_mu = ceil(H/2), grid 3, "
+                         "39*H parameters (default 4 = the 156-parameter main model)")
     ap.add_argument("--init-from", type=Path, default=None,
                     help="start from these 156 flat Julia parameters (p.txt layout, e.g. "
                          "julia_reference/p_init.txt) instead of the seeded glorot draw")
     args = ap.parse_args()
     batched = args.solve_mode == "batched"
+    if args.init_from is not None and args.hidden != 4:
+        raise SystemExit("--init-from (Julia parameters) needs the 156-parameter --hidden 4 core")
     if args.init_from is not None and not args.init_from.is_file():
         raise SystemExit(f"--init-from {args.init_from} not found")
 
@@ -212,13 +235,14 @@ def main() -> int:
     torch.set_default_dtype(torch.float64)
     torch.set_num_threads(args.threads)
     device = torch.device("cpu")
-    if args.data_file is not None and args.data != "author_repo":
-        raise SystemExit("--data-file requires --data author_repo")
+    if args.noise_percent is not None and args.data != "canonical":
+        raise SystemExit("--noise-percent requires --data canonical")
     data = (load_data(device, args.data_file or DATA) if args.data == "author_repo"
-            else load_canonical_data(device))
+            else load_canonical_data(device, args.data_file, args.noise_percent))
+    columns = HISTORY_COLUMNS + (["val_mse_noisy"] if "test_noisy_target" in data else [])
     solver = SolverConfig(method="tsit5", rtol=1e-2, atol=1e-6, sensitivity=args.sensitivity)
 
-    core = build_core().to(device)
+    core = build_core(args.hidden).to(device)
     init_gen = torch.Generator().manual_seed(args.seed)
     glorot_uniform_(core, init_gen)
     if args.init_from is not None:       # Julia values are Float32: parse as such, widen
@@ -238,9 +262,10 @@ def main() -> int:
         "seed": args.seed, "dtype": "float64", "torch_threads": args.threads,
         "data": data["source"]["path"],
         "data_source": data["source"],
-        "architecture": {"layers": "7 -> 4 -> 6", "num_basis": 3, "parameter_count": 156,
+        "architecture": {"layers": f"7 -> {args.hidden} -> 6", "hidden": args.hidden,
+                         "num_basis": 3, "parameter_count": 39 * args.hidden,
                          "use_base_act": False, "layer1_input_tanh": False,
-                         "layer2_input_tanh": True, "n_mu": 2, "centers": [-1.0, 0.0, 1.0],
+                         "layer2_input_tanh": True, "n_mu": math.ceil(args.hidden / 2), "centers": [-1.0, 0.0, 1.0],
                          "rbf": "exp(-((x - c)/1)^2) (library gaussian with h = 1/sqrt(2))"},
         "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / 50",
         "initialization": (
@@ -285,12 +310,12 @@ def main() -> int:
                      sum(p.numel() for p in core.parameters()))
 
     with open(run / "history.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=HISTORY_COLUMNS)
+        w = csv.DictWriter(f, fieldnames=columns)
         w.writeheader()
         for r in history:
             w.writerow({**r, "epoch": int(r["epoch"])})
     hist_file = open(run / "history.csv", "a", newline="")
-    writer = csv.DictWriter(hist_file, fieldnames=HISTORY_COLUMNS)
+    writer = csv.DictWriter(hist_file, fieldnames=columns)
 
     started = time.perf_counter()
     status = "completed"
@@ -306,11 +331,18 @@ def main() -> int:
         else:
             train = split_mse(dyn, data, data["train"], solver, batched)
         with torch.no_grad():
-            val = split_mse(dyn, data, data["test"], solver, batched)
+            if "test_noisy_target" in data:            # one prediction, two test targets
+                pred_te = predict(dyn, data["u0"][data["test"]], data["t"], solver, batched)
+                val = julia_mse(pred_te, data["target"][data["test"]])
+                val_noisy = float(julia_mse(pred_te, data["test_noisy_target"]))
+            else:
+                val = split_mse(dyn, data, data["test"], solver, batched)
         tr, va = float(train.detach()), float(val)
         elapsed = prior_elapsed + time.perf_counter() - started
         row = {"epoch": epoch, "train_mse": tr, "val_mse": va, "train_eq18": N_T * tr,
                "val_eq18": N_T * va, "elapsed_seconds": round(elapsed, 4)}
+        if "test_noisy_target" in data:
+            row["val_mse_noisy"] = val_noisy
         writer.writerow(row)
         hist_file.flush()
         history.append(row)
@@ -350,7 +382,9 @@ def main() -> int:
         "val_eq18_final_logged": N_T * val_s["final_logged"],
         "final_parameters": post,
     }
-    if args.data == "author_repo":                   # same data as the Julia run
+    if args.data_file is not None or args.noise_percent:
+        pass                                         # other data: no Julia / B0 reference
+    elif args.data == "author_repo":                 # same data as the Julia run
         metrics["julia_reference"] = JULIA
         metrics["ratio_to_julia"] = {
             "train_final_logged": train_s["final_logged"] / JULIA["train_mse_final_logged"],

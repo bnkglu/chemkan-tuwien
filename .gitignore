@@ -58,7 +58,8 @@ lightning_logs/
 # smoke runs) stay ignored. Keep large binaries (>10 MB) out -- regenerate instead.
 
 # Canonical reproduction datasets + the production dense H2 temperature cache
-!chemkan/data/generated/biodiesel.npz
+!chemkan/data/generated/biodiesel_legacy.npz
+!chemkan/data/generated/biodiesel_v2.npz
 !chemkan/data/generated/hydrogen.npz
 !chemkan/data/generated/hydrogen_temperature_20000.npz
 

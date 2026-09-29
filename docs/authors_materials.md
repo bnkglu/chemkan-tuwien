@@ -19,9 +19,9 @@ Status: **done** = current code/data follow it; **not yet** = current code/data 
 | G3 | Neither final model uses the Swish base activation; the base term in Eq. 11 is left over from an earlier revision. | `use_base_act = false` (lines 122, 124) | biodiesel done (default off); hydrogen not yet (`train_hydrogen.py` default `use_base_act=True`; legacy `hydrogen/main/base_off_direct_autograd_seed0` used base off) |
 | B1 | Biodiesel ChemKAN has 156 parameters (no base activation). | 156 | done |
 | B2 | Smallest scaling model: width 2, grid 3 = 78 parameters. | n.a. | done (`scaling*/h02_seed0`, 78 parameters) |
-| B3 | DeepONet 308 = branch 3→8→8→8 on (TG, ROH, T), trunk 1→7→8, head 8→6; the four always-zero initial species are dropped. | n.a. | not yet (`deeponet/biodiesel_deeponet.py:73` `BRANCH_IN = 7`, 340 parameters) |
+| B3 | DeepONet 308 = branch 3→8→8→8 on (TG, ROH, T), trunk 1→7→8, head 8→6; the four always-zero initial species are dropped. | n.a. | done for new runs (`deeponet/biodiesel_deeponet.py` `BRANCH_IN = 3`, 308 parameters at w = 8); legacy DeepONet runs used the 7-input branch (340) and are still rebuilt with it; other Fig. 4 sizes: §3 |
 | B4 | Half multiplication nodes (LeanKAN rule, odd counts rounded up); all-multiplication gave similar results; the paper follows Sec. 3.1.1. | layer 2 `mult_flag = true` (2 of 4 nodes) | done (`--n-mu 2`) |
-| B5 | Noise is additive: N(0, 1) × species maximum × noise %, clipped at 0 (4 of 6 species start at zero). | line 98, clip line 100 | not yet (`generate_biodiesel.py` default `--noise-mode multiplicative`) |
+| B5 | Noise is additive: N(0, 1) × species maximum × noise %, clipped at 0 (4 of 6 species start at zero). | line 98, clip line 100 | done in `biodiesel_v2.npz` (`generate_biodiesel.py --noise-mode additive_species_max`, the new default); legacy `biodiesel.npz` keeps multiplicative noise |
 | B6 | The released example is a pared-down noisy case with a few minor differences from the paper; it converges in ~1e4 epochs. | 10,000 epochs (line 22) | n.a. |
 | H1 | 36 initial-condition combinations; the φ list in the text omits 0.5; Fig. 8 shows all 36. | n.a. | done (`hydrogen.npz`: 35 train + 1 test) |
 | H2 | Hydrogen uses no base activation, so grid size 5 is correct. | n.a. | implemented in the author-matched hydrogen script (not yet trained) |
@@ -155,3 +155,40 @@ Status: `code = email`; `code ≠ email`; `email silent, code ≠ paper`;
   time; the released code averages over time). To be checked by computing the expected
   training-loss increase from 1% additive noise and comparing it with the paper's 3.78e-5
   (Sec. III A 3).
+
+## 3. Figure 4 sizes (neural scaling)
+
+Fig. 4 is trained on noise-free data: ChemKAN for 5,000 epochs and DeepONet for 50,000
+epochs (paper Sec. III A 2). New runs use `biodiesel_v2.npz`.
+
+**DeepONet.** Branch [3, w, w, p] on (TG0, ROH0, T0), trunk [1, q, p], head p → 6, all
+layers biased: count = w·w + w·p + q·p + 5w + 2q + 8p + 6. The sizes are explicit
+architectures (`deeponet/biodiesel_deeponet.py` `FIG4_ARCHITECTURES`, each count asserted;
+`train_biodiesel_deeponet.py --width w --trunk-hidden q`, with w, q, p recorded in
+`config.json`):
+
+| parameters | (w, q, p) | status |
+|---|---|---|
+| 78 | (3, 3, 3) | reconstructed |
+| 156 | (5, 5, 5) | reconstructed |
+| 249 | (7, 6, 7) | reconstructed |
+| **308** | **(8, 7, 8)** | **confirmed** (email B3); the model used for Fig. 5 (Sec. III A 3) |
+| 384 | (9, 9, 9) | reconstructed |
+| **456** | (10, 10, 10) | size **confirmed** as the largest DeepONet (Sec. III A 2); architecture reconstructed |
+
+Confirmed by the paper: exactly two DeepONets are larger than 308 (Sec. III A 2: "the two
+largest DeepONets", "the last two testing points"). Not stated in the paper, so our choice:
+the sizes other than 308 and 456, and every architecture except 308.
+
+**ChemKAN.** 7 → H → 6 core (`train_author_repo_match.py --hidden H`), n_mu = ceil(H/2),
+grid 3, 39·H parameters (asserted; H recorded in `config.json`):
+
+| parameters | H | status |
+|---|---|---|
+| 78 | 2 | confirmed: width 2, grid 3 (email B2) |
+| 117 | 3 | reconstructed |
+| **156** | **4** | **confirmed**: the main model (paper) |
+| 351 | 9 | reconstructed |
+| 429 | 11 | reconstructed |
+
+The default `--hidden 4` reproduces `run_seed0` exactly.

@@ -72,7 +72,8 @@ def predict_deeponet(run_dir, y0, temperature, times, n_species, expected_versio
     full = MinMaxNormalizer(normalization["u_min"], normalization["u_max"])
     loss_norm = full.subset(slice(0, n_species))
     branch, tau = bdon.prepare_inputs({"Y0": y0, "T_const": temperature, "t": times},
-                                      full, float(normalization["t_end_s"]))
+                                      full, float(normalization["t_end_s"]),
+                                      branch_in=model.branch_dims[0])
     with torch.no_grad():
         return loss_norm.denormalize(model(branch, tau))[:, 0, :].numpy(), loss_norm
 

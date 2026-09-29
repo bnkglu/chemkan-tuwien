@@ -26,7 +26,8 @@ try:
 except ImportError as exc:
     raise SystemExit("Set CHEMKAN_PYTHON to the project Python environment with torch installed.") from exc
 
-from biodiesel_deeponet import (LEGACY_ARCHITECTURE_VERSION, REFERENCE_ARCHITECTURE_VERSION,
+from biodiesel_deeponet import (LEGACY_ARCHITECTURE_VERSION, LEGACY_BRANCH_IN,
+                                REFERENCE_ARCHITECTURE_VERSION,
                                  architecture, build)
 from evaluate_biodiesel_deeponet import build_model
 from evaluate_biodiesel import build_kinetic_core
@@ -134,7 +135,8 @@ def plan_action(job):
 def command(job, args):
     config = job["config"]
     if job["model"] == "DeepONet":
-        cli = [str(ROOT / "deeponet/train_biodiesel_deeponet.py")]
+        cli = [str(ROOT / "deeponet/train_biodiesel_deeponet.py"),
+               "--branch-in", str(LEGACY_BRANCH_IN)]
         if job["group"] == "noise":
             cli += ["--noise-percent", str(job["noise"]), "--eval-every", "1"]
         else:
@@ -177,7 +179,9 @@ def make_jobs(args):
         for group, width, noise, epochs in specs:
             name = f"noise{noise:02d}" if group == "noise" else f"w{width:02d}"
             config = read_config(DON / LEGACY_ARCHITECTURE_VERSION / group / f"{name}_seed0/config.json")
-            config["architecture"] = architecture(build(width, seed=args.seed))
+            # Legacy protocol: the pre-clarification 7-input branch [Y0, T] (340 at w=8).
+            config["architecture"] = architecture(build(width, seed=args.seed,
+                                                        branch_in=LEGACY_BRANCH_IN))
             config.update(seed=args.seed, device=args.device, epochs=epochs)
             jobs.append(dict(model="DeepONet", group=group, width=width, noise=noise, config=config,
                              directory=root / group / f"{name}_seed{args.seed}"))
@@ -229,14 +233,14 @@ def main(argv=None):
     if any(value <= 0 for key, value in vars(args).items() if key.endswith("epochs")):
         raise SystemExit("Epoch budgets must be positive.")
     root, jobs = make_jobs(args)
-    dataset_hash = hashlib.sha256((ROOT / "chemkan/data/generated/biodiesel.npz").read_bytes()).hexdigest()
+    dataset_hash = hashlib.sha256((ROOT / "chemkan/data/generated/biodiesel_legacy.npz").read_bytes()).hexdigest()
     for existing_manifest in root.glob("manifest_*.json"):
         if read_config(existing_manifest)["dataset_sha256"] != dataset_hash:
             raise SystemExit(f"{existing_manifest}: dataset has changed; use a separate --output-root.")
     if args.experiment == "deeponet":
         missing = {j["noise"] for j in jobs if j["noise"] is not None} - set(available_noise_percents())
         if missing:
-            raise SystemExit(f"Missing noise levels {sorted(missing)} in biodiesel.npz; data was not changed.")
+            raise SystemExit(f"Missing noise levels {sorted(missing)} in biodiesel_legacy.npz; data was not changed.")
     # Validate the entire plan before starting any job.
     plan = [(job, *plan_action(job)) for job in jobs]
     env = dict(os.environ)
@@ -266,7 +270,7 @@ def main(argv=None):
     for item in manifest_jobs:
         item["checkpoint_sha256"] = hashlib.sha256((ROOT / item["checkpoint"]).read_bytes()).hexdigest()
     manifest = dict(experiment=args.experiment, seed=args.seed,
-                    dataset="chemkan/data/generated/biodiesel.npz",
+                    dataset="chemkan/data/generated/biodiesel_legacy.npz",
                     dataset_sha256=dataset_hash,
                     jobs=manifest_jobs)
     root.mkdir(parents=True, exist_ok=True)

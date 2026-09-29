@@ -136,7 +136,7 @@ def make_figure(metrics_path=None, output_path=None, *,
     metrics_path = metrics_path or TABLES_BIODIESEL / "biodiesel_fig5a_metrics.csv"
     rows, levels = load_metrics(metrics_path)
     validate_metrics(rows, deeponet_version)
-    n_times = observation_times("biodiesel.npz")
+    n_times = observation_times("biodiesel_legacy.npz")
     divisor, note, _ = loss_reduction(n_times, time_averaged)
     results = {"noise_levels": levels, "reduction": note, "n_times": n_times,
                **{model: {key: series(rows, levels, model, key) for key in METRICS}
@@ -250,7 +250,7 @@ def make_interval_clean_figure(*, output_path=None, time_averaged=False, show=Fa
     checkpoint/source provenance. With ``output_path=None`` no files are written.
     """
     rows = load_interval_clean_final_rows()
-    n_times = observation_times("biodiesel.npz")
+    n_times = observation_times("biodiesel_legacy.npz")
     divisor, note, suffix = loss_reduction(n_times, time_averaged)
     label_precision = 8 if time_averaged else 6
     for row in rows:

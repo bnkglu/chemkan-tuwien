@@ -19,9 +19,11 @@ initialization with ``--init xavier`` (Glorot-uniform ablation) vs. the default 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
 import math
 import time
+from pathlib import Path
 
 import torch
 from _data import available_noise_percents, input_scaling_meta, load_biodiesel, resolve_device
@@ -237,10 +239,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--noise-percent", type=int, default=None,
                    help="train against the stored deterministic noisy observations at this "
                         "whole-percent level (clean when omitted). The level must already "
-                        "exist in biodiesel.npz.")
-    p.add_argument("--eval-every", type=int, default=0,
+                        "exist in biodiesel_legacy.npz (or the --data-file archive).")
+    p.add_argument("--eval-every", type=int, default=None,
                    help="log test MSE every N epochs (0 = off, 1 = every epoch). "
-                        "Evaluation only: no optimizer step, no parameter change.")
+                        "Evaluation only: no optimizer step, no parameter change. Default: "
+                        "off, except every epoch for a noisy level of a --data-file archive "
+                        "(train, noisy-test and noise-free-test loss per epoch).")
+    p.add_argument("--data-file", type=Path, default=None,
+                   help="biodiesel archive to train on (e.g. chemkan/data/generated/"
+                        "biodiesel_v2.npz). Default: the legacy biodiesel.npz.")
     p.add_argument("--snapshot-epochs", default="",
                    help="comma-separated epoch counts to save as checkpoint_epoch_<N>.pt. "
                         "Snapshot N is the model after exactly N optimizer steps, so a "
@@ -280,13 +287,18 @@ def main():
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
 
-    if args.noise_percent is not None and args.noise_percent not in available_noise_percents():
-        raise SystemExit(f"noise level {args.noise_percent}% is not stored in biodiesel.npz "
-                         f"(have {available_noise_percents()}). Add it with "
+    levels = available_noise_percents(args.data_file)
+    if args.noise_percent is not None and args.noise_percent not in levels:
+        raise SystemExit(f"noise level {args.noise_percent}% is not stored in "
+                         f"{args.data_file or 'biodiesel_legacy.npz'} (have {levels}). Add it with "
                          f"scripts/data_gen/add_biodiesel_noise_level.py first.")
-    data = load_biodiesel(split="train", noise_percent=args.noise_percent)
+    if args.eval_every is None:          # default: off, as before, except noisy v2-style data
+        args.eval_every = 1 if (args.data_file is not None and args.noise_percent) else 0
+    data = load_biodiesel(split="train", noise_percent=args.noise_percent,
+                          data_file=args.data_file)
     species_dim = data["species_TBm"].shape[-1]              # data-derived, not hard-coded
-    test = load_biodiesel(split="test", noise_percent=args.noise_percent) if args.eval_every else None
+    test = (load_biodiesel(split="test", noise_percent=args.noise_percent,
+                           data_file=args.data_file) if args.eval_every else None)
     solver = SolverConfig(method=args.solver_method, rtol=args.rtol, atol=args.atol,
                           sensitivity=args.sensitivity)      # every field explicit
 
@@ -392,6 +404,7 @@ def main():
     epoch_state["epoch"] = start_epoch          # in-loop evaluation follows the real epoch
 
     n_params = sum(p.numel() for p in core.parameters())
+    dataset_name = "biodiesel.npz" if args.data_file is None else Path(args.data_file).name
     config = {
         "model": "ChemKAN-KineticCore", "chemical_system": "biodiesel",
         "experiment_name": args.experiment_name, "seed": args.seed,
@@ -415,10 +428,10 @@ def main():
             "legacy_full_batch_path": not minibatch,
             **BATCHING_NOTES,
         },
-        "dataset": "biodiesel.npz (train split)",
+        "dataset": f"{dataset_name} (train split)",
         "noise": None if args.noise_percent is None else {
             "percent": args.noise_percent,
-            "source": f"biodiesel.npz train_states_noise{args.noise_percent:02d}",
+            "source": f"{dataset_name} train_states_noise{args.noise_percent:02d}",
         },
         "in_training_evaluation": None if not args.eval_every else {
             "eval_every": args.eval_every,
@@ -429,6 +442,12 @@ def main():
             "normalizer": "train-only min-max (never refit on test data)",
         },
     }
+    if args.data_file is not None:
+        # Only runs on another archive get these keys, so legacy configs stay identical.
+        config["dataset_file"] = {
+            "path": str(args.data_file),
+            "sha256": hashlib.sha256(Path(args.data_file).read_bytes()).hexdigest(),
+            "normalization_keys": data["normalization_keys"]}
     if solver.sensitivity == "fsa":
         # FSA-only provenance; direct-autograd configs keep their exact historical keys.
         config["fsa"] = fsa_provenance(

@@ -205,7 +205,7 @@ def main():
     # --- data: clean, or the stored noisy observations (same loader as train_biodiesel.py)
     noise = args.noise_percent
     if noise is not None and noise not in available_noise_percents():
-        raise SystemExit(f"noise level {noise}% is not stored in biodiesel.npz "
+        raise SystemExit(f"noise level {noise}% is not stored in biodiesel_legacy.npz "
                          f"(have {available_noise_percents()})")
     data = load_biodiesel(split="train", noise_percent=noise)
     test = load_biodiesel(split="test", noise_percent=noise)
@@ -314,7 +314,7 @@ def main():
                       "t_start_s": float(t[0]), "t_end_s": float(t[-1]),
                       "dt_min_s": float((t[1:] - t[:-1]).min()),
                       "dt_max_s": float((t[1:] - t[:-1]).max()),
-                      "note": "read from biodiesel.npz; the paper states 1 s sampling, the "
+                      "note": "read from biodiesel_legacy.npz; the paper states 1 s sampling, the "
                               "archive stores 30 points over 30 s (dt ~ 1.03448 s). The "
                               "archive is used as-is; no data is regenerated."},
         "pinn": {"enabled": False},

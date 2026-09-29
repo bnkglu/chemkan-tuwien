@@ -37,7 +37,7 @@ chemkan/
     train_biodiesel.py / evaluate_biodiesel.py
     train_hydrogen.py  / evaluate_hydrogen.py
     data_gen/             the reference-data generators (Cantera-based)
-  data/generated/         biodiesel.npz, hydrogen.npz  (produced by data_gen)
+  data/generated/         biodiesel_legacy.npz, biodiesel_v2.npz, hydrogen.npz  (produced by data_gen)
 ```
 
 **The one rule that shapes the whole design:** `src/chemkan/` is generic and knows

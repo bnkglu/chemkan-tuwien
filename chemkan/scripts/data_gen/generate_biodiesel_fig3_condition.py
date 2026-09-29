@@ -5,7 +5,7 @@ Figure 3 plots one explicitly published unseen condition::
     [TG]0 = 1.94   [ROH]0 = 1.43   DG = MG = GL = R'CO2R = 0   T = 334.8 K
 
 That exact state is not in the canonical 10-case test split, so it is generated here as a
-SEPARATE artifact. The canonical ``biodiesel.npz`` split, its trajectories and its stored
+SEPARATE artifact. The legacy ``biodiesel_legacy.npz`` split, its trajectories and its stored
 noise realizations are neither read for targets nor modified: this script only reuses the
 same ODE right-hand side, the same solver settings and the same ``common.add_noise``
 convention, so the Fig.-3 condition is produced exactly like the dataset it accompanies.

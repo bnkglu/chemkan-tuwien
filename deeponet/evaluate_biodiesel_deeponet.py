@@ -30,6 +30,7 @@ from _predictions import checkpoint_sha256, save_predictions        # noqa: E402
 from _run import METRICS_JSON, PREDICTIONS_DIR, utc_now             # noqa: E402
 
 from biodiesel_deeponet import (PAPER_PARAMS, LEGACY_ARCHITECTURE_VERSION,  # noqa: E402
+                                LEGACY_BRANCH_IN,
                                 BiodieselDeepONet,
                                 prepare_inputs)
 from chemkan.losses import trajectory_mse                           # noqa: E402
@@ -46,7 +47,11 @@ def build_model(ckpt, device) -> BiodieselDeepONet:
     model = BiodieselDeepONet(width=ckpt["architecture"]["width"],
                               out_dim=ckpt["architecture"]["out_dim"],
                               architecture_version=ckpt["architecture"].get(
-                                  "architecture_version", LEGACY_ARCHITECTURE_VERSION)).to(device)
+                                  "architecture_version", LEGACY_ARCHITECTURE_VERSION),
+                              branch_in=ckpt["architecture"].get(
+                                  "branch_dims", [LEGACY_BRANCH_IN])[0],
+                              trunk_hidden=ckpt["architecture"].get(
+                                  "trunk_dims", [1, None])[1]).to(device)
     model.load_state_dict(ckpt["model_state"])
     model.eval()
     return model
@@ -65,7 +70,7 @@ def evaluate(ckpt_path, split="test", device="cpu", noise_percent=None) -> dict:
     loss_norm = full_norm.subset(slice(0, len(data["species"]))).to(dev)
     t_end = float(n["t_end_s"])
 
-    u0, tau = prepare_inputs(data, full_norm, t_end)
+    u0, tau = prepare_inputs(data, full_norm, t_end, branch_in=model.branch_dims[0])
     with torch.no_grad():
         pred_norm = model(u0, tau)                                   # normalized species
     pred = loss_norm.denormalize(pred_norm)                          # physical, for plots

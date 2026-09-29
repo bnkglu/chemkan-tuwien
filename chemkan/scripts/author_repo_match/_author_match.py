@@ -54,15 +54,17 @@ class NoInputTanhRBFEdges(RBFEdgeFunctions):
         return torch.einsum("bik,oik->boi", psi, self.w_rbf)
 
 
-def build_core() -> KineticCore:
-    """156-parameter 7 -> 4 -> 6 kinetic core configured like the released example."""
-    core = KineticCore(species_dim=N_SPECIES, hidden_dim=HIDDEN, num_basis=NUM_BASIS,
-                       n_mu=N_MU, use_base_act=False)
-    core.add.edges = NoInputTanhRBFEdges(N_SPECIES + 1, HIDDEN, NUM_BASIS, use_base_act=False)
+def build_core(hidden: int = HIDDEN) -> KineticCore:
+    """7 -> H -> 6 kinetic core configured like the released example (default H = 4: 156
+    parameters). n_mu = ceil(H/2) (LeanKAN rule, email B4), grid 3: 39 * H parameters."""
+    n_mu = math.ceil(hidden / 2)
+    core = KineticCore(species_dim=N_SPECIES, hidden_dim=hidden, num_basis=NUM_BASIS,
+                       n_mu=n_mu, use_base_act=False)
+    core.add.edges = NoInputTanhRBFEdges(N_SPECIES + 1, hidden, NUM_BASIS, use_base_act=False)
     for edges in (core.add.edges, core.lean.edges):
         edges.h = LIBRARY_H
         assert torch.equal(edges.centers, torch.tensor([-1.0, 0.0, 1.0]))
-    assert sum(p.numel() for p in core.parameters()) == 156
+    assert sum(p.numel() for p in core.parameters()) == 39 * hidden
     return core
 
 

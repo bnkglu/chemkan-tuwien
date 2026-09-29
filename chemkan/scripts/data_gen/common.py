@@ -146,33 +146,41 @@ def denormalize(states_hat: np.ndarray, u_min: np.ndarray, u_max: np.ndarray) ->
 # --------------------------------------------------------------------------
 
 
+NOISE_MODES = ("additive_species_max", "multiplicative", "range")
+
+
 def add_noise(
     states: np.ndarray,
     level: float,
     rng: np.random.Generator,
-    mode: str = "multiplicative",
+    mode: str = "additive_species_max",
     u_min: np.ndarray | None = None,
     u_max: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Add synthetic noise to the trajectories.
+    """Add synthetic noise to the trajectories ``states`` (cases, times, vars).
 
-    ChemKAN reports experiments with synthetic noise up to 15%, but the exact
-    noise distribution is not explicitly specified. This implementation uses
-    multiplicative Gaussian noise as a documented implementation choice.
+    mode="additive_species_max" (default; authors' clarification, email B5, and the
+    released example's line 98):
+        u_noisy = u + level * max_t(u_i) * N(0,1), per species i and trajectory,
+        then clipped at 0. The t = 0 observation is noised as well; the ODE initial
+        condition is taken from the clean states by the loader and stays clean.
 
-    mode="multiplicative" (default): u_noisy = u * (1 + level * N(0,1)).
-        Noise scales with the local signal, so near-zero species stay near
-        zero.
+    mode="multiplicative" (legacy): u_noisy = u * (1 + level * N(0,1)).
+        Noise scales with the local signal, so near-zero species stay near zero.
+        The t = 0 observation is kept clean. Used by every legacy biodiesel archive.
 
-    mode="range": u_noisy = u + level * (u_max - u_min) * N(0,1).
-        Noise is a fixed fraction of each variable's dynamic range. Provided
-        as an alternative for a sensitivity check; requires u_min/u_max.
-
-    The initial condition (t=0) is left clean in both modes -- it is an input
-    to the model, not an observation.
+    mode="range" (legacy sensitivity option): u_noisy = u + level * (u_max - u_min) * N(0,1),
+        t = 0 kept clean; requires u_min/u_max.
     """
+    if mode not in NOISE_MODES:
+        raise ValueError(f"unknown noise mode: {mode!r}")
     if level == 0.0:
         return states.copy()
+
+    if mode == "additive_species_max":
+        scale = states.max(axis=1, keepdims=True)                 # (cases, 1, vars)
+        noisy = states + level * scale * rng.standard_normal(states.shape)
+        return np.clip(noisy, 0.0, None)
 
     noisy = states.copy()
     if mode == "multiplicative":

@@ -98,14 +98,24 @@ def noise_tag(noise_percent) -> str:
     return f"noise{pct:02d}"
 
 
-def available_noise_percents() -> list[int]:
-    """Whole-percent noise levels actually stored in biodiesel.npz, ascending."""
-    d = _load("biodiesel")
+def _load_biodiesel_archive(data_file=None):
+    """``biodiesel_legacy.npz`` (default) or an explicit biodiesel archive path (e.g. biodiesel_v2.npz)."""
+    if data_file is None:
+        return _load("biodiesel_legacy")
+    path = Path(data_file)
+    if not path.exists():
+        raise FileNotFoundError(f"{path} not found")
+    return np.load(path, allow_pickle=True)
+
+
+def available_noise_percents(data_file=None) -> list[int]:
+    """Whole-percent noise levels stored in the biodiesel archive, ascending."""
+    d = _load_biodiesel_archive(data_file)
     return sorted(int(k[len("train_states_noise"):]) for k in d.files
                   if k.startswith("train_states_noise"))
 
 
-def load_biodiesel(split: str = "train", noise_percent=None):
+def load_biodiesel(split: str = "train", noise_percent=None, data_file=None):
     """Isothermal biodiesel (species_only). Returns a dict of tensors.
 
     ``u_min`` / ``u_max`` are ALWAYS the train-only statistics stored in the archive
@@ -118,21 +128,30 @@ def load_biodiesel(split: str = "train", noise_percent=None):
     available. ``species_TBm`` always stays the CLEAN trajectory (paper Eq. 22's
     noise-free reference); the selected observations are returned separately as
     ``targets_TBm``, so a caller that ignores the new key keeps its previous behavior.
-    ``Y0`` comes from the clean states -- the generator leaves t=0 exact in every noise
-    array, and the initial condition is a model input, not an observation.
+    ``Y0`` comes from the clean states: the initial condition is a model input, not an
+    observation (legacy noise arrays keep t=0 exact; the additive_species_max arrays of
+    ``biodiesel_v2.npz`` noise the t=0 observation, the ODE initial condition stays clean).
+
+    ``data_file``: another biodiesel archive (e.g. ``biodiesel_v2.npz``); default is the
+    legacy ``biodiesel_legacy.npz``. If the archive stores per-level normalization statistics
+    (``u_min_noiseXX``/``u_max_noiseXX``, fitted on that level's noisy TRAINING data),
+    they are returned for a noisy level; otherwise the clean-train ``u_min``/``u_max``.
     """
     _check_split(split)
-    d = _load("biodiesel")
+    d = _load_biodiesel_archive(data_file)
     states = _to_TBx(d[f"{split}_states"])              # (T, B, m) clean
     targets = states
     if noise_percent is not None:
         key = f"{split}_states_{noise_tag(noise_percent)}"
         if key not in d.files:
             raise KeyError(
-                f"{key} not in biodiesel.npz; stored levels are "
-                f"{available_noise_percents()} percent. Add the missing level with "
+                f"{key} not in the biodiesel archive; stored levels are "
+                f"{available_noise_percents(data_file)} percent. Add the missing level with "
                 f"scripts/data_gen/add_biodiesel_noise_level.py -- never fabricate it here.")
         targets = _to_TBx(d[key])
+    stats = ("u_min", "u_max")
+    if noise_percent is not None and f"u_min_{noise_tag(noise_percent)}" in d.files:
+        stats = (f"u_min_{noise_tag(noise_percent)}", f"u_max_{noise_tag(noise_percent)}")
     return {
         "t": torch.as_tensor(d["t"], dtype=torch.float32),          # (T,)
         "Y0": states[0],                                            # (B, m) always clean
@@ -140,8 +159,9 @@ def load_biodiesel(split: str = "train", noise_percent=None):
         "targets_TBm": targets,                                     # (T, B, m) observations
         "noise_percent": None if noise_percent is None else int(round(float(noise_percent))),
         "T_const": torch.as_tensor(d[f"{split}_T"], dtype=torch.float32),  # (B,)
-        "u_min": torch.as_tensor(d["u_min"], dtype=torch.float32),  # (m,) train-only
-        "u_max": torch.as_tensor(d["u_max"], dtype=torch.float32),  # (m,) train-only
+        "u_min": torch.as_tensor(d[stats[0]], dtype=torch.float32),  # (m,) train-only
+        "u_max": torch.as_tensor(d[stats[1]], dtype=torch.float32),  # (m,) train-only
+        "normalization_keys": list(stats),
         "species": list(d["species"]),
     }
 

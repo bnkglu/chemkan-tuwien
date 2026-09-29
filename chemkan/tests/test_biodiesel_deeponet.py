@@ -53,7 +53,9 @@ def test_test_inputs_are_scaled_with_the_train_normalizer():
     test = load_biodiesel(split="test")
     t_end = float(train["t"][-1])
     branch, tau = biodiesel_deeponet.prepare_inputs(test, full, t_end)
-    expected = full.normalize(biodiesel_deeponet.raw_branch_input(test))
+    legacy_full = biodiesel_deeponet.raw_branch_input(test, biodiesel_deeponet.LEGACY_BRANCH_IN)
+    columns = biodiesel_deeponet.BRANCH_COLUMNS[biodiesel_deeponet.BRANCH_IN]
+    expected = full.normalize(legacy_full)[:, columns]          # normalize, then select
     assert torch.equal(branch, expected)
     assert torch.allclose(tau, test["t"] / t_end)
     assert float(tau[0]) == 0.0 and float(tau[-1]) == pytest.approx(1.0)

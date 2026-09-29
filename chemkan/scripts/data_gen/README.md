@@ -6,7 +6,7 @@ run some sanity checks, and save each system as a compressed `.npz`.
 
 **Biodiesel and hydrogen are the reproduction datasets. Methane is an optional
 extension** (see the end of this file). Every `.npz` is regenerated from source; the
-canonical `biodiesel.npz` / `hydrogen.npz` and the production
+biodiesel datasets `biodiesel_legacy.npz` (legacy runs) / `biodiesel_v2.npz` (current), `hydrogen.npz` and the production
 `hydrogen_temperature_20000.npz` cache are tracked in Git (small, and needed to reproduce
 reported results), while diagnostic dense caches (50k/100k/200k) and any other `.npz`
 stay untracked. See the root `.gitignore` negation rules.
@@ -39,14 +39,17 @@ python generate_all.py --out-dir ../../data/generated --include-fine
 
 # check them
 python verify_data.py ../../data/generated/hydrogen.npz
-python verify_data.py ../../data/generated/biodiesel.npz --system biodiesel
+python verify_data.py ../../data/generated/biodiesel_v2.npz --system biodiesel
 ```
 
 Individual generators accept CLI arguments (e.g. `--out`, `--seed`, `--n-train`,
 `--n-test`, `--phis`) for reproducibility and quick experiments:
 
 ```bash
-python generate_biodiesel.py --out ../../data/generated/biodiesel.npz --seed 0
+python generate_biodiesel.py --seed 0            # -> biodiesel_v2.npz (released-code order, authors' ICs, additive noise)
+# legacy recipe (biodiesel_legacy.npz was made this way, plus a 3 % level added later):
+# python generate_biodiesel.py --reaction-order paper_text --ic-source sampled \
+#     --noise-mode multiplicative --no-per-level-stats --out <new file> --seed 0
 python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
 python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Figure 8 (A) 441 total data. 406 of which were unseen, 35 were seen during training.
 ```
@@ -110,7 +113,8 @@ uses the NumPy 1.x ABI.
 
 | File | Cases | Shape of `states` | `state_layout` |
 |---|---|---|---|
-| `biodiesel.npz` | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
+| `biodiesel_v2.npz` | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
+| `biodiesel_legacy.npz` *(legacy runs; formerly `biodiesel.npz`)* | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
 | `hydrogen.npz` | 35 train + 1 test | `(cases, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
 | `hydrogen_fine.npz` *(optional)* | 35 train + 406 test | `(441, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
 | `methane.npz` *(optional)* | 35 train + 1 test | `(cases, 1001, 53)` | `species_then_temperature` |
@@ -131,7 +135,7 @@ constant temperature column with `common.with_temperature`:
 ```python
 from common import load, with_temperature
 
-d = load("../../data/generated/biodiesel.npz")
+d = load("../../data/generated/biodiesel_v2.npz")
 u_in = with_temperature(d["train_states"], d["train_T"])
 # shape: (n_train, n_times, 7)
 # defaults: (20, 30, 7)
@@ -219,7 +223,7 @@ its normalization matches the coarse file. (Koenig et al. ChemKAN, p. 15, last p
 
 ```bash
 python verify_data.py ../../data/generated/hydrogen.npz
-python verify_data.py ../../data/generated/biodiesel.npz --system biodiesel
+python verify_data.py ../../data/generated/biodiesel_v2.npz --system biodiesel
 ```
 
 - **Combustion:**

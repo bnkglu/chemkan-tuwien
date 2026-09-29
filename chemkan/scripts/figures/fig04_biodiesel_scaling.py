@@ -268,7 +268,7 @@ def make_figure(n_mu="scaled", deeponet_version="reference", output_path=None,
             writer.writeheader()
             writer.writerows(rows)
 
-    n_times = observation_times("biodiesel.npz")
+    n_times = observation_times("biodiesel_legacy.npz")
     divisor, note, ta_suffix = loss_reduction(n_times, time_averaged)
     fig = plot_figure(points, fits, n_mu, version, divisor,
                       "" if divisor == 1.0 else f"\n{note}")

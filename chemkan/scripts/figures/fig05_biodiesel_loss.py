@@ -141,7 +141,7 @@ def make_figure(chemkan_runs=None, deeponet_runs=None, output_path=None, *,
                                     "test_late_span": late_span(e, test),
                                     "test_min_epoch": int(e[int(np.argmin(test))]),
                                     "test_min": float(test.min())}
-    n_times = observation_times("biodiesel.npz")
+    n_times = observation_times("biodiesel_legacy.npz")
     divisor, note, _ = loss_reduction(n_times, time_averaged)
     results = {"runs": runs, "reduction": note}
     fig = plot_figure(panels, divisor=divisor,
@@ -191,7 +191,7 @@ def make_interval_clean_figure(*, output_path=None, time_averaged=False, show=Fa
     With ``output_path=None``, neither figures nor companion tables are written.
     """
     exp = ROOT / "results/experiments/legacy/biodiesel/observed_intervals"
-    n_times = observation_times("biodiesel.npz")
+    n_times = observation_times("biodiesel_legacy.npz")
     divisor, note, suffix = loss_reduction(n_times, time_averaged)
     final_precision = 8 if time_averaged else 6
     interval_convention = (

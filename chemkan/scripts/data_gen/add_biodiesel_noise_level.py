@@ -1,4 +1,4 @@
-r"""Append one missing noise realization to an existing biodiesel.npz -- in place.
+r"""Append one missing noise realization to an existing biodiesel_legacy.npz -- in place.
 
 The Fig. 5 sweep needs eight noise levels (0/1/2/3/5/7/10/15 %); the shipped archive
 carries seven. Regenerating the archive to add 3% would re-run the ODE solver and
@@ -50,7 +50,7 @@ def build(archive: dict, level: float, seed: int, mode: str) -> dict:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--archive", type=Path, default=Path("../../data/generated/biodiesel.npz"))
+    p.add_argument("--archive", type=Path, default=Path("../../data/generated/biodiesel_legacy.npz"))
     p.add_argument("--level", type=float, required=True, help="noise fraction, e.g. 0.03")
     p.add_argument("--seed", type=int, default=0, help="generator seed (must match the archive)")
     p.add_argument("--noise-mode", choices=["multiplicative", "range"], default="multiplicative")

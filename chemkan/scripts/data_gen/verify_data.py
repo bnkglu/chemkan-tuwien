@@ -2,7 +2,7 @@
 Sanity checks on generated data. Run this before training anything.
 
     python verify_data.py ../../data/generated/hydrogen.npz
-    python verify_data.py ../../data/generated/biodiesel.npz --system biodiesel
+    python verify_data.py ../../data/generated/biodiesel_legacy.npz --system biodiesel
 
 Checks
 ------

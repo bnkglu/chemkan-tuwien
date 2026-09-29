@@ -100,7 +100,7 @@ indexing convention, and because switching would change the dataset underlying t
 existing biodiesel results. Any future switch must regenerate the dataset and re-run
 every biodiesel result.
 
-The canonical `biodiesel.npz` is reproduced **bitwise** by
+The legacy `biodiesel_legacy.npz` (formerly `biodiesel.npz`) is reproduced **bitwise** by
 `generate_biodiesel.py --seed 0` at its committed defaults (verified 2026-09-04: every
 array identical; only the `git_commit` provenance stamp differs).
 

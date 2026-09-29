@@ -229,7 +229,7 @@ def _run(cmd, **kw):
                           capture_output=True, text=True, **kw)
 
 
-@pytest.mark.skipif(not (_DATA / "biodiesel.npz").exists(), reason="biodiesel.npz absent")
+@pytest.mark.skipif(not (_DATA / "biodiesel_legacy.npz").exists(), reason="biodiesel_legacy.npz absent")
 def test_biodiesel_train_eval_end_to_end(tmp_path):
     run_dir = tmp_path / "bd"
     r = _run(["train_biodiesel.py", "--epochs", "2", "--run-dir", str(run_dir)])

@@ -290,7 +290,7 @@ from pathlib import Path                                           # noqa: E402
 _ROOT = Path(__file__).resolve().parents[1]
 _SCRIPTS = _ROOT / "scripts"
 _DATA = _ROOT / "data" / "generated"
-_HAVE_BD = (_DATA / "biodiesel.npz").exists()
+_HAVE_BD = (_DATA / "biodiesel_legacy.npz").exists()
 _HAVE_H2 = (_DATA / "hydrogen.npz").exists() and (_DATA / "hydrogen_temperature_20000.npz").exists()
 
 
@@ -302,7 +302,7 @@ def _ck(path):
     return torch.load(path, map_location="cpu", weights_only=False)
 
 
-@pytest.mark.skipif(not _HAVE_BD, reason="biodiesel.npz absent")
+@pytest.mark.skipif(not _HAVE_BD, reason="biodiesel_legacy.npz absent")
 @pytest.mark.parametrize("extra", [[], ["--batch-size", "10"]])
 def test_biodiesel_fsa_cli_records_backend(tmp_path, extra):
     run = tmp_path / "bd"
@@ -320,7 +320,7 @@ def test_biodiesel_fsa_cli_records_backend(tmp_path, extra):
     assert json.loads((run / "metrics.json").read_text())["solver"]["sensitivity"] == "fsa"
 
 
-@pytest.mark.skipif(not _HAVE_BD, reason="biodiesel.npz absent")
+@pytest.mark.skipif(not _HAVE_BD, reason="biodiesel_legacy.npz absent")
 def test_observed_interval_fsa_cli(tmp_path):
     run = tmp_path / "oi"
     r = _cli("train_biodiesel_observed_intervals.py", "--epochs", "1", "--eval-every", "0",
@@ -329,7 +329,7 @@ def test_observed_interval_fsa_cli(tmp_path):
     assert json.loads((run / "config.json").read_text())["sensitivity_backend"] == "fsa"
 
 
-@pytest.mark.skipif(not _HAVE_BD, reason="biodiesel.npz absent")
+@pytest.mark.skipif(not _HAVE_BD, reason="biodiesel_legacy.npz absent")
 def test_resume_refuses_a_backend_change(tmp_path):
     run = tmp_path / "bd"
     r = _cli("train_biodiesel.py", "--epochs", "2", "--checkpoint-every", "1",

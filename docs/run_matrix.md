@@ -27,12 +27,12 @@ separates "evaluation completed" from "paper result matched" for all 20 compared
 
 | # | Action | Command | Status |
 |---|---|---|---|
-| B1 | Add the missing 3 % biodiesel noise realization **in place** | `chemkan/scripts/data_gen/add_biodiesel_noise_level.py --level 0.03 --apply` | **APPLIED 2026-09-05 and independently verified against the backup: exactly two arrays added (`train_states_noise03`, `test_states_noise03`), zero pre-existing arrays changed, time grid and splits unchanged.** Adds `train_states_noise03` / `test_states_noise03` from the archive's own clean trajectories using the generator's independent per-level stream (train seed 1030, test 2030). Keeps a `.npz.bak`, re-reads the file and restores the backup unless every pre-existing array is bitwise identical. `t = 0` stays exact. **This writes to the tracked `biodiesel.npz`, so it is held for your decision.** |
+| B1 | Add the missing 3 % biodiesel noise realization **in place** | `chemkan/scripts/data_gen/add_biodiesel_noise_level.py --level 0.03 --apply` | **APPLIED 2026-09-05 and independently verified against the backup: exactly two arrays added (`train_states_noise03`, `test_states_noise03`), zero pre-existing arrays changed, time grid and splits unchanged.** Adds `train_states_noise03` / `test_states_noise03` from the archive's own clean trajectories using the generator's independent per-level stream (train seed 1030, test 2030). Keeps a `.npz.bak`, re-reads the file and restores the backup unless every pre-existing array is bitwise identical. `t = 0` stays exact. **This writes to the tracked `biodiesel.npz` (now `biodiesel_legacy.npz`), so it is held for your decision.** |
 | B2 | Fig.-3 evaluation condition artifact | `generate_biodiesel_fig3_condition.py` | **done** — `chemkan/data/generated/biodiesel_fig3_condition.npz` (new file; the canonical split was not touched). TG0 = 1.94, ROH0 = 1.43, T = 334.8 K; 30-point clean trajectory, 601-point dense trajectory, noisy observations at 0/5/10/15 % from a separate `seed + 3000 + …` stream. |
 | B3 | 441-condition fine grid | — | **already present**: `hydrogen_fine.npz`, 21 × 21, `T0 = linspace(950,1200,21)` × `phi = linspace(0.5,1.5,21)`, 35 training / 406 unseen. It was missing from the supplied results archive but is present in this checkout, so it is reused and not regenerated; the prompt document has been corrected to say so. |
 
 Note: all three `.npz` files above are covered by `.gitignore`'s `*.npz` rule. Only
-`biodiesel.npz`, `hydrogen.npz` and `hydrogen_temperature_20000.npz` have explicit
+`biodiesel_legacy.npz` (formerly `biodiesel.npz`), `biodiesel_v2.npz`, `hydrogen.npz` and `hydrogen_temperature_20000.npz` have explicit
 un-ignore entries, so `biodiesel_fig3_condition.npz` and `hydrogen_fine.npz` stay local
 unless you decide to track them.
 

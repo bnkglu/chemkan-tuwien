@@ -393,7 +393,7 @@ computed these in data-gen — reuse them; see `common.normalize`).
 
 ```python
 import numpy as np
-d = dict(np.load("chemkan/data/generated/biodiesel.npz"))
+d = dict(np.load("chemkan/data/generated/biodiesel_legacy.npz"))
 t   = torch.tensor(d["t"], dtype=torch.float32)                 # (30,)
 u   = torch.tensor(d["train_states"], dtype=torch.float32)      # (20, 30, 6)
 umin= torch.tensor(d["u_min"]); umax = torch.tensor(d["u_max"])

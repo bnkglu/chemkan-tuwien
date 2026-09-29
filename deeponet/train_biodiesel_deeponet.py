@@ -35,7 +35,8 @@ sys.path.insert(0, str(_REPO / "chemkan" / "scripts"))
 from _data import available_noise_percents, load_biodiesel, resolve_device   # noqa: E402
 from _run import RunManager, check_resume_config                             # noqa: E402
 
-from biodiesel_deeponet import (COMPARISON_WIDTH, PAPER_PARAMS, architecture,  # noqa: E402
+from biodiesel_deeponet import (BRANCH_IN, BRANCH_INPUTS, COMPARISON_WIDTH,  # noqa: E402
+                                PAPER_PARAMS, architecture,
                                 LEGACY_ARCHITECTURE_VERSION, REFERENCE_ARCHITECTURE_VERSION,
                                 build, prepare_inputs)
 from chemkan.losses import trajectory_mse                                    # noqa: E402
@@ -47,6 +48,13 @@ def build_parser() -> argparse.ArgumentParser:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--width", type=int, default=COMPARISON_WIDTH,
                    help="hidden width w; w=8 reproduces the paper-described architecture")
+    p.add_argument("--branch-in", type=int, choices=sorted(BRANCH_INPUTS), default=BRANCH_IN,
+                   help="3: [TG0, ROH0, T0] (authors' clarification, 308 params at w=8; "
+                        "default); 7: legacy [Y0, T] (340 params at w=8)")
+    p.add_argument("--trunk-hidden", type=int, default=None,
+                   help="trunk hidden width q (default w - 1, so w = 8 is the confirmed "
+                        "308 model); Fig. 4 sizes use (w, q) from biodiesel_deeponet."
+                        "FIG4_ARCHITECTURES")
     p.add_argument("--epochs", type=int, default=10000,
                    help="10000 for the Fig. 5 noise sweep; 50000 for the Fig. 4 width sweep")
     p.add_argument("--lr", type=float, default=1e-3,
@@ -88,7 +96,7 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     device = resolve_device(args.device)
     if args.noise_percent is not None and args.noise_percent not in available_noise_percents():
-        raise SystemExit(f"noise level {args.noise_percent}% is not stored in biodiesel.npz "
+        raise SystemExit(f"noise level {args.noise_percent}% is not stored in biodiesel_legacy.npz "
                          f"(have {available_noise_percents()}). Add it with "
                          f"chemkan/scripts/data_gen/add_biodiesel_noise_level.py first.")
 
@@ -104,13 +112,14 @@ def main():
     norm = full_norm.subset(slice(0, len(train["species"]))).to(device)
     t_end = float(train["t"][-1])
 
-    u0, tau = prepare_inputs(train, full_norm, t_end)
+    u0, tau = prepare_inputs(train, full_norm, t_end, branch_in=args.branch_in)
     target = norm.normalize(train["targets_TBm"].to(device))     # observations
-    test_u0, test_tau = prepare_inputs(test, full_norm, t_end)
+    test_u0, test_tau = prepare_inputs(test, full_norm, t_end, branch_in=args.branch_in)
     test_obs = norm.normalize(test["targets_TBm"].to(device))
     test_clean = norm.normalize(test["species_TBm"].to(device))  # Eq. 22 reference
 
-    model = build(args.width, seed=args.seed).to(device)
+    model = build(args.width, seed=args.seed, branch_in=args.branch_in,
+                  trunk_hidden=args.trunk_hidden).to(device)
 
     run = RunManager(args.run_dir, "biodiesel-deeponet",
                      resume=args.resume, overwrite=args.overwrite)
@@ -153,8 +162,11 @@ def main():
             "normalizer": "train-only min-max (never refit on test data)",
         },
         "provenance": {
-            "architecture": "literal reconstruction of the paper's prose description; "
-                            "340 parameters at w=8 vs the 308 reported (unexplained)",
+            "architecture": ("paper's prose description with the authors' clarified branch "
+                             "input [TG0, ROH0, T0]: 308 parameters at w=8, as reported"
+                             if args.branch_in == BRANCH_IN else
+                             "legacy literal reconstruction with branch input [Y0, T]: "
+                             "340 parameters at w=8 vs the 308 reported"),
             "optimizer_and_init": "REFERENCE-DERIVED from deeponet/src/deeponet_dataset.py "
                                   "(relu, Glorot normal, biased Linear, Adam lr=1e-3); "
                                   "not stated by the ChemKAN paper",
@@ -170,7 +182,8 @@ def main():
     else:
         run.write_config(config)
 
-    logging.info("DeepONet w=%d: %d trainable parameters; branch inputs [Y0, T] use "
+    logging.info("DeepONet w=%d: %d trainable parameters; branch inputs "
+                 f"{list(BRANCH_INPUTS[args.branch_in])} use "
                  "train-only min-max scaling; trunk time input tau=t/%.1fs; "
                  "outputs are normalized species concentrations",
                  args.width, arch["parameter_count"], t_end)

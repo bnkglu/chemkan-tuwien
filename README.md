@@ -32,6 +32,24 @@ controlled match to the authors' released biodiesel example that belongs to neit
 protocol; it and the authors' email clarifications are described in
 [`docs/authors_materials.md`](docs/authors_materials.md).
 
+**Biodiesel data change.** All legacy biodiesel runs used
+`chemkan/data/generated/biodiesel_legacy.npz` (renamed from `biodiesel.npz`, content
+unchanged): the paper-text reaction order (ln A = [18.60, 7.93, 19.13],
+Ea = [14.54, 6.47, 14.42]), initial conditions sampled from a seeded RNG, and multiplicative
+noise with a clean t = 0. `biodiesel.npz` in legacy run configs = `biodiesel_legacy.npz`
+(sha256 `347e39d3113896d85628c3c8ac0a85d9be30bf946e57807d229c8b9f25f32023`); runs on the
+legacy default still record that label so legacy reuse and resume checks keep matching.
+Following the authors' released example and clarification, new runs pass
+`--data-file chemkan/data/generated/biodiesel_v2.npz`: the released-code reaction order
+(ln A = [18.60, 19.13, 7.93], Ea = [14.54, 14.42, 6.47]), the authors' initial conditions
+(`chemkan/data/external/diesel_u0_samples.txt`, rows 1-20 train, 21-30 test) and additive
+noise N(0, 1) × species maximum × level, clipped at 0, with the t = 0 observation noised
+(email B5), at 0/1/2/3/5/7/10/15 %. As in the released script, which computes min/max after
+adding noise, each noise level is normalized with train-only min/max of its own noisy
+training data (`u_min_noiseXX`/`u_max_noiseXX`), so losses at different noise levels are on
+slightly different scales. The DeepONet branch input is now [TG0, ROH0, T0] (308
+parameters, email B3), while legacy DeepONet runs used all seven initial values (340).
+
 ## Reproduction status
 
 Nothing below is claimed as a completed paper reproduction unless it says so. No single

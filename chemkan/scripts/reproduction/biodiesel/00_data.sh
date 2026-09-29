@@ -1,7 +1,7 @@
 #!/bin/bash
 # Biodiesel data prerequisites. Idempotent and safe to re-run.
 #
-#   1. the 3% noise level, appended IN PLACE to biodiesel.npz from its own clean
+#   1. the 3% noise level, appended IN PLACE to biodiesel_legacy.npz from its own clean
 #      trajectories using the generator's independent per-level seeding rule
 #   2. Figure 3's explicitly published unseen condition, as a separate artifact
 #
@@ -14,13 +14,13 @@ require_python
 say "Biodiesel data prerequisites"
 
 # Path passed as an argument: this script must work from any working directory.
-if "$PY" - "$REPO/chemkan/data/generated/biodiesel.npz" <<'PYEOF'
+if "$PY" - "$REPO/chemkan/data/generated/biodiesel_legacy.npz" <<'PYEOF'
 import sys, numpy as np
 sys.exit(0 if "train_states_noise03" in
          np.load(sys.argv[1], allow_pickle=False).files else 1)
 PYEOF
 then
-  info "skip   3% noise level (already present in biodiesel.npz)"
+  info "skip   3% noise level (already present in biodiesel_legacy.npz)"
 else
   run "append the 3% noise level (verified bitwise against a backup)" -- \
     bash -c "cd '$REPO/chemkan/scripts/data_gen' && '$PY' add_biodiesel_noise_level.py --level 0.03 --apply"

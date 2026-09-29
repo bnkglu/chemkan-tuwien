@@ -31,6 +31,9 @@ JOBS = {
     "biodiesel": ["generate_biodiesel.py", "--seed", str(SEED)],
     "hydrogen": ["generate_hydrogen.py", "--grid", "coarse"],
 }
+# Output names that differ from the job name. The biodiesel defaults follow the authors'
+# released example, so they write a NEW versioned file; the legacy biodiesel_legacy.npz is kept.
+OUT_NAMES = {"biodiesel": "biodiesel_v2.npz"}
 
 # Optional hydrogen fine grid (Fig. 8A generalization set); only run with --include-fine.
 FINE_JOB = ("hydrogen-fine", ["generate_hydrogen.py", "--grid", "fine"])
@@ -55,7 +58,7 @@ def main():
         if name in cfg.skip:
             print(f"[skip] {name}")
             continue
-        out = cfg.out_dir / f"{name.replace('-', '_')}.npz"
+        out = cfg.out_dir / OUT_NAMES.get(name, f"{name.replace('-', '_')}.npz")
         print(f"\n[{name}] -> {out}", flush=True)
         t0 = time.perf_counter()
         subprocess.run([sys.executable, str(here / cmd[0]), "--out", str(out), *cmd[1:]],

@@ -69,7 +69,7 @@ def test_completed_reference_run_is_skipped_only_when_full_config_matches(tmp_pa
     source = runner.DON / "legacy_final_trunk_linear/noise/noise00_seed0/checkpoint_final.pt"
     checkpoint = torch.load(source, map_location="cpu", weights_only=False)
     checkpoint["architecture"] = deepcopy(job["config"]["architecture"])
-    checkpoint["model_state"] = runner.build(8, seed=0).state_dict()
+    checkpoint["model_state"] = runner.build(8, seed=0, branch_in=runner.LEGACY_BRANCH_IN).state_dict()
     path = directory / "checkpoint_final.pt"
     torch.save(checkpoint, path)
     assert runner.plan_action(job) == ("skip", path)
@@ -89,7 +89,7 @@ def test_corrected_resume_and_legacy_resume_are_distinguished(tmp_path):
     config = deepcopy(job["config"])
     (directory / "config.json").write_text(json.dumps(config))
     path = directory / "checkpoint_resume.pt"
-    model = runner.build(8, seed=0)
+    model = runner.build(8, seed=0, branch_in=runner.LEGACY_BRANCH_IN)
     state = {"config": config, "epoch": 1000, "model_state": model.state_dict(),
              "optimizer_state": torch.optim.Adam(model.parameters(), lr=1e-3).state_dict(),
              "rng_state": torch.get_rng_state()}

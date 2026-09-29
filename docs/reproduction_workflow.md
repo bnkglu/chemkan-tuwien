@@ -43,12 +43,14 @@ pip install -e .            # once
 
 ```bash
 cd chemkan/scripts/data_gen
-python generate_biodiesel.py --out ../../data/generated/biodiesel.npz --seed 0
+python generate_biodiesel.py --seed 0   # current data -> biodiesel_v2.npz
 ```
 
-- Output: `chemkan/data/generated/biodiesel.npz` (20 train + 10 test trajectories,
-  30 points over 30 s, noise levels `0/1/2/5/7/10/15 %`, isothermal `species_only`).
-- Regeneration is **optional** — the repository already ships `biodiesel.npz`; regenerate
+- Output: `chemkan/data/generated/biodiesel_v2.npz` (20 train + 10 test trajectories from the
+  authors' IC file, released-code reaction order, 30 points over 30 s, additive noise at
+  `0/1/2/3/5/7/10/15 %`, isothermal `species_only`). The legacy runs used
+  `biodiesel_legacy.npz` (formerly `biodiesel.npz`): paper-text order, sampled ICs, multiplicative noise.
+- Regeneration is **optional** — the repository already ships `biodiesel_v2.npz` and `biodiesel_legacy.npz`; regenerate
   only for full reproducibility. The 30-point grid and the existing split are a settled
   decision (`chemkan/src/chemkan/ASSUMPTIONS.md` §4b); do not change them.
 

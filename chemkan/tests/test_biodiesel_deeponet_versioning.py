@@ -15,6 +15,7 @@ sys.path.insert(0, str(_REPO / "deeponet"))
 from biodiesel_deeponet import (  # noqa: E402
     ARCHITECTURE_VERSIONS, LEGACY_ARCHITECTURE_VERSION as LEGACY,
     REFERENCE_ARCHITECTURE_VERSION as REFERENCE,
+    BRANCH_IN, BRANCH_INPUTS, LEGACY_BRANCH_IN,
     BiodieselDeepONet, architecture, build, n_params,
 )
 from evaluate_biodiesel_deeponet import build_model  # noqa: E402
@@ -38,7 +39,7 @@ def _forward_from_weights(state, branch_input, tau, *, final_trunk_relu):
 
 @pytest.mark.parametrize("version", ARCHITECTURE_VERSIONS)
 def test_final_activation_placement_and_linear_head(version):
-    model = build(seed=0, architecture_version=version)
+    model = build(seed=0, architecture_version=version, branch_in=LEGACY_BRANCH_IN)
     assert [type(layer) for layer in model.branch] == [
         nn.Linear, nn.ReLU, nn.Linear, nn.ReLU, nn.Linear]
     expected_trunk = [nn.Linear, nn.ReLU, nn.Linear]
@@ -67,7 +68,7 @@ def test_final_activation_placement_and_linear_head(version):
 @pytest.mark.parametrize("stored_version", [None, LEGACY, REFERENCE])
 def test_checkpoint_round_trip_reconstructs_saved_forward(tmp_path, stored_version):
     version = stored_version or LEGACY
-    original = build(seed=0, architecture_version=version)
+    original = build(seed=0, architecture_version=version, branch_in=LEGACY_BRANCH_IN)
     arch = architecture(original)
     if stored_version is None:
         del arch["architecture_version"]
@@ -102,8 +103,8 @@ def test_unknown_versions_are_rejected():
 
 @pytest.mark.parametrize("width", [3, 5, 6, 8, 10, 13])
 def test_parameters_and_initialization_are_identical_between_versions(width):
-    legacy = build(width, seed=0, architecture_version=LEGACY)
-    reference = build(width, seed=0, architecture_version=REFERENCE)
+    legacy = build(width, seed=0, architecture_version=LEGACY, branch_in=LEGACY_BRANCH_IN)
+    reference = build(width, seed=0, architecture_version=REFERENCE, branch_in=LEGACY_BRANCH_IN)
     assert legacy.branch_dims == reference.branch_dims == (7, width, width, width)
     assert legacy.trunk_dims == reference.trunk_dims == (1, width - 1, width)
     assert n_params(legacy) == n_params(reference) == 3 * width**2 + 18 * width + 4
@@ -115,7 +116,7 @@ def test_parameters_and_initialization_are_identical_between_versions(width):
 
     # Reproduce the existing initializer independently; ReLU must consume no RNG.
     torch.manual_seed(0)
-    expected = BiodieselDeepONet(width, architecture_version=LEGACY)
+    expected = BiodieselDeepONet(width, architecture_version=LEGACY, branch_in=LEGACY_BRANCH_IN)
     for layer in expected.modules():
         if isinstance(layer, nn.Linear):
             assert layer.bias is not None
@@ -153,7 +154,9 @@ def test_new_config_and_checkpoint_record_version_without_training(tmp_path, mon
     assert config["architecture"] == ckpt["architecture"]
     assert config["architecture"]["architecture_version"] == REFERENCE
     assert "after every trunk layer" in config["architecture"]["activation"]
-    assert config["parameter_count"] == ckpt["architecture"]["parameter_count"] == 340
+    assert config["parameter_count"] == ckpt["architecture"]["parameter_count"] == 308
+    assert config["architecture"]["branch_dims"][0] == BRANCH_IN == 3
+    assert config["architecture"]["branch_input"] == ["TG0", "ROH0", "T0"]
     assert config["architecture"]["weight_init"] == "glorot_normal (xavier_normal_), zero bias"
     assert config["optimizer"] == "Adam"
     assert config["learning_rate"] == ckpt["training"]["learning_rate"] == 1e-3
