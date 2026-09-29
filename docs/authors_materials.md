@@ -24,14 +24,14 @@ Status: **done** = current code/data follow it; **not yet** = current code/data 
 | B5 | Noise is additive: N(0, 1) × species maximum × noise %, clipped at 0 (4 of 6 species start at zero). | line 98, clip line 100 | not yet (`generate_biodiesel.py` default `--noise-mode multiplicative`) |
 | B6 | The released example is a pared-down noisy case with a few minor differences from the paper; it converges in ~1e4 epochs. | 10,000 epochs (line 22) | n.a. |
 | H1 | 36 initial-condition combinations; the φ list in the text omits 0.5; Fig. 8 shows all 36. | n.a. | done (`hydrogen.npz`: 35 train + 1 test) |
-| H2 | Hydrogen uses no base activation, so grid size 5 is correct. | n.a. | not yet (default N=4 / base on; legacy `hydrogen/main/base_off_direct_autograd_seed0` used N=5 / base off) |
+| H2 | Hydrogen uses no base activation, so grid size 5 is correct. | n.a. | implemented in the author-matched hydrogen script (not yet trained) |
 | H3 | Training grid of 100 time steps; data from Arrhenius.jl `CVODE_BDF`, rtol = atol = 1e-14, checked against Cantera (dtmax 1e-5 s, dTmax 1 K), interpolated onto the 100 points. | n.a. | done (`hydrogen.npz`: 100 points on 0-0.6 ms; generated with Cantera, not Arrhenius.jl) |
 | H4 | Dense time/temperature kept separately as a linear interpolant, sampled inside the forward pass. | n.a. | done (Stage 1 `--stage1-temperature-source dense-cantera`, 20,000 points, linear) |
 | H5 | Recovering exact h_i/c_p values was neither expected nor tested. | n.a. | n.a. |
-| H6 | Thermodynamic linear weights all initialized to 1e-5, so dT/dt starts near zero; random init could overpredict T and destabilize training. | n.a. | not yet (`--thermo-init` offers random / cantera / scaled-random) |
-| H7 | Optional warm-up: train only the linear thermo coefficients briefly with the kinetic core frozen, then train normally. | n.a. | not yet |
+| H6 | Thermodynamic linear weights all initialized to 1e-5, so dT/dt starts near zero; random init could overpredict T and destabilize training. | n.a. | implemented in the author-matched hydrogen script (not yet trained) |
+| H7 | Optional warm-up: train only the linear thermo coefficients briefly with the kinetic core frozen, then train normally. | n.a. | implemented in the author-matched hydrogen script (not yet trained) |
 | H8 | The loss is not divided by the number of time steps, because all trajectories share one 100-step grid; training dynamics are unaffected. Stated for hydrogen; Eq. 18 is the same for biodiesel. | biodiesel `Flux.mse` does divide by species × times (line 166): Eq. 18 = 30 × it, see `explicit_mse_loss_check.txt` | done (`losses.trajectory_mse`: mean over states, sum over time) |
-| H9 | 1e5-2e5 epochs per stage; no stopping rule; the loss flattens early but keeps decreasing slowly; higher learning rates diverged; days on a 2019 CPU with a first-order optimizer. | n.a. | not yet (default 10,000 per stage) |
+| H9 | 1e5-2e5 epochs per stage; no stopping rule; the loss flattens early but keeps decreasing slowly; higher learning rates diverged; days on a 2019 CPU with a first-order optimizer. | n.a. | implemented in the author-matched hydrogen script (not yet trained) |
 
 ## 2. Released biodiesel example match
 

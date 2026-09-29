@@ -84,18 +84,23 @@ def load_julia_params(core: KineticCore, p: np.ndarray) -> None:
         core.lean.edges.w_rbf.copy_(w2)
 
 
-def glorot_uniform_(core: KineticCore, generator: torch.Generator) -> None:
+def glorot_uniform_edges_(edges_list, generator: torch.Generator) -> None:
     """Lux ``glorot_uniform`` on each ``C`` (out x G*in): U(-a, a), a = sqrt(6/(G*in + out)).
 
     Not ``torch.nn.init.xavier_uniform_``: on the library's (out, in, G) tensor that uses
-    fan_out = out*G, whereas Julia's 2-D ``C`` has fan_out = out.
+    fan_out = out*G, whereas Julia's 2-D ``C`` has fan_out = out. Draws in list order.
     """
     with torch.no_grad():
-        for edges in (core.add.edges, core.lean.edges):
+        for edges in edges_list:
             out, n_in, g = edges.w_rbf.shape
             a = math.sqrt(6.0 / (g * n_in + out))
             u = torch.rand(edges.w_rbf.shape, generator=generator, dtype=edges.w_rbf.dtype)
             edges.w_rbf.copy_((2.0 * u - 1.0) * a)
+
+
+def glorot_uniform_(core: KineticCore, generator: torch.Generator) -> None:
+    """``glorot_uniform_edges_`` on a kinetic core's two layers (add, then lean)."""
+    glorot_uniform_edges_((core.add.edges, core.lean.edges), generator)
 
 
 class NormalizedDynamics(nn.Module):
