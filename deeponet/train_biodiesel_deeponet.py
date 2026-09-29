@@ -21,6 +21,7 @@ Artifacts follow the ChemKAN run-directory layout (``chemkan/scripts/_run.py``):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import sys
@@ -51,6 +52,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--branch-in", type=int, choices=sorted(BRANCH_INPUTS), default=BRANCH_IN,
                    help="3: [TG0, ROH0, T0] (authors' clarification, 308 params at w=8; "
                         "default); 7: legacy [Y0, T] (340 params at w=8)")
+    p.add_argument("--data-file", type=Path, default=None,
+                   help="biodiesel archive to train on (e.g. chemkan/data/generated/"
+                        "biodiesel_v2.npz). Default: the legacy biodiesel_legacy.npz.")
     p.add_argument("--trunk-hidden", type=int, default=None,
                    help="trunk hidden width q (default w - 1, so w = 8 is the confirmed "
                         "308 model); Fig. 4 sizes use (w, q) from biodiesel_deeponet."
@@ -95,13 +99,16 @@ def main():
     require_reference_run_directory(args.run_dir)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     device = resolve_device(args.device)
-    if args.noise_percent is not None and args.noise_percent not in available_noise_percents():
-        raise SystemExit(f"noise level {args.noise_percent}% is not stored in biodiesel_legacy.npz "
-                         f"(have {available_noise_percents()}). Add it with "
-                         f"chemkan/scripts/data_gen/add_biodiesel_noise_level.py first.")
+    levels = available_noise_percents(args.data_file)
+    if args.noise_percent is not None and args.noise_percent not in levels:
+        raise SystemExit(f"noise level {args.noise_percent}% is not stored in "
+                         f"{args.data_file or 'biodiesel_legacy.npz'} (have {levels}). Add it "
+                         f"with chemkan/scripts/data_gen/add_biodiesel_noise_level.py first.")
 
-    train = load_biodiesel(split="train", noise_percent=args.noise_percent)
-    test = load_biodiesel(split="test", noise_percent=args.noise_percent)
+    train = load_biodiesel(split="train", noise_percent=args.noise_percent,
+                           data_file=args.data_file)
+    test = load_biodiesel(split="test", noise_percent=args.noise_percent,
+                          data_file=args.data_file)
 
     # Train-only statistics, exactly as the ChemKAN runs use them (Eq. 18): the (m+1,)
     # full-state normalizer scales the branch input, its species subset the loss space.
@@ -135,6 +142,8 @@ def main():
             torch.set_rng_state(resume_state["rng_state"])
 
     arch = architecture(model)
+    # Legacy default keeps its recorded label (README: biodiesel.npz = biodiesel_legacy.npz).
+    dataset_name = "biodiesel.npz" if args.data_file is None else Path(args.data_file).name
     config = {
         "model": "DeepONet-biodiesel", "chemical_system": "biodiesel",
         "experiment_name": args.experiment_name, "seed": args.seed,
@@ -148,10 +157,10 @@ def main():
             "output": "normalized species u_hat (compared directly with normalized targets)",
             "stats": "train-only min-max", "t_end_s": t_end,
         },
-        "dataset": "biodiesel.npz (train split)",
+        "dataset": f"{dataset_name} (train split)",
         "noise": None if args.noise_percent is None else {
             "percent": args.noise_percent,
-            "source": f"biodiesel.npz train_states_noise{args.noise_percent:02d}",
+            "source": f"{dataset_name} train_states_noise{args.noise_percent:02d}",
         },
         "in_training_evaluation": None if not args.eval_every else {
             "eval_every": args.eval_every,
@@ -172,6 +181,12 @@ def main():
                                   "not stated by the ChemKAN paper",
         },
     }
+    if args.data_file is not None:
+        # Only runs on another archive get this key, so legacy configs stay identical.
+        config["dataset_file"] = {
+            "path": str(args.data_file),
+            "sha256": hashlib.sha256(Path(args.data_file).read_bytes()).hexdigest(),
+            "normalization_keys": train["normalization_keys"]}
     if resume_state is not None:
         check_resume_config(resume_state.get("config", {}), config)
         if args.epochs < start_epoch:
