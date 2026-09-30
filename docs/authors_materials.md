@@ -151,10 +151,10 @@ Status: `code = email`; `code ≠ email`; `email silent, code ≠ paper`;
 - Seed spread: one run per configuration.
 - Julia on our canonical data: not run.
 - Hydrogen items H1-H9: deferred to the hydrogen work.
-- Which loss convention the paper's reported MSE values use (Eq. 18 as written sums over
-  time; the released code averages over time). To be checked by computing the expected
-  training-loss increase from 1% additive noise and comparing it with the paper's 3.78e-5
-  (Sec. III A 3).
+- ~~Which loss convention the paper's reported MSE values use.~~ Answered in §4: the
+  time-averaged convention (released-code `Flux.mse`, Eq. 18 / 30).
+- DeepONet trunk on `biodiesel_v2`: the trained 308 trunks are exactly linear in time (§4);
+  fix not yet chosen, Fig. 4/5 DeepONet runs not yet rerun.
 
 ## 3. Figure 4 sizes (neural scaling)
 
@@ -192,3 +192,71 @@ grid 3, 39·H parameters (asserted; H recorded in `config.json`):
 | 429 | 11 | reconstructed |
 
 The default `--hidden 4` reproduces `run_seed0` exactly.
+
+## 4. Figure reproduction on biodiesel_v2
+
+The 27 runs of `chemkan/scripts/author_repo_match/run_figures.py`, all on
+`biodiesel_v2.npz` with seed 0; results in
+`results/experiments/biodiesel/author_repo_match/figures/`.
+
+- **ChemKAN**: `train_author_repo_match.py --data canonical --solve-mode batched
+  --sensitivity fsa` (released-example settings, §2), Fig. 5 at H = 4 (156 parameters)
+  for 10,000 epochs, Fig. 4 at H = 2, 3, 4, 9, 11 for 5,000 epochs.
+- **DeepONet**: `reference_final_trunk_relu`, Adam lr 1e-3; Fig. 5 at 308 parameters for
+  10,000 epochs, Fig. 4 at the §3 sizes for 50,000 epochs.
+
+Verification (`chemkan/scripts/figures/author_runs.py` `verify()`): 27 runs, 0 problems
+(final checkpoint, full epoch count, finite losses, data sha256, settings as planned).
+
+Figures: `python chemkan/scripts/figures/plot_all.py --runs figures` writes PNG + PDF to
+`figures/plots/`; the legacy figures are unchanged (`--runs legacy`, the default). Notebook:
+`chemkan/notebooks/07b_biodiesel_author_matched.ipynb`.
+
+Conventions:
+- **Loss**: time-averaged MSE (released-code `Flux.mse`; Eq. 18 = 30 × this).
+- **Converged**: the final checkpoint (after the last Adam step), as the paper's
+  "after 10⁴ epochs"; not a late-window median.
+- **Fig. 4 fits**: log-log least squares, excluding the last ChemKAN point and the last
+  two DeepONet points (Sec. III A 2); order = −slope.
+
+### Paper comparison
+
+Only numbers stated in the paper's text (`chemkan/scripts/figures/author_paper_table.py`).
+One seed per run, so there is no spread; read every ratio as a single-run value.
+
+| quantity | paper (section) | ours |
+|---|---|---|
+| ChemKAN scaling order, train / test | 1.0 / 0.6 (III A 2) | 1.51 / 0.464 (R² 0.91 / 0.56, 4 points) |
+| ChemKAN error at the smallest size (78 parameters) | ~1e-4 (III A 2) | train 5.28e-4, test 8.87e-4 |
+| DeepONet train below ChemKAN above ~200 parameters | yes (III A 2) | no: DeepONet 249-456: 4.2e-4 to 5.2e-3; ChemKAN 351, 429: 4.6e-5, 3.3e-5 |
+| ChemKAN train increase, 0 → 1 % noise | 3.78e-5 (III A 3) | 4.73e-5 (noise floor 4.46e-5; Eq. 18: 1.42e-3) |
+| ChemKAN train increase, 0 → 5 % noise | 9.45e-4 expected, 9.64e-4 observed (III A 3) | 1.04e-3 (noise floor 1.08e-3; Eq. 18: 3.12e-2) |
+| ChemKAN noise-free test, 15 % / 0 % | ~2× (III A 3) | 1.82× |
+| DeepONet noise-free test, 15 % / 0 % | ~5× (III A 3) | 0.75× |
+| noise-free test at 15 %, DeepONet / ChemKAN | 4.4× (III A 3) | 7.67× |
+
+The noise floor is the MSE between the noisy and clean training targets: the training-loss
+increase a model that fits the clean trajectories exactly would show.
+
+### Findings
+
+- **Loss convention.** The paper's 0 → 1 % and 0 → 5 % training-loss increases are of the
+  size of our time-averaged values and the noise floor, and 30× below the Eq. 18 values.
+  The paper's reported MSEs are therefore in the time-averaged convention (Eq. 18 / 30),
+  not Eq. 18 as written.
+- **ChemKAN** follows the noise floor (training loss rises by about the noise it cannot
+  fit) and its noise-free test loss stays within 2× of the 0 % value up to 15 % noise, as in
+  the paper. Its scaling orders differ from the paper's (1.51 / 0.46 vs 1.0 / 0.6), from
+  four points of one seed.
+- **Final checkpoint vs last logged epoch.** For ChemKAN the last Adam step (lr 1e-2)
+  changes the loss by ~10 % (0 % noise-free test: 2.87e-4 logged vs 3.15e-4 final), so
+  single-epoch ratios are sensitive to the step at which they are read.
+- **DeepONet does not reproduce.** The 308 model plateaus near 5e-3 at every noise level,
+  and its Fig. 6 predictions are straight lines in time. Cause (verified on the trained
+  308 runs): the trunk input is τ = t / t_end ∈ [0, 1] (our choice, commit 2825162) and the
+  DeepXDE-style initialization has zero biases, so every first-layer ReLU kink sits at
+  τ = 0 and the trunk is exactly linear on [0, 1]. This is separate from the final-trunk-
+  ReLU fix (e2321b4). Candidate fixes: centre τ to [−1, 1], a tanh trunk, or nonzero bias
+  initialization; the DeepONet rows above are therefore not a comparison with the paper's
+  DeepONet.
+
