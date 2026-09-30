@@ -23,6 +23,7 @@ from common import (
     DATA,
     DEEPONET_BIODIESEL,
     DEEPONET_VERSION,
+    FIGURES_AUTHOR,
     FIGURES_BIODIESEL,
     ROOT,
     loss_reduction,
@@ -152,6 +153,31 @@ def make_figure(chemkan_runs=None, deeponet_runs=None, output_path=None, *,
     return fig, results
 
 
+# --------------------------------------------------------------------------- biodiesel_v2 runs
+# Data from the biodiesel_v2 figure runs, drawn by the unchanged plot_figure above.
+
+def make_author_figure(output_path=None, *, show=False):
+    """Fig. 5B from the biodiesel_v2 runs, drawn by the legacy ``plot_figure``."""
+    import author_runs as ar
+    runs = ar.by_name()
+    panels = {}
+    for pct in NOISE_LEVELS:
+        panels[pct] = {}
+        for name, key in (("ChemKAN", "chemkan"), ("DeepONet", "deeponet")):
+            h = ar.history(runs[f"fig05_{key}_noise{pct:02d}"])
+            panels[pct][name] = (h["epoch"], h["train"], h["test_clean"])
+    fig = plot_figure(panels, 1.0, "Loss\ntime-averaged MSE")
+    fig._suptitle.set_text(f"Fig. 5B - training and noise-free test loss (biodiesel_v2 runs; "
+                           f"{ar.CONVENTION_SHORT})")
+    # plot_figure fixes the bottom at 1e-4 (legacy Eq. 18 scale); time-averaged values reach lower.
+    low = min(float(v.min()) for pct in panels for e, tr, te in panels[pct].values() for v in (tr, te))
+    fig.axes[0].set_ylim(bottom=10 ** np.floor(np.log10(low)))
+    save_figure(fig, output_path or FIGURES_AUTHOR / "fig05b_loss_histories")
+    if show:
+        plt.show()
+    return fig
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -161,7 +187,13 @@ def main():
     p.add_argument("--output", default=FIGURES_BIODIESEL / "fig05b_biodiesel_loss_dynamics")
     p.add_argument("--time-averaged", action="store_true",
                    help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
+    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
+                   help="figures: plot the biodiesel_v2 figure runs (run_figures.py) "
+                        "into FIGURES_AUTHOR instead of the legacy reproduction")
     args = p.parse_args()
+    if args.runs == "figures":
+        make_author_figure()
+        return
     if args.observed_intervals:
         _, _, suffix = loss_reduction(0, args.time_averaged)
         exp = ROOT / "results/experiments/legacy/biodiesel/observed_intervals"

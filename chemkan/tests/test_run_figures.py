@@ -91,7 +91,8 @@ def test_skip_resume_and_incomplete(tmp_path, monkeypatch):
     assert "skipped" in rf.execute(run, None, dry_run=False)
 
 
-def test_dry_run_starts_nothing(monkeypatch, capsys):
+def test_dry_run_starts_nothing(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(rf, "OUT", tmp_path)                     # no finished runs here
     monkeypatch.setattr(rf.subprocess, "run", lambda *a, **k: pytest.fail("must not run"))
     monkeypatch.setattr(rf, "log_line", lambda *a: pytest.fail("must not log"))
     assert rf.main(["--dry-run", "--only", "fig04_deeponet_p308"]) == 0

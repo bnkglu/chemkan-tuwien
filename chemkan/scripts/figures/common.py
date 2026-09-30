@@ -22,6 +22,8 @@ CHEMKAN_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/chemkan"
 CHEMKAN_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/chemkan"
 DEEPONET_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/deeponet"
 DATA = ROOT / "chemkan/data/generated"
+# biodiesel_v2 figure runs (run_figures.py) and their plots
+FIGURES_AUTHOR = ROOT / "results/experiments/biodiesel/author_repo_match/figures/plots"
 
 # The DeepONet architecture the corrected reproduction uses (see notebook 07).
 DEEPONET_VERSION = "reference_final_trunk_relu"

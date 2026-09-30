@@ -57,9 +57,9 @@ def build_model(ckpt, device) -> BiodieselDeepONet:
     return model
 
 
-def evaluate(ckpt_path, split="test", device="cpu", noise_percent=None) -> dict:
+def evaluate(ckpt_path, split="test", device="cpu", noise_percent=None, data_file=None) -> dict:
     dev = resolve_device(device)
-    data = load_biodiesel(split=split, noise_percent=noise_percent)
+    data = load_biodiesel(split=split, noise_percent=noise_percent, data_file=data_file)
     ckpt = torch.load(ckpt_path, map_location=dev, weights_only=False)
     if list(ckpt["data"]["species"]) != list(data["species"]):
         raise ValueError("checkpoint species names/order differ from the dataset")

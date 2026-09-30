@@ -19,6 +19,7 @@ import torch
 from common import (
     CHEMKAN_BIODIESEL,
     DATA,
+    FIGURES_AUTHOR,
     FIGURES_BIODIESEL,
     add_repo_paths,
     load_checkpoint,
@@ -260,6 +261,53 @@ def make_interval_figure(output_path=None, *, show=False):
     return make_interval(output_path=output_path, show=show)
 
 
+# --------------------------------------------------------------------------- biodiesel_v2 runs
+# Data from the biodiesel_v2 figure runs, drawn by the unchanged plot_figure above.
+
+def author_trajectory_data():
+    """Test row 24 (the paper's Fig. 3 condition) in plot_figure's format: the condition
+    and results["levels"][pct] with the dense ChemKAN prediction and per-species
+    time-averaged losses against the clean truth and the noisy test observations."""
+    import author_runs as ar
+    case = ar.fig3_case(NOISE_LEVELS)
+    clean = ar.dataset()["test_states"][ar.FIG3_TEST_INDEX]
+    condition = {"t_dense": case["t_dense"], "t": case["t"], "states_dense": case["truth"],
+                 "states": clean, "species": case["species"],
+                 "y0": np.round(case["y0"], 3), "T": round(case["T"], 2),
+                 "noisy": case["observations"]}
+    runs = ar.by_name()
+    results = {"levels": {}, "reduction": ar.CONVENTION, "n_times": len(case["t"])}
+    for pct in NOISE_LEVELS:
+        run = runs[f"fig05_chemkan_noise{pct:02d}"]
+        src = ar.config(run)["data_source"]
+        rng = np.array(src["species_max"]) - np.array(src["species_min"])
+        at_obs = ar.chemkan_predict(run, case["y0"], case["T"], case["t"])
+        results["levels"][pct] = {
+            "dense": ar.chemkan_predict(run, case["y0"], case["T"], case["t_dense"]),
+            "loss_clean": (((at_obs - clean) / rng) ** 2).mean(axis=0),
+            "loss_obs": (((at_obs - condition["noisy"][pct]) / rng) ** 2).mean(axis=0),
+            "checkpoint": str(run["dir"] / "checkpoint_final.pt")}
+    return condition, results
+
+
+def make_author_figure(output_path=None, *, show=False):
+    """Fig. 3 from the biodiesel_v2 runs, drawn by the legacy ``plot_figure``."""
+    import author_runs as ar
+    condition, results = author_trajectory_data()
+    fig = plot_figure(condition, results,
+                      f"\nbiodiesel_v2 runs (test row 24); loss: {ar.CONVENTION_SHORT}")
+    # plot_figure prints 3 decimals; time-averaged per-species losses need exponents.
+    for col, pct in enumerate(NOISE_LEVELS):
+        r = results["levels"][pct]
+        for row in range(len(condition["species"])):
+            fig.axes[row * len(NOISE_LEVELS) + col].texts[0].set_text(
+                f"Loss (clean): {r['loss_clean'][row]:.2e}\nLoss (obs): {r['loss_obs'][row]:.2e}")
+    save_figure(fig, output_path or FIGURES_AUTHOR / "fig03_trajectories")
+    if show:
+        plt.show()
+    return fig, results
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -274,7 +322,13 @@ def main():
     p.add_argument("--skip-clean-column", action="store_true")
     p.add_argument("--time-averaged", action="store_true",
                    help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
+    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
+                   help="figures: plot the biodiesel_v2 figure runs (run_figures.py) "
+                        "into FIGURES_AUTHOR instead of the legacy reproduction")
     args = p.parse_args()
+    if args.runs == "figures":
+        make_author_figure()
+        return
     if args.observed_intervals:
         from plot_biodiesel_interval_fig3 import main as make_interval_fig3
         make_interval_fig3()

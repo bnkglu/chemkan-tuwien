@@ -28,6 +28,7 @@ import numpy as np
 from common import (
     DATA,
     DEEPONET_VERSION,
+    FIGURES_AUTHOR,
     FIGURES_BIODIESEL,
     ROOT,
     TABLES_BIODIESEL,
@@ -342,6 +343,40 @@ def make_interval_clean_figure(*, output_path=None, time_averaged=False, show=Fa
     return fig, results
 
 
+# --------------------------------------------------------------------------- biodiesel_v2 runs
+# Data from the biodiesel_v2 figure runs, drawn by the unchanged plot_figure above.
+
+AUTHOR_NOISE = (0, 1, 2, 3, 5, 7, 10, 15)
+
+
+def author_noise_rows():
+    """Converged (final-checkpoint, after 10,000 epochs) train / noisy-test /
+    noise-free-test loss of the Fig. 5 runs, time-averaged, as plot_figure ``rows``."""
+    import author_runs as ar
+    runs = ar.by_name()
+    rows = []
+    for model, key in (("ChemKAN", "chemkan"), ("DeepONet", "deeponet")):
+        for p in AUTHOR_NOISE:
+            c = ar.converged(runs[f"fig05_{key}_noise{p:02d}"])
+            rows.append({"role": "plotted", "model": model, "noise_percent": p,
+                         "train_mse_noisy": c["train"], "test_mse_noisy": c["test_noisy"],
+                         "test_mse_clean": c["test_clean"]})
+    return rows, list(AUTHOR_NOISE)
+
+
+def make_author_figure(output_path=None, *, show=False):
+    """Fig. 5A from the biodiesel_v2 runs, drawn by the legacy ``plot_figure``."""
+    import author_runs as ar
+    rows, levels = author_noise_rows()
+    fig = plot_figure(rows, levels, 1.0, f"\n{ar.CONVENTION_SHORT}")
+    fig.axes[0].set_title("Fig. 5A - noise robustness (biodiesel_v2 runs; final checkpoints "
+                          "after 10,000 epochs)", fontsize=13)
+    save_figure(fig, output_path or FIGURES_AUTHOR / "fig05a_noise")
+    if show:
+        plt.show()
+    return fig, rows
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -352,7 +387,13 @@ def main():
                    help="final clean paired ChemKAN comparison with a seed-0 DeepONet reference")
     p.add_argument("--time-averaged", action="store_true",
                    help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
+    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
+                   help="figures: plot the biodiesel_v2 figure runs (run_figures.py) "
+                        "into FIGURES_AUTHOR instead of the legacy reproduction")
     args = p.parse_args()
+    if args.runs == "figures":
+        make_author_figure()
+        return
     if args.observed_intervals and args.metrics is not None:
         p.error("--metrics belongs to the noise-sweep mode; the interval mode uses verified final tables")
     output = args.output or (INTERVAL_EXPERIMENT / "figures/fig5a" if args.observed_intervals

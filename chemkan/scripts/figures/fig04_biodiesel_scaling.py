@@ -25,6 +25,7 @@ from common import (
     CHEMKAN_BIODIESEL,
     DATA,
     DEEPONET_BIODIESEL,
+    FIGURES_AUTHOR,
     FIGURES_BIODIESEL,
     ROOT,
     TABLES_BIODIESEL,
@@ -281,6 +282,65 @@ def make_figure(n_mu="scaled", deeponet_version="reference", output_path=None,
     return fig, {"points": points, "fits": fits, "suffix": suffix, "reduction": note}
 
 
+# --------------------------------------------------------------------------- biodiesel_v2 runs
+# Data from the biodiesel_v2 figure runs, drawn by the unchanged plot_figure above.
+
+AUTHOR_FIT_RULE = ("paper Sec. III A 2: the last ChemKAN point and the last two DeepONet "
+                   "points are excluded (saturation)")
+AUTHOR_FIT_EXCLUDE = {"ChemKAN": 1, "DeepONet": 2}
+
+
+def author_scaling_data() -> dict:
+    """Final-checkpoint train / noise-free test loss (time-averaged) of the noise-free Fig. 4
+    runs as plot_figure ``points``, and ``fits`` (fit_line) with the paper's exclusions."""
+    import author_runs as ar
+    points = []
+    for model, key in (("ChemKAN", "chemkan"), ("DeepONet", "deeponet")):
+        for run in (r for r in ar.plan() if r["name"].startswith(f"fig04_{key}")):
+            cfg = ar.config(run)
+            params = cfg["architecture"]["parameter_count"] if key == "chemkan" else cfg["parameter_count"]
+            loss = ar.final_losses(run)
+            points.append({"model": model, "parameters": int(params),
+                           "train_loss": loss["train"], "test_loss": loss["test_clean"],
+                           "source": relative_to_root(run["dir"] / "checkpoint_final.pt")})
+    fits = []
+    for model, exclude in AUTHOR_FIT_EXCLUDE.items():
+        subset = sorted((p for p in points if p["model"] == model), key=lambda r: r["parameters"])
+        used, dropped = subset[:-exclude], subset[-exclude:]
+        for metric in ("train_loss", "test_loss"):
+            P = np.array([r["parameters"] for r in used])
+            slope, intercept, r_squared, std_error = fit_line(P, np.array([r[metric] for r in used]))
+            fits.append({"model": model, "metric": metric, "slope": slope, "intercept": intercept,
+                         "r_squared": r_squared, "std_error": std_error, "n_included": len(P),
+                         "included": ",".join(str(int(v)) for v in P),
+                         "excluded": ",".join(str(r["parameters"]) for r in dropped),
+                         "mask_rule": AUTHOR_FIT_RULE})
+    return {"points": points, "fits": fits}
+
+
+def make_author_figure(output_path=None, *, data=None, show=False):
+    """Fig. 4 from the biodiesel_v2 runs, drawn by the legacy ``plot_figure``."""
+    import author_runs as ar
+    data = data or author_scaling_data()
+    fig = plot_figure(data["points"], data["fits"], "scaled",
+                      "reference_final_trunk_relu, biodiesel_v2 runs", 1.0,
+                      f"\n{ar.CONVENTION_SHORT}")
+    # Time-averaged points sit lower than the legacy Eq. 18 ones, so the Delta tables move to
+    # empty corners: (A) upper right, (B) lower right. Table has no public setter for this.
+    for ax, bbox in zip(fig.axes[:2], ((0.40, 0.76, 0.59, 0.21), (0.40, 0.03, 0.59, 0.21))):
+        for table in ax.tables:
+            table._bbox = bbox
+    for text in fig.texts:          # plot_figure's footnote describes the legacy all-points fit
+        if text.get_text().startswith(r"$\Delta$ is the slope"):
+            text.set_text(r"$\Delta$ is the slope of log(loss) vs log(parameters). "
+                          "Fits exclude the last ChemKAN and the last two "
+                          "DeepONet points (paper Sec. III A 2).")
+    save_figure(fig, output_path or FIGURES_AUTHOR / "fig04_scaling")
+    if show:
+        plt.show()
+    return fig, data
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -289,7 +349,13 @@ def main():
     p.add_argument("--output", default=None, help="output path without extension")
     p.add_argument("--time-averaged", action="store_true",
                    help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
+    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
+                   help="figures: plot the biodiesel_v2 figure runs (run_figures.py) "
+                        "into FIGURES_AUTHOR instead of the legacy reproduction")
     args = p.parse_args()
+    if args.runs == "figures":
+        make_author_figure()
+        return
     _, results = make_figure(n_mu=args.n_mu, deeponet_version=args.deeponet_version,
                              output_path=args.output,
                              time_averaged=args.time_averaged)

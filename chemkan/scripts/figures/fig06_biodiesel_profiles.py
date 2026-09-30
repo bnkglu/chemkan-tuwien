@@ -24,6 +24,7 @@ from common import (
     DATA,
     DEEPONET_BIODIESEL,
     DEEPONET_VERSION,
+    FIGURES_AUTHOR,
     FIGURES_BIODIESEL,
     TABLES_BIODIESEL,
     add_repo_paths,
@@ -182,6 +183,45 @@ def make_case0_figure(chemkan_run=None, deeponet_run=None, case=0, output_path=N
     return fig, results
 
 
+# --------------------------------------------------------------------------- biodiesel_v2 runs
+# Data from the biodiesel_v2 figure runs, drawn by the unchanged plot_profiles above.
+
+def author_profile_data() -> dict:
+    """Test row 24 at NOISE_PERCENT: clean truth, noisy test observations and both models'
+    predictions on the observation grid (as plot_profiles expects), plus each model's
+    time-averaged noise-free MSE on this trajectory."""
+    import author_runs as ar
+    case = ar.fig3_case((NOISE_PERCENT,))
+    runs = ar.by_name()
+    clean = ar.dataset()["test_states"][ar.FIG3_TEST_INDEX]
+    src = ar.config(runs[f"fig05_chemkan_noise{NOISE_PERCENT:02d}"])["data_source"]
+    rng = np.array(src["species_max"]) - np.array(src["species_min"])
+    out = {"case": case, "truth": clean, "noisy": case["observations"][NOISE_PERCENT],
+           "pred": {}, "mse": {}}
+    for model, fn in (("chemkan", ar.chemkan_predict), ("deeponet", ar.deeponet_predict)):
+        pred = fn(runs[f"fig05_{model}_noise{NOISE_PERCENT:02d}"], case["y0"], case["T"], case["t"])
+        out["pred"][model] = pred
+        out["mse"][model] = float(np.mean(((pred - clean) / rng) ** 2))
+    return out
+
+
+def make_author_figure(output_path=None, *, data=None, show=False):
+    """Fig. 6 from the biodiesel_v2 runs, drawn by the legacy ``plot_profiles``."""
+    import author_runs as ar
+    data = data or author_profile_data()
+    case = data["case"]
+    fig = plot_profiles(case["t"], case["species"], data["truth"], data["noisy"],
+                        data["pred"]["chemkan"], data["pred"]["deeponet"],
+                        f"Fig. 6 - {NOISE_PERCENT}% noise, test row 24 (TG0={case['y0'][0]:.3f}, "
+                        f"ROH0={case['y0'][1]:.3f}, T={case['T']:.2f} K), biodiesel_v2 runs\n"
+                        f"noise-free {ar.CONVENTION_SHORT}: ChemKAN "
+                        f"{data['mse']['chemkan']:.2e}, DeepONet {data['mse']['deeponet']:.2e}")
+    save_figure(fig, output_path or FIGURES_AUTHOR / "fig06_profiles_15pct")
+    if show:
+        plt.show()
+    return fig, data
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -192,7 +232,13 @@ def main():
     p.add_argument("--case0-metrics",
                    default=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics_case0.json")
     p.add_argument("--skip-case0", action="store_true")
+    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
+                   help="figures: plot the biodiesel_v2 figure runs (run_figures.py) "
+                        "into FIGURES_AUTHOR instead of the legacy reproduction")
     args = p.parse_args()
+    if args.runs == "figures":
+        make_author_figure()
+        return
 
     _, results = make_figure(output_path=args.output, metrics_path=args.metrics)
     for name, value in results.items():

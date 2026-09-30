@@ -5,6 +5,7 @@ figure reads finished checkpoints, histories and tables -- nothing trains.
 
     python chemkan/scripts/figures/plot_all.py
     python chemkan/scripts/figures/plot_all.py --only fig07 fig08a
+    python chemkan/scripts/figures/plot_all.py --runs figures      # biodiesel_v2 figure runs
 """
 
 from __future__ import annotations
@@ -90,6 +91,16 @@ FIGURES = {
 }
 
 
+# The biodiesel_v2 figure runs (run_figures.py), plotted into FIGURES_AUTHOR.
+AUTHOR_FIGURES = {
+    "fig03": fig03.make_author_figure,
+    "fig04": fig04.make_author_figure,
+    "fig05a": fig05a.make_author_figure,
+    "fig05b": fig05b.make_author_figure,
+    "fig06": fig06.make_author_figure,
+}
+
+
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
@@ -101,7 +112,17 @@ def main():
                    help="write '_time_averaged' companions showing the derived diagnostic "
                         "Eq. 18 loss / N_t (figures 3, 4, 5A, 5B, "
                         "7, 8A; 6 and 8B show no loss)")
+    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
+                   help="figures: Figs. 3, 4, 5A, 5B, 6 from the biodiesel_v2 figure runs "
+                        "(time-averaged MSE) into results/experiments/biodiesel/"
+                        "author_repo_match/figures/plots/")
     args = p.parse_args()
+    if args.runs == "figures":
+        names = [n for n in args.only if n in AUTHOR_FIGURES]
+        for name in names:
+            print(f"--- {name} (biodiesel_v2 runs) ---", flush=True)
+            AUTHOR_FIGURES[name]()
+        return
     global TIME_AVERAGED
     TIME_AVERAGED = args.time_averaged
     if TIME_AVERAGED:
