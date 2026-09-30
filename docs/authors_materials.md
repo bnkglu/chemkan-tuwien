@@ -151,8 +151,10 @@ Status: `code = email`; `code ≠ email`; `email silent, code ≠ paper`;
 - Seed spread: one run per configuration.
 - Julia on our canonical data: not run.
 - Hydrogen items H1-H9: deferred to the hydrogen work.
-- ~~Which loss convention the paper's reported MSE values use.~~ Answered in §4: the
-  time-averaged convention (released-code `Flux.mse`, Eq. 18 / 30).
+- Which loss convention the paper's reported MSE values use. §4: the paper's
+  noise-induced training-loss increases are consistent with the time-averaged convention
+  (released-code `Flux.mse`, Eq. 18 / 30), not Eq. 18 as written; one seed, not
+  confirmed by the authors.
 - DeepONet trunk on `biodiesel_v2`: the trained 308 trunks are exactly linear in time (§4);
   fix not yet chosen, Fig. 4/5 DeepONet runs not yet rerun.
 
@@ -202,7 +204,8 @@ The 27 runs of `chemkan/scripts/author_repo_match/run_figures.py`, all on
 - **ChemKAN**: `train_author_repo_match.py --data canonical --solve-mode batched
   --sensitivity fsa` (released-example settings, §2), Fig. 5 at H = 4 (156 parameters)
   for 10,000 epochs, Fig. 4 at H = 2, 3, 4, 9, 11 for 5,000 epochs.
-- **DeepONet**: `reference_final_trunk_relu`, Adam lr 1e-3; Fig. 5 at 308 parameters for
+- **DeepONet**: `reference_final_trunk_relu`, Adam lr 1e-3 (both checked in all 14
+  `config.json`); Fig. 5 at 308 parameters for
   10,000 epochs, Fig. 4 at the §3 sizes for 50,000 epochs.
 
 Verification (`chemkan/scripts/figures/author_runs.py` `verify()`): 27 runs, 0 problems
@@ -242,11 +245,11 @@ increase a model that fits the clean trajectories exactly would show.
 
 - **Loss convention.** The paper's 0 → 1 % and 0 → 5 % training-loss increases are of the
   size of our time-averaged values and the noise floor, and 30× below the Eq. 18 values.
-  The paper's reported MSEs are therefore in the time-averaged convention (Eq. 18 / 30),
-  not Eq. 18 as written.
+  This is consistent with the paper reporting time-averaged MSEs (Eq. 18 / 30) rather
+  than Eq. 18 as written (one seed; not confirmed by the authors).
 - **ChemKAN** follows the noise floor (training loss rises by about the noise it cannot
-  fit) and its noise-free test loss stays within 2× of the 0 % value up to 15 % noise, as in
-  the paper. Its scaling orders differ from the paper's (1.51 / 0.46 vs 1.0 / 0.6), from
+  fit). In this single run its noise-free test loss at 15 % is 1.82× the 0 % value,
+  close to the paper's ~2×. Its scaling orders differ from the paper's (1.51 / 0.46 vs 1.0 / 0.6), from
   four points of one seed.
 - **Final checkpoint vs last logged epoch.** For ChemKAN the last Adam step (lr 1e-2)
   changes the loss by ~10 % (0 % noise-free test: 2.87e-4 logged vs 3.15e-4 final), so
