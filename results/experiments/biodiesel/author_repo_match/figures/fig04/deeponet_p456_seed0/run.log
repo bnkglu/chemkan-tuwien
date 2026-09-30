@@ -1,0 +1,57 @@
+2026-09-30 01:25:32,377 INFO run start 2026-09-30T01:25:32Z | run_id=biodiesel-deeponet/deeponet_p456_seed0 | system=biodiesel-deeponet | dir=results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p456_seed0
+2026-09-30 01:25:32,381 INFO wrote results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p456_seed0/config.json
+2026-09-30 01:25:32,381 INFO DeepONet w=10: 456 trainable parameters; branch inputs ['TG0', 'ROH0', 'T0'] use train-only min-max scaling; trunk time input tau=t/30.0s; outputs are normalized species concentrations
+2026-09-30 01:25:33,772 INFO epoch      0  loss 6.918046e+00
+2026-09-30 01:25:35,441 INFO epoch   1000  loss 9.213559e-02
+2026-09-30 01:25:37,119 INFO epoch   2000  loss 7.456169e-02
+2026-09-30 01:25:38,800 INFO epoch   3000  loss 6.028750e-02
+2026-09-30 01:25:40,481 INFO epoch   4000  loss 4.072177e-02
+2026-09-30 01:25:42,159 INFO epoch   5000  loss 3.031310e-02
+2026-09-30 01:25:43,863 INFO epoch   6000  loss 2.174696e-02
+2026-09-30 01:25:45,538 INFO epoch   7000  loss 1.991068e-02
+2026-09-30 01:25:47,199 INFO epoch   8000  loss 1.900963e-02
+2026-09-30 01:25:48,871 INFO epoch   9000  loss 1.857371e-02
+2026-09-30 01:25:50,540 INFO epoch  10000  loss 1.825128e-02
+2026-09-30 01:25:52,205 INFO epoch  11000  loss 1.801241e-02
+2026-09-30 01:25:53,888 INFO epoch  12000  loss 1.781200e-02
+2026-09-30 01:25:55,559 INFO epoch  13000  loss 1.767039e-02
+2026-09-30 01:25:57,237 INFO epoch  14000  loss 1.755229e-02
+2026-09-30 01:25:58,924 INFO epoch  15000  loss 1.735850e-02
+2026-09-30 01:26:00,585 INFO epoch  16000  loss 1.721367e-02
+2026-09-30 01:26:02,260 INFO epoch  17000  loss 1.709872e-02
+2026-09-30 01:26:03,932 INFO epoch  18000  loss 1.679930e-02
+2026-09-30 01:26:05,602 INFO epoch  19000  loss 1.662419e-02
+2026-09-30 01:26:07,282 INFO epoch  20000  loss 1.643634e-02
+2026-09-30 01:26:08,963 INFO epoch  21000  loss 1.617895e-02
+2026-09-30 01:26:10,629 INFO epoch  22000  loss 1.616353e-02
+2026-09-30 01:26:12,304 INFO epoch  23000  loss 1.576549e-02
+2026-09-30 01:26:13,976 INFO epoch  24000  loss 1.553777e-02
+2026-09-30 01:26:15,637 INFO epoch  25000  loss 1.528610e-02
+2026-09-30 01:26:17,318 INFO epoch  26000  loss 1.501247e-02
+2026-09-30 01:26:19,001 INFO epoch  27000  loss 1.467115e-02
+2026-09-30 01:26:20,670 INFO epoch  28000  loss 1.430902e-02
+2026-09-30 01:26:22,357 INFO epoch  29000  loss 1.391126e-02
+2026-09-30 01:26:24,057 INFO epoch  30000  loss 1.354867e-02
+2026-09-30 01:26:25,732 INFO epoch  31000  loss 1.385894e-02
+2026-09-30 01:26:27,416 INFO epoch  32000  loss 1.308623e-02
+2026-09-30 01:26:29,096 INFO epoch  33000  loss 1.297842e-02
+2026-09-30 01:26:30,772 INFO epoch  34000  loss 1.362376e-02
+2026-09-30 01:26:32,466 INFO epoch  35000  loss 1.283995e-02
+2026-09-30 01:26:34,145 INFO epoch  36000  loss 1.279471e-02
+2026-09-30 01:26:35,832 INFO epoch  37000  loss 1.314028e-02
+2026-09-30 01:26:37,501 INFO epoch  38000  loss 1.353041e-02
+2026-09-30 01:26:39,183 INFO epoch  39000  loss 1.270498e-02
+2026-09-30 01:26:40,852 INFO epoch  40000  loss 1.270998e-02
+2026-09-30 01:26:42,533 INFO epoch  41000  loss 1.266478e-02
+2026-09-30 01:26:44,246 INFO epoch  42000  loss 1.263364e-02
+2026-09-30 01:26:45,911 INFO epoch  43000  loss 1.261506e-02
+2026-09-30 01:26:47,585 INFO epoch  44000  loss 1.267804e-02
+2026-09-30 01:26:49,265 INFO epoch  45000  loss 1.259265e-02
+2026-09-30 01:26:50,931 INFO epoch  46000  loss 1.256343e-02
+2026-09-30 01:26:52,617 INFO epoch  47000  loss 1.254670e-02
+2026-09-30 01:26:54,304 INFO epoch  48000  loss 1.257643e-02
+2026-09-30 01:26:55,983 INFO epoch  49000  loss 1.314617e-02
+2026-09-30 01:26:57,655 INFO final training loss: 1.264970e-02
+2026-09-30 01:26:57,657 INFO wrote results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p456_seed0/checkpoint_final.pt
+2026-09-30 01:26:57,659 INFO removed results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p456_seed0/checkpoint_resume.pt (run completed)
+2026-09-30 01:26:57,660 INFO run completed 2026-09-30T01:26:57Z

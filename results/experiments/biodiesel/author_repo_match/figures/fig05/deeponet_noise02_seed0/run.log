@@ -1,0 +1,18 @@
+2026-09-30 01:14:36,173 INFO run start 2026-09-30T01:14:36Z | run_id=biodiesel-deeponet/deeponet_noise02_seed0 | system=biodiesel-deeponet | dir=results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise02_seed0
+2026-09-30 01:14:36,178 INFO wrote results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise02_seed0/config.json
+2026-09-30 01:14:36,178 INFO DeepONet w=8: 308 trainable parameters; branch inputs ['TG0', 'ROH0', 'T0'] use train-only min-max scaling; trunk time input tau=t/30.0s; outputs are normalized species concentrations
+2026-09-30 01:14:36,178 INFO Paper main-model comparison: 308 reported parameters; our reconstructed w=8 model has 308
+2026-09-30 01:14:37,579 INFO epoch      0  loss 5.601760e+00
+2026-09-30 01:14:39,534 INFO epoch   1000  loss 2.195332e-01
+2026-09-30 01:14:41,487 INFO epoch   2000  loss 2.017199e-01
+2026-09-30 01:14:43,444 INFO epoch   3000  loss 1.963902e-01
+2026-09-30 01:14:45,394 INFO epoch   4000  loss 1.873663e-01
+2026-09-30 01:14:47,346 INFO epoch   5000  loss 1.631242e-01
+2026-09-30 01:14:49,300 INFO epoch   6000  loss 1.572133e-01
+2026-09-30 01:14:51,248 INFO epoch   7000  loss 1.563072e-01
+2026-09-30 01:14:53,204 INFO epoch   8000  loss 1.560460e-01
+2026-09-30 01:14:55,159 INFO epoch   9000  loss 1.558171e-01
+2026-09-30 01:14:57,112 INFO final training loss: 1.557431e-01
+2026-09-30 01:14:57,114 INFO wrote results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise02_seed0/checkpoint_final.pt
+2026-09-30 01:14:57,116 INFO removed results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise02_seed0/checkpoint_resume.pt (run completed)
+2026-09-30 01:14:57,116 INFO run completed 2026-09-30T01:14:57Z

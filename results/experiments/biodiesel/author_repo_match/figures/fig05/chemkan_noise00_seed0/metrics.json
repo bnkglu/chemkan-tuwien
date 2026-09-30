@@ -1,0 +1,42 @@
+{
+  "status": "completed",
+  "epochs_completed": 10000,
+  "wall_clock_s": 3255.12,
+  "loss_convention": "primary: released-example Flux mse; eq18 = 30 x mse",
+  "train_mse": {
+    "first": 0.2845427257475913,
+    "final_logged": 7.084192137436744e-05,
+    "min": 6.769293177977896e-05,
+    "min_epoch": 9923,
+    "last20pct_median": 7.545863820547884e-05,
+    "last20pct_min": 6.769293177977896e-05,
+    "last20pct_max": 0.00028545936033080784,
+    "all_finite": true
+  },
+  "val_mse": {
+    "first": 0.2587230490994715,
+    "final_logged": 0.0002865851261363238,
+    "min": 0.0002833120324404506,
+    "min_epoch": 9965,
+    "last20pct_median": 0.00031660319932580515,
+    "last20pct_min": 0.0002833120324404506,
+    "last20pct_max": 0.0005006352475720095,
+    "all_finite": true
+  },
+  "train_eq18_final_logged": 0.002125257641231023,
+  "val_eq18_final_logged": 0.008597553784089714,
+  "final_parameters": {
+    "training_solver_rtol1e-2": {
+      "train_mse": 8.007864573366156e-05,
+      "val_mse": 0.0003144521337647433,
+      "train_eq18": 0.0024023593720098467,
+      "val_eq18": 0.0094335640129423
+    },
+    "tight_solver_rtol1e-10": {
+      "train_mse": 7.10472179375751e-05,
+      "val_mse": 0.00031651404336580644,
+      "train_eq18": 0.002131416538127253,
+      "val_eq18": 0.009495421300974194
+    }
+  }
+}
