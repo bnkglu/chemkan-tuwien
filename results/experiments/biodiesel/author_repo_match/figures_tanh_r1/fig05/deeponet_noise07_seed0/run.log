@@ -1,0 +1,50 @@
+2026-10-01 16:51:05,130 INFO run start 2026-10-01T14:51:05Z | run_id=biodiesel-deeponet-repro/deeponet_noise07_seed0 | system=biodiesel-deeponet-repro | dir=../results/experiments/biodiesel/author_repo_match/figures_tanh_r1/fig05/deeponet_noise07_seed0
+2026-10-01 16:51:05,178 INFO wrote ../results/experiments/biodiesel/author_repo_match/figures_tanh_r1/fig05/deeponet_noise07_seed0/config.json
+2026-10-01 16:51:05,184 INFO configuration: branch inputs normalized (author-global normalized Mode A), targets author_global_normalized_states, trunk input raw physical t 0..30 s (30 points), activation tanh, placement A, init Aprime_tf_truncated_glorot_zero_bias, Adam lr 0.001
+2026-10-01 16:51:05,184 INFO initial: train {'mean_mse': 0.4203786253929138, 'mean_mse_u': 0.4203786253929138, 'eq18_obs': 12.611358642578125, 'eq22_true': 12.509580612182617, 'eq18_obs_time_averaged': 0.42037862141927085, 'eq22_true_time_averaged': 0.41698602040608723} | test {'mean_mse': 0.40756773948669434, 'mean_mse_u': 0.40756773948669434, 'eq18_obs': 12.227030754089355, 'eq22_true': 12.155969619750977, 'eq18_obs_time_averaged': 0.4075676918029785, 'eq22_true_time_averaged': 0.40519898732503257}
+2026-10-01 16:51:05,187 INFO initial prediction stats: {'min': -0.4250779449939728, 'max': 1.1307095289230347, 'mean': 0.2657669484615326, 'abs_max': 1.1307095289230347, 'per_species_min': [0.10898734629154205, 0.0, -0.08267544955015182, -0.17276018857955933, -0.4250779449939728, 0.0], 'per_species_max': [1.1307095289230347, 1.0899229049682617, 0.011106117628514767, 0.0, 0.0, 0.7852094769477844], 'fraction_negative': 0.4752777777777778}
+2026-10-01 16:51:06,161 INFO epoch     0  mean_mse 4.2038e-01 | train eq18 1.2611e+01 test eq18 1.2227e+01
+2026-10-01 16:51:06,455 INFO epoch   250  mean_mse 2.6133e-02 | train eq18 7.8400e-01 test eq18 7.7718e-01
+2026-10-01 16:51:06,712 INFO epoch   500  mean_mse 1.5020e-02 | train eq18 4.5061e-01 test eq18 4.5475e-01
+2026-10-01 16:51:06,963 INFO epoch   750  mean_mse 9.0327e-03 | train eq18 2.7098e-01 test eq18 2.7408e-01
+2026-10-01 16:51:07,248 INFO epoch  1000  mean_mse 5.8968e-03 | train eq18 1.7690e-01 test eq18 1.9199e-01
+2026-10-01 16:51:07,511 INFO epoch  1250  mean_mse 4.9547e-03 | train eq18 1.4864e-01 test eq18 1.5663e-01
+2026-10-01 16:51:07,772 INFO epoch  1500  mean_mse 4.5598e-03 | train eq18 1.3679e-01 test eq18 1.4320e-01
+2026-10-01 16:51:08,040 INFO epoch  1750  mean_mse 4.2421e-03 | train eq18 1.2726e-01 test eq18 1.3298e-01
+2026-10-01 16:51:08,303 INFO epoch  2000  mean_mse 3.9459e-03 | train eq18 1.1838e-01 test eq18 1.2418e-01
+2026-10-01 16:51:08,556 INFO epoch  2250  mean_mse 3.6879e-03 | train eq18 1.1064e-01 test eq18 1.1722e-01
+2026-10-01 16:51:08,814 INFO epoch  2500  mean_mse 3.4618e-03 | train eq18 1.0386e-01 test eq18 1.1148e-01
+2026-10-01 16:51:09,096 INFO epoch  2750  mean_mse 3.2435e-03 | train eq18 9.7304e-02 test eq18 1.0576e-01
+2026-10-01 16:51:09,344 INFO epoch  3000  mean_mse 3.0592e-03 | train eq18 9.1776e-02 test eq18 1.0013e-01
+2026-10-01 16:51:09,608 INFO epoch  3250  mean_mse 2.9191e-03 | train eq18 8.7572e-02 test eq18 9.5445e-02
+2026-10-01 16:51:09,854 INFO epoch  3500  mean_mse 2.7938e-03 | train eq18 8.3814e-02 test eq18 9.1819e-02
+2026-10-01 16:51:10,103 INFO epoch  3750  mean_mse 2.6767e-03 | train eq18 8.0301e-02 test eq18 8.9222e-02
+2026-10-01 16:51:10,399 INFO epoch  4000  mean_mse 2.5660e-03 | train eq18 7.6981e-02 test eq18 8.7264e-02
+2026-10-01 16:51:10,653 INFO epoch  4250  mean_mse 2.4756e-03 | train eq18 7.4269e-02 test eq18 8.6301e-02
+2026-10-01 16:51:10,925 INFO epoch  4500  mean_mse 2.4036e-03 | train eq18 7.2107e-02 test eq18 8.6049e-02
+2026-10-01 16:51:11,182 INFO epoch  4750  mean_mse 2.3468e-03 | train eq18 7.0403e-02 test eq18 8.5784e-02
+2026-10-01 16:51:11,432 INFO epoch  5000  mean_mse 2.2985e-03 | train eq18 6.8955e-02 test eq18 8.6316e-02
+2026-10-01 16:51:11,696 INFO epoch  5250  mean_mse 2.2564e-03 | train eq18 6.7692e-02 test eq18 8.6337e-02
+2026-10-01 16:51:11,960 INFO epoch  5500  mean_mse 2.2191e-03 | train eq18 6.6574e-02 test eq18 8.6028e-02
+2026-10-01 16:51:12,244 INFO epoch  5750  mean_mse 2.1858e-03 | train eq18 6.5574e-02 test eq18 8.5563e-02
+2026-10-01 16:51:12,527 INFO epoch  6000  mean_mse 2.1543e-03 | train eq18 6.4629e-02 test eq18 8.4704e-02
+2026-10-01 16:51:12,796 INFO epoch  6250  mean_mse 2.1209e-03 | train eq18 6.3626e-02 test eq18 8.3471e-02
+2026-10-01 16:51:13,056 INFO epoch  6500  mean_mse 2.0793e-03 | train eq18 6.2380e-02 test eq18 8.2000e-02
+2026-10-01 16:51:13,330 INFO epoch  6750  mean_mse 2.0250e-03 | train eq18 6.0749e-02 test eq18 8.0171e-02
+2026-10-01 16:51:13,591 INFO epoch  7000  mean_mse 1.9701e-03 | train eq18 5.9102e-02 test eq18 7.8800e-02
+2026-10-01 16:51:13,863 INFO epoch  7250  mean_mse 1.9277e-03 | train eq18 5.7831e-02 test eq18 7.7151e-02
+2026-10-01 16:51:14,115 INFO epoch  7500  mean_mse 1.8950e-03 | train eq18 5.6850e-02 test eq18 7.4762e-02
+2026-10-01 16:51:14,415 INFO epoch  7750  mean_mse 1.8705e-03 | train eq18 5.6116e-02 test eq18 7.2043e-02
+2026-10-01 16:51:14,684 INFO epoch  8000  mean_mse 1.8523e-03 | train eq18 5.5569e-02 test eq18 6.9298e-02
+2026-10-01 16:51:14,961 INFO epoch  8250  mean_mse 1.8381e-03 | train eq18 5.5144e-02 test eq18 6.6846e-02
+2026-10-01 16:51:15,219 INFO epoch  8500  mean_mse 1.8268e-03 | train eq18 5.4804e-02 test eq18 6.4749e-02
+2026-10-01 16:51:15,496 INFO epoch  8750  mean_mse 1.8173e-03 | train eq18 5.4520e-02 test eq18 6.3011e-02
+2026-10-01 16:51:15,846 INFO epoch  9000  mean_mse 1.8091e-03 | train eq18 5.4273e-02 test eq18 6.1600e-02
+2026-10-01 16:51:16,293 INFO epoch  9250  mean_mse 1.8017e-03 | train eq18 5.4052e-02 test eq18 6.0484e-02
+2026-10-01 16:51:16,593 INFO epoch  9500  mean_mse 1.7948e-03 | train eq18 5.3844e-02 test eq18 5.9606e-02
+2026-10-01 16:51:16,921 INFO epoch  9750  mean_mse 1.7880e-03 | train eq18 5.3641e-02 test eq18 5.8928e-02
+2026-10-01 16:51:17,233 INFO wrote ../results/experiments/biodiesel/author_repo_match/figures_tanh_r1/fig05/deeponet_noise07_seed0/checkpoint_final.pt
+2026-10-01 16:51:17,234 INFO final: train {'mean_mse': 0.0017814978491514921, 'mean_mse_u': 0.0017814978491514921, 'eq18_obs': 0.05344493314623833, 'eq22_true': 0.0047799767926335335, 'eq18_obs_time_averaged': 0.0017814977715412776, 'eq22_true_time_averaged': 0.0001593325597544511}
+2026-10-01 16:51:17,234 INFO final: test {'mean_mse': 0.0019471870036795735, 'mean_mse_u': 0.0019471870036795735, 'eq18_obs': 0.05841561406850815, 'eq22_true': 0.01694224402308464, 'eq18_obs_time_averaged': 0.0019471871356169382, 'eq22_true_time_averaged': 0.0005647414674361547}
+2026-10-01 16:51:17,234 INFO final trunk: {'kinks': [-25.63241958618164, 13.048210144042969, -29.864961624145508, -0.5515803694725037, -1.1067532300949097, -26.1350154876709, 2.0767130851745605], 'dead_on_grid': {'tanh0': 0, 'tanh1': 0}, 'dead_on_dense': {'tanh0': 0, 'tanh1': 0}, 'interior_breakpoints_s': {'layer1': [2.0767130851745605, 13.048210144042969], 'layer2': [0.9120000600814819, 4.118000030517578]}, 'tanh_saturation': {'grid': {'layer1': {'abs_z_quantiles_10_50_90_max': [0.38745724558830263, 1.19483482837677, 6.230486965179442, 10.292811393737793], 'frac_abs_z_gt': {'2': 0.2857142857142857, '3': 0.21428571428571427, '5': 0.14285714285714285}, 'frac_abs_act_gt': {'0.95': 0.29523809523809524, '0.99': 0.24285714285714285}, 'derivative_mean': 0.35444000363349915, 'derivative_median': 0.307660311460495}, 'layer2': {'abs_z_quantiles_10_50_90_max': [0.08046127781271935, 0.7627336978912354, 1.2546838879585267, 2.6296982765197754], 'frac_abs_z_gt': {'2': 0.05, '3': 0.0, '5': 0.0}, 'frac_abs_act_gt': {'0.95': 0.0625, '0.99': 0.0}, 'derivative_mean': 0.5918029546737671, 'derivative_median': 0.5869632959365845}}, 'dense': {'layer1': {'abs_z_quantiles_10_50_90_max': [0.41101625561714183, 1.1980160474777222, 6.272461700439455, 10.292811393737793], 'frac_abs_z_gt': {'2': 0.28856193640246797, '3': 0.2197437114380636, '5': 0.13953488372093023}, 'frac_abs_act_gt': {'0.95': 0.299952539155197, '0.99': 0.2439487422876127}, 'derivative_mean': 0.3512946367263794, 'derivative_median': 0.3060302734375}, 'layer2': {'abs_z_quantiles_10_50_90_max': [0.08654387518763546, 0.7661895751953125, 1.2529489040374757, 2.6296982765197754], 'frac_abs_z_gt': {'2': 0.05149501661129568, '3': 0.0, '5': 0.0}, 'frac_abs_act_gt': {'0.95': 0.061046511627906974, '0.99': 0.0}, 'derivative_mean': 0.5911147594451904, 'derivative_median': 0.5843512415885925}}}}
+2026-10-01 16:51:17,234 INFO run completed 2026-10-01T14:51:17Z

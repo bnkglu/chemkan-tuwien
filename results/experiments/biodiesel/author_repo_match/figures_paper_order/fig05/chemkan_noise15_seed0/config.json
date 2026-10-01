@@ -1,0 +1,130 @@
+{
+  "experiment": "biodiesel/author_repo_match",
+  "purpose": "controlled match to the authors' RELEASED GitHub biodiesel example; not the canonical reproduction, not the paper protocol, not the 2026-09-22 email clarifications",
+  "reference": {
+    "repository": "DENG-MIT/ChemKAN",
+    "commit": "d7aa5abecbb595d504c86d031cd478a549c614cb",
+    "file": "ChemKAN_biodiesel_example.jl (run via the approved 3-line API compatibility copy, Julia 1.11.1)"
+  },
+  "seed": 0,
+  "dtype": "float64",
+  "torch_threads": 1,
+  "data": "chemkan/data/generated/biodiesel_v2_paper_order.npz",
+  "data_source": {
+    "data_source": "canonical",
+    "path": "chemkan/data/generated/biodiesel_v2_paper_order.npz",
+    "normalization": "legacy B0: archive train-only species u_min/u_max, T min/max over train temperatures",
+    "species_min": [
+      0.08630569279193878,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "species_max": [
+      2.3455095291137695,
+      2.5521059036254883,
+      0.41906943917274475,
+      0.4563594460487366,
+      0.5269253253936768,
+      2.2435646057128906
+    ],
+    "T_min": 323.4449157714844,
+    "T_max": 342.9372253417969,
+    "sha256": "3676d3c962e89a1183a8a62a0003eeab50001f7282ad667ebaee6e6042f283f0",
+    "normalization_keys": [
+      "u_min_noise15",
+      "u_max_noise15"
+    ],
+    "noise_percent": 15
+  },
+  "architecture": {
+    "layers": "7 -> 4 -> 6",
+    "hidden": 4,
+    "num_basis": 3,
+    "parameter_count": 156,
+    "use_base_act": false,
+    "layer1_input_tanh": false,
+    "layer2_input_tanh": true,
+    "n_mu": 2,
+    "centers": [
+      -1.0,
+      0.0,
+      1.0
+    ],
+    "rbf": "exp(-((x - c)/1)^2) (library gaussian with h = 1/sqrt(2))"
+  },
+  "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / 30",
+  "rhs_divisor": {
+    "value": 30.0,
+    "data_time_window": 30.0,
+    "source": "data time window (t_end - t_start)",
+    "note": "the released example divides by 50 although its time window is 30 s"
+  },
+  "initialization": "glorot_uniform on C (out x G*in): U(-a, a), a = sqrt(6/(G*in + out))",
+  "optimizer": {
+    "name": "Adam",
+    "lr": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08
+  },
+  "epochs": 10000,
+  "batching": "full batch, one Adam step per epoch",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 0.01,
+    "atol": 1e-06,
+    "library": "torchdiffeq",
+    "per_trajectory_solves": false,
+    "sensitivity": "fsa"
+  },
+  "loss": "Flux-style mse: mean over 6 species and 30 times per trajectory, then mean over trajectories; *_eq18 columns = 30 x that value",
+  "logged_state": "train/val losses at each epoch's STARTING parameters (before the Adam step), as in the Julia loop",
+  "noise": 0.0,
+  "git_commit": "f28f0c78e5f93c9bbfe3f5e7a0ca016faf0c4ce1",
+  "python": "3.11.3",
+  "torch": "2.13.0",
+  "created": "2026-10-01T16:01:57Z",
+  "fsa": {
+    "formulation": "continuous forward sensitivity analysis: dS/dt = (dF/dx) S + dF/dtheta, S(t0) = 0, integrated together with the state as one augmented ODE z = [x, S] by the same Tsit5 solver; dF/dx and dF/dtheta by torch.func.jacrev of the existing dynamics wrapper (functional_call), vmapped over independent trajectories; dL/dtheta = sum_j S(t_j)^T dL/dx(t_j) with dL/dx from the unchanged loss on a detached leaf.",
+    "error_control": "torchdiffeq default: RMS norm over the whole augmented [state, sensitivity] tensor, with the run's rtol/atol applied to every component (no sensitivity-specific scaling, tolerances or norm).",
+    "sensitivity_initial_condition": "S(t0) = 0, created fresh for every solve",
+    "parameter_packing": {
+      "kinetic": {
+        "total": 156,
+        "group_counts": {
+          "theta": 156
+        },
+        "order": [
+          {
+            "name": "core.add.edges.w_rbf",
+            "shape": [
+              4,
+              7,
+              3
+            ],
+            "offset": 0,
+            "numel": 84,
+            "group": "theta"
+          },
+          {
+            "name": "core.lean.edges.w_rbf",
+            "shape": [
+              6,
+              4,
+              3
+            ],
+            "offset": 84,
+            "numel": 72,
+            "group": "theta"
+          }
+        ]
+      }
+    },
+    "per_trajectory": "one augmented [state, sensitivity] solve per trajectory; gradients summed, each / n_train"
+  }
+}
