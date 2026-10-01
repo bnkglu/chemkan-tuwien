@@ -39,10 +39,13 @@ def test_all_runs_verify():
 
 
 def test_deeponet_histories_are_time_averaged():
-    run = ar.by_name()["fig05_deeponet_noise00"]
     import csv
-    raw = [float(r["mse_loss"]) for r in csv.DictReader(open(run["dir"] / "history.csv"))]
-    assert ar.history(run)["train"][-1] == pytest.approx(raw[-1] / 30)
+    legacy = {r["name"]: r for r in ar.plan("relu_legacy")}["fig05_deeponet_noise00"]
+    raw = [float(r["mse_loss"]) for r in csv.DictReader(open(legacy["dir"] / "history.csv"))]
+    assert ar.history(legacy)["train"][-1] == pytest.approx(raw[-1] / 30)       # logged Eq. 18
+    tanh = ar.by_name()["fig05_deeponet_noise00"]                                # default variant
+    raw = [float(r["train_mse_fig"]) for r in csv.DictReader(open(tanh["dir"] / "history.csv"))]
+    assert ar.history(tanh)["train"][-1] == pytest.approx(raw[-1])               # already averaged
 
 
 @pytest.mark.parametrize("module", ["fig03_biodiesel_trajectories", "fig04_biodiesel_scaling",

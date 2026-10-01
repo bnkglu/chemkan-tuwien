@@ -168,7 +168,7 @@ def make_author_figure(output_path=None, *, show=False):
             panels[pct][name] = (h["epoch"], h["train"], h["test_clean"])
     fig = plot_figure(panels, 1.0, "Loss\ntime-averaged MSE")
     fig._suptitle.set_text(f"Fig. 5B - training and noise-free test loss (biodiesel_v2 runs; "
-                           f"{ar.CONVENTION_SHORT})")
+                           f"{ar.DEEPONET_LABEL[ar.DEEPONET_VARIANT]}; {ar.CONVENTION_SHORT})")
     # plot_figure fixes the bottom at 1e-4 (legacy Eq. 18 scale); time-averaged values reach lower.
     low = min(float(v.min()) for pct in panels for e, tr, te in panels[pct].values() for v in (tr, te))
     fig.axes[0].set_ylim(bottom=10 ** np.floor(np.log10(low)))

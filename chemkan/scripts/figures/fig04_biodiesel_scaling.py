@@ -323,7 +323,7 @@ def make_author_figure(output_path=None, *, data=None, show=False):
     import author_runs as ar
     data = data or author_scaling_data()
     fig = plot_figure(data["points"], data["fits"], "scaled",
-                      "reference_final_trunk_relu, biodiesel_v2 runs", 1.0,
+                      f"{ar.DEEPONET_LABEL[ar.DEEPONET_VARIANT]}, biodiesel_v2 runs", 1.0,
                       f"\n{ar.CONVENTION_SHORT}")
     # Time-averaged points sit lower than the legacy Eq. 18 ones, so the Delta tables move to
     # empty corners: (A) upper right, (B) lower right. Table has no public setter for this.

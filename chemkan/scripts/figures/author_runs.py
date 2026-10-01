@@ -28,6 +28,18 @@ sys.path.insert(0, str(ROOT / "deeponet"))
 import run_figures  # noqa: E402
 
 RUNS = run_figures.OUT
+# DeepONet shown in the biodiesel_v2 figures. "tanh_r1_lr1e-2" (default): the reference
+# DeepONet settings (Lu/DeepXDE truncated Glorot normal, zero biases, branch-final linear /
+# trunk-final activated, raw t, author-global normalized branch/targets, 308 parameters) with
+# the activation changed to tanh and Adam lr 1e-2 (the released ChemKAN example's lr; the
+# paper states neither the DeepONet activation nor its lr) -- a behaviour-matching
+# ABLATION. "tanh_r1": the same with the Lu default lr 1e-3. "relu_legacy": the earlier
+# ReLU runs (trunk tau = t/30).
+DEEPONET_VARIANT = "tanh_r1_lr1e-2"
+TANH_VARIANTS = {"tanh_r1": (RUNS.parent / "figures_tanh_r1", 0.001),
+                 "tanh_r1_lr1e-2": (RUNS.parent / "figures_tanh_r1_lr1e-2", 0.01)}
+DEEPONET_LABEL = {"tanh_r1": "DeepONet (tanh, lr 1e-3)", "tanh_r1_lr1e-2": "DeepONet (tanh, lr 1e-2)",
+                  "relu_legacy": "DeepONet (ReLU, legacy)"}
 DATA = ROOT / run_figures.DATA
 DATA_SHA256 = "c79afbfbbee863f50704985aaf658931d8e989f8086d528f97dfd6d680ca7b31"
 N_T = 30
@@ -35,8 +47,20 @@ CONVENTION = "time-averaged MSE (released-code Flux.mse; Eq. 18 = 30 x this)"
 CONVENTION_SHORT = "time-averaged MSE (Eq. 18 / 30)"          # axis labels and titles
 
 
-def plan() -> list[dict]:
-    return run_figures.plan()
+def plan(variant: str | None = None) -> list[dict]:
+    """run_figures.plan(), with the DeepONet runs replaced by the tanh R1 runs unless the
+    legacy ReLU variant is requested."""
+    variant = variant or DEEPONET_VARIANT
+    runs = run_figures.plan()
+    if variant == "relu_legacy":
+        return runs
+    out = []
+    for r in runs:
+        if r["model"] == "deeponet":
+            r = dict(r, variant=variant,
+                     dir=TANH_VARIANTS[variant][0] / r["dir"].parent.name / r["dir"].name)
+        out.append(r)
+    return out
 
 
 def by_name() -> dict[str, dict]:
@@ -56,6 +80,9 @@ def history(run: dict) -> dict:
     """Per-epoch losses in the time-averaged convention; epoch is 1-based for both models."""
     rows = _rows(run["dir"] / "history.csv")
     col = lambda k: np.array([float(r[k]) for r in rows]) if rows and k in rows[0] else None  # noqa: E731
+    if str(run.get("variant", "")).startswith("tanh"):                       # logged in figure normalization
+        return {"epoch": col("epoch") + 1, "train": col("train_mse_fig"),
+                "test_clean": col("test_clean_mse_fig"), "test_noisy": col("test_noisy_mse_fig")}
     if run["model"] == "chemkan":
         return {"epoch": col("epoch"), "train": col("train_mse"), "test_clean": col("val_mse"),
                 "test_noisy": col("val_mse_noisy")}
@@ -73,6 +100,18 @@ def _expected_settings(run: dict, cfg: dict) -> list[str]:
     noise = get("--noise-percent")
     if cfg.get("seed") != 0:
         bad.append(f"seed {cfg.get('seed')}")
+    if str(run.get("variant", "")).startswith("tanh"):
+        arch, pre = cfg["architecture"], cfg["preprocessing"]
+        want = {"activation": ("tanh", arch.get("activation_name")),
+                "init": ("Aprime_tf_truncated_glorot_zero_bias", arch.get("init_scheme")),
+                "lr": (TANH_VARIANTS[run["variant"]][1], cfg.get("learning_rate")), "epochs": (run["epochs"], cfg.get("epochs")),
+                "width": (int(get("--width")), arch.get("w")),
+                "q": (int(get("--trunk-hidden") or int(get("--width")) - 1), arch.get("q")),
+                "noise": (int(noise or 0), cfg.get("noise_percent")),
+                "trunk": ([0.0, 30.0], pre.get("trunk_input_range_s")),
+                "data": (DATA_SHA256, cfg["dataset_file"]["sha256"])}
+        bad += [f"{k} {got} != {exp}" for k, (exp, got) in want.items() if exp != got]
+        return bad
     if cfg.get("epochs") != run["epochs"]:
         bad.append(f"epochs {cfg.get('epochs')} != {run['epochs']}")
     if run["model"] == "chemkan":
@@ -189,7 +228,7 @@ def chemkan_predict(run: dict, y0, T: float, times) -> np.ndarray:
     training solver and normalization."""
     import torch
     _paths()
-    from _author_match import NormalizedDynamics, build_core
+    from _author_match import NormalizedDynamics, build_core, rhs_divisor_from_config
     from chemkan.solver import SolverConfig, integrate
     cfg = config(run)
     src, sol = cfg["data_source"], cfg["solver"]
@@ -202,7 +241,8 @@ def chemkan_predict(run: dict, y0, T: float, times) -> np.ndarray:
     solver = SolverConfig(method=sol["method"], rtol=sol["rtol"], atol=sol["atol"],
                           sensitivity="direct_autograd")
     with torch.no_grad():
-        z = integrate(NormalizedDynamics(core), torch.tensor(z0, dtype=torch.float64)[None],
+        dyn = NormalizedDynamics(core, rhs_divisor_from_config(cfg))
+        z = integrate(dyn, torch.tensor(z0, dtype=torch.float64)[None],
                       torch.as_tensor(np.asarray(times), dtype=torch.float64), solver)
     return z[:, 0, :6].numpy() * (y_max - y_min) + y_min
 
@@ -211,6 +251,23 @@ def deeponet_predict(run: dict, y0, T: float, times) -> np.ndarray:
     """Physical species (len(times), 6) from a DeepONet figure run."""
     import torch
     _paths()
+    if str(run.get("variant", "")).startswith("tanh"):
+        import biodiesel_deeponet_repro as rp
+        from biodiesel_deeponet import build
+        cfg = config(run)
+        arch, g = cfg["architecture"], cfg["preprocessing"]["author_global_stats"]
+        stats = {"ymin": np.array(g["ymin"]), "ymax": np.array(g["ymax"]),
+                 "Tmin": g["Tmin"], "Tmax": g["Tmax"]}
+        model = rp.set_placement(rp.set_activation(build(arch["w"], trunk_hidden=arch["q"]), "tanh"), "A")
+        model.load_state_dict(torch.load(run["dir"] / "checkpoint_final.pt", map_location="cpu",
+                                         weights_only=False)["model_state"])
+        raw = np.array([[y0[0], y0[1], T]])
+        branch = torch.as_tensor(rp.branch_input_mode(raw, "normalized",
+                                                      "author_global_normalized_states", stats),
+                                 dtype=torch.float32)
+        with torch.no_grad():
+            u = model(branch, torch.as_tensor(np.asarray(times), dtype=torch.float32))[:, 0, :]
+        return rp.from_u(u.double().numpy(), stats)
     from biodiesel_deeponet import prepare_inputs
     from evaluate_biodiesel_deeponet import build_model
     from chemkan.normalization import MinMaxNormalizer
@@ -232,6 +289,9 @@ def final_losses(run: dict) -> dict:
     ChemKAN: metrics.json, evaluated after the last update with the training solver.
     DeepONet: the checkpoint evaluated on biodiesel_v2.npz (its history has no test loss).
     """
+    if str(run.get("variant", "")).startswith("tanh"):
+        f = json.loads((run["dir"] / "metrics.json").read_text())["figure_normalization"]
+        return {"train": f["train_mse_fig"], "test_clean": f["test_clean_mse_fig"]}
     if run["model"] == "chemkan":
         fp = json.loads((run["dir"] / "metrics.json").read_text())["final_parameters"]
         v = fp["training_solver_rtol1e-2"]
@@ -260,6 +320,10 @@ def converged(run: dict) -> dict:
         out = final_losses(run)
         out["test_noisy"] = _chemkan_final_noisy_test(run, p) if p else out["test_clean"]
         return out
+    if str(run.get("variant", "")).startswith("tanh"):
+        f = json.loads((run["dir"] / "metrics.json").read_text())["figure_normalization"]
+        return {"train": f["train_mse_fig"], "test_clean": f["test_clean_mse_fig"],
+                "test_noisy": f["test_noisy_mse_fig"]}
     _paths()
     from evaluate_biodiesel_deeponet import evaluate
     ck, level = run["dir"] / "checkpoint_final.pt", p or None
@@ -274,7 +338,7 @@ def _chemkan_final_noisy_test(run: dict, percent: int) -> float:
     evaluation (its data loader, training solver, one solve per trajectory, julia_mse)."""
     import torch
     _paths()
-    from _author_match import NormalizedDynamics, build_core, julia_mse
+    from _author_match import NormalizedDynamics, build_core, julia_mse, rhs_divisor_from_config
     from chemkan.solver import SolverConfig
     from train_author_repo_match import load_canonical_data, predict
     cfg = config(run)
@@ -286,7 +350,8 @@ def _chemkan_final_noisy_test(run: dict, percent: int) -> float:
     solver = SolverConfig(method=sol["method"], rtol=sol["rtol"], atol=sol["atol"],
                           sensitivity="direct_autograd")
     with torch.no_grad():
-        pred = predict(NormalizedDynamics(core), data["u0"][data["test"]], data["t"], solver)
+        dyn = NormalizedDynamics(core, rhs_divisor_from_config(cfg))
+        pred = predict(dyn, data["u0"][data["test"]], data["t"], solver)
     return float(julia_mse(pred, data["test_noisy_target"]))
 
 

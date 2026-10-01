@@ -25,7 +25,9 @@ FIG. 4 SIZES: EXPLICIT ARCHITECTURES (w, q, p)
     are larger than 308 (paper Sec. III A 2). Reconstructed (our choice): every other size
     and architecture. The trunk hidden width q defaults to w - 1.
 
-REPRODUCTION CHOICE (input/output scaling)
+LEGACY PREPROCESSING (input/output scaling) -- existing runs and checkpoints only.
+    New reproduction runs use ``biodiesel_deeponet_repro.py`` (raw time t in the trunk,
+    raw or author-global normalized states) and must not call ``prepare_inputs``.
     The upstream repository has no biodiesel case and therefore does not specify
     preprocessing for this 7-dimensional chemical input. DeepXDE 0.11.2 OpNN.build()
     supports a trunk _input_transform and an _output_transform (see source below),
@@ -208,7 +210,8 @@ def raw_branch_input(data: dict, branch_in: int = BRANCH_IN) -> torch.Tensor:
 
 
 def prepare_inputs(data: dict, full_normalizer, t_end: float, branch_in: int = BRANCH_IN):
-    """(branch_input, tau) under the documented scaling choice.
+    """LEGACY: (branch_input, tau = t / t_end) for the existing runs and checkpoints.
+    Not used by the reproduction path (``biodiesel_deeponet_repro.py``).
 
     ``full_normalizer`` is the (m+1,) train-only min-max normalizer over [Y1..Ym, T]; the
     branch columns are selected after normalizing, so each keeps its own statistics.

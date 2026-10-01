@@ -370,7 +370,8 @@ def make_author_figure(output_path=None, *, show=False):
     rows, levels = author_noise_rows()
     fig = plot_figure(rows, levels, 1.0, f"\n{ar.CONVENTION_SHORT}")
     fig.axes[0].set_title("Fig. 5A - noise robustness (biodiesel_v2 runs; final checkpoints "
-                          "after 10,000 epochs)", fontsize=13)
+                          f"after 10,000 epochs; {ar.DEEPONET_LABEL[ar.DEEPONET_VARIANT]})",
+                          fontsize=13)
     save_figure(fig, output_path or FIGURES_AUTHOR / "fig05a_noise")
     if show:
         plt.show()

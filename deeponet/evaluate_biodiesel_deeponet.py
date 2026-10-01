@@ -1,5 +1,9 @@
 r"""Evaluate a trained biodiesel DeepONet -- the Fig. 5A metric triple, from the checkpoint.
 
+LEGACY checkpoint path: rebuilds the historical runs' preprocessing (trunk tau = t/t_end,
+train-only min-max) from the checkpoint. Historical runs only; the current
+reproduction (``train_biodiesel_deeponet_repro.py``) uses raw physical t.
+
 Mirrors ``chemkan/scripts/evaluate_biodiesel.py`` so ChemKAN and DeepONet numbers are
 produced by identical conventions: the same train-only normalizer, the same Eq. 18
 reduction, one set of predicted trajectories scored against two targets (the noisy

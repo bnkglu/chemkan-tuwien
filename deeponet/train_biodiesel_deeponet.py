@@ -1,4 +1,12 @@
-r"""Train the biodiesel DeepONet baseline (ChemKAN Figs. 4, 5, 6).
+r"""HISTORICAL TIME-SCALING PIPELINE. NOT PART OF THE CURRENT DEEPONET REPRODUCTION.
+
+LEGACY trainer for the biodiesel DeepONet baseline (ChemKAN Figs. 4, 5, 6): trunk input
+tau = t / t_end and train-only min-max scaling. Kept only so the existing historical runs
+(Fig. 4/5 biodiesel_v2 figure runs, legacy results) stay reproducible. The current
+reproduction is ``train_biodiesel_deeponet_repro.py`` (raw physical t only).
+
+Kept for the existing runs (trunk tau = t/30, train-only min-max). New reproduction
+runs use ``train_biodiesel_deeponet_repro.py`` (raw time t, author preprocessing).
 
 Same dataset, same train-only min-max normalizer and the same Eq. 18 loss reduction as
 the ChemKAN runs, so the two models are scored identically. The architecture and its
@@ -96,6 +104,8 @@ def require_reference_run_directory(run_dir):
 
 def main():
     args = build_parser().parse_args()
+    logging.warning("HISTORICAL time-scaling pipeline (trunk tau = t/t_end): NOT part of the "
+                    "current DeepONet reproduction; use train_biodiesel_deeponet_repro.py")
     require_reference_run_directory(args.run_dir)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     device = resolve_device(args.device)
@@ -197,7 +207,7 @@ def main():
     else:
         run.write_config(config)
 
-    logging.info("DeepONet w=%d: %d trainable parameters; branch inputs "
+    logging.info("LEGACY DeepONet w=%d: %d trainable parameters; branch inputs "
                  f"{list(BRANCH_INPUTS[args.branch_in])} use "
                  "train-only min-max scaling; trunk time input tau=t/%.1fs; "
                  "outputs are normalized species concentrations",
