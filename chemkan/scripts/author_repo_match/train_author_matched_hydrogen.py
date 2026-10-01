@@ -257,8 +257,9 @@ def base_config(args, problem: dict) -> dict:
         "loss": {"mse": "Eq. 18: mean over states, sum over time, mean over trajectories",
                  "pinn": "element conservation on de-normalized species, summed over time",
                  "alpha_pinn": ALPHA_PINN, "logged": ["mse", "pinn", "mse_time_avg"]},
-        "optimizer": {"name": "Adam", "lr": LR, "betas": [0.9, 0.999], "eps": 1e-8},
-        "solver": {"method": "tsit5", "rtol": RTOL, "atol": ATOL, "library": "torchdiffeq",
+        "optimizer": {"name": "Adam", "lr": args.lr, "betas": [0.9, 0.999], "eps": 1e-8},
+        "solver": {"method": "tsit5", "rtol": args.rtol, "atol": args.atol,
+                   "library": "torchdiffeq",
                    "solve_mode": args.solve_mode,
                    "solve_mode_note": "per_trajectory: one solve per trajectory, each loss "
                                       "weighted 1/B so loss and gradient equal the batched "
@@ -267,9 +268,24 @@ def base_config(args, problem: dict) -> dict:
                                         "points, raw and after 1/t_ref",
                           "warmup_and_stage2": "the 9 thermo.linear weights and their norm"},
         "provenance": PROVENANCE,
+        **_overrides(args),
         "git_commit": git_commit(), "created": utc_now(),
         "python": platform.python_version(), "torch": torch.__version__,
     }
+
+
+def _overrides(args) -> dict:
+    """A ``deviations`` entry only when lr or tolerances differ from the defaults, so the
+    configs of default runs stay unchanged (and resumable)."""
+    dev = {}
+    if args.lr != LR:
+        dev["lr"] = (f"{args.lr:g} instead of the paper's {LR:g}; 1e-2 is the released "
+                     "biodiesel example's Flux.Adam(1f-2)")
+    if (args.rtol, args.atol) != (RTOL, ATOL):
+        dev["solver_tolerances"] = (f"rtol {args.rtol:g}, atol {args.atol:g} instead of "
+                                    f"{RTOL:g}, {ATOL:g}; rtol 1e-2 / atol 1e-6 is the released "
+                                    "biodiesel example (ODEProblem reltol=1e-2, solve abstol=1e-6)")
+    return {"deviations": dev} if dev else {}
 
 
 IMPORT_KEYS = ("dataset", "state_space", "architecture", "normalization", "t_ref")
@@ -384,12 +400,12 @@ def kinetic_on_trajectory(model: ChemKAN, u_hat: torch.Tensor) -> torch.Tensor:
     return model.kinetic(u_hat.reshape(-1, u_hat.shape[-1])).reshape(*u_hat.shape[:-1], -1)
 
 
-def _adam(params) -> torch.optim.Adam:
-    return torch.optim.Adam(params, lr=LR, betas=(0.9, 0.999), eps=1e-8)
+def _adam(params, lr: float = LR) -> torch.optim.Adam:
+    return torch.optim.Adam(params, lr=lr, betas=(0.9, 0.999), eps=1e-8)
 
 
-def _solver(sensitivity: str) -> SolverConfig:
-    return SolverConfig(method="tsit5", rtol=RTOL, atol=ATOL, sensitivity=sensitivity)
+def _solver(sensitivity: str, rtol: float = RTOL, atol: float = ATOL) -> SolverConfig:
+    return SolverConfig(method="tsit5", rtol=rtol, atol=atol, sensitivity=sensitivity)
 
 
 def _write_json(path: Path, obj) -> None:
@@ -406,7 +422,7 @@ def run_stage1(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
            "epochs": {"stage1": args.epochs}}
     model = build_model()
     params = list(model.kinetic.parameters())
-    opt = _adam(params)
+    opt = _adam(params, args.lr)
     if args.resume:
         state = torch.load(working, weights_only=False)
         check_resume_config(state["config"], cfg)
@@ -435,11 +451,32 @@ def run_stage1(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
                             "rng_state": torch.get_rng_state(),
                             "epochs_completed": epoch, "elapsed_seconds": elapsed}, path)
 
+    def write_archive(epoch, elapsed) -> Path:
+        archive = run_dir / "archive" / f"stage1_{run_id}_epoch{epoch}.pt"
+        registry_path = run_dir / "stage1_archives.json"
+        registry = json.loads(registry_path.read_text()) if registry_path.exists() else []
+        if archive.exists():
+            logger.info("archive %s already exists; left unchanged", archive.name)
+        else:
+            archive.parent.mkdir(exist_ok=True)
+            save(archive, epoch, elapsed)
+            registry.append({"file": f"archive/{archive.name}", "epoch": epoch,
+                             "sha256": checkpoint_sha256(archive), "created": utc_now()})
+            _write_json(registry_path, registry)
+            logger.info("stage 1 archive %s  sha256 %s", archive.name, registry[-1]["sha256"])
+        return archive
+
+    def on_checkpoint(e, s):
+        save(working, e, s)
+        if args.archive_every and e % args.archive_every == 0:
+            write_archive(e, s)
+
     history = _history(run_dir / "stage1_history.csv", start, HISTORY_COLUMNS + KINETIC_COLUMNS)
     epoch, elapsed = run_phase("stage1", units, problem["t"], params, opt,
-                               _solver(args.sensitivity), start=start, total=args.epochs,
-                               history=history, checkpoint_every=args.checkpoint_every,
-                               on_checkpoint=lambda e, s: save(working, e, s),
+                               _solver(args.sensitivity, args.rtol, args.atol), start=start,
+                               total=args.epochs, history=history,
+                               checkpoint_every=args.checkpoint_every,
+                               on_checkpoint=on_checkpoint,
                                prior_elapsed=prior, stop_after=stop_after)
     history.file.close()
     result = {"epochs_completed": epoch, "archive": None}
@@ -447,19 +484,7 @@ def run_stage1(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         return result
     save(working, epoch, elapsed)
     save(final, epoch, elapsed)
-    archive = run_dir / "archive" / f"stage1_{run_id}_epoch{epoch}.pt"
-    registry_path = run_dir / "stage1_archives.json"
-    registry = json.loads(registry_path.read_text()) if registry_path.exists() else []
-    if archive.exists():
-        logger.info("archive %s already exists; left unchanged", archive.name)
-    else:
-        archive.parent.mkdir(exist_ok=True)
-        save(archive, epoch, elapsed)
-        registry.append({"file": f"archive/{archive.name}", "epoch": epoch,
-                         "sha256": checkpoint_sha256(archive), "created": utc_now()})
-        _write_json(registry_path, registry)
-        logger.info("stage 1 archive %s  sha256 %s", archive.name, registry[-1]["sha256"])
-    result["archive"] = archive
+    result["archive"] = write_archive(epoch, elapsed)
     return result
 
 
@@ -507,7 +532,7 @@ def run_stage2(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
 
     units = stage2_units(model, problem, args.t_ref, args.solve_mode)
     columns = HISTORY_COLUMNS + KINETIC_COLUMNS + THERMO_COLUMNS
-    solver = _solver(args.sensitivity)
+    solver = _solver(args.sensitivity, args.rtol, args.atol)
     frozen = list(model.kinetic.parameters()) + list(model.thermo.correction.parameters())
 
     def save(path, ph, epoch, warm, elapsed, opt):
@@ -522,7 +547,7 @@ def run_stage2(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         for p in frozen:
             p.requires_grad_(False)
         params = [model.thermo.linear.weight]
-        opt = _adam(params)
+        opt = _adam(params, args.lr)
         if opt_state is not None:
             opt.load_state_dict(opt_state)
         history = _history(run_dir / "warmup_history.csv", done, columns)
@@ -548,15 +573,28 @@ def run_stage2(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
     if phase == "warmup":                                     # no (remaining) warm-up
         phase, done, opt_state = "stage2", 0, None
     params = list(model.parameters())
-    opt = _adam(params)                                       # fresh Adam state
+    opt = _adam(params, args.lr)                                       # fresh Adam state
     if opt_state is not None:
         opt.load_state_dict(opt_state)
     history = _history(run_dir / "stage2_history.csv", done, columns)
+
+    def on_stage2_checkpoint(e, s, opt):
+        """Working checkpoint; every --archive-every epochs also a permanent archive
+        ``archive/stage2_<run_id>_epoch<N>.pt`` (never overwritten)."""
+        save(working, "stage2", e, warm_done, s, opt)
+        if args.archive_every and e % args.archive_every == 0:
+            archive = run_dir / "archive" / f"stage2_{run_id}_epoch{e}.pt"
+            if not archive.exists():
+                archive.parent.mkdir(exist_ok=True)
+                save(archive, "stage2", e, warm_done, s, opt)
+                logger.info("stage 2 archive %s  sha256 %s", archive.name,
+                            checkpoint_sha256(archive))
+
     done, elapsed = run_phase(
         "stage2", units, problem["t"], params, opt, solver,
         start=done, total=args.epochs, history=history, checkpoint_every=args.checkpoint_every,
         prior_elapsed=elapsed,
-        on_checkpoint=lambda e, s: save(working, "stage2", e, warm_done, s, opt),
+        on_checkpoint=lambda e, s: on_stage2_checkpoint(e, s, opt),
         stop_after=stop_after, extra=lambda: thermo_weights(model))
     history.file.close()
     save(working, "stage2", done, warm_done, elapsed, opt)
@@ -585,7 +623,17 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--dtype", choices=["float32", "float64"], default="float32")
         p.add_argument("--solve-mode", choices=["batched", "per_trajectory"], default="batched",
                        help="one solve for all trajectories (default) or one per trajectory")
+        p.add_argument("--lr", type=float, default=LR,
+                       help="Adam learning rate (default: the paper's 2e-3; the released "
+                            "biodiesel example uses 1e-2)")
+        p.add_argument("--rtol", type=float, default=RTOL)
+        p.add_argument("--atol", type=float, default=ATOL,
+                       help="solver tolerances (default 1e-6 / 1e-8; the released biodiesel "
+                            "example uses rtol 1e-2, atol 1e-6)")
         p.add_argument("--checkpoint-every", type=int, default=500)
+        p.add_argument("--archive-every", type=int, default=5000,
+                       help="also write a permanent archive every N epochs (a multiple "
+                            "of --checkpoint-every; 0 = stage1: only at the end, stage2: none)")
         p.add_argument("--threads", type=int, default=None)
         p.add_argument("--resume", action="store_true")
         if name == "stage2":
@@ -599,6 +647,9 @@ def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
     if args.stage == "stage2" and not args.resume and args.stage1_archive is None:
         raise SystemExit("stage2 needs --stage1-archive (or --resume)")
+    if args.archive_every and (
+            not args.checkpoint_every or args.archive_every % args.checkpoint_every):
+        raise SystemExit("--archive-every must be a multiple of --checkpoint-every")
     torch.set_default_dtype(getattr(torch, args.dtype))
     if args.threads:
         torch.set_num_threads(args.threads)

@@ -105,16 +105,25 @@ def glorot_uniform_(core: KineticCore, generator: torch.Generator) -> None:
     glorot_uniform_edges_((core.add.edges, core.lean.edges), generator)
 
 
-class NormalizedDynamics(nn.Module):
-    """``dz/dt = [KAN(z), 0] / 50`` on normalized ``z = [Y_hat (6), T_hat]`` (B, 7)."""
+def rhs_divisor_from_config(cfg: dict) -> float:
+    """The RHS divisor a run was trained with: ``cfg["rhs_divisor"]["value"]``; runs from
+    before that key existed all used the released example's 50."""
+    return float(cfg.get("rhs_divisor", {}).get("value", RHS_DIVISOR))
 
-    def __init__(self, core: KineticCore):
+
+class NormalizedDynamics(nn.Module):
+    """``dz/dt = [KAN(z), 0] / divisor`` on normalized ``z = [Y_hat (6), T_hat]`` (B, 7).
+    The released example divides by 50 although its time window is 30 s; the trainer's
+    default is the data's time window. The constructor default 50 is for older checkpoints."""
+
+    def __init__(self, core: KineticCore, divisor: float = RHS_DIVISOR):
         super().__init__()
         self.core = core
+        self.divisor = float(divisor)
 
     def forward(self, t: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
         rates = self.core(z)
-        return torch.cat([rates, torch.zeros_like(z[:, -1:])], dim=-1) / RHS_DIVISOR
+        return torch.cat([rates, torch.zeros_like(z[:, -1:])], dim=-1) / self.divisor
 
 
 def julia_mse(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:

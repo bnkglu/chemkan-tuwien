@@ -48,7 +48,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))          # chemkan/scripts
 from _author_match import (EXP, NormalizedDynamics, build_core, glorot_uniform_,  # noqa: E402
-                           julia_mse, load_julia_params)
+                           julia_mse, load_julia_params, rhs_divisor_from_config)
 from _data import load_biodiesel  # noqa: E402
 from chemkan.fsa import (NonFiniteFSAError, ParameterPacking,  # noqa: E402
                          fsa_loss_and_gradients, fsa_provenance)
@@ -215,6 +215,10 @@ def main() -> int:
     ap.add_argument("--init-from", type=Path, default=None,
                     help="start from these 156 flat Julia parameters (p.txt layout, e.g. "
                          "julia_reference/p_init.txt) instead of the seeded glorot draw")
+    ap.add_argument("--rhs-divisor", type=float, default=None,
+                    help="divide the learned RHS by this [s] (default: the data's time "
+                         "window t_end - t_start, 30 s for biodiesel; the released example "
+                         "and all earlier runs used 50)")
     args = ap.parse_args()
     batched = args.solve_mode == "batched"
     if args.init_from is not None and args.hidden != 4:
@@ -247,7 +251,15 @@ def main() -> int:
     glorot_uniform_(core, init_gen)
     if args.init_from is not None:       # Julia values are Float32: parse as such, widen
         load_julia_params(core, np.loadtxt(args.init_from, dtype=np.float32).astype(np.float64))
-    dyn = NormalizedDynamics(core)
+    window = float(data["t"][-1] - data["t"][0])
+    divisor = window if args.rhs_divisor is None else args.rhs_divisor
+    if args.resume and (run / "config.json").exists():      # keep the run's own divisor
+        saved = rhs_divisor_from_config(json.loads((run / "config.json").read_text()))
+        if args.rhs_divisor is not None and args.rhs_divisor != saved:
+            raise SystemExit(f"--rhs-divisor {args.rhs_divisor:g} differs from this run's "
+                             f"{saved:g}; start a new --run-dir")
+        divisor = saved
+    dyn = NormalizedDynamics(core, divisor)
     opt = torch.optim.Adam(core.parameters(), lr=1e-2, betas=(0.9, 0.999), eps=1e-8)
 
     config = {
@@ -267,7 +279,13 @@ def main() -> int:
                          "use_base_act": False, "layer1_input_tanh": False,
                          "layer2_input_tanh": True, "n_mu": math.ceil(args.hidden / 2), "centers": [-1.0, 0.0, 1.0],
                          "rbf": "exp(-((x - c)/1)^2) (library gaussian with h = 1/sqrt(2))"},
-        "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / 50",
+        "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / "
+                    f"{divisor:g}",
+        "rhs_divisor": {"value": divisor, "data_time_window": window,
+                        "source": "data time window (t_end - t_start)" if args.rhs_divisor
+                                  is None else "--rhs-divisor",
+                        "note": "the released example divides by 50 although its time "
+                                "window is 30 s"},
         "initialization": (
             "glorot_uniform on C (out x G*in): U(-a, a), a = sqrt(6/(G*in + out))"
             if args.init_from is None else

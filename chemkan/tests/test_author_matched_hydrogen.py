@@ -7,6 +7,7 @@ Fast tests on a small synthetic hydrogen-shaped problem (9 species + T, 2 trajec
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import sys
 from pathlib import Path
@@ -61,7 +62,7 @@ def _problem(seed: int = 0) -> dict:
 def _args(**kw) -> argparse.Namespace:
     base = dict(epochs=3, seed=0, t_ref=amh.T_REF_DEFAULT, sensitivity="direct_autograd",
                 dtype="float64", solve_mode="batched", checkpoint_every=1, threads=None,
-                resume=False,
+                resume=False, lr=amh.LR, rtol=amh.RTOL, atol=amh.ATOL, archive_every=0,
                 stage1_archive=None, warmup_epochs=0)
     base.update(kw)
     return argparse.Namespace(**base)
@@ -172,6 +173,36 @@ def test_stage1_resume_equivalence_and_extension_archives(tmp_path):
     ext = amh.run_stage1(_args(epochs=6, resume=True), problem, tmp_path / "full")
     assert old.exists() and amh.checkpoint_sha256(old) == sha_old
     assert ext["archive"].name == "stage1_full_epoch6.pt"
+
+
+def test_stage1_periodic_archives(tmp_path):
+    problem = _problem()
+    res = amh.run_stage1(_args(epochs=4, archive_every=2), problem, tmp_path / "per")
+    reg = json.loads((tmp_path / "per/stage1_archives.json").read_text())
+    assert [r["epoch"] for r in reg] == [2, 4]
+    assert res["archive"].name == "stage1_per_epoch4.pt"
+    mid = torch.load(tmp_path / "per/archive/stage1_per_epoch2.pt", weights_only=False)
+    assert mid["epochs_completed"] == 2
+
+
+def test_stage2_periodic_archives(tmp_path):
+    problem, s1 = _stage1(tmp_path, epochs=2)
+    amh.run_stage2(_args(epochs=4, archive_every=2, stage1_archive=s1["archive"]), problem,
+                   tmp_path / "s2")
+    names = sorted(f.name for f in (tmp_path / "s2/archive").iterdir())
+    assert names == ["stage2_s2_epoch2.pt"]           # epoch 4 is the end: final, not periodic
+    a = torch.load(tmp_path / "s2/archive/stage2_s2_epoch2.pt", weights_only=False)
+    assert (a["phase"], a["phase_epochs_completed"]) == ("stage2", 2)
+
+
+def test_lr_and_tolerance_overrides_recorded():
+    problem = _problem()
+    assert "deviations" not in amh.base_config(_args(), problem)        # defaults unchanged
+    cfg = amh.base_config(_args(lr=1e-2, rtol=1e-2, atol=1e-6), problem)
+    assert cfg["optimizer"]["lr"] == 1e-2
+    assert (cfg["solver"]["rtol"], cfg["solver"]["atol"]) == (1e-2, 1e-6)
+    assert set(cfg["deviations"]) == {"lr", "solver_tolerances"}
+    assert amh._adam([torch.zeros(1, requires_grad=True)], 1e-2).param_groups[0]["lr"] == 1e-2
 
 
 def test_stage2_warmup_freezes_and_gradients_reach_linear(tmp_path):
