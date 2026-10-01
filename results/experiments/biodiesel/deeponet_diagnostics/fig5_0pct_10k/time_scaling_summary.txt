@@ -1,0 +1,36 @@
+pairing OK: raw-t and t/30 runs start from identical tensors for every seed
+
+per-seed paired
+seed | raw/t30 train@2.5k | raw/t30 train@5k | raw/t30 train@10k | raw/t30 test@10k | dlog10 train@10k
+0 | 1.42e-03 / 1.52e-03 | 8.77e-04 / 1.04e-03 | 7.28e-04 / 6.00e-04 | 2.28e-03 / 2.83e-03 | -0.08
+1 | 1.52e-03 / 1.51e-03 | 1.30e-03 / 9.65e-04 | 9.92e-04 / 9.05e-04 | 2.59e-03 / 2.87e-03 | -0.04
+2 | 1.49e-03 / 2.14e-03 | 9.43e-04 / 1.46e-03 | 8.66e-04 / 1.35e-03 | 1.72e-03 / 2.77e-03 | +0.19
+3 | 3.49e-03 / 6.54e-03 | 3.44e-03 / 6.44e-03 | 3.36e-03 / 3.49e-03 | 3.38e-03 / 3.26e-03 | +0.02
+4 | 7.35e-04 / 7.19e-04 | 5.00e-04 / 5.30e-04 | 4.80e-04 / 5.08e-04 | 1.39e-03 / 2.76e-03 | +0.02
+median dlog10 train@10k: +0.02
+
+breakpoints (physical s)
+seed 0 raw  L1 init [0.1, 0.2] final [0.4, 0.4] | L2 init [0.1, 0.2, 0.7, 1.2, 1.2] final [10.6]
+seed 0 t30  L1 init [3.3, 6.4] final [4.7, 12.3] | L2 init [2.5, 4.7, 21.3] final [0.0]
+seed 1 raw  L1 init [0.5, 0.5, 2.1, 4.4] final [0.7, 9.9] | L2 init [0.2, 1.0, 1.7, 2.3, 10.0] final [0.1, 29.6]
+seed 1 t30  L1 init [15.8, 15.9] final [5.5, 14.1] | L2 init [6.4] final []
+seed 2 raw  L1 init [0.5, 1.2, 1.4, 1.7, 10.7, 12.4] final [3.0, 8.6, 16.9, 29.9] | L2 init [0.1, 0.2, 0.3, 0.6, 1.0, 1.4, 1.5, 2.6, 17.5] final [0.7, 29.8]
+seed 2 t30  L1 init [16.0] final [6.4, 15.8] | L2 init [2.9, 5.0, 10.3, 16.9, 28.9] final []
+seed 3 raw  L1 init [1.1, 1.9] final [8.1, 23.2] | L2 init [0.3] final []
+seed 3 t30  L1 init [] final [10.7] | L2 init [7.9] final []
+seed 4 raw  L1 init [0.2, 1.7, 2.1, 8.4] final [0.4, 8.8] | L2 init [0.5, 15.2] final [0.1, 4.6, 20.0]
+seed 4 t30  L1 init [5.2] final [7.7, 20.1] | L2 init [16.3] final [0.2, 3.0, 19.7]
+
+breakpoint distribution over 5 seeds (layer1 + layer2), counts per bin [(0, 3), (3, 10), (10, 20), (20, 30)]
+raw  init  layer1: 0-3s:14 3-10s:2 10-20s:2 20-30s:0  (total 18)
+raw  init  layer2: 0-3s:19 3-10s:1 10-20s:2 20-30s:0  (total 22)
+raw  final layer1: 0-3s:4 3-10s:5 10-20s:1 20-30s:2  (total 12)
+raw  final layer2: 0-3s:3 3-10s:1 10-20s:1 20-30s:3  (total 8)
+t30  init  layer1: 0-3s:0 3-10s:3 10-20s:3 20-30s:0  (total 6)
+t30  init  layer2: 0-3s:2 3-10s:4 10-20s:3 20-30s:2  (total 11)
+t30  final layer1: 0-3s:0 3-10s:4 10-20s:4 20-30s:1  (total 9)
+t30  final layer2: 0-3s:3 3-10s:0 10-20s:1 20-30s:0  (total 4)
+
+arm-level
+raw: train med 2.25e-03 1.49e-03 9.43e-04 8.52e-04 8.66e-04 | test med 3.04e-03 2.37e-03 2.35e-03 2.18e-03 2.28e-03 | best 4.80e-04 worst 3.36e-03 spread 7.0x | eq18 train/test med @10k 0.026/0.0683
+t30: train med 2.82e-03 1.52e-03 1.04e-03 9.82e-04 9.05e-04 | test med 3.48e-03 2.91e-03 2.70e-03 2.70e-03 2.83e-03 | best 5.08e-04 worst 3.49e-03 spread 6.9x | eq18 train/test med @10k 0.0272/0.0848

@@ -1,0 +1,243 @@
+{
+  "0": {
+    "before": {
+      "train": {
+        "mean_mse": 0.000727997743524611,
+        "eq18_obs": 0.0218399316072464,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0022773300297558308,
+        "eq18_obs": 0.0683199018239975,
+        "finite": true
+      }
+    },
+    "after": {
+      "train": {
+        "mean_mse": 0.0007277100812643766,
+        "eq18_obs": 0.02183130383491516,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0022722797002643347,
+        "eq18_obs": 0.06816838681697845,
+        "finite": true
+      }
+    },
+    "closure_evaluations": 30,
+    "lbfgs_n_iter": 15,
+    "lbfgs_func_evals": 30,
+    "termination": "stopped early: tolerance_grad/tolerance_change met or line search made no progress",
+    "all_closure_losses_finite": true,
+    "final_loss_not_above_start": true,
+    "trunk_after": {
+      "interior_breakpoints_s": {
+        "layer1": [
+          0.36356121301651,
+          0.4364030957221985
+        ],
+        "layer2": [
+          10.632000923156738
+        ]
+      },
+      "dead_on_dense": {
+        "relu0": 3,
+        "relu1": 2
+      }
+    }
+  },
+  "1": {
+    "before": {
+      "train": {
+        "mean_mse": 0.0009924281621351838,
+        "eq18_obs": 0.029772847890853882,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.002585178939625621,
+        "eq18_obs": 0.07755537331104279,
+        "finite": true
+      }
+    },
+    "after": {
+      "train": {
+        "mean_mse": 0.0005888458690606058,
+        "eq18_obs": 0.017665376886725426,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0016404374036937952,
+        "eq18_obs": 0.04921312257647514,
+        "finite": true
+      }
+    },
+    "closure_evaluations": 570,
+    "lbfgs_n_iter": 500,
+    "lbfgs_func_evals": 570,
+    "termination": "max_iter reached",
+    "all_closure_losses_finite": true,
+    "final_loss_not_above_start": true,
+    "trunk_after": {
+      "interior_breakpoints_s": {
+        "layer1": [
+          0.34229740500450134,
+          7.638846397399902
+        ],
+        "layer2": [
+          0.003000000026077032,
+          0.055000003427267075,
+          16.720998764038086,
+          26.767000198364258
+        ]
+      },
+      "dead_on_dense": {
+        "relu0": 2,
+        "relu1": 1
+      }
+    }
+  },
+  "2": {
+    "before": {
+      "train": {
+        "mean_mse": 0.000865817186422646,
+        "eq18_obs": 0.025974517688155174,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0017233628313988447,
+        "eq18_obs": 0.0517008900642395,
+        "finite": true
+      }
+    },
+    "after": {
+      "train": {
+        "mean_mse": 0.0008474776986986399,
+        "eq18_obs": 0.025424331426620483,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0017578108236193657,
+        "eq18_obs": 0.052734315395355225,
+        "finite": true
+      }
+    },
+    "closure_evaluations": 18,
+    "lbfgs_n_iter": 16,
+    "lbfgs_func_evals": 18,
+    "termination": "stopped early: tolerance_grad/tolerance_change met or line search made no progress",
+    "all_closure_losses_finite": true,
+    "final_loss_not_above_start": true,
+    "trunk_after": {
+      "interior_breakpoints_s": {
+        "layer1": [
+          3.0393877029418945,
+          8.617459297180176,
+          17.008708953857422,
+          29.905954360961914
+        ],
+        "layer2": [
+          0.6970000267028809,
+          29.625
+        ]
+      },
+      "dead_on_dense": {
+        "relu0": 1,
+        "relu1": 2
+      }
+    }
+  },
+  "3": {
+    "before": {
+      "train": {
+        "mean_mse": 0.003364192321896553,
+        "eq18_obs": 0.10092576593160629,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.00338393053971231,
+        "eq18_obs": 0.10151791572570801,
+        "finite": true
+      }
+    },
+    "after": {
+      "train": {
+        "mean_mse": 0.003363728290423751,
+        "eq18_obs": 0.10091185569763184,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0033858574461191893,
+        "eq18_obs": 0.10157570987939835,
+        "finite": true
+      }
+    },
+    "closure_evaluations": 7,
+    "lbfgs_n_iter": 5,
+    "lbfgs_func_evals": 7,
+    "termination": "stopped early: tolerance_grad/tolerance_change met or line search made no progress",
+    "all_closure_losses_finite": true,
+    "final_loss_not_above_start": true,
+    "trunk_after": {
+      "interior_breakpoints_s": {
+        "layer1": [
+          8.094369888305664,
+          23.218843460083008
+        ],
+        "layer2": []
+      },
+      "dead_on_dense": {
+        "relu0": 5,
+        "relu1": 5
+      }
+    }
+  },
+  "4": {
+    "before": {
+      "train": {
+        "mean_mse": 0.000479641166748479,
+        "eq18_obs": 0.01438923366367817,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0013926589163020253,
+        "eq18_obs": 0.0417797714471817,
+        "finite": true
+      }
+    },
+    "after": {
+      "train": {
+        "mean_mse": 0.0004792277468368411,
+        "eq18_obs": 0.014376834034919739,
+        "finite": true
+      },
+      "test": {
+        "mean_mse": 0.0014097680104896426,
+        "eq18_obs": 0.042293041944503784,
+        "finite": true
+      }
+    },
+    "closure_evaluations": 16,
+    "lbfgs_n_iter": 8,
+    "lbfgs_func_evals": 16,
+    "termination": "stopped early: tolerance_grad/tolerance_change met or line search made no progress",
+    "all_closure_losses_finite": true,
+    "final_loss_not_above_start": true,
+    "trunk_after": {
+      "interior_breakpoints_s": {
+        "layer1": [
+          0.3708416521549225,
+          8.76347541809082
+        ],
+        "layer2": [
+          0.10200000554323196,
+          4.581000328063965,
+          19.994998931884766
+        ]
+      },
+      "dead_on_dense": {
+        "relu0": 4,
+        "relu1": 3
+      }
+    }
+  }
+}

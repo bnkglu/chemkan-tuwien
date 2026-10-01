@@ -1,0 +1,134 @@
+{
+  "model": "DeepONet-biodiesel",
+  "path": "reproduction (biodiesel_deeponet_repro.py)",
+  "purpose": "diagnostic reproduction run",
+  "architecture": {
+    "architecture_version": "reference_final_trunk_relu",
+    "family": "DeepONet: branch [3,w,w,p], trunk [1,q,p], Hadamard combine, head Linear(p,6)",
+    "w": 8,
+    "q": 7,
+    "p": 8,
+    "branch_input": [
+      "TG0",
+      "ROH0",
+      "T0"
+    ],
+    "width": 8,
+    "branch_dims": [
+      3,
+      8,
+      8,
+      8
+    ],
+    "trunk_dims": [
+      1,
+      7,
+      8
+    ],
+    "combine": "hadamard",
+    "out_dim": 6,
+    "activation": "relu between branch layers and after every trunk layer (none on branch output or head)",
+    "bias": true,
+    "weight_init": "pytorch_default kaiming_uniform(a=sqrt(5)), bias uniform(+-1/sqrt(fan_in))",
+    "parameter_count": 308,
+    "activation_name": "relu",
+    "init_scheme": "B_torch_default",
+    "init_role": "framework-default ablation (PyTorch)",
+    "weight_init_note": "implemented with torch.nn.init.xavier_normal_; same Glorot/Xavier fan-in/fan-out variance rule as the DeepXDE reference; PyTorch samples an untruncated normal whereas the old TensorFlow Glorot-normal implementation uses truncated-normal sampling"
+  },
+  "parameter_count": 308,
+  "seed": 23,
+  "optimizer": "Adam (full batch)",
+  "learning_rate": 0.002,
+  "epochs": 10000,
+  "noise_percent": 0,
+  "objective": "mean_mse",
+  "dtype": "float32",
+  "preprocessing": {
+    "state_mode": "author_global_normalized_states",
+    "trunk_input": "raw_t (raw time in seconds, no scaling)",
+    "trunk_input_scale": 1.0,
+    "init_from": null,
+    "time_grid": [
+      0.0,
+      1.0344827586206897,
+      2.0689655172413794,
+      3.1034482758620694,
+      4.137931034482759,
+      5.172413793103448,
+      6.206896551724139,
+      7.241379310344828,
+      8.275862068965518,
+      9.310344827586208,
+      10.344827586206897,
+      11.379310344827587,
+      12.413793103448278,
+      13.448275862068966,
+      14.482758620689657,
+      15.517241379310345,
+      16.551724137931036,
+      17.586206896551726,
+      18.620689655172416,
+      19.655172413793103,
+      20.689655172413794,
+      21.724137931034484,
+      22.758620689655174,
+      23.793103448275865,
+      24.827586206896555,
+      25.862068965517242,
+      26.896551724137932,
+      27.931034482758623,
+      28.965517241379313,
+      30.0
+    ],
+    "branch_input": [
+      "TG0",
+      "ROH0",
+      "T0"
+    ],
+    "branch_mode": "normalized",
+    "planted_knots_DIAGNOSTIC_ONLY": null,
+    "branch_scaling": "TG0/ROH0 by their species' author-global min/max; T0 by the min/max of all initial temperatures",
+    "targets": "author-global normalized six-species states",
+    "author_global_stats": {
+      "ymin": [
+        0.15114263637602496,
+        0.01674935764764289,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ymax": [
+        1.96475246,
+        1.9127856500000002,
+        0.47006001379235407,
+        0.21017393938746542,
+        0.4167952503133789,
+        1.7781896308088887
+      ],
+      "Tmin": 323.44491888,
+      "Tmax": 342.9372352,
+      "source": "ChemKAN_biodiesel_example.jl: species min/max over ode_data_list (train obs + test obs + noise-free test, all times); T min/max over all initial temperatures"
+    }
+  },
+  "metrics": {
+    "mean_mse": "(pred - obs)^2 mean in the trained representation",
+    "mean_mse_u": "(pred - obs)^2 mean in author-global u units (time-averaged Eq. 18)",
+    "eq18_obs": "author-global u; mean over species, SUM over time, mean over trajectories",
+    "eq22_true": "same reduction against the noise-free truth",
+    "history_state": "before this epoch's optimizer step",
+    "final_state": "final checkpoint (after the last step)"
+  },
+  "dataset_file": {
+    "path": "/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/chemkan/data/generated/biodiesel_v2.npz",
+    "sha256": "c79afbfbbee863f50704985aaf658931d8e989f8086d528f97dfd6d680ca7b31"
+  },
+  "noise": {
+    "formula": "clean + randn * p * max_t(clean) per trajectory and species, clipped at 0 (additive_species_max)",
+    "percent": 0
+  },
+  "run_id": "biodiesel-deeponet-repro/seed23",
+  "git_commit": "f28f0c78e5f93c9bbfe3f5e7a0ca016faf0c4ce1",
+  "created": "2026-10-01T03:02:51Z"
+}

@@ -1,0 +1,68 @@
+pairing OK: R2 == R1 initialization (rebuilt deterministically; the reused R1 runs predate checkpoint_init.pt), R3 == R4, every seed
+
+== R1: Lu/DeepXDE reference (TF Glorot normal, zero bias, lr 1e-3)
+seed 0: train 1.84e-02 test 2.31e-02 | dead1 6 dead2 4 | useful bp 2 at [0.1, 0.4] (interior total 2)
+seed 1: train 3.26e-03 test 3.48e-03 | dead1 5 dead2 4 | useful bp 2 at [2.2, 12.6] (interior total 2)
+seed 2: train 1.74e-02 test 2.39e-02 | dead1 6 dead2 6 | useful bp 0 at [] (interior total 0)
+seed 3: train 2.10e-03 test 2.47e-03 | dead1 5 dead2 3 | useful bp 2 at [1.4, 12.2] (interior total 2)
+seed 4: train 1.14e-03 test 1.74e-03 | dead1 4 dead2 1 | useful bp 3 at [7.0, 19.6, 21.1] (interior total 3)
+seed 5: train 1.42e-02 test 1.64e-02 | dead1 3 dead2 4 | useful bp 4 at [0.0, 0.4, 13.8, 19.7] (interior total 4)
+seed 6: train 1.51e-02 test 1.98e-02 | dead1 3 dead2 3 | useful bp 4 at [0.6, 1.5, 1.7, 2.1] (interior total 4)
+seed 7: train 1.38e-02 test 1.45e-02 | dead1 2 dead2 3 | useful bp 3 at [0.1, 0.4, 4.5] (interior total 3)
+seed 8: train 1.16e-02 test 2.00e-02 | dead1 5 dead2 1 | useful bp 4 at [0.1, 0.3, 1.0, 1.6] (interior total 4)
+seed 9: train 8.78e-03 test 1.09e-02 | dead1 2 dead2 5 | useful bp 2 at [0.2, 4.7] (interior total 2)
+median train 1.27e-02 best 1.14e-03 worst 1.84e-02 | median test 1.55e-02 | <= 0.001: 0/10 <= 0.0005: 0/10 <= 0.0003: 0/10 <= 0.0001: 0/10
+
+== R2: reference-init lr ablation (lr 2e-3)
+seed 0: train 1.02e-02 test 1.02e-02 | dead1 6 dead2 4 | useful bp 2 at [0.0, 0.4] (interior total 2)
+seed 1: train 3.01e-03 test 3.42e-03 | dead1 5 dead2 4 | useful bp 1 at [12.5] (interior total 1)
+seed 2: train 1.07e-02 test 1.17e-02 | dead1 6 dead2 6 | useful bp 0 at [] (interior total 0)
+seed 3: train 1.53e-03 test 2.84e-03 | dead1 5 dead2 3 | useful bp 2 at [1.6, 12.0] (interior total 2)
+seed 4: train 7.76e-04 test 1.77e-03 | dead1 4 dead2 1 | useful bp 3 at [7.0, 21.5, 22.5] (interior total 3)
+seed 5: train 1.28e-02 test 1.69e-02 | dead1 3 dead2 4 | useful bp 3 at [0.6, 7.6, 19.3] (interior total 3)
+seed 6: train 9.90e-03 test 1.39e-02 | dead1 3 dead2 3 | useful bp 3 at [0.4, 1.2, 3.7] (interior total 3)
+seed 7: train 1.32e-02 test 1.43e-02 | dead1 2 dead2 4 | useful bp 2 at [0.0, 0.0] (interior total 2)
+seed 8: train 1.02e-02 test 2.14e-02 | dead1 5 dead2 1 | useful bp 3 at [0.2, 1.2, 1.9] (interior total 3)
+seed 9: train 5.27e-03 test 5.18e-03 | dead1 2 dead2 5 | useful bp 1 at [9.0] (interior total 1)
+median train 1.00e-02 best 7.76e-04 worst 1.32e-02 | median test 1.09e-02 | <= 0.001: 1/10 <= 0.0005: 0/10 <= 0.0003: 0/10 <= 0.0001: 0/10
+
+== R3: Glorot-uniform zero bias, lr 1e-3
+seed 0: train 4.88e-03 test 1.25e-02 | dead1 2 dead2 1 | useful bp 2 at [0.6, 0.9] (interior total 2)
+seed 1: train 2.97e-03 test 4.37e-03 | dead1 4 dead2 2 | useful bp 3 at [0.2, 9.2, 29.5] (interior total 3)
+seed 2: train 6.24e-03 test 8.23e-03 | dead1 5 dead2 1 | useful bp 4 at [0.2, 0.4, 1.4, 9.6] (interior total 4)
+seed 3: train 2.90e-03 test 3.91e-03 | dead1 2 dead2 3 | useful bp 4 at [0.4, 0.6, 7.2, 21.4] (interior total 4)
+seed 4: train 1.58e-03 test 3.89e-03 | dead1 4 dead2 2 | useful bp 3 at [0.2, 0.5, 8.9] (interior total 3)
+seed 5: train 7.33e-03 test 1.21e-02 | dead1 5 dead2 2 | useful bp 2 at [0.0, 16.3] (interior total 2)
+seed 6: train 1.31e-02 test 4.17e-02 | dead1 4 dead2 3 | useful bp 1 at [0.2] (interior total 1)
+seed 7: train 1.02e-02 test 2.84e-02 | dead1 4 dead2 3 | useful bp 1 at [1.1] (interior total 1)
+seed 8: train 6.54e-03 test 6.82e-03 | dead1 4 dead2 1 | useful bp 3 at [0.9, 1.0, 3.6] (interior total 3)
+seed 9: train 1.57e-03 test 3.98e-03 | dead1 3 dead2 0 | useful bp 4 at [0.8, 3.9, 9.7, 22.2] (interior total 4)
+median train 5.56e-03 best 1.57e-03 worst 1.31e-02 | median test 7.53e-03 | <= 0.001: 0/10 <= 0.0005: 0/10 <= 0.0003: 0/10 <= 0.0001: 0/10
+
+== R4: Glorot-uniform zero bias, lr 2e-3
+seed 0: train 2.68e-03 test 6.05e-03 | dead1 2 dead2 2 | useful bp 3 at [0.1, 0.4, 3.1] (interior total 3)
+seed 1: train 2.13e-03 test 2.66e-03 | dead1 4 dead2 2 | useful bp 3 at [0.0, 9.7, 28.4] (interior total 3)
+seed 2: train 3.72e-03 test 3.78e-03 | dead1 5 dead2 0 | useful bp 3 at [3.8, 9.6, 10.3] (interior total 3)
+seed 3: train 2.44e-03 test 4.26e-03 | dead1 2 dead2 4 | useful bp 3 at [0.7, 8.3, 20.2] (interior total 3)
+seed 4: train 1.22e-03 test 4.62e-03 | dead1 4 dead2 2 | useful bp 3 at [0.0, 0.5, 8.9] (interior total 3)
+seed 5: train 3.34e-03 test 6.45e-03 | dead1 5 dead2 2 | useful bp 1 at [11.5] (interior total 1)
+seed 6: train 9.32e-03 test 2.85e-02 | dead1 4 dead2 3 | useful bp 1 at [0.4] (interior total 1)
+seed 7: train 8.48e-03 test 2.70e-02 | dead1 4 dead2 3 | useful bp 1 at [0.8] (interior total 1)
+seed 8: train 2.07e-03 test 2.66e-03 | dead1 4 dead2 1 | useful bp 3 at [1.6, 1.9, 8.1] (interior total 3)
+seed 9: train 1.07e-03 test 5.49e-03 | dead1 3 dead2 0 | useful bp 3 at [0.7, 9.7, 18.7] (interior total 3)
+median train 2.56e-03 best 1.07e-03 worst 9.32e-03 | median test 5.06e-03 | <= 0.001: 0/10 <= 0.0005: 0/10 <= 0.0003: 0/10 <= 0.0001: 0/10
+
+== R5: PyTorch-default control, lr 2e-3
+seed 0: train 1.42e-03 test 2.37e-03 | dead1 3 dead2 2 | useful bp 3 at [0.4, 0.5, 10.7] (interior total 3)
+seed 1: train 1.52e-03 test 2.51e-03 | dead1 2 dead2 3 | useful bp 3 at [0.4, 9.7, 28.6] (interior total 3)
+seed 2: train 1.49e-03 test 2.24e-03 | dead1 1 dead2 2 | useful bp 6 at [0.0, 2.8, 8.9, 16.3, 29.2, 29.6] (interior total 6)
+seed 3: train 3.49e-03 test 3.69e-03 | dead1 5 dead2 5 | useful bp 2 at [8.0, 22.6] (interior total 2)
+seed 4: train 7.35e-04 test 1.47e-03 | dead1 4 dead2 3 | useful bp 5 at [0.1, 0.4, 1.0, 8.7, 20.5] (interior total 5)
+seed 5: train 3.38e-03 test 3.00e-03 | dead1 1 dead2 5 | useful bp 3 at [0.5, 7.7, 16.8] (interior total 3)
+seed 6: train 2.35e-03 test 4.10e-03 | dead1 3 dead2 2 | useful bp 7 at [0.2, 0.9, 1.5, 3.8, 6.0, 13.0, 13.1] (interior total 7)
+seed 7: train 1.26e-03 test 1.34e-03 | dead1 1 dead2 3 | useful bp 2 at [7.6, 13.7] (interior total 2)
+seed 8: train 2.46e-03 test 3.06e-03 | dead1 0 dead2 4 | useful bp 5 at [0.0, 0.1, 1.0, 4.0, 12.2] (interior total 5)
+seed 9: train 1.20e-03 test 2.22e-03 | dead1 2 dead2 2 | useful bp 5 at [0.6, 8.0, 18.3, 22.3, 29.7] (interior total 5)
+median train 1.50e-03 best 7.35e-04 worst 3.49e-03 | median test 2.44e-03 | <= 0.001: 1/10 <= 0.0005: 0/10 <= 0.0003: 0/10 <= 0.0001: 0/10
+
+Stage-4 B (most seeds <= 3e-4 at 2.5k, tie -> lower median): R5

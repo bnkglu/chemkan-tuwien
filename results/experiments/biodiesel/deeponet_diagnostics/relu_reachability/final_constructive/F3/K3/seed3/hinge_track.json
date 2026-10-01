@@ -1,0 +1,1022 @@
+[
+ {
+  "epoch": 0,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": 2.63228702545166,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 7.780294418334961,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 16.1272029876709,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 100,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": 2.010490655899048,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 7.150827407836914,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 16.250736236572266,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 200,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": 1.307412028312683,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.546327114105225,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 16.31265640258789,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 300,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": 0.8802968859672546,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.433316230773926,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 16.172882080078125,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 400,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": 0.4614838659763336,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.4257683753967285,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 16.065092086791992,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 500,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": 0.1752152293920517,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.451404094696045,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 16.007999420166016,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 600,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.011942584998905659,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.480471611022949,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.952949523925781,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 700,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.01529399212449789,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.465888500213623,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.89577865600586,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 800,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.014361796900629997,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.446597576141357,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.863401412963867,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 900,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.016827737912535667,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.427807807922363,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.837905883789062,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1000,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.017518766224384308,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.4207587242126465,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.82927417755127,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1100,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.021166909486055374,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.409310340881348,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.809557914733887,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1200,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.02388942427933216,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.405570030212402,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.804019927978516,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1300,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.02685670740902424,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.402942657470703,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.798177719116211,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1400,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.029621604830026627,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.4000349044799805,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.7957181930542,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1500,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.03302808478474617,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.3970723152160645,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.789798736572266,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1600,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.035889461636543274,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.396751403808594,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.783400535583496,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1700,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.03793466463685036,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.397514820098877,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.78305435180664,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1800,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.042395465075969696,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.395721912384033,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.786210060119629,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 1900,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.045013125985860825,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.393876552581787,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.779752731323242,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2000,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.04801151156425476,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.392512798309326,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.773673057556152,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2100,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.05180520936846733,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.395573616027832,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.776288986206055,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2200,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.054635435342788696,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.39617395401001,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.786700248718262,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2300,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.05576923117041588,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.394617557525635,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.776071548461914,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2400,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.059274982661008835,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.398860454559326,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.791976928710938,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2500,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.06176413595676422,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.388881683349609,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.766528129577637,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2600,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.06335084140300751,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.38987398147583,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.765277862548828,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2700,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.06602400541305542,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.392271995544434,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.770028114318848,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2800,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.06953291594982147,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.399039268493652,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.78000259399414,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 2900,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.07274419814348221,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.38646125793457,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.76258659362793,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3000,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.07477924227714539,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.387637615203857,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.762537002563477,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3100,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.07755006104707718,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.389072418212891,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.762555122375488,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3200,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.08064420521259308,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.389821529388428,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.760957717895508,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3300,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.08383402973413467,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.3884148597717285,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.760710716247559,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3400,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.08621823042631149,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.381103038787842,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.757838249206543,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3500,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.09136246144771576,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.398930549621582,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.77943229675293,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3600,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.09195023775100708,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.385210037231445,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.760071754455566,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3700,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.09524071961641312,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.387851238250732,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.75982666015625,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3800,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.09874442964792252,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.3903584480285645,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.781834602355957,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 3900,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.10143221169710159,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.391475677490234,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.77246379852295,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4000,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.10395966470241547,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.388271808624268,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.760527610778809,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4100,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.10644175112247467,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.386291027069092,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.755086898803711,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4200,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.110091932117939,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.384143829345703,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.754372596740723,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4300,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.1143164336681366,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.392166614532471,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.776147842407227,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4400,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.11623719334602356,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.385696887969971,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.75942325592041,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4500,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.11966319382190704,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.390324592590332,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.761300086975098,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4600,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.1216677725315094,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.393792152404785,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.76719856262207,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4700,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.12812457978725433,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.392568111419678,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.768416404724121,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4800,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.12908422946929932,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.386378765106201,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.757279396057129,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 4900,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.131220743060112,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.389338493347168,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.757725715637207,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 5000,
+  "hinges": [
+   {
+    "planted_s": 2.632287,
+    "now_s": -0.13738659024238586,
+    "fate": "left [0,30]: linear over domain"
+   },
+   {
+    "planted_s": 7.780294,
+    "now_s": 6.386646270751953,
+    "fate": "moves"
+   },
+   {
+    "planted_s": 16.127203,
+    "now_s": 15.770827293395996,
+    "fate": "stays near"
+   }
+  ]
+ }
+]

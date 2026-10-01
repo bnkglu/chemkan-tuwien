@@ -1,0 +1,92 @@
+{
+  "description": "OPTIMISTIC lower bound for a shared piecewise-linear temporal basis with K interior knots (per-series free coefficients); not a DeepONet result",
+  "data": "biodiesel_v2.npz, 0 % noise, author-global normalized, train_obs, 30 sampled times",
+  "basis": "[1, t, relu(t - k_i)]",
+  "metric": "mean MSE over time x trajectory x species",
+  "test_metric": "exploratory: per-test-series least squares on the train knots (optimistic)",
+  "fits": [
+    {
+      "K": 0,
+      "knots_s": [],
+      "train_mse": 0.0044478473138358865,
+      "test_mse_exploratory": 0.004044026683678331
+    },
+    {
+      "K": 1,
+      "knots_s": [
+        8.887418
+      ],
+      "train_mse": 0.0004885532255485016,
+      "test_mse_exploratory": 0.0004246428273325634
+    },
+    {
+      "K": 2,
+      "knots_s": [
+        4.728993,
+        13.811747
+      ],
+      "train_mse": 0.00010116619070291957,
+      "test_mse_exploratory": 8.667577820850455e-05
+    },
+    {
+      "K": 3,
+      "knots_s": [
+        2.632287,
+        7.780294,
+        16.127203
+      ],
+      "train_mse": 2.9727684145268562e-05,
+      "test_mse_exploratory": 2.5470058636103987e-05
+    },
+    {
+      "K": 4,
+      "knots_s": [
+        2.48996,
+        6.582368,
+        11.902268,
+        19.260518
+      ],
+      "train_mse": 1.1042133997250948e-05,
+      "test_mse_exploratory": 8.98416225537041e-06
+    },
+    {
+      "K": 5,
+      "knots_s": [
+        1.55936,
+        4.632866,
+        8.73473,
+        14.008613,
+        21.117295
+      ],
+      "train_mse": 4.0063724612841425e-06,
+      "test_mse_exploratory": 3.475421315079967e-06
+    },
+    {
+      "K": 6,
+      "knots_s": [
+        1.432708,
+        3.667479,
+        6.749474,
+        10.835788,
+        15.96974,
+        22.264048
+      ],
+      "train_mse": 1.7361628066486997e-06,
+      "test_mse_exploratory": 1.5376155167989785e-06
+    },
+    {
+      "K": 7,
+      "knots_s": [
+        1.433811,
+        3.662927,
+        6.610341,
+        9.869901,
+        13.829293,
+        18.129119,
+        23.394224
+      ],
+      "train_mse": 8.458596607122807e-07,
+      "test_mse_exploratory": 7.288317019950773e-07
+    }
+  ]
+}

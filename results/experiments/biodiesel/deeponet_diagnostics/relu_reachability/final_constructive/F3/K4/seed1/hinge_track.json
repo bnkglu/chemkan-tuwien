@@ -1,0 +1,1277 @@
+[
+ {
+  "epoch": 0,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.489959955215454,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.58236837387085,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 11.902267456054688,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 19.260515213012695,
+    "fate": "stays near"
+   }
+  ]
+ },
+ {
+  "epoch": 100,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3669676780700684,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.665539264678955,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.143861770629883,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.068330764770508,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 200,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.368471145629883,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.6390790939331055,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.0787992477417,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.123416900634766,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 300,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3668782711029053,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.611534595489502,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.073775291442871,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.159427642822266,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 400,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.365131139755249,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.584684371948242,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.080927848815918,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.17091941833496,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 500,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3633105754852295,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.561366081237793,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.08544921875,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.171215057373047,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 600,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3613295555114746,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.541814804077148,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.086994171142578,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.16632652282715,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 700,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.359273672103882,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.5257134437561035,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.08708381652832,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.159040451049805,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 800,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.356794595718384,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.512521266937256,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.087235450744629,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.151885986328125,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 900,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.354152202606201,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.501860618591309,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.087522506713867,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.145048141479492,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1000,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3512635231018066,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.493075370788574,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.08810043334961,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.139080047607422,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1100,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.348137140274048,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.485724925994873,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.088887214660645,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.13399314880371,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1200,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.344839096069336,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.479518413543701,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.089803695678711,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.129396438598633,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1300,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3411002159118652,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.47414493560791,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.090960502624512,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.125736236572266,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1400,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3374311923980713,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4692888259887695,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.091797828674316,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.122068405151367,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1500,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3364126682281494,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.506603717803955,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.156580924987793,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.117774963378906,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1600,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3253021240234375,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.489835262298584,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.097406387329102,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.127288818359375,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1700,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.322373390197754,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.471860885620117,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.091302871704102,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.118555068969727,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1800,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3137471675872803,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.501673221588135,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.117105484008789,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.137792587280273,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 1900,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3112711906433105,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.474905014038086,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.090080261230469,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.119386672973633,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2000,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.31135892868042,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4998860359191895,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.138379096984863,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.105398178100586,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2100,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.3002076148986816,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.474433422088623,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.089908599853516,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.120603561401367,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2200,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2917778491973877,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.461900234222412,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.095308303833008,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.116064071655273,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2300,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2877354621887207,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4794769287109375,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.092442512512207,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.128572463989258,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2400,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.285848379135132,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.453219413757324,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.079156875610352,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.107519149780273,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2500,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.284311056137085,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.478031635284424,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.14409065246582,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.13654327392578,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2600,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2729268074035645,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.459020614624023,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.081689834594727,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.111909866333008,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2700,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.270625352859497,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.436215877532959,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.072249412536621,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.095962524414062,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2800,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2588069438934326,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.458841323852539,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.101414680480957,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.123699188232422,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 2900,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.258923292160034,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4320573806762695,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.070516586303711,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.09375762939453,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3000,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2480578422546387,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.462626934051514,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.117721557617188,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.08768653869629,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3100,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.245465040206909,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.434507369995117,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.06873893737793,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.092660903930664,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3200,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2429351806640625,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.413450717926025,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.059979438781738,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.07699966430664,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3300,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.230072498321533,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.442288875579834,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.092845916748047,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.107154846191406,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3400,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.229828357696533,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4123921394348145,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.056984901428223,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.07354736328125,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3500,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.222093105316162,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4019246101379395,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.060218811035156,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.069429397583008,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3600,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2163026332855225,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.412746906280518,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.059493064880371,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.078125,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3700,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.215899705886841,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.392317771911621,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.048433303833008,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.055919647216797,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3800,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2071588039398193,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.4138360023498535,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.068174362182617,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.07757568359375,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 3900,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.2063448429107666,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.392782688140869,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.050559997558594,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.050251007080078,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4000,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.1942496299743652,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.424520969390869,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.086105346679688,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.0953426361084,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4100,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.195251226425171,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.398240566253662,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.050528526306152,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.04752540588379,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4200,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.195453643798828,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.380943775177002,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.041505813598633,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.034059524536133,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4300,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.1840267181396484,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.403095245361328,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.05611515045166,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.053546905517578,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4400,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.1826817989349365,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.385293006896973,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.043530464172363,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.029512405395508,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4500,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.170320749282837,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.41744327545166,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.07231330871582,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.067289352416992,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4600,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.1703250408172607,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.391020774841309,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.040149688720703,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.024778366088867,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4700,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.1734466552734375,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.370463848114014,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.024802207946777,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.010520935058594,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4800,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.15922212600708,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.390283584594727,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.041440963745117,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.02249526977539,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 4900,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.171769857406616,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.406404495239258,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.060325622558594,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 19.958131790161133,
+    "fate": "moves"
+   }
+  ]
+ },
+ {
+  "epoch": 5000,
+  "hinges": [
+   {
+    "planted_s": 2.48996,
+    "now_s": 2.1474812030792236,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 6.582368,
+    "now_s": 6.391178131103516,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 11.902268,
+    "now_s": 12.033771514892578,
+    "fate": "stays near"
+   },
+   {
+    "planted_s": 19.260518,
+    "now_s": 20.01399803161621,
+    "fate": "moves"
+   }
+  ]
+ }
+]
