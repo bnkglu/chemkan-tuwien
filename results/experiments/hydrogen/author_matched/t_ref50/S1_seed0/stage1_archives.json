@@ -1,0 +1,62 @@
+[
+  {
+    "file": "archive/stage1_S1_seed0_epoch1000.pt",
+    "epoch": 1000,
+    "sha256": "287ade43d9fc2d71b220c2c2dc8997d3de34ace9dd8d2e5e75974200cc77ed5b",
+    "created": "2026-10-01T05:39:13Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch2000.pt",
+    "epoch": 2000,
+    "sha256": "daa61ac36c47c40f081f544e106eb8ee27334c15f68bdaea51b6dede0dbf36aa",
+    "created": "2026-10-01T05:39:32Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch3000.pt",
+    "epoch": 3000,
+    "sha256": "9fcd8f57e746bdca950c3cb53f8509164ed1e97d17f4115b56ad866180a98c29",
+    "created": "2026-10-01T05:40:05Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch4000.pt",
+    "epoch": 4000,
+    "sha256": "611866c722c9cc5cd7bdc811949be7a7ced38b17c43d57363164e4d462c17db2",
+    "created": "2026-10-01T05:40:47Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch5000.pt",
+    "epoch": 5000,
+    "sha256": "8dd135583d67d17c1472beaf2ba8afb015bfb7083d28943882d020913e7a8b5c",
+    "created": "2026-10-01T05:42:17Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch6000.pt",
+    "epoch": 6000,
+    "sha256": "ba76241ad84ede7107f2260d16614c2d2cd418a14966b0f80df4795dff67b389",
+    "created": "2026-10-01T05:44:59Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch7000.pt",
+    "epoch": 7000,
+    "sha256": "525a4e5a7a562cc55f70cc8964972b3291b936e82a546ae36f5984f383655a70",
+    "created": "2026-10-01T05:48:21Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch8000.pt",
+    "epoch": 8000,
+    "sha256": "5f405101bb9c64fa16c63f59fdf7c11aa713000275cb0b27e3dac19dc51335c5",
+    "created": "2026-10-01T05:51:12Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch9000.pt",
+    "epoch": 9000,
+    "sha256": "e30fe25ca7abc51e8b9a1ba13efde053f3752611c0bd9810eff745dd40142cf4",
+    "created": "2026-10-01T05:54:04Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch10000.pt",
+    "epoch": 10000,
+    "sha256": "c5648b468496b2581a89a2f0eeb91eabb0bc5fff6fb3b2772f48d2ee06a3e57d",
+    "created": "2026-10-01T05:57:00Z"
+  }
+]

@@ -1,0 +1,313 @@
+{
+ "stage": 1,
+ "run_id": "S1_seed0",
+ "epochs_completed": 100000,
+ "definitions": {
+  "eq18_mse": "mean over states, sum over the 100 observation times",
+  "ignition_delay": "t[argmax(gradient(T, t))] on the dense diagnostic grid, reference from the dense Cantera cache (evaluate_hydrogen_ignition definitions)",
+  "stage1_temperature": "observed input, so no temperature metrics"
+ },
+ "diagnostic_grid_points": 601,
+ "summary": {
+  "n_conditions": 36,
+  "eq18_mse_median": {
+   "train": 0.8356205821037292,
+   "test": 0.6025497913360596
+  },
+  "n_integration_failed": 0
+ },
+ "conditions": [
+  {
+   "T0_K": 950.0,
+   "phi": 0.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.3387640714645386,
+   "mse_time_avg": 0.0033876407146453858
+  },
+  {
+   "T0_K": 950.0,
+   "phi": 0.7,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.3072507977485657,
+   "mse_time_avg": 0.0030725079774856566
+  },
+  {
+   "T0_K": 950.0,
+   "phi": 0.9,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.2404949963092804,
+   "mse_time_avg": 0.002404949963092804
+  },
+  {
+   "T0_K": 950.0,
+   "phi": 1.1,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.20665837824344635,
+   "mse_time_avg": 0.0020665837824344634
+  },
+  {
+   "T0_K": 950.0,
+   "phi": 1.3,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.20818287134170532,
+   "mse_time_avg": 0.0020818287134170533
+  },
+  {
+   "T0_K": 950.0,
+   "phi": 1.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.21975070238113403,
+   "mse_time_avg": 0.0021975070238113405
+  },
+  {
+   "T0_K": 1000.0,
+   "phi": 0.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 2.07731556892395,
+   "mse_time_avg": 0.0207731556892395
+  },
+  {
+   "T0_K": 1000.0,
+   "phi": 0.7,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 1.927642822265625,
+   "mse_time_avg": 0.01927642822265625
+  },
+  {
+   "T0_K": 1000.0,
+   "phi": 0.9,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 1.9827992916107178,
+   "mse_time_avg": 0.01982799291610718
+  },
+  {
+   "T0_K": 1000.0,
+   "phi": 1.1,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 2.1617178916931152,
+   "mse_time_avg": 0.021617178916931153
+  },
+  {
+   "T0_K": 1000.0,
+   "phi": 1.3,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 2.37683367729187,
+   "mse_time_avg": 0.023768336772918702
+  },
+  {
+   "T0_K": 1000.0,
+   "phi": 1.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 2.6274750232696533,
+   "mse_time_avg": 0.02627475023269653
+  },
+  {
+   "T0_K": 1050.0,
+   "phi": 0.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 1.2558772563934326,
+   "mse_time_avg": 0.012558772563934326
+  },
+  {
+   "T0_K": 1050.0,
+   "phi": 0.7,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.9889663457870483,
+   "mse_time_avg": 0.009889663457870483
+  },
+  {
+   "T0_K": 1050.0,
+   "phi": 0.9,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.9904241561889648,
+   "mse_time_avg": 0.009904241561889649
+  },
+  {
+   "T0_K": 1050.0,
+   "phi": 1.1,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 1.0886353254318237,
+   "mse_time_avg": 0.010886353254318238
+  },
+  {
+   "T0_K": 1050.0,
+   "phi": 1.3,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 1.1242152452468872,
+   "mse_time_avg": 0.011242152452468871
+  },
+  {
+   "T0_K": 1050.0,
+   "phi": 1.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 1.3056049346923828,
+   "mse_time_avg": 0.013056049346923828
+  },
+  {
+   "T0_K": 1100.0,
+   "phi": 0.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.9196730852127075,
+   "mse_time_avg": 0.009196730852127076
+  },
+  {
+   "T0_K": 1100.0,
+   "phi": 0.7,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7160852551460266,
+   "mse_time_avg": 0.007160852551460266
+  },
+  {
+   "T0_K": 1100.0,
+   "phi": 0.9,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7647125124931335,
+   "mse_time_avg": 0.0076471251249313355
+  },
+  {
+   "T0_K": 1100.0,
+   "phi": 1.1,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.8016564846038818,
+   "mse_time_avg": 0.00801656484603882
+  },
+  {
+   "T0_K": 1100.0,
+   "phi": 1.3,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7922053933143616,
+   "mse_time_avg": 0.007922053933143616
+  },
+  {
+   "T0_K": 1100.0,
+   "phi": 1.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.884759247303009,
+   "mse_time_avg": 0.00884759247303009
+  },
+  {
+   "T0_K": 1150.0,
+   "phi": 0.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7452743649482727,
+   "mse_time_avg": 0.007452743649482727
+  },
+  {
+   "T0_K": 1150.0,
+   "phi": 0.7,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7069775462150574,
+   "mse_time_avg": 0.007069775462150573
+  },
+  {
+   "T0_K": 1150.0,
+   "phi": 0.9,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.8254110217094421,
+   "mse_time_avg": 0.00825411021709442
+  },
+  {
+   "T0_K": 1150.0,
+   "phi": 1.1,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.6974947452545166,
+   "mse_time_avg": 0.006974947452545166
+  },
+  {
+   "T0_K": 1150.0,
+   "phi": 1.3,
+   "split": "test",
+   "finite": true,
+   "eq18_mse": 0.6025497913360596,
+   "mse_time_avg": 0.006025497913360596
+  },
+  {
+   "T0_K": 1150.0,
+   "phi": 1.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.900847852230072,
+   "mse_time_avg": 0.00900847852230072
+  },
+  {
+   "T0_K": 1200.0,
+   "phi": 0.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7524158358573914,
+   "mse_time_avg": 0.007524158358573913
+  },
+  {
+   "T0_K": 1200.0,
+   "phi": 0.7,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.8356205821037292,
+   "mse_time_avg": 0.008356205821037292
+  },
+  {
+   "T0_K": 1200.0,
+   "phi": 0.9,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.9065259695053101,
+   "mse_time_avg": 0.009065259695053101
+  },
+  {
+   "T0_K": 1200.0,
+   "phi": 1.1,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.7196482419967651,
+   "mse_time_avg": 0.0071964824199676515
+  },
+  {
+   "T0_K": 1200.0,
+   "phi": 1.3,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.6478230953216553,
+   "mse_time_avg": 0.006478230953216552
+  },
+  {
+   "T0_K": 1200.0,
+   "phi": 1.5,
+   "split": "train",
+   "finite": true,
+   "eq18_mse": 0.837104082107544,
+   "mse_time_avg": 0.00837104082107544
+  }
+ ],
+ "checkpoint": {
+  "path": "results/experiments/hydrogen/author_matched/main/S1_seed0/stage1_final.pt",
+  "sha256": "e39ab34145bd22c54fd495a94d87567e1a7b4a5adc0faddebe9186da39434094"
+ }
+}

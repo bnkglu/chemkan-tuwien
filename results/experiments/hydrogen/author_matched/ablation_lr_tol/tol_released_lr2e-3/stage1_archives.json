@@ -1,0 +1,62 @@
+[
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch1000.pt",
+    "epoch": 1000,
+    "sha256": "627b7556fc2e88d01c7c3e1910d89aaf196b37a34ac91b18e438a7321b614d2f",
+    "created": "2026-10-01T05:21:53Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch2000.pt",
+    "epoch": 2000,
+    "sha256": "b0534f3bea3cde586e579d5fcf9105789bba400964a1f1c610386dc41972d122",
+    "created": "2026-10-01T05:23:27Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch3000.pt",
+    "epoch": 3000,
+    "sha256": "bb19a8fd6af4aad859d9214a90c54f172569460f3a8ad9f49fbc0eba73951248",
+    "created": "2026-10-01T05:25:01Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch4000.pt",
+    "epoch": 4000,
+    "sha256": "9e616ef23cc779b7667110a8db6e1687d489b6c4e8575fca2a5b549c85865b86",
+    "created": "2026-10-01T05:26:43Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch5000.pt",
+    "epoch": 5000,
+    "sha256": "afb56117fbd6a80d13aed6b95f601559ad5bbf47e4a501ca049ad934c6bf57c3",
+    "created": "2026-10-01T05:28:32Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch6000.pt",
+    "epoch": 6000,
+    "sha256": "059d8d46c974a8aaf33eb67253e2a6ed38385db5ab5f25d08adc1e4938b3d8b5",
+    "created": "2026-10-01T05:30:21Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch7000.pt",
+    "epoch": 7000,
+    "sha256": "247a0ae336628937c147985ca7549ed90ef0c32dc82462ac35146ded5932bc86",
+    "created": "2026-10-01T05:32:08Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch8000.pt",
+    "epoch": 8000,
+    "sha256": "ddf6e7f6c2c3873e245fcce121c2a255f26702c45ac4a5fa8731b3314112840b",
+    "created": "2026-10-01T05:33:54Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch9000.pt",
+    "epoch": 9000,
+    "sha256": "feadad59ecc28b42a0946d76e8f6aa367f2d6bc8990700c9447dca40002f5bb2",
+    "created": "2026-10-01T05:35:57Z"
+  },
+  {
+    "file": "archive/stage1_tol_released_lr2e-3_epoch10000.pt",
+    "epoch": 10000,
+    "sha256": "56166edf221676d6e9a4410b1c3c6c7dd40fd8428398588209fe09470d1733c9",
+    "created": "2026-10-01T05:37:44Z"
+  }
+]
