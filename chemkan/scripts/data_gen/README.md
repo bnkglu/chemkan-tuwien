@@ -117,7 +117,8 @@ uses the NumPy 1.x ABI.
 | `biodiesel_legacy.npz` *(legacy runs; formerly `biodiesel.npz`)* | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
 | `hydrogen.npz` | 35 train + 1 test | `(cases, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
 | `hydrogen_fine.npz` *(optional)* | 35 train + 406 test | `(441, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
-| `methane.npz` *(optional)* | 35 train + 1 test | `(cases, 1001, 53)` | `species_then_temperature` |
+| `methane.npz` *(optional)* | 35 train + 1 test | `(cases, 100, 53)` | `species_then_temperature` |
+| `methane_temperature_20000.npz` *(optional)* | 35 train + 1 test | `(20000, cases, 1)` | `temperature_only` |
 
 For hydrogen the last axis is `10 = 9 species + temperature`; the default
 `n_points=50` follows ChemNODE-style saved trajectories, and `--n-points 601`
@@ -290,7 +291,14 @@ Methane is optional and is not part of the original ChemKAN reproduction. It is 
 ```bash
 cd extensions
 python generate_methane.py --out ../../../data/generated/methane.npz
+python generate_methane.py --temperature-only --n-points 20000 \
+    --out ../../../data/generated/methane_temperature_20000.npz
 ```
+
+As for hydrogen, `methane.npz` has 100 time points (50 µs spacing over 5 ms) and is the
+training/test data; `methane_temperature_20000.npz` is the dense temperature-only trajectory
+(0.25 µs spacing) for the Stage-1 temperature interpolant. Even the fastest case's main
+temperature rise (10–90 %, ~219 µs) spans about 4 of the 100 grid points.
 
 Notes:
 

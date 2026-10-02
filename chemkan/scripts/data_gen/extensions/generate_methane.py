@@ -33,7 +33,12 @@ Notes:
 
 Usage
 -----
-    python generate_methane.py --out ../../../data/generated/methane.npz
+    python generate_methane.py --out ../../../data/generated/methane.npz      # 100 points
+    python generate_methane.py --temperature-only --n-points 20000 \
+        --out ../../../data/generated/methane_temperature_20000.npz            # Stage-1 T(t)
+
+As for hydrogen, the training data use 100 time points, and a separate dense
+temperature-only file (20,000 points) feeds the Stage-1 temperature interpolant.
 """
 
 from __future__ import annotations
@@ -148,6 +153,49 @@ def generate(cfg) -> dict:
     }
 
 
+def generate_temperature_only(cfg) -> dict:
+    """Dense TEMPERATURE-ONLY cache for the Stage-1 ObservedTemperature provider -- the
+    methane counterpart of ``generate_hydrogen.py --temperature-only``: same mechanism,
+    fuel, oxidizer, pressure, tolerances, IC grid, held-out condition and the SAME
+    initial-condition ORDERING as ``generate()``; only the temperature column is kept."""
+    names, keep = species_index(cfg.mech, DROP)
+    t = np.linspace(0.0, cfg.t_end, cfg.n_points)
+    T0s = np.array(cfg.T0s) if cfg.T0s else np.array(T0_GRID)
+    phis = np.array(cfg.phis) if cfg.phis else np.array(PHI_GRID)
+
+    ics, temps = [], []
+    for T0 in T0s:                                     # identical order to generate()
+        for phi in phis:
+            states = integrate_case(cfg.mech, FUEL, OXIDIZER, T0, phi, t,
+                                    cfg.pressure, keep, cfg.rtol, cfg.atol)
+            temps.append(states[:, -1])
+            ics.append((T0, phi))
+    temps, ics = np.stack(temps), np.array(ics)
+    is_test = np.all(np.isclose(ics, np.array(TEST_IC)), axis=1)
+    if not is_test.any():
+        raise ValueError(f"held-out IC {TEST_IC} not on this grid")
+    train_T = temps[~is_test].T[:, :, None]            # (N, 35, 1), time-major
+    test_T = temps[is_test].T[:, :, None]              # (N,  1, 1)
+    print(f"  temperature-only: {len(temps)} cases | "
+          f"{train_T.shape[1]} train / {test_T.shape[1]} test | {cfg.n_points} points")
+    print(f"  T range: {temps.min():.0f}-{temps.max():.0f} K")
+    return {
+        "t": t, "train_T": train_T, "test_T": test_T,
+        "train_ics": ics[~is_test], "test_ics": ics[is_test],
+        "n_points": np.array(cfg.n_points), "t_end": np.array(cfg.t_end),
+        "mechanism": np.array(cfg.mech), "pressure": np.array(cfg.pressure),
+        "rtol": np.array(cfg.rtol), "atol": np.array(cfg.atol),
+        "species": np.array(names), "state_layout": np.array("temperature_only"),
+        "metadata": np.array(metadata(
+            system="methane-temperature-only (optional extension)",
+            generator="extensions/generate_methane.py --temperature-only",
+            seed=cfg.seed, mechanism=cfg.mech, species=names, n_points=cfg.n_points,
+            t_end_s=cfg.t_end, pressure_pa=cfg.pressure,
+            purpose="dense Stage-1 ObservedTemperature provider (species not saved)",
+        )),
+    }
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -155,7 +203,9 @@ def main():
     p.add_argument("--seed", type=int, default=0, help="unused; recorded for provenance")
     p.add_argument("--mech", default="gri30.yaml")
     p.add_argument("--t-end", type=float, default=5e-3, help="seconds")
-    p.add_argument("--n-points", type=int, default=1001, help="uniform samples => 5 us")
+    p.add_argument("--n-points", type=int, default=100,
+                   help="uniform samples over [0, t_end]; default 100 (50 us) as for hydrogen; "
+                        "use 20000 with --temperature-only")
     p.add_argument("--ignition-points", type=int, default=601,
                    help="dense grid used only for ignition-delay diagnostics; "
                         "saved states still use --n-points")
@@ -164,7 +214,20 @@ def main():
     p.add_argument("--pressure", type=float, default=ct.one_atm)
     p.add_argument("--rtol", type=float, default=1e-9)
     p.add_argument("--atol", type=float, default=1e-15)
+    p.add_argument("--temperature-only", action="store_true",
+                   help="save ONLY the dense temperature trajectory for the Stage-1 "
+                        "ObservedTemperature provider; use with --n-points 20000 and a "
+                        "distinct --out (e.g. methane_temperature_20000.npz)")
     cfg = p.parse_args()
+
+    if cfg.temperature_only:
+        if cfg.out.name == "methane.npz":
+            raise SystemExit("refusing to overwrite methane.npz in --temperature-only mode; "
+                             "pass a distinct --out (e.g. methane_temperature_20000.npz)")
+        print(f"Methane-air TEMPERATURE-ONLY cache: {cfg.n_points} points over "
+              f"{cfg.t_end * 1e3:.2f} ms at {cfg.pressure / ct.one_atm:.2f} atm")
+        save(cfg.out, **generate_temperature_only(cfg))
+        return
 
     print(f"Methane-air [optional extension]: {cfg.n_points} points over "
           f"{cfg.t_end * 1e3:.2f} ms at {cfg.pressure / ct.one_atm:.2f} atm")
