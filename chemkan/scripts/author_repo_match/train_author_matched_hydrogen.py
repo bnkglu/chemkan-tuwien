@@ -95,7 +95,7 @@ _HYDROGEN_DEFAULTS = (N_SPECIES, N_PARAMS, list(SPECIES_NAMES), list(THERMO_COLU
 
 def configure_system(name: str) -> None:
     """Select the chemical system. ``hydrogen`` (default) keeps every constant above.
-    ``methane`` (optional extension, not in the paper): methane.npz / methane_temperature_20000.npz
+    ``methane`` (the project proposal's extension, not in the paper): methane.npz / methane_temperature_20000.npz
     (GRI-Mech 3.0, 52 species), the element table from Cantera, the same architecture settings
     and loss; the parameter count follows from the 52-species width."""
     global SYSTEM, N_SPECIES, N_PARAMS, SPECIES_NAMES, THERMO_COLUMNS, T_REF_DEFAULT
@@ -338,7 +338,7 @@ def base_config(args, problem: dict) -> dict:
                                                "their norm"},
         "provenance": PROVENANCE,
         **_overrides(args),
-        **({"system": {"name": SYSTEM, "note": "optional extension, not in the paper; "
+        **({"system": {"name": SYSTEM, "note": "project proposal extension, not in the paper; "
                        "element table from Cantera " + _mechanism_name()}}
            if SYSTEM != "hydrogen" else {}),
         **({"compile": "torch.compile on the ODE right-hand side (not bit-identical to eager)"}
@@ -702,8 +702,8 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--seed", type=int, default=0,
                        help="stage1: kinetic Glorot draw; stage2: KAN_cor Glorot draw")
         p.add_argument("--system", choices=SYSTEMS, default="hydrogen",
-                       help="hydrogen (default, the paper's case) or methane (optional "
-                            "extension: methane.npz, GRI-Mech 3.0, 52 species)")
+                       help="hydrogen (default, the paper's case) or methane (the project "
+                            "proposal's extension: methane.npz, GRI-Mech 3.0, 52 species)")
         p.add_argument("--t-ref", type=float, default=None,
                        help="RHS divisor in seconds (default: the system's time window, "
                             "6e-4 s for hydrogen, 5e-3 s for methane)")

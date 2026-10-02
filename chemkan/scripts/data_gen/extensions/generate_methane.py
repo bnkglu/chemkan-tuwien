@@ -1,8 +1,8 @@
 """
-Methane-air oxidation -- trajectory generator (Cantera). OPTIONAL EXTENSION.
+Methane-air oxidation -- trajectory generator (Cantera). EXTENSION (project proposal).
 
-Methane is optional and is not part of the original ChemKAN reproduction. It is
-included as a possible harder extension dataset using the same style of 0-D
+Methane is not part of the original ChemKAN reproduction; it is the extension
+required by the project proposal: a harder extension dataset using the same style of 0-D
 constant-pressure reactor generation. The setup mirrors the hydrogen generator
 where possible, but methane is a larger and different chemical system, not a
 controlled one-variable comparison. It does not run as part of generate_all.py;
@@ -138,7 +138,7 @@ def generate(cfg) -> dict:
         "peak_temperature_rate": rate_ign,  # K/s, neutral diagnostic
         "pressure": np.array(cfg.pressure),
         "metadata": np.array(metadata(
-            system="methane (optional extension)",
+            system="methane (extension, project proposal)",
             generator="extensions/generate_methane.py",
             seed=cfg.seed,
             mechanism=cfg.mech,
@@ -187,7 +187,7 @@ def generate_temperature_only(cfg) -> dict:
         "rtol": np.array(cfg.rtol), "atol": np.array(cfg.atol),
         "species": np.array(names), "state_layout": np.array("temperature_only"),
         "metadata": np.array(metadata(
-            system="methane-temperature-only (optional extension)",
+            system="methane-temperature-only (extension, project proposal)",
             generator="extensions/generate_methane.py --temperature-only",
             seed=cfg.seed, mechanism=cfg.mech, species=names, n_points=cfg.n_points,
             t_end_s=cfg.t_end, pressure_pa=cfg.pressure,
@@ -229,7 +229,7 @@ def main():
         save(cfg.out, **generate_temperature_only(cfg))
         return
 
-    print(f"Methane-air [optional extension]: {cfg.n_points} points over "
+    print(f"Methane-air [extension, project proposal]: {cfg.n_points} points over "
           f"{cfg.t_end * 1e3:.2f} ms at {cfg.pressure / ct.one_atm:.2f} atm")
     save(cfg.out, **generate(cfg))
 

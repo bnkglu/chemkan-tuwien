@@ -3,8 +3,8 @@ Regenerate the ChemKAN reproduction datasets from scratch.
 
 By default this runs only the two reproduction datasets (biodiesel and
 hydrogen). The hydrogen fine-grid generalization set (hydrogen_fine.npz) is
-optional; pass --include-fine to also generate it. Methane is an optional
-extension and is not part of the original ChemKAN reproduction, so it is not
+optional; pass --include-fine to also generate it. Methane is the project
+proposal's extension and is not part of the original ChemKAN reproduction, so it is not
 run here -- generate it separately with
 `python extensions/generate_methane.py` if needed.
 

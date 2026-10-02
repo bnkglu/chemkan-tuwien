@@ -2,7 +2,7 @@
 Small shared utilities for the ChemKAN reproduction data generators.
 
 This module holds only the little pieces that the biodiesel and hydrogen
-generators (and the optional methane extension) genuinely repeat: the RNG
+generators (and the methane extension) genuinely repeat: the RNG
 entry point, min/max normalization, the noise helper, a couple of diagnostics,
 and .npz I/O. It is intentionally not a framework.
 

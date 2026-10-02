@@ -4,8 +4,8 @@ Scripts that generate the ground-truth trajectories for reproducing the ChemKAN
 paper (Koenig, Kim & Deng, 2025). They integrate the reference kinetic models,
 run some sanity checks, and save each system as a compressed `.npz`.
 
-**Biodiesel and hydrogen are the reproduction datasets. Methane is an optional
-extension** (see the end of this file). Every `.npz` is regenerated from source; the
+**Biodiesel and hydrogen are the reproduction datasets. Methane is the extension
+required by the project proposal** (see the end of this file). Every `.npz` is regenerated from source; the
 biodiesel datasets `biodiesel_legacy.npz` (legacy runs) / `biodiesel_v2.npz` (current), `hydrogen.npz` and the production
 `hydrogen_temperature_20000.npz` cache are tracked in Git (small, and needed to reproduce
 reported results), while diagnostic dense caches (50k/100k/200k) and any other `.npz`
@@ -21,7 +21,7 @@ stay untracked. See the root `.gitignore` negation rules.
 | `generate_hydrogen.py` | hydrogen–air combustion trajectories |
 | `generate_all.py` | runs the biodiesel + hydrogen generators |
 | `verify_data.py` | sanity checks on a generated `.npz` |
-| `extensions/generate_methane.py` | optional methane extension (not run by default) |
+| `extensions/generate_methane.py` | methane extension from the project proposal (not run by default) |
 | `data_generation_walkthrough.ipynb` | notebook that traces each step with intermediate outputs and plots |
 
 ## Quickstart
@@ -117,8 +117,8 @@ uses the NumPy 1.x ABI.
 | `biodiesel_legacy.npz` *(legacy runs; formerly `biodiesel.npz`)* | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
 | `hydrogen.npz` | 35 train + 1 test | `(cases, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
 | `hydrogen_fine.npz` *(optional)* | 35 train + 406 test | `(441, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
-| `methane.npz` *(optional)* | 35 train + 1 test | `(cases, 100, 53)` | `species_then_temperature` |
-| `methane_temperature_20000.npz` *(optional)* | 35 train + 1 test | `(20000, cases, 1)` | `temperature_only` |
+| `methane.npz` *(extension)* | 35 train + 1 test | `(cases, 100, 53)` | `species_then_temperature` |
+| `methane_temperature_20000.npz` *(extension)* | 35 train + 1 test | `(20000, cases, 1)` | `temperature_only` |
 
 For hydrogen the last axis is `10 = 9 species + temperature`; the default
 `n_points=50` follows ChemNODE-style saved trajectories, and `--n-points 601`
@@ -284,9 +284,9 @@ ambiguous, the choice is labelled below in plain wording.
 - **Mechanism and reactor — directly from ChemKAN plus related-paper support.**
   - The H2/O2 mechanism with 9 species and 29 reactions is directly from ChemKAN. The constant-pressure 1 atm reactor setup follows ChemNODE, which ChemKAN says it closely follows. The `c_p` temperature equation in ChemKAN is consistent with this constant-pressure setup.
 
-## Optional methane extension
+## Methane extension (project proposal)
 
-Methane is optional and is not part of the original ChemKAN reproduction. It is included as an extension dataset using the same style of 0-D constant-pressure reactor generation. The setup mirrors the hydrogen generator where possible, but methane is a larger and different chemical system, not a controlled one-variable comparison.
+Methane is not in the ChemKAN paper; it is the extension required by the project proposal. It is an extension dataset using the same style of 0-D constant-pressure reactor generation. The setup mirrors the hydrogen generator where possible, but methane is a larger and different chemical system, not a controlled one-variable comparison.
 
 ```bash
 cd extensions
