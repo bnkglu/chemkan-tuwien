@@ -399,3 +399,33 @@ def test_evaluator_refuses_other_dataset(tmp_path):
     ref = {**_reference(problem), "dataset_sha256": "different"}
     with pytest.raises(SystemExit, match="sha256"):
         ev.evaluate(torch.load(s1["archive"], weights_only=False), ref)
+
+
+def test_methane_system_tables_and_restore():
+    """--system methane: 52 species, Cantera element table (CH4 = 1 C + 4 H), t_ref 5e-3;
+    switching back restores every hydrogen constant."""
+    pytest.importorskip("cantera")
+    try:
+        amh.configure_system("methane")
+        assert amh.N_SPECIES == 52 and amh.T_REF_DEFAULT == 5e-3
+        import cantera as ct
+        gas = ct.Solution("gri30.yaml")
+        elements = [e for e in gas.element_names
+                    if any(gas.n_atoms(sp, e) for sp in amh.SPECIES_NAMES)]   # trainer's order
+        assert elements == ["O", "H", "C", "N"]
+        col = dict(zip(elements, amh.ELEMENT_COUNTS[:, amh.SPECIES_NAMES.index("CH4")].tolist()))
+        assert col == {"C": 1.0, "H": 4.0, "O": 0.0, "N": 0.0}
+        assert amh.build_model() is not None                 # parameter count consistent
+        problem = amh.load_problem(torch.float32)
+        assert problem["u_hat"].shape == (100, 35, 53)
+    finally:
+        amh.configure_system("hydrogen")
+    assert amh.N_SPECIES == 9 and amh.N_PARAMS == 344 and amh.T_REF_DEFAULT == 6e-4
+    assert amh.ELEMENT_COUNTS.shape == (3, 9)
+
+
+def test_compile_flag_is_hydrogen_only():
+    with pytest.raises(SystemExit):
+        amh.main(["stage1", "--run-dir", "unused", "--system", "methane", "--compile"])
+    args = amh.build_parser().parse_args(["stage1", "--run-dir", "x", "--compile"])
+    assert args.compile and args.system == "hydrogen" and args.t_ref is None

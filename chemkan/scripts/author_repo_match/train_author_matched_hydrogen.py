@@ -84,6 +84,47 @@ KINETIC_COLUMNS = ["kin_out_max_raw", "kin_out_max_scaled"]      # all phases
 SPECIES_NAMES = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "N2"]
 THERMO_COLUMNS = [f"w_{s}" for s in SPECIES_NAMES] + ["w_norm"]   # warm-up and Stage 2
 MAX_COMBINED = {"kin_out_max_raw", "kin_out_max_scaled"}          # max, not sum, over units
+SYSTEM = "hydrogen"           # set by configure_system(); hydrogen is the paper's case
+SYSTEMS = ("hydrogen", "methane")
+METHANE_T_REF = 5e-3          # methane time window [s] (same rule as hydrogen's 6e-4 s)
+
+
+_HYDROGEN_DEFAULTS = (N_SPECIES, N_PARAMS, list(SPECIES_NAMES), list(THERMO_COLUMNS),
+                      T_REF_DEFAULT, ELEMENT_COUNTS, ATOMIC_WEIGHTS, MOLAR_WEIGHTS)
+
+
+def configure_system(name: str) -> None:
+    """Select the chemical system. ``hydrogen`` (default) keeps every constant above.
+    ``methane`` (optional extension, not in the paper): methane.npz / methane_temperature_20000.npz
+    (GRI-Mech 3.0, 52 species), the element table from Cantera, the same architecture settings
+    and loss; the parameter count follows from the 52-species width."""
+    global SYSTEM, N_SPECIES, N_PARAMS, SPECIES_NAMES, THERMO_COLUMNS, T_REF_DEFAULT
+    global ELEMENT_COUNTS, ATOMIC_WEIGHTS, MOLAR_WEIGHTS
+    if name not in SYSTEMS:
+        raise ValueError(f"unknown system {name!r}")
+    SYSTEM = name
+    if name == "hydrogen":
+        (N_SPECIES, N_PARAMS, SPECIES_NAMES, THERMO_COLUMNS, T_REF_DEFAULT, ELEMENT_COUNTS,
+         ATOMIC_WEIGHTS, MOLAR_WEIGHTS) = _HYDROGEN_DEFAULTS
+        return
+    import numpy as np
+    import cantera as ct
+    d = np.load(DATA_DIR / "methane.npz")
+    SPECIES_NAMES = [str(x) for x in d["species"]]
+    N_SPECIES = len(SPECIES_NAMES)
+    gas = ct.Solution(str(d["mechanism"]))
+    elements = [e for e in gas.element_names
+                if any(gas.n_atoms(sp, e) for sp in SPECIES_NAMES)]
+    ELEMENT_COUNTS = torch.tensor([[gas.n_atoms(sp, e) for sp in SPECIES_NAMES]
+                                   for e in elements], dtype=torch.float32)
+    ATOMIC_WEIGHTS = torch.tensor([gas.atomic_weight(e) for e in elements], dtype=torch.float32)
+    MOLAR_WEIGHTS = torch.tensor([gas.molecular_weights[gas.species_index(sp)]
+                                  for sp in SPECIES_NAMES], dtype=torch.float32)
+    THERMO_COLUMNS = [f"w_{sp}" for sp in SPECIES_NAMES] + ["w_norm"]
+    T_REF_DEFAULT = METHANE_T_REF
+    N_PARAMS = sum(p.numel() for p in ChemKAN(species_dim=N_SPECIES, hidden_dim=HIDDEN,
+                                              num_basis=NUM_BASIS, n_mu=N_MU,
+                                              use_base_act=False).parameters())
 
 PROVENANCE = {
     "released_biodiesel_code": [
@@ -175,22 +216,49 @@ class Stage2Dynamics(nn.Module):
 
 # --------------------------------------------------------------------------- data / loss
 
+def _load_methane() -> tuple[dict, dict]:
+    """methane.npz (train split) and its dense temperature, in the hydrogen loaders' layout,
+    with the same consistency checks (time range, initial-condition order, batch size)."""
+    import numpy as np
+    d = np.load(DATA_DIR / "methane.npz")
+    dn = np.load(DATA_DIR / f"methane_temperature_{DENSE_T_POINTS}.npz")
+    full = torch.as_tensor(np.transpose(d["train_states"], (1, 0, 2)), dtype=torch.float32)
+    data = {"t": torch.as_tensor(d["t"], dtype=torch.float32), "full_TBm1": full,
+            "u_min": torch.as_tensor(d["u_min"], dtype=torch.float32),
+            "u_max": torch.as_tensor(d["u_max"], dtype=torch.float32),
+            "species": [str(x) for x in d["species"]]}
+    t_dense = torch.as_tensor(dn["t"], dtype=torch.float32)
+    T_dense = torch.as_tensor(dn["train_T"], dtype=torch.float32)
+    if not (np.isclose(dn["t"][0], d["t"][0]) and np.isclose(dn["t"][-1], d["t"][-1])):
+        raise ValueError("methane dense temperature: time range differs from methane.npz")
+    if not np.allclose(dn["train_ics"], d["train_ics"]) or T_dense.shape[1] != full.shape[1]:
+        raise ValueError("methane dense temperature: initial conditions differ from methane.npz")
+    if not torch.all(t_dense[1:] > t_dense[:-1]) or not torch.isfinite(T_dense).all():
+        raise ValueError("methane dense temperature: bad time grid or non-finite values")
+    return data, {"t_dense": t_dense, "T_dense_TB1": T_dense}
+
+
 def load_problem(dtype: torch.dtype) -> dict:
-    """Training split of ``hydrogen.npz`` + the dense Stage-1 temperature, normalized."""
-    data = load_hydrogen(split="train")
-    assert_species_order(data["species"])
-    dense = load_hydrogen_temperature(split="train", n_points=DENSE_T_POINTS)
+    """Training split of ``<system>.npz`` + the dense Stage-1 temperature, normalized."""
+    if SYSTEM == "hydrogen":
+        data = load_hydrogen(split="train")
+        assert_species_order(data["species"])
+        dense = load_hydrogen_temperature(split="train", n_points=DENSE_T_POINTS)
+    else:
+        data, dense = _load_methane()
+        if data["species"] != SPECIES_NAMES:
+            raise ValueError("methane species order differs from the configured element table")
     norm = MinMaxNormalizer(data["u_min"].to(dtype), data["u_max"].to(dtype))
     m = N_SPECIES
-    t_path = DATA_DIR / f"hydrogen_temperature_{DENSE_T_POINTS}.npz"
+    t_path = DATA_DIR / f"{SYSTEM}_temperature_{DENSE_T_POINTS}.npz"
     return {
         "t": data["t"].to(dtype),
         "u_hat": norm.normalize(data["full_TBm1"].to(dtype)),                 # (T, B, m+1)
         "t_dense": dense["t_dense"].to(dtype),
         "T_dense_hat": norm.subset(slice(m, m + 1)).normalize(dense["T_dense_TB1"].to(dtype)),
         "norm": norm,
-        "dataset": {"path": "chemkan/data/generated/hydrogen.npz", "split": "train",
-                    "sha256": checkpoint_sha256(DATA_DIR / "hydrogen.npz"),
+        "dataset": {"path": f"chemkan/data/generated/{SYSTEM}.npz", "split": "train",
+                    "sha256": checkpoint_sha256(DATA_DIR / f"{SYSTEM}.npz"),
                     "n_points": int(data["t"].shape[0]),
                     "n_conditions": int(data["full_TBm1"].shape[1])},
         "dense_temperature": {"path": f"chemkan/data/generated/{t_path.name}",
@@ -233,16 +301,16 @@ def make_loss_fn(target_hat: torch.Tensor, norm: MinMaxNormalizer, kinetic_probe
 def base_config(args, problem: dict) -> dict:
     norm = problem["norm"]
     return {
-        "experiment": "hydrogen/author_matched",
+        "experiment": f"{SYSTEM}/author_matched",
         "seed": args.seed, "dtype": args.dtype, "sensitivity": args.sensitivity,
         "dataset": problem["dataset"], "dense_temperature": problem["dense_temperature"],
-        "normalization": {"method": "min-max, training-set statistics from hydrogen.npz",
+        "normalization": {"method": f"min-max, training-set statistics from {SYSTEM}.npz",
                           "columns": problem["species"] + ["T"],
                           "u_min": [float(v) for v in norm.u_min],
                           "u_max": [float(v) for v in norm.u_max]},
-        "state_space": {"stage1": "normalized species Y_hat (9); T_hat from the dense "
+        "state_space": {"stage1": f"normalized species Y_hat ({N_SPECIES}); T_hat from the dense "
                                   "observed interpolant, normalized with the same statistics",
-                        "stage2": "normalized species and temperature u_hat (10)"},
+                        "stage2": f"normalized species and temperature u_hat ({N_SPECIES + 1})"},
         "t_ref": {"value_s": args.t_ref,
                   "rule": "du_hat/dt = RHS / t_ref, applied once to the complete RHS"},
         "architecture": {"hidden_dim": HIDDEN, "num_basis": NUM_BASIS, "n_mu": N_MU,
@@ -266,12 +334,30 @@ def base_config(args, problem: dict) -> dict:
                                       "Eq. 18 mean over trajectories"},
         "history_extra": {"all_phases": "max |KAN_kin| over batch/species at the observation "
                                         "points, raw and after 1/t_ref",
-                          "warmup_and_stage2": "the 9 thermo.linear weights and their norm"},
+                          "warmup_and_stage2": f"the {N_SPECIES} thermo.linear weights and "
+                                               "their norm"},
         "provenance": PROVENANCE,
         **_overrides(args),
+        **({"system": {"name": SYSTEM, "note": "optional extension, not in the paper; "
+                       "element table from Cantera " + _mechanism_name()}}
+           if SYSTEM != "hydrogen" else {}),
+        **({"compile": "torch.compile on the ODE right-hand side (not bit-identical to eager)"}
+           if getattr(args, "compile", False) else {}),
         "git_commit": git_commit(), "created": utc_now(),
         "python": platform.python_version(), "torch": torch.__version__,
     }
+
+
+def _mechanism_name() -> str:
+    import numpy as np
+    return str(np.load(DATA_DIR / f"{SYSTEM}.npz")["mechanism"])
+
+
+def _maybe_compile(units: list, args) -> list:
+    """torch.compile the ODE right-hand side of every unit (hydrogen only)."""
+    if not getattr(args, "compile", False):
+        return units
+    return [(torch.compile(func), y0, loss_fn) for func, y0, loss_fn in units]
 
 
 def _overrides(args) -> dict:
@@ -442,7 +528,7 @@ def run_stage1(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         start, prior = 0, 0.0
     _write_json(run_dir / "config.json", cfg)
 
-    units = stage1_units(model, problem, args.t_ref, args.solve_mode)
+    units = _maybe_compile(stage1_units(model, problem, args.t_ref, args.solve_mode), args)
 
     def save(path, epoch, elapsed):
         _atomic_torch_save({"stage": 1, "run_id": run_id, "config": cfg,
@@ -530,7 +616,7 @@ def run_stage2(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         phase, done, warm_done, prior, opt_state = "warmup", 0, 0, 0.0, None
     _write_json(run_dir / "config.json", cfg)
 
-    units = stage2_units(model, problem, args.t_ref, args.solve_mode)
+    units = _maybe_compile(stage2_units(model, problem, args.t_ref, args.solve_mode), args)
     columns = HISTORY_COLUMNS + KINETIC_COLUMNS + THERMO_COLUMNS
     solver = _solver(args.sensitivity, args.rtol, args.atol)
     frozen = list(model.kinetic.parameters()) + list(model.thermo.correction.parameters())
@@ -615,9 +701,15 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--epochs", type=int, default=100000)
         p.add_argument("--seed", type=int, default=0,
                        help="stage1: kinetic Glorot draw; stage2: KAN_cor Glorot draw")
-        p.add_argument("--t-ref", type=float, default=T_REF_DEFAULT,
-                       help="RHS divisor in seconds (default: the 6e-4 s window; 50 and 1 "
-                            "are selectable)")
+        p.add_argument("--system", choices=SYSTEMS, default="hydrogen",
+                       help="hydrogen (default, the paper's case) or methane (optional "
+                            "extension: methane.npz, GRI-Mech 3.0, 52 species)")
+        p.add_argument("--t-ref", type=float, default=None,
+                       help="RHS divisor in seconds (default: the system's time window, "
+                            "6e-4 s for hydrogen, 5e-3 s for methane)")
+        p.add_argument("--compile", action="store_true",
+                       help="torch.compile the ODE right-hand side (hydrogen only; ~1.8x faster "
+                            "per epoch in our test, not bit-identical to eager)")
         p.add_argument("--sensitivity", choices=["direct_autograd", "fsa"],
                        default="direct_autograd")
         p.add_argument("--dtype", choices=["float32", "float64"], default="float32")
@@ -650,6 +742,11 @@ def main(argv=None) -> int:
     if args.archive_every and (
             not args.checkpoint_every or args.archive_every % args.checkpoint_every):
         raise SystemExit("--archive-every must be a multiple of --checkpoint-every")
+    if args.compile and args.system != "hydrogen":
+        raise SystemExit("--compile is only enabled for hydrogen")
+    configure_system(args.system)
+    if args.t_ref is None:
+        args.t_ref = T_REF_DEFAULT
     torch.set_default_dtype(getattr(torch, args.dtype))
     if args.threads:
         torch.set_num_threads(args.threads)
