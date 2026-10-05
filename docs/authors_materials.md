@@ -217,6 +217,14 @@ Conventions:
   Eq. 18 as written (summed over time) = 30 × this.
 - **Converged**: the final checkpoint (after the last Adam step), as the paper's
   "after 10⁴ epochs"; not a late-window median.
+- **Evaluation solver**: training uses the released-code tolerances (Tsit5, rtol 1e-2,
+  atol 1e-6); final checkpoints (Fig. 3 / 6 trajectories, Fig. 4 / 5A losses, the table
+  below) are evaluated at rtol 1e-10, atol 1e-12 (`author_runs.EVAL_RTOL` / `EVAL_ATOL`).
+  The released example evaluates and plots with its training solve (`predict_n_ode`,
+  reltol 1e-2, abstol 1e-6, `AutoTsit5(Rosenbrock23)`, 30 output times), including the
+  saved Fig. 3 curve `soln_curr` for `u0_list[24, :]` = TG 1.941, ROH 1.433, T 334.75 K,
+  the paper's Fig. 3 condition. How the paper's figures were evaluated is not stated.
+  Sweep: `results/experiments/biodiesel/tolerance_sweep_diagnostic/REPORT.md`.
 - **Fig. 4 fits**: log-log least squares, excluding the last ChemKAN point and the last
   two DeepONet points (Sec. III A 2); order = −slope.
 
@@ -225,14 +233,17 @@ Conventions:
 Only numbers stated in the paper's text (`chemkan/scripts/figures/author_paper_table.py`).
 One seed per run, so there is no spread; read every ratio as a single-run value.
 
+ChemKAN rows: ours at rtol 1e-10 (converged evaluation) / at rtol 1e-2 (the training
+solver, as the released example evaluates).
+
 | quantity | paper (section) | ours |
 |---|---|---|
-| ChemKAN scaling order, train / test | 1.0 / 0.6 (III A 2) | 1.51 / 0.464 (R² 0.91 / 0.56, 4 points) |
-| ChemKAN error at the smallest size (78 parameters) | ~1e-4 (III A 2) | train 5.28e-4, test 8.87e-4 |
-| DeepONet train below ChemKAN above ~200 parameters | yes (III A 2) | no: DeepONet 249-456: 4.2e-4 to 5.2e-3; ChemKAN 351, 429: 4.6e-5, 3.3e-5 |
-| ChemKAN train increase, 0 → 1 % noise | 3.78e-5 (III A 3) | 4.73e-5 (noise floor 4.46e-5; Eq. 18: 1.42e-3) |
-| ChemKAN train increase, 0 → 5 % noise | 9.45e-4 expected, 9.64e-4 observed (III A 3) | 1.04e-3 (noise floor 1.08e-3; Eq. 18: 3.12e-2) |
-| ChemKAN noise-free test, 15 % / 0 % | ~2× (III A 3) | 1.82× |
+| ChemKAN scaling order, train / test | 1.0 / 0.6 (III A 2) | 1.49 / 0.372 (R² 0.88 / 0.56, 4 points); rtol 1e-2: 1.51 / 0.464 (R² 0.91 / 0.56) |
+| ChemKAN error at the smallest size (78 parameters) | ~1e-4 (III A 2) | train 4.79e-4, test 7.68e-4; rtol 1e-2: 5.28e-4, 8.87e-4 |
+| DeepONet train below ChemKAN above ~200 parameters | yes (III A 2) | no: DeepONet 249-456: 4.2e-4 to 5.2e-3; ChemKAN 351, 429: 4.1e-5, 2.16e-5 (rtol 1e-2: 4.6e-5, 3.3e-5) |
+| ChemKAN train increase, 0 → 1 % noise | 3.78e-5 (III A 3) | 4.19e-5 (noise floor 4.46e-5; Eq. 18: 1.26e-3); rtol 1e-2: 4.73e-5 |
+| ChemKAN train increase, 0 → 5 % noise | 9.45e-4 expected, 9.64e-4 observed (III A 3) | 1.05e-3 (noise floor 1.08e-3; Eq. 18: 3.14e-2); rtol 1e-2: 1.04e-3 |
+| ChemKAN noise-free test, 15 % / 0 % | ~2× (III A 3) | 1.84×; rtol 1e-2: 1.82× |
 | DeepONet noise-free test, 15 % / 0 % | ~5× (III A 3) | 0.75× |
 | noise-free test at 15 %, DeepONet / ChemKAN | 4.4× (III A 3) | 7.67× |
 
@@ -246,11 +257,17 @@ increase a model that fits the clean trajectories exactly would show.
   paper's 0 → 1 % and 0 → 5 % training-loss increases agree with it: they match our
   time-averaged values and the noise floor, and are 30× below the time-summed Eq. 18 values.
 - **ChemKAN** follows the noise floor (training loss rises by about the noise it cannot
-  fit). In this single run its noise-free test loss at 15 % is 1.82× the 0 % value,
-  close to the paper's ~2×. Its scaling orders differ from the paper's (1.51 / 0.46 vs 1.0 / 0.6), from
+  fit). In this single run its noise-free test loss at 15 % is 1.84× the 0 % value,
+  close to the paper's ~2×. Its scaling orders differ from the paper's (1.49 / 0.37 vs 1.0 / 0.6), from
   four points of one seed.
+- **Evaluation tolerance.** At the training tolerance (rtol 1e-2) the final-checkpoint
+  predictions are not solver-converged; they are from rtol 1e-6 on. The effect is largest
+  for the 10 % model on the Fig. 3 condition: time-averaged noise-free MSE 2.56e-3 at
+  rtol 1e-2 vs 1.54e-4 converged, with bends in ROH, GL and RCO2R near t = 10-15 that
+  disappear at rtol ≤ 1e-4 (15 %: 6.95e-4 vs 3.44e-4). Same checkpoints, single seed.
 - **Final checkpoint vs last logged epoch.** For ChemKAN the last Adam step (lr 1e-2)
-  changes the loss by ~10 % (0 % noise-free test: 2.87e-4 logged vs 3.15e-4 final), so
+  changes the loss by ~10 % (0 % noise-free test: 2.87e-4 logged vs 3.17e-4 final;
+  3.15e-4 at rtol 1e-2), so
   single-epoch ratios are sensitive to the step at which they are read.
 - **DeepONet does not reproduce.** The 308 model plateaus near 5e-3 at every noise level,
   and its Fig. 6 predictions are straight lines in time. Cause (verified on the trained
