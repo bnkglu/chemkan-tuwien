@@ -1,0 +1,13 @@
+2026-10-02 02:05:18,260 stage1 epoch 1  loss 6.8685e+00  mse 6.8685e+00  pinn 4.7330e-02  (1 s)
+2026-10-02 02:06:21,150 stage1 epoch 100  loss 5.2919e+00  mse 5.2916e+00  pinn 2.8164e+00  (64 s)
+2026-10-02 02:08:22,798 stage1 epoch 200  loss 1.7254e+00  mse 1.7252e+00  pinn 1.7615e+00  (186 s)
+2026-10-02 02:12:17,727 stage1 epoch 300  loss 1.0769e+00  mse 1.0768e+00  pinn 1.0551e+00  (421 s)
+2026-10-02 02:16:49,277 stage1 epoch 400  loss 8.9586e-01  mse 8.9576e-01  pinn 1.0073e+00  (692 s)
+2026-10-02 02:21:45,753 stage1 epoch 500  loss 7.7901e-01  mse 7.7891e-01  pinn 1.0687e+00  (989 s)
+2026-10-02 02:21:45,764 stage 1 archive stage1_S1_seed0_epoch500.pt  sha256 79c1b09f87c1a019cdb700fa518039c865708518e1950c035082ef9dda6affa0
+2026-10-02 02:26:58,884 stage1 epoch 600  loss 6.9434e-01  mse 6.9423e-01  pinn 1.0527e+00  (1302 s)
+2026-10-02 02:32:27,861 stage1 epoch 700  loss 6.2200e-01  mse 6.2190e-01  pinn 1.0005e+00  (1631 s)
+2026-10-02 02:38:18,567 stage1 epoch 800  loss 5.5883e-01  mse 5.5874e-01  pinn 9.4950e-01  (1982 s)
+2026-10-02 02:44:31,953 stage1 epoch 900  loss 5.5666e-01  mse 5.5658e-01  pinn 7.8408e-01  (2355 s)
+2026-10-02 02:50:53,901 stage1 epoch 1000  loss 4.8179e-01  mse 4.8172e-01  pinn 7.7595e-01  (2737 s)
+2026-10-02 02:50:53,921 stage 1 archive stage1_S1_seed0_epoch1000.pt  sha256 a47d4f4c5ce23e4b86a367589e8f600be926d0f797d61bef51cbba0e32d1848a

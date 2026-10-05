@@ -1,0 +1,32 @@
+[
+  {
+    "file": "archive/stage1_S1_seed0_epoch5000.pt",
+    "epoch": 5000,
+    "sha256": "6428f31e859a9066b70e539bef70695dc1a8b983ad34902fe5a5942d01fb5bbe",
+    "created": "2026-10-02T16:27:36Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch10000.pt",
+    "epoch": 10000,
+    "sha256": "fc2a87e258b15a6c623371cd69529b906cb58547a4a9a39558782b22aadd06f0",
+    "created": "2026-10-03T01:46:22Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch15000.pt",
+    "epoch": 15000,
+    "sha256": "55e0285c7386a470b580d930ad447723917fc77d147a7bfdad0ee9d57c3154b5",
+    "created": "2026-10-03T12:33:24Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch20000.pt",
+    "epoch": 20000,
+    "sha256": "85b4e775e17fccd1fe114b929ff6e9964c750d0ec7caed9b1e2e5d9765faa88c",
+    "created": "2026-10-04T18:41:09Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch25000.pt",
+    "epoch": 25000,
+    "sha256": "584272828c1dc37d4ef0217754b4c0edb9f9793cba4a00ffeba70ba126f1c748",
+    "created": "2026-10-05T12:10:33Z"
+  }
+]

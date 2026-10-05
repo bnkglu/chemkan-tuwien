@@ -1,0 +1,14 @@
+[
+  {
+    "file": "archive/stage1_S1_seed0_epoch500.pt",
+    "epoch": 500,
+    "sha256": "79c1b09f87c1a019cdb700fa518039c865708518e1950c035082ef9dda6affa0",
+    "created": "2026-10-02T02:21:45Z"
+  },
+  {
+    "file": "archive/stage1_S1_seed0_epoch1000.pt",
+    "epoch": 1000,
+    "sha256": "a47d4f4c5ce23e4b86a367589e8f600be926d0f797d61bef51cbba0e32d1848a",
+    "created": "2026-10-02T02:50:53Z"
+  }
+]

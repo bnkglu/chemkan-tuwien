@@ -1,0 +1,12 @@
+2026-10-02 02:51:05,775 stage2 epoch 1  loss 7.6345e+00  mse 7.6343e+00  pinn 2.1942e+00  (1 s)
+2026-10-02 02:51:53,886 stage2 epoch 100  loss 1.8068e+00  mse 1.8067e+00  pinn 1.2539e+00  (49 s)
+2026-10-02 02:52:42,343 stage2 epoch 200  loss 1.6080e+00  mse 1.6079e+00  pinn 1.2571e+00  (97 s)
+2026-10-02 02:53:46,400 stage2 epoch 300  loss 7.0072e-01  mse 7.0061e-01  pinn 1.1025e+00  (161 s)
+2026-10-02 02:55:18,279 stage2 epoch 400  loss 5.5374e-01  mse 5.5367e-01  pinn 7.7231e-01  (253 s)
+2026-10-02 02:56:52,740 stage2 epoch 500  loss 5.0882e-01  mse 5.0874e-01  pinn 8.3612e-01  (348 s)
+2026-10-02 02:56:52,751 stage 2 archive stage2_S2_seed0_epoch500.pt  sha256 73ffb95bd0b1b007a3ff148f97b664ecc8d5a216a79235aaecae35f1231fb180
+2026-10-02 02:58:25,236 stage2 epoch 600  loss 4.9460e-01  mse 4.9453e-01  pinn 7.8385e-01  (440 s)
+2026-10-02 02:59:59,665 stage2 epoch 700  loss 4.6916e-01  mse 4.6908e-01  pinn 8.1717e-01  (535 s)
+2026-10-02 03:01:36,833 stage2 epoch 800  loss 4.5534e-01  mse 4.5526e-01  pinn 8.1946e-01  (632 s)
+2026-10-02 03:03:12,500 stage2 epoch 900  loss 5.6750e-01  mse 5.6743e-01  pinn 6.9940e-01  (728 s)
+2026-10-02 03:04:48,836 stage2 epoch 1000  loss 4.7120e-01  mse 4.7112e-01  pinn 7.7427e-01  (824 s)
