@@ -1,0 +1,16 @@
+{
+  "rtol": 1e-06,
+  "atol": 1e-10,
+  "fig03_clean_loss_mean_per_level": {
+    "0": 8.13436128925442e-05,
+    "5": 6.947503880429879e-05,
+    "10": 0.00015369948656294107,
+    "15": 0.0003440771759609845
+  },
+  "fig06_mse": {
+    "chemkan": 0.0003440771759609845,
+    "deeponet": 0.0007317482119144949
+  },
+  "official_plots_and_checkpoints_unchanged": true,
+  "watched_files": 12
+}

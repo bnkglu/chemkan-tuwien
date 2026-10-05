@@ -1,0 +1,58 @@
+{
+  "0": {
+    "stored_tolerance": [
+      0.01,
+      1e-06
+    ],
+    "rhs_divisor": 50.0,
+    "fig3_route_max_abs_diff": 0.0,
+    "param_sha_before": "e83046d37fd37600a81f9d57530a1bdbae6bfd9e7267ff72b469be62649ed236",
+    "param_sha_after": "e83046d37fd37600a81f9d57530a1bdbae6bfd9e7267ff72b469be62649ed236",
+    "checkpoint_sha_before": "61d571786229200898598a6dac9b82f19a21e83f8097d1a753e4a29db9ac699e",
+    "checkpoint_sha_after": "61d571786229200898598a6dac9b82f19a21e83f8097d1a753e4a29db9ac699e",
+    "unchanged": true,
+    "checkpoint": "results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise00_seed0/checkpoint_final.pt"
+  },
+  "5": {
+    "stored_tolerance": [
+      0.01,
+      1e-06
+    ],
+    "rhs_divisor": 50.0,
+    "fig3_route_max_abs_diff": 0.0,
+    "param_sha_before": "3f4152507f5c5d7ec76232133d2d58ffdb12711b1d3f8e88c8aa4804000b830d",
+    "param_sha_after": "3f4152507f5c5d7ec76232133d2d58ffdb12711b1d3f8e88c8aa4804000b830d",
+    "checkpoint_sha_before": "d4ad0595db1591f75298ac11721ae88986c8fb3cc2b1559dd2bcbf4f957b0307",
+    "checkpoint_sha_after": "d4ad0595db1591f75298ac11721ae88986c8fb3cc2b1559dd2bcbf4f957b0307",
+    "unchanged": true,
+    "checkpoint": "results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise05_seed0/checkpoint_final.pt"
+  },
+  "10": {
+    "stored_tolerance": [
+      0.01,
+      1e-06
+    ],
+    "rhs_divisor": 50.0,
+    "fig3_route_max_abs_diff": 0.0,
+    "param_sha_before": "1ad1fbfe3417d95665bf2ec888ee2d0e9de1423d67c4f7fd08be420395a32d37",
+    "param_sha_after": "1ad1fbfe3417d95665bf2ec888ee2d0e9de1423d67c4f7fd08be420395a32d37",
+    "checkpoint_sha_before": "869ca714387d01150f416b2e48ef30a9a9370b056264ef95f536ef1f40a3e9eb",
+    "checkpoint_sha_after": "869ca714387d01150f416b2e48ef30a9a9370b056264ef95f536ef1f40a3e9eb",
+    "unchanged": true,
+    "checkpoint": "results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise10_seed0/checkpoint_final.pt"
+  },
+  "15": {
+    "stored_tolerance": [
+      0.01,
+      1e-06
+    ],
+    "rhs_divisor": 50.0,
+    "fig3_route_max_abs_diff": 0.0,
+    "param_sha_before": "144c55f73039112882edde5dce60194711f95c3a60c27846d16d22a242356fb2",
+    "param_sha_after": "144c55f73039112882edde5dce60194711f95c3a60c27846d16d22a242356fb2",
+    "checkpoint_sha_before": "2f22119954e7f40d9a32791ef3dd87aa14558432038c3ed1f7c7fb53ea6f7329",
+    "checkpoint_sha_after": "2f22119954e7f40d9a32791ef3dd87aa14558432038c3ed1f7c7fb53ea6f7329",
+    "unchanged": true,
+    "checkpoint": "results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise15_seed0/checkpoint_final.pt"
+  }
+}
