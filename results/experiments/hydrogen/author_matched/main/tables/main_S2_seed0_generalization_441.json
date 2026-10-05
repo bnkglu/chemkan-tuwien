@@ -1,0 +1,44 @@
+{
+  "run_id": "S2_seed0",
+  "checkpoint": "results/experiments/hydrogen/author_matched/main/S2_seed0/stage2_final.pt",
+  "checkpoint_sha256": "28fac80048466b79b2e7860d0514fd30e84a091d74886d9edd90fa6d21dc3963",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 5,
+    "n_mu": 3,
+    "use_base_act": false,
+    "parameter_count": 344,
+    "rbf": "exp(-((x-c)/h)^2), c = linspace(-1, 1, 5), h = 0.5 (library gaussian with h = 0.5/sqrt(2))",
+    "input_tanh": {
+      "kinetic_layer1": false,
+      "kinetic_layer2": true,
+      "correction": false
+    }
+  },
+  "grid": "hydrogen_fine",
+  "observation_times": 100,
+  "grid_provenance": "RECONSTRUCTED 21x21: T0=linspace(950,1200,21), phi=linspace(0.5,1.5,21); count and spacing inferred from the paper's 441-condition figure, not tabulated there",
+  "conditions": 441,
+  "training": 35,
+  "held_out": 1,
+  "additional": 405,
+  "evaluated_ok": 441,
+  "failed": 0,
+  "integration_batching": "single batch of 441",
+  "mse_min": 0.025987833738327026,
+  "mse_median": 0.116017647087574,
+  "mse_max": 3.773068904876709,
+  "mse_time_avg": 0.003175181560260571,
+  "mse_time_avg_min": 0.00025987833738327025,
+  "mse_time_avg_median": 0.00116017647087574,
+  "mse_time_avg_max": 0.03773068904876709,
+  "metric_convention": "normalized trajectory MSE (Eq. 18): mean over modeled state variables (full [Y, T] state), summed over observation times, using the canonical train-only min-max normalization; reported PER CONDITION (never averaged before plotting). trajectory_mse_time_avg = that value / the number of observation times.",
+  "normalization": "canonical hydrogen.npz train-only min-max (not refit on the grid)",
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "wall_time_s": 3.495,
+  "evaluated_at": "2026-10-03T14:47:56Z"
+}
