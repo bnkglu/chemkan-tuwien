@@ -45,6 +45,12 @@ DATA_SHA256 = "c79afbfbbee863f50704985aaf658931d8e989f8086d528f97dfd6d680ca7b31"
 N_T = 30
 CONVENTION = "time-averaged MSE (released-code Flux.mse; Eq. 18 = 30 x this)"
 CONVENTION_SHORT = "time-averaged MSE (Eq. 18 / 30)"          # axis labels and titles
+# ChemKAN final checkpoints are evaluated (trajectories and losses) with this converged
+# solver, not the training one (rtol 1e-2, atol 1e-6): at rtol 1e-2 the 10 % / 15 % Fig. 3
+# predictions carry integration error (tolerance_sweep_diagnostic/REPORT.md). It is the
+# trainer's final "tight_solver_rtol1e-10" evaluation stored in each metrics.json.
+EVAL_RTOL, EVAL_ATOL = 1e-10, 1e-12
+EVAL_SOLVER_NOTE = f"ChemKAN evaluated at rtol {EVAL_RTOL:g}, atol {EVAL_ATOL:g}"
 
 
 def plan(variant: str | None = None) -> list[dict]:
@@ -225,7 +231,7 @@ def fig3_case(noise_percents=(0, 5, 10, 15), n_dense: int = 301) -> dict:
 
 def chemkan_predict(run: dict, y0, T: float, times) -> np.ndarray:
     """Physical species (len(times), 6) from a ChemKAN figure run, integrated with its own
-    training solver and normalization."""
+    normalization and method at the evaluation tolerance EVAL_RTOL / EVAL_ATOL."""
     import torch
     _paths()
     from _author_match import NormalizedDynamics, build_core, rhs_divisor_from_config
@@ -238,7 +244,7 @@ def chemkan_predict(run: dict, y0, T: float, times) -> np.ndarray:
     y_min, y_max = np.array(src["species_min"]), np.array(src["species_max"])
     z0 = np.concatenate([(np.asarray(y0) - y_min) / (y_max - y_min),
                          [(T - src["T_min"]) / (src["T_max"] - src["T_min"])]])
-    solver = SolverConfig(method=sol["method"], rtol=sol["rtol"], atol=sol["atol"],
+    solver = SolverConfig(method=sol["method"], rtol=EVAL_RTOL, atol=EVAL_ATOL,
                           sensitivity="direct_autograd")
     with torch.no_grad():
         dyn = NormalizedDynamics(core, rhs_divisor_from_config(cfg))
@@ -286,7 +292,8 @@ def deeponet_predict(run: dict, y0, T: float, times) -> np.ndarray:
 def final_losses(run: dict) -> dict:
     """Train / noise-free test loss of the FINAL checkpoint (time-averaged), Fig. 4.
 
-    ChemKAN: metrics.json, evaluated after the last update with the training solver.
+    ChemKAN: metrics.json, the trainer's evaluation after the last update with the tight
+    solver (rtol 1e-10, atol 1e-12 = EVAL_RTOL / EVAL_ATOL).
     DeepONet: the checkpoint evaluated on biodiesel_v2.npz (its history has no test loss).
     """
     if str(run.get("variant", "")).startswith("tanh"):
@@ -294,7 +301,7 @@ def final_losses(run: dict) -> dict:
         return {"train": f["train_mse_fig"], "test_clean": f["test_clean_mse_fig"]}
     if run["model"] == "chemkan":
         fp = json.loads((run["dir"] / "metrics.json").read_text())["final_parameters"]
-        v = fp["training_solver_rtol1e-2"]
+        v = fp["tight_solver_rtol1e-10"]
         return {"train": v["train_mse"], "test_clean": v["val_mse"]}
     _paths()
     from evaluate_biodiesel_deeponet import evaluate
@@ -310,7 +317,7 @@ def converged(run: dict) -> dict:
     test and noise-free test. At 0 % noise the noisy test set equals the noise-free one.
 
     ChemKAN: train and noise-free test from metrics.json (the trainer's final evaluation:
-    training solver, one solve per trajectory); the noisy test is computed here the same
+    tight solver, one solve per trajectory); the noisy test is computed here the same
     way, since metrics.json does not store it. DeepONet: the checkpoint evaluated on
     biodiesel_v2.npz at the run's noise level.
     """
@@ -335,7 +342,7 @@ def converged(run: dict) -> dict:
 
 def _chemkan_final_noisy_test(run: dict, percent: int) -> float:
     """Noisy-test loss of a ChemKAN final checkpoint, exactly as the trainer's final
-    evaluation (its data loader, training solver, one solve per trajectory, julia_mse)."""
+    evaluation (its data loader, tight solver, one solve per trajectory, julia_mse)."""
     import torch
     _paths()
     from _author_match import NormalizedDynamics, build_core, julia_mse, rhs_divisor_from_config
@@ -347,7 +354,7 @@ def _chemkan_final_noisy_test(run: dict, percent: int) -> float:
                                     weights_only=False)["model_state"])
     data = load_canonical_data(torch.device("cpu"), DATA, percent)
     sol = cfg["solver"]
-    solver = SolverConfig(method=sol["method"], rtol=sol["rtol"], atol=sol["atol"],
+    solver = SolverConfig(method=sol["method"], rtol=EVAL_RTOL, atol=EVAL_ATOL,
                           sensitivity="direct_autograd")
     with torch.no_grad():
         dyn = NormalizedDynamics(core, rhs_divisor_from_config(cfg))

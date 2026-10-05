@@ -295,7 +295,8 @@ def make_author_figure(output_path=None, *, show=False):
     import author_runs as ar
     condition, results = author_trajectory_data()
     fig = plot_figure(condition, results,
-                      f"\nbiodiesel_v2 runs (test row 24); loss: {ar.CONVENTION_SHORT}")
+                      f"\nbiodiesel_v2 runs (test row 24); loss: {ar.CONVENTION_SHORT}; "
+                      f"{ar.EVAL_SOLVER_NOTE}")
     # plot_figure prints 3 decimals; time-averaged per-species losses need exponents.
     for col, pct in enumerate(NOISE_LEVELS):
         r = results["levels"][pct]

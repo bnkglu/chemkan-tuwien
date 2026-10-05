@@ -216,7 +216,7 @@ def make_author_figure(output_path=None, *, data=None, show=False):
                         f"ROH0={case['y0'][1]:.3f}, T={case['T']:.2f} K), biodiesel_v2 runs\n"
                         f"noise-free {ar.CONVENTION_SHORT}: ChemKAN "
                         f"{data['mse']['chemkan']:.2e}, {ar.DEEPONET_LABEL[ar.DEEPONET_VARIANT]} "
-                        f"{data['mse']['deeponet']:.2e}")
+                        f"{data['mse']['deeponet']:.2e}\n{ar.EVAL_SOLVER_NOTE}")
     save_figure(fig, output_path or FIGURES_AUTHOR / "fig06_profiles_15pct")
     if show:
         plt.show()
