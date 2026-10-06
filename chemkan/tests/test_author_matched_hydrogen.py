@@ -326,13 +326,13 @@ def test_per_trajectory_matches_batched_loss_and_gradient(stage):
 def test_history_extra_columns_and_config(tmp_path):
     problem, s1 = _stage1(tmp_path, epochs=1)
     head = (tmp_path / "s1/stage1_history.csv").read_text().splitlines()[0].split(",")
-    assert head[-2:] == amh.KINETIC_COLUMNS
+    assert head[-3:] == amh.KINETIC_COLUMNS + amh.NFE_COLUMNS
     amh.run_stage2(_args(epochs=1, warmup_epochs=1, stage1_archive=s1["archive"]), problem,
                    tmp_path / "s2")
     import csv
     for f in ("warmup_history.csv", "stage2_history.csv"):
         row = next(csv.DictReader(open(tmp_path / "s2" / f)))
-        assert list(row)[-10:] == amh.THERMO_COLUMNS
+        assert list(row)[-11:] == amh.THERMO_COLUMNS + amh.NFE_COLUMNS
         raw, scaled = float(row["kin_out_max_raw"]), float(row["kin_out_max_scaled"])
         assert scaled == pytest.approx(raw / amh.T_REF_DEFAULT, rel=1e-12)
     row = next(csv.DictReader(open(tmp_path / "s2/warmup_history.csv")))
@@ -341,6 +341,57 @@ def test_history_extra_columns_and_config(tmp_path):
     import json
     cfg = json.loads((tmp_path / "s2/config.json").read_text())
     assert cfg["solver"]["solve_mode"] == "batched"
+
+
+@pytest.mark.parametrize("sensitivity", ["direct_autograd", "fsa"])
+def test_nfe_logged_every_epoch_both_stages(tmp_path, sensitivity):
+    import csv
+    problem = _problem()
+    s1 = amh.run_stage1(_args(epochs=2, sensitivity=sensitivity), problem, tmp_path / "s1")
+    amh.run_stage2(_args(epochs=2, warmup_epochs=1, sensitivity=sensitivity,
+                         stage1_archive=s1["archive"]), problem, tmp_path / "s2")
+    for f in ("s1/stage1_history.csv", "s2/warmup_history.csv", "s2/stage2_history.csv"):
+        nfe = [r["nfe"] for r in csv.DictReader(open(tmp_path / f))]
+        assert nfe and all(int(v) > 0 for v in nfe), f
+
+
+@pytest.mark.parametrize("stage", [1, 2])
+def test_nfe_counter_leaves_loss_and_gradient_unchanged(stage):
+    p = _problem()
+    model = amh.build_model()
+    g = torch.Generator().manual_seed(0)
+    amh.init_kinetic_(model, g)
+    amh.init_thermo_(model, g)
+    make = amh.stage1_units if stage == 1 else amh.stage2_units
+    params = list(model.kinetic.parameters()) if stage == 1 else list(model.parameters())
+    out = []
+    for wrap in (False, True):
+        for prm in params:
+            prm.grad = None
+        units = make(model, p, amh.T_REF_DEFAULT, "per_trajectory")
+        vals = amh.epoch_gradients(amh._count_nfe(units) if wrap else units, p["t"], params,
+                                   amh._solver("direct_autograd"))
+        out.append((vals, torch.cat([prm.grad.reshape(-1) for prm in params]).clone()))
+    (v0, g0), (v1, g1) = out
+    assert "nfe" not in v0 and v1["nfe"] > 0
+    assert {k: v for k, v in v1.items() if k != "nfe"} == v0       # bit-identical values
+    assert torch.equal(g0, g1)
+
+
+def test_resume_from_history_without_nfe_column(tmp_path):
+    import csv
+    problem = _problem()
+    amh.run_stage1(_args(epochs=4), problem, tmp_path / "r", stop_after=2)
+    h = tmp_path / "r/stage1_history.csv"
+    rows = list(csv.DictReader(open(h)))
+    keep = [c for c in rows[0] if c != "nfe"]                       # an older-format history
+    with open(h, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keep)
+        w.writeheader()
+        w.writerows({c: r[c] for c in keep} for r in rows)
+    amh.run_stage1(_args(epochs=4, resume=True), problem, tmp_path / "r")
+    nfe = [r["nfe"] for r in csv.DictReader(open(h))]
+    assert nfe[:2] == ["", ""] and all(int(v) > 0 for v in nfe[2:])
 
 
 @pytest.mark.parametrize("sensitivity", ["direct_autograd", "fsa"])

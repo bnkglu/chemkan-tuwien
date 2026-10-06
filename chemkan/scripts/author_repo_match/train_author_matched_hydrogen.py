@@ -81,6 +81,7 @@ T_REF_DEFAULT = 6e-4                                    # hydrogen time window [
 DENSE_T_POINTS = 20000
 HISTORY_COLUMNS = ["epoch", "loss", "mse", "pinn", "mse_time_avg", "elapsed_seconds"]
 KINETIC_COLUMNS = ["kin_out_max_raw", "kin_out_max_scaled"]      # all phases
+NFE_COLUMNS = ["nfe"]       # right-hand-side evaluations per epoch, last column (all phases)
 SPECIES_NAMES = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "N2"]
 THERMO_COLUMNS = [f"w_{s}" for s in SPECIES_NAMES] + ["w_norm"]   # warm-up and Stage 2
 MAX_COMBINED = {"kin_out_max_raw", "kin_out_max_scaled"}          # max, not sum, over units
@@ -353,6 +354,35 @@ def _mechanism_name() -> str:
     return str(np.load(DATA_DIR / f"{SYSTEM}.npz")["mechanism"])
 
 
+class CountedRHS(nn.Module):
+    """Counts calls of the ODE right-hand side (NFE) and passes them through unchanged.
+
+    Wraps a unit's function after any ``torch.compile``, so the count stays outside the
+    compiled graph. Direct autograd: the forward-solve evaluations (backward reuses the
+    graph). FSA: calls of the dynamics inside the augmented right-hand side.
+    """
+
+    def __init__(self, rhs: nn.Module):
+        super().__init__()
+        self.rhs = rhs
+        self.nfe = 0
+
+    def forward(self, t: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        self.nfe += 1
+        return self.rhs(t, y)
+
+
+def _count_nfe(units: list) -> list:
+    """Wrap each distinct unit function once (per-trajectory Stage 2 shares one)."""
+    wrapped: dict[int, CountedRHS] = {}
+    out = []
+    for func, y0, loss_fn in units:
+        if id(func) not in wrapped:
+            wrapped[id(func)] = CountedRHS(func)
+        out.append((wrapped[id(func)], y0, loss_fn))
+    return out
+
+
 def _maybe_compile(units: list, args) -> list:
     """torch.compile the ODE right-hand side of every unit (hydrogen only)."""
     if not getattr(args, "compile", False):
@@ -411,11 +441,16 @@ def epoch_gradients(units, t, params, solver) -> dict:
     """One gradient evaluation over all units (func, y0, loss_fn); gradients accumulate in
     ``.grad``. Loss parts are summed over units (each already weighted), maxima maxed."""
     vals: dict[str, float] = {}
+    counters = {id(f): f for f, _, _ in units if isinstance(f, CountedRHS)}
+    for c in counters.values():
+        c.nfe = 0
     for func, y0, loss_fn in units:
         loss, comp = loss_and_gradients(func, y0, t, params, loss_fn, solver)
         for k, v in {"loss": loss.detach(), **comp}.items():
             v = float(v)
             vals[k] = max(vals.get(k, v), v) if k in MAX_COMBINED else vals.get(k, 0.0) + v
+    if counters:
+        vals["nfe"] = sum(c.nfe for c in counters.values())
     return vals
 
 
@@ -443,8 +478,9 @@ def run_phase(name, units, t, params, opt, solver, *, start, total, history,
         history.writerow({"epoch": epoch, **vals, "elapsed_seconds": round(elapsed, 4)})
         history.file.flush()
         if epoch % 100 == 0 or epoch == start + 1:
-            logger.info("%s epoch %d  loss %.4e  mse %.4e  pinn %.4e  (%.0f s)", name, epoch,
-                        vals["loss"], vals["mse"], vals["pinn"], elapsed)
+            logger.info("%s epoch %d  loss %.4e  mse %.4e  pinn %.4e  nfe %s  (%.0f s)", name,
+                        epoch, vals["loss"], vals["mse"], vals["pinn"], vals.get("nfe", "-"),
+                        elapsed)
         if stop_after is not None and epoch - start >= stop_after:
             on_checkpoint(epoch, elapsed)                    # as if killed right after a save
             return epoch, elapsed
@@ -528,7 +564,8 @@ def run_stage1(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         start, prior = 0, 0.0
     _write_json(run_dir / "config.json", cfg)
 
-    units = _maybe_compile(stage1_units(model, problem, args.t_ref, args.solve_mode), args)
+    units = _count_nfe(_maybe_compile(stage1_units(model, problem, args.t_ref, args.solve_mode),
+                                      args))
 
     def save(path, epoch, elapsed):
         _atomic_torch_save({"stage": 1, "run_id": run_id, "config": cfg,
@@ -557,7 +594,8 @@ def run_stage1(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         if args.archive_every and e % args.archive_every == 0:
             write_archive(e, s)
 
-    history = _history(run_dir / "stage1_history.csv", start, HISTORY_COLUMNS + KINETIC_COLUMNS)
+    history = _history(run_dir / "stage1_history.csv", start,
+                       HISTORY_COLUMNS + KINETIC_COLUMNS + NFE_COLUMNS)
     epoch, elapsed = run_phase("stage1", units, problem["t"], params, opt,
                                _solver(args.sensitivity, args.rtol, args.atol), start=start,
                                total=args.epochs, history=history,
@@ -616,8 +654,9 @@ def run_stage2(args, problem: dict, run_dir: Path, *, stop_after: int | None = N
         phase, done, warm_done, prior, opt_state = "warmup", 0, 0, 0.0, None
     _write_json(run_dir / "config.json", cfg)
 
-    units = _maybe_compile(stage2_units(model, problem, args.t_ref, args.solve_mode), args)
-    columns = HISTORY_COLUMNS + KINETIC_COLUMNS + THERMO_COLUMNS
+    units = _count_nfe(_maybe_compile(stage2_units(model, problem, args.t_ref, args.solve_mode),
+                                      args))
+    columns = HISTORY_COLUMNS + KINETIC_COLUMNS + THERMO_COLUMNS + NFE_COLUMNS
     solver = _solver(args.sensitivity, args.rtol, args.atol)
     frozen = list(model.kinetic.parameters()) + list(model.thermo.correction.parameters())
 
