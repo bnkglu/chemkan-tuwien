@@ -1,0 +1,5 @@
+{
+  "type": "LineSearchError",
+  "message": "backtracking exhausted; model restored without an update",
+  "completed_steps": 793
+}

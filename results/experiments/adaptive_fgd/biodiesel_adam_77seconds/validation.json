@@ -1,0 +1,11 @@
+{
+  "focused_test_command": "/Users/berke/uni_projects/chemkan-venv/bin/python -m pytest chemkan/tests/test_adaptive_fgd.py -q",
+  "passed": 28,
+  "failed": 0,
+  "elapsed_seconds": 11.72,
+  "new_time_budget_tests": 2,
+  "ruff_check": "passed",
+  "first_ten_adam_updates_match_original": true,
+  "final_checkpoint_reload_matches_losses": true,
+  "no_concurrent_validation_tests_during_timed_adam_run": true
+}

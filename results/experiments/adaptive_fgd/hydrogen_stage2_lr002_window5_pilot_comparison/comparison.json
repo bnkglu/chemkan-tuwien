@@ -1,0 +1,3548 @@
+{
+  "experiment": "Hydrogen Stage 2 FGD pilots with relaxed nonmonotone line search",
+  "evaluation_device": "cpu",
+  "evaluation_threads": 1,
+  "evaluation_has_training_updates": false,
+  "checks": {
+    "same_initial_model_sha256": true,
+    "same_dataset_sha256": true,
+    "same_stage1_checkpoint_sha256": true,
+    "all_datasets_match_current_archive": true,
+    "same_requested_steps": true,
+    "same_completed_steps": true
+  },
+  "comparison_caveats": [
+    "A different completed step count means the final checkpoints do not have equal update budgets.",
+    "The pilot changes learning rate, line search, and clipped functional-gradient centers; comparisons to older runs cannot isolate one change.",
+    "Fixed-grid FGD remains an approximate functional-gradient method with the same line-search safeguard.",
+    "The single held-out condition is used for reporting, not checkpoint selection.",
+    "Evaluation solves are capped at max(50000, training RHS cap); failures are reported per split/solver.",
+    "Resume timing excludes original-process work after the source checkpoint, and trial-failure counts cover saved update records only.",
+    "The pilots overlapped on the same machine; elapsed times are not an isolated speed comparison."
+  ],
+  "runs": [
+    {
+      "run_directory": "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_adaptive_100steps_bounded",
+      "method": "adaptive-fgd",
+      "checkpoint_path": "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_adaptive_100steps_bounded/checkpoint_final.pt",
+      "checkpoint_sha256": "ca9f95ed628c874749e513db562dba9d080dfc07278fa3aa4b8aa6fec27b476b",
+      "dataset_sha256": "65636cce68c9f24a9e6aeaff91ad58a952d0de23c94f8d67dc832d4cdc435da7",
+      "initial_model_sha256": "eee9d4fe1cfb3af5fccb5938c62248ce7e60d32fd4d6914c361346c6cf0ffcef",
+      "stage1_checkpoint_sha256": "a0301cf2687b4d4cdafe3af1dda742148fb651ad9014086643a8fef24323bae5",
+      "t_ref_seconds": 0.0006,
+      "dtype": "float32",
+      "training_solver": {
+        "method": "tsit5",
+        "rtol": 0.0001,
+        "atol": 1e-06,
+        "sensitivity": "direct_autograd"
+      },
+      "training_max_rhs_evaluations_per_solve": 10000,
+      "evaluation_max_rhs_evaluations_per_solve": 50000,
+      "resume_from": {
+        "path": "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_adaptive_100steps/checkpoint_progress.pt",
+        "sha256": "d8aa57bd8c09fefff3bff1fcf2fcd61fd9eeb42080955f05c11b1b87a7d0ccda",
+        "completed_steps": 1,
+        "elapsed_offset_seconds": 21.554870416002814,
+        "note": "timing excludes work after the source checkpoint; solve-work cap may differ"
+      },
+      "training_timing_scope": "initial train/test evaluation, training updates, post-update train/test evaluation, and per-step logging; excludes setup and final artifact serialization; a running update completes before the budget is checked again",
+      "fgd": {
+        "lr": 0.002,
+        "epsilon": 0.5,
+        "gamma": 100.0,
+        "initial_intervals": 4,
+        "max_intervals": 4096,
+        "gradient_atol": 1e-12,
+        "max_backtracks": 24,
+        "armijo": 1e-06,
+        "line_search_window": 5,
+        "sample_chunk": 2048,
+        "node_chunk": 128,
+        "refine": true
+      },
+      "functional_input_coordinates": "clamped to [-1,1] for both evaluation and gradient samples",
+      "requested_steps": 100,
+      "completed_steps": 100,
+      "accepted_updates": 100,
+      "certified_updates": 100,
+      "nonmonotone_loss_increases": 22,
+      "updates_with_comparable_before_after_losses": 100,
+      "updates_with_complete_train_test_evaluation": 100,
+      "solver_trial_failure_count": 5,
+      "solver_trial_failures_by_type": {
+        "FloatingPointError": 5
+      },
+      "solver_trial_failure_count_scope": "Failures recorded inside saved update records; a final rejected/interrupted update may have no saved trial diagnostics.",
+      "final_intervals": {
+        "kinetic.add.edges": 128,
+        "kinetic.lean.edges": 256,
+        "thermo.correction.edges": 128
+      },
+      "recorded_elapsed_seconds": 525.9841332079959,
+      "status": "completed",
+      "stop_reason": "step_limit",
+      "failure": null,
+      "recorded_metrics": {
+        "initial_train_loss": 40.4769401550293,
+        "initial_test_loss": null,
+        "final_train_loss": 6.071597576141357,
+        "final_test_loss": 3.739464521408081,
+        "completed_steps": 100,
+        "elapsed_seconds": 525.9841332079959,
+        "status": "completed",
+        "stop_reason": "step_limit"
+      },
+      "initial_train_loss": 0.40476940155029295,
+      "initial_test_loss": null,
+      "notes": [
+        "Recorded timing includes the source checkpoint's elapsed offset and the resumed run, but excludes work after that source checkpoint in its original process.",
+        "Reported MSE and conservation penalty are averaged over time points; recorded_metrics and source histories retain the original training reduction. Rescaling a report does not retrain the saved model."
+      ],
+      "evaluations": {
+        "training_solver": {
+          "solver": {
+            "method": "tsit5",
+            "rtol": 0.0001,
+            "atol": 1e-06,
+            "sensitivity": "direct_autograd"
+          },
+          "max_rhs_evaluations_per_solve": 50000,
+          "train": {
+            "loss": 0.060715975761413576,
+            "trajectory_mse": 0.060712890625,
+            "species_mse_contribution": 0.04954450130462647,
+            "temperature_mse_contribution": 0.011168382167816161,
+            "raw_element_conservation_penalty": 0.030859060287475586,
+            "weighted_element_conservation_penalty": 3.0859059188514947e-06,
+            "temperature_mae_K": 479.4618225097656,
+            "median_predicted_max_temperature_rise_K": 1088.16943359375,
+            "median_reference_max_temperature_rise_K": 1551.822265625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              231.771484375,
+              266.0552978515625,
+              87.664306640625,
+              245.2508544921875,
+              400.541259765625,
+              1777.396484375,
+              145.9771728515625,
+              180.7763671875,
+              9.58221435546875,
+              146.10498046875,
+              315.7442626953125,
+              1753.0654296875,
+              7.26025390625,
+              93.1551513671875,
+              1209.22021484375,
+              1596.78662109375,
+              1665.22998046875,
+              1697.88525390625,
+              763.473388671875,
+              1088.16943359375,
+              1253.98095703125,
+              1572.171875,
+              1571.974609375,
+              1543.1796875,
+              805.1934814453125,
+              1074.04052734375,
+              1255.41845703125,
+              1459.16064453125,
+              1383.4619140625,
+              887.28515625,
+              1084.0673828125,
+              1202.7666015625,
+              1341.72216796875,
+              1308.328369140625,
+              1232.17578125
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.00018310546875,
+              1193.3583984375,
+              1476.112060546875,
+              1633.077392578125,
+              1683.18896484375,
+              1661.076904296875,
+              1605.44189453125,
+              1196.86181640625,
+              1467.9072265625,
+              1619.7177734375,
+              1676.88427734375,
+              1668.11376953125,
+              1627.579345703125,
+              1186.891357421875,
+              1446.07470703125,
+              1590.455078125,
+              1646.48828125,
+              1641.44677734375,
+              1606.025634765625,
+              1174.533447265625,
+              1422.5634765625,
+              1559.872314453125,
+              1614.164794921875,
+              1579.897216796875,
+              1160.746826171875,
+              1398.014404296875,
+              1528.624755859375,
+              1581.069580078125,
+              1580.391845703125,
+              1551.822265625
+            ],
+            "trajectories": 35,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 6.071597576141357,
+              "trajectory_mse": 6.0712890625,
+              "species_mse_contribution": 4.9544501304626465,
+              "temperature_mse_contribution": 1.1168382167816162,
+              "raw_element_conservation_penalty": 3.0859060287475586,
+              "weighted_element_conservation_penalty": 0.0003085905918851495
+            }
+          },
+          "test": {
+            "loss": 0.03739464521408081,
+            "trajectory_mse": 0.0373911714553833,
+            "species_mse_contribution": 0.029840779304504395,
+            "temperature_mse_contribution": 0.007550397515296936,
+            "raw_element_conservation_penalty": 0.03473689794540405,
+            "weighted_element_conservation_penalty": 3.4736897214315834e-06,
+            "temperature_mae_K": 461.6990966796875,
+            "median_predicted_max_temperature_rise_K": 1435.458984375,
+            "median_reference_max_temperature_rise_K": 1611.584228515625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              1435.458984375
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              1611.584228515625
+            ],
+            "trajectories": 1,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 3.739464521408081,
+              "trajectory_mse": 3.73911714553833,
+              "species_mse_contribution": 2.9840779304504395,
+              "temperature_mse_contribution": 0.7550397515296936,
+              "raw_element_conservation_penalty": 3.4736897945404053,
+              "weighted_element_conservation_penalty": 0.0003473689721431583
+            }
+          }
+        },
+        "strict_solver": {
+          "solver": {
+            "method": "tsit5",
+            "rtol": 1e-06,
+            "atol": 1e-08,
+            "sensitivity": "direct_autograd"
+          },
+          "max_rhs_evaluations_per_solve": 50000,
+          "train": {
+            "loss": 0.060720295906066896,
+            "trajectory_mse": 0.06071721076965332,
+            "species_mse_contribution": 0.04954352855682373,
+            "temperature_mse_contribution": 0.01117368221282959,
+            "raw_element_conservation_penalty": 0.030843274593353273,
+            "weighted_element_conservation_penalty": 3.0843273270875213e-06,
+            "temperature_mae_K": 479.63995361328125,
+            "median_predicted_max_temperature_rise_K": 1088.565673828125,
+            "median_reference_max_temperature_rise_K": 1551.822265625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              231.8428955078125,
+              266.056640625,
+              87.568603515625,
+              245.23046875,
+              400.4129638671875,
+              1778.6015625,
+              145.9522705078125,
+              180.8780517578125,
+              9.55596923828125,
+              146.130126953125,
+              315.734130859375,
+              1753.2890625,
+              7.260986328125,
+              93.135986328125,
+              1210.98681640625,
+              1596.89453125,
+              1665.984375,
+              1697.5302734375,
+              762.62841796875,
+              1088.565673828125,
+              1252.751220703125,
+              1568.361083984375,
+              1566.45849609375,
+              1546.83251953125,
+              805.4071044921875,
+              1074.77978515625,
+              1254.5595703125,
+              1457.056396484375,
+              1382.82666015625,
+              887.83251953125,
+              1084.44287109375,
+              1201.4951171875,
+              1340.857666015625,
+              1305.71435546875,
+              1233.99853515625
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.00018310546875,
+              1193.3583984375,
+              1476.112060546875,
+              1633.077392578125,
+              1683.18896484375,
+              1661.076904296875,
+              1605.44189453125,
+              1196.86181640625,
+              1467.9072265625,
+              1619.7177734375,
+              1676.88427734375,
+              1668.11376953125,
+              1627.579345703125,
+              1186.891357421875,
+              1446.07470703125,
+              1590.455078125,
+              1646.48828125,
+              1641.44677734375,
+              1606.025634765625,
+              1174.533447265625,
+              1422.5634765625,
+              1559.872314453125,
+              1614.164794921875,
+              1579.897216796875,
+              1160.746826171875,
+              1398.014404296875,
+              1528.624755859375,
+              1581.069580078125,
+              1580.391845703125,
+              1551.822265625
+            ],
+            "trajectories": 35,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 6.0720295906066895,
+              "trajectory_mse": 6.071721076965332,
+              "species_mse_contribution": 4.954352855682373,
+              "temperature_mse_contribution": 1.117368221282959,
+              "raw_element_conservation_penalty": 3.084327459335327,
+              "weighted_element_conservation_penalty": 0.00030843273270875216
+            }
+          },
+          "test": {
+            "loss": 0.0373974871635437,
+            "trajectory_mse": 0.03739401340484619,
+            "species_mse_contribution": 0.029839305877685546,
+            "temperature_mse_contribution": 0.007554708123207092,
+            "raw_element_conservation_penalty": 0.03473107576370239,
+            "weighted_element_conservation_penalty": 3.473107353784144e-06,
+            "temperature_mae_K": 461.8778076171875,
+            "median_predicted_max_temperature_rise_K": 1435.156982421875,
+            "median_reference_max_temperature_rise_K": 1611.584228515625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              1435.156982421875
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              1611.584228515625
+            ],
+            "trajectories": 1,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 3.73974871635437,
+              "trajectory_mse": 3.739401340484619,
+              "species_mse_contribution": 2.9839305877685547,
+              "temperature_mse_contribution": 0.7554708123207092,
+              "raw_element_conservation_penalty": 3.4731075763702393,
+              "weighted_element_conservation_penalty": 0.0003473107353784144
+            }
+          }
+        }
+      },
+      "training_loss_reduction": "sum_over_time",
+      "reported_loss_reduction": "mean_over_time",
+      "recorded_loss_plot_divisor": 100
+    },
+    {
+      "run_directory": "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_fixed256_100steps",
+      "method": "fixed-fgd",
+      "checkpoint_path": "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_fixed256_100steps/checkpoint_final.pt",
+      "checkpoint_sha256": "380f78f258bec606e55645e8e2f67a218c6b3acc7cb257348e4afdbefa0f9201",
+      "dataset_sha256": "65636cce68c9f24a9e6aeaff91ad58a952d0de23c94f8d67dc832d4cdc435da7",
+      "initial_model_sha256": "eee9d4fe1cfb3af5fccb5938c62248ce7e60d32fd4d6914c361346c6cf0ffcef",
+      "stage1_checkpoint_sha256": "a0301cf2687b4d4cdafe3af1dda742148fb651ad9014086643a8fef24323bae5",
+      "t_ref_seconds": 0.0006,
+      "dtype": "float32",
+      "training_solver": {
+        "method": "tsit5",
+        "rtol": 0.0001,
+        "atol": 1e-06,
+        "sensitivity": "direct_autograd"
+      },
+      "training_max_rhs_evaluations_per_solve": 10000,
+      "evaluation_max_rhs_evaluations_per_solve": 50000,
+      "resume_from": null,
+      "training_timing_scope": "initial train/test evaluation, training updates, post-update train/test evaluation, and per-step logging; excludes setup and final artifact serialization; a running update completes before the budget is checked again",
+      "fgd": {
+        "lr": 0.002,
+        "epsilon": 0.5,
+        "gamma": 100.0,
+        "initial_intervals": 256,
+        "max_intervals": 4096,
+        "gradient_atol": 1e-12,
+        "max_backtracks": 24,
+        "armijo": 1e-06,
+        "line_search_window": 5,
+        "sample_chunk": 2048,
+        "node_chunk": 128,
+        "refine": false
+      },
+      "functional_input_coordinates": "clamped to [-1,1] for both evaluation and gradient samples",
+      "requested_steps": 100,
+      "completed_steps": 100,
+      "accepted_updates": 100,
+      "certified_updates": 100,
+      "nonmonotone_loss_increases": 31,
+      "updates_with_comparable_before_after_losses": 100,
+      "updates_with_complete_train_test_evaluation": 100,
+      "solver_trial_failure_count": 0,
+      "solver_trial_failures_by_type": {},
+      "solver_trial_failure_count_scope": "Failures recorded inside saved update records; a final rejected/interrupted update may have no saved trial diagnostics.",
+      "final_intervals": {
+        "kinetic.add.edges": 256,
+        "kinetic.lean.edges": 256,
+        "thermo.correction.edges": 256
+      },
+      "recorded_elapsed_seconds": 727.336410125019,
+      "status": "completed",
+      "stop_reason": "step_limit",
+      "failure": null,
+      "recorded_metrics": {
+        "initial_train_loss": 40.4769401550293,
+        "initial_test_loss": 40.454246520996094,
+        "final_train_loss": 4.914802551269531,
+        "final_test_loss": 1.7905923128128052,
+        "completed_steps": 100,
+        "elapsed_seconds": 727.336410125019,
+        "status": "completed",
+        "stop_reason": "step_limit"
+      },
+      "initial_train_loss": 0.40476940155029295,
+      "initial_test_loss": 0.40454246520996096,
+      "notes": [
+        "Reported MSE and conservation penalty are averaged over time points; recorded_metrics and source histories retain the original training reduction. Rescaling a report does not retrain the saved model."
+      ],
+      "evaluations": {
+        "training_solver": {
+          "solver": {
+            "method": "tsit5",
+            "rtol": 0.0001,
+            "atol": 1e-06,
+            "sensitivity": "direct_autograd"
+          },
+          "max_rhs_evaluations_per_solve": 50000,
+          "train": {
+            "loss": 0.049148025512695315,
+            "trajectory_mse": 0.0491458797454834,
+            "species_mse_contribution": 0.0402418851852417,
+            "temperature_mse_contribution": 0.008903986215591431,
+            "raw_element_conservation_penalty": 0.021468515396118163,
+            "weighted_element_conservation_penalty": 2.1468514751177282e-06,
+            "temperature_mae_K": 412.8865051269531,
+            "median_predicted_max_temperature_rise_K": 1394.63720703125,
+            "median_reference_max_temperature_rise_K": 1551.822265625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              354.7264404296875,
+              214.529052734375,
+              106.683349609375,
+              299.79150390625,
+              357.7603759765625,
+              442.706787109375,
+              241.08251953125,
+              931.866943359375,
+              1562.98193359375,
+              226.874755859375,
+              284.1124267578125,
+              352.354248046875,
+              150.2921142578125,
+              1451.2861328125,
+              1538.16064453125,
+              116.7440185546875,
+              179.101806640625,
+              1626.4248046875,
+              966.9365234375,
+              1440.72802734375,
+              1514.42236328125,
+              1665.6142578125,
+              1534.0322265625,
+              1545.935546875,
+              1056.31689453125,
+              1425.7392578125,
+              1499.54052734375,
+              1581.524169921875,
+              1492.856689453125,
+              1031.62890625,
+              1394.63720703125,
+              1465.11865234375,
+              1501.466796875,
+              1419.320068359375,
+              1438.7724609375
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.00018310546875,
+              1193.3583984375,
+              1476.112060546875,
+              1633.077392578125,
+              1683.18896484375,
+              1661.076904296875,
+              1605.44189453125,
+              1196.86181640625,
+              1467.9072265625,
+              1619.7177734375,
+              1676.88427734375,
+              1668.11376953125,
+              1627.579345703125,
+              1186.891357421875,
+              1446.07470703125,
+              1590.455078125,
+              1646.48828125,
+              1641.44677734375,
+              1606.025634765625,
+              1174.533447265625,
+              1422.5634765625,
+              1559.872314453125,
+              1614.164794921875,
+              1579.897216796875,
+              1160.746826171875,
+              1398.014404296875,
+              1528.624755859375,
+              1581.069580078125,
+              1580.391845703125,
+              1551.822265625
+            ],
+            "trajectories": 35,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 4.914802551269531,
+              "trajectory_mse": 4.91458797454834,
+              "species_mse_contribution": 4.02418851852417,
+              "temperature_mse_contribution": 0.8903986215591431,
+              "raw_element_conservation_penalty": 2.1468515396118164,
+              "weighted_element_conservation_penalty": 0.0002146851475117728
+            }
+          },
+          "test": {
+            "loss": 0.01790592312812805,
+            "trajectory_mse": 0.017903952598571776,
+            "species_mse_contribution": 0.011539304256439209,
+            "temperature_mse_contribution": 0.006364646553993225,
+            "raw_element_conservation_penalty": 0.019703434705734255,
+            "weighted_element_conservation_penalty": 1.9703434372786433e-06,
+            "temperature_mae_K": 410.206787109375,
+            "median_predicted_max_temperature_rise_K": 1466.03173828125,
+            "median_reference_max_temperature_rise_K": 1611.584228515625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              1466.03173828125
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              1611.584228515625
+            ],
+            "trajectories": 1,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 1.7905923128128052,
+              "trajectory_mse": 1.7903952598571777,
+              "species_mse_contribution": 1.153930425643921,
+              "temperature_mse_contribution": 0.6364646553993225,
+              "raw_element_conservation_penalty": 1.9703434705734253,
+              "weighted_element_conservation_penalty": 0.00019703434372786433
+            }
+          }
+        },
+        "strict_solver": {
+          "solver": {
+            "method": "tsit5",
+            "rtol": 1e-06,
+            "atol": 1e-08,
+            "sensitivity": "direct_autograd"
+          },
+          "max_rhs_evaluations_per_solve": 50000,
+          "train": {
+            "loss": 0.04914593696594238,
+            "trajectory_mse": 0.04914379119873047,
+            "species_mse_contribution": 0.04023602485656738,
+            "temperature_mse_contribution": 0.008907767534255982,
+            "raw_element_conservation_penalty": 0.021444532871246338,
+            "weighted_element_conservation_penalty": 2.144453173968941e-06,
+            "temperature_mae_K": 413.1593322753906,
+            "median_predicted_max_temperature_rise_K": 1394.025390625,
+            "median_reference_max_temperature_rise_K": 1551.822265625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              354.7572021484375,
+              214.5364990234375,
+              106.6824951171875,
+              299.7606201171875,
+              357.6474609375,
+              442.71484375,
+              241.0980224609375,
+              931.736572265625,
+              1562.47705078125,
+              226.8028564453125,
+              284.0946044921875,
+              352.3621826171875,
+              150.2740478515625,
+              1451.185546875,
+              1535.41650390625,
+              116.7108154296875,
+              179.1314697265625,
+              1625.677001953125,
+              967.7783203125,
+              1438.9169921875,
+              1509.586669921875,
+              1665.373291015625,
+              1533.13330078125,
+              1540.16455078125,
+              1056.4599609375,
+              1424.66748046875,
+              1494.13330078125,
+              1579.522216796875,
+              1491.7734375,
+              1031.82568359375,
+              1394.025390625,
+              1463.48974609375,
+              1501.79833984375,
+              1417.281005859375,
+              1439.646484375
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.000244140625,
+              0.00018310546875,
+              1193.3583984375,
+              1476.112060546875,
+              1633.077392578125,
+              1683.18896484375,
+              1661.076904296875,
+              1605.44189453125,
+              1196.86181640625,
+              1467.9072265625,
+              1619.7177734375,
+              1676.88427734375,
+              1668.11376953125,
+              1627.579345703125,
+              1186.891357421875,
+              1446.07470703125,
+              1590.455078125,
+              1646.48828125,
+              1641.44677734375,
+              1606.025634765625,
+              1174.533447265625,
+              1422.5634765625,
+              1559.872314453125,
+              1614.164794921875,
+              1579.897216796875,
+              1160.746826171875,
+              1398.014404296875,
+              1528.624755859375,
+              1581.069580078125,
+              1580.391845703125,
+              1551.822265625
+            ],
+            "trajectories": 35,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 4.914593696594238,
+              "trajectory_mse": 4.914379119873047,
+              "species_mse_contribution": 4.023602485656738,
+              "temperature_mse_contribution": 0.8907767534255981,
+              "raw_element_conservation_penalty": 2.144453287124634,
+              "weighted_element_conservation_penalty": 0.0002144453173968941
+            }
+          },
+          "test": {
+            "loss": 0.017908843755722045,
+            "trajectory_mse": 0.01790687322616577,
+            "species_mse_contribution": 0.011543810367584229,
+            "temperature_mse_contribution": 0.006363062262535095,
+            "raw_element_conservation_penalty": 0.019699689149856568,
+            "weighted_element_conservation_penalty": 1.9699688709806652e-06,
+            "temperature_mae_K": 410.1504821777344,
+            "median_predicted_max_temperature_rise_K": 1466.15478515625,
+            "median_reference_max_temperature_rise_K": 1611.584228515625,
+            "predicted_max_temperature_rise_K_per_condition": [
+              1466.15478515625
+            ],
+            "reference_max_temperature_rise_K_per_condition": [
+              1611.584228515625
+            ],
+            "trajectories": 1,
+            "time_points": 100,
+            "time_summed_metrics": {
+              "loss": 1.7908843755722046,
+              "trajectory_mse": 1.7906873226165771,
+              "species_mse_contribution": 1.1543810367584229,
+              "temperature_mse_contribution": 0.6363062262535095,
+              "raw_element_conservation_penalty": 1.9699689149856567,
+              "weighted_element_conservation_penalty": 0.0001969968870980665
+            }
+          }
+        }
+      },
+      "training_loss_reduction": "sum_over_time",
+      "reported_loss_reduction": "mean_over_time",
+      "recorded_loss_plot_divisor": 100
+    }
+  ],
+  "test_temperature_curves": {
+    "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_adaptive_100steps_bounded": {
+      "training_solver": {
+        "time_microseconds": [
+          0.0,
+          6.060606002807617,
+          12.121212005615234,
+          18.18181800842285,
+          24.24242401123047,
+          30.303030014038086,
+          36.3636360168457,
+          42.42424392700195,
+          48.48484802246094,
+          54.54545211791992,
+          60.60606002807617,
+          66.66666412353516,
+          72.7272720336914,
+          78.78787994384766,
+          84.8484878540039,
+          90.90908813476562,
+          96.96969604492188,
+          103.03030395507812,
+          109.09090423583984,
+          115.15151977539062,
+          121.21212005615234,
+          127.27272033691406,
+          133.3333282470703,
+          139.39395141601562,
+          145.4545440673828,
+          151.51515197753906,
+          157.5757598876953,
+          163.6363525390625,
+          169.6969757080078,
+          175.75758361816406,
+          181.81817626953125,
+          187.8787841796875,
+          193.93939208984375,
+          200.0,
+          206.06060791015625,
+          212.1212158203125,
+          218.1818084716797,
+          224.24241638183594,
+          230.30303955078125,
+          236.36363220214844,
+          242.4242401123047,
+          248.48483276367188,
+          254.54544067382812,
+          260.6060485839844,
+          266.6666564941406,
+          272.727294921875,
+          278.78790283203125,
+          284.8484802246094,
+          290.9090881347656,
+          296.9696960449219,
+          303.0303039550781,
+          309.0909118652344,
+          315.1515197753906,
+          321.21209716796875,
+          327.272705078125,
+          333.3333435058594,
+          339.3939514160156,
+          345.4545593261719,
+          351.5151672363281,
+          357.57574462890625,
+          363.6363525390625,
+          369.69696044921875,
+          375.757568359375,
+          381.81817626953125,
+          387.8787841796875,
+          393.9394226074219,
+          400.0,
+          406.06060791015625,
+          412.1212158203125,
+          418.18182373046875,
+          424.242431640625,
+          430.30303955078125,
+          436.3636169433594,
+          442.4242248535156,
+          448.4848327636719,
+          454.54547119140625,
+          460.6060791015625,
+          466.66668701171875,
+          472.7272644042969,
+          478.7878723144531,
+          484.8484802246094,
+          490.9090881347656,
+          496.96966552734375,
+          503.0303039550781,
+          509.09088134765625,
+          515.1515502929688,
+          521.2120971679688,
+          527.272705078125,
+          533.3333129882812,
+          539.3939208984375,
+          545.45458984375,
+          551.51513671875,
+          557.5758056640625,
+          563.6363525390625,
+          569.6969604492188,
+          575.757568359375,
+          581.8181762695312,
+          587.8787841796875,
+          593.9393920898438,
+          600.0
+        ],
+        "predicted_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1509.01220703125
+          ],
+          [
+            1513.2900390625
+          ],
+          [
+            1510.8804931640625
+          ],
+          [
+            1512.6220703125
+          ],
+          [
+            1518.31689453125
+          ],
+          [
+            1526.4398193359375
+          ],
+          [
+            1536.1365966796875
+          ],
+          [
+            1546.88134765625
+          ],
+          [
+            1558.4132080078125
+          ],
+          [
+            1570.5458984375
+          ],
+          [
+            1583.168212890625
+          ],
+          [
+            1596.173828125
+          ],
+          [
+            1609.452392578125
+          ],
+          [
+            1622.935302734375
+          ],
+          [
+            1636.59521484375
+          ],
+          [
+            1650.42041015625
+          ],
+          [
+            1664.384033203125
+          ],
+          [
+            1678.46923828125
+          ],
+          [
+            1692.659912109375
+          ],
+          [
+            1706.9398193359375
+          ],
+          [
+            1721.2939453125
+          ],
+          [
+            1735.7071533203125
+          ],
+          [
+            1750.1708984375
+          ],
+          [
+            1764.68603515625
+          ],
+          [
+            1779.2513427734375
+          ],
+          [
+            1793.864013671875
+          ],
+          [
+            1808.521484375
+          ],
+          [
+            1823.219970703125
+          ],
+          [
+            1837.955810546875
+          ],
+          [
+            1852.724365234375
+          ],
+          [
+            1867.5203857421875
+          ],
+          [
+            1882.33740234375
+          ],
+          [
+            1897.173095703125
+          ],
+          [
+            1912.025634765625
+          ],
+          [
+            1926.89208984375
+          ],
+          [
+            1941.7691650390625
+          ],
+          [
+            1956.6533203125
+          ],
+          [
+            1971.53955078125
+          ],
+          [
+            1986.42333984375
+          ],
+          [
+            2001.29931640625
+          ],
+          [
+            2016.161376953125
+          ],
+          [
+            2031.0029296875
+          ],
+          [
+            2045.8173828125
+          ],
+          [
+            2060.5966796875
+          ],
+          [
+            2075.333251953125
+          ],
+          [
+            2090.01806640625
+          ],
+          [
+            2104.632080078125
+          ],
+          [
+            2119.15625
+          ],
+          [
+            2133.581298828125
+          ],
+          [
+            2147.90234375
+          ],
+          [
+            2162.114501953125
+          ],
+          [
+            2176.2119140625
+          ],
+          [
+            2190.189697265625
+          ],
+          [
+            2204.041015625
+          ],
+          [
+            2217.759765625
+          ],
+          [
+            2231.33837890625
+          ],
+          [
+            2244.7705078125
+          ],
+          [
+            2258.052978515625
+          ],
+          [
+            2271.16748046875
+          ],
+          [
+            2284.1005859375
+          ],
+          [
+            2296.83837890625
+          ],
+          [
+            2309.368408203125
+          ],
+          [
+            2321.67919921875
+          ],
+          [
+            2333.759521484375
+          ],
+          [
+            2345.60009765625
+          ],
+          [
+            2357.191162109375
+          ],
+          [
+            2368.525146484375
+          ],
+          [
+            2379.5986328125
+          ],
+          [
+            2390.407470703125
+          ],
+          [
+            2400.9462890625
+          ],
+          [
+            2411.20458984375
+          ],
+          [
+            2421.17333984375
+          ],
+          [
+            2430.84375
+          ],
+          [
+            2440.20947265625
+          ],
+          [
+            2449.26611328125
+          ],
+          [
+            2458.009033203125
+          ],
+          [
+            2466.43603515625
+          ],
+          [
+            2474.5458984375
+          ],
+          [
+            2482.33935546875
+          ],
+          [
+            2489.81787109375
+          ],
+          [
+            2496.984375
+          ],
+          [
+            2503.846435546875
+          ],
+          [
+            2510.41162109375
+          ],
+          [
+            2516.69775390625
+          ],
+          [
+            2522.71875
+          ],
+          [
+            2528.487548828125
+          ],
+          [
+            2534.017578125
+          ],
+          [
+            2539.321533203125
+          ],
+          [
+            2544.41064453125
+          ],
+          [
+            2549.2958984375
+          ],
+          [
+            2553.988525390625
+          ],
+          [
+            2558.498046875
+          ],
+          [
+            2562.833984375
+          ],
+          [
+            2567.0048828125
+          ],
+          [
+            2571.01513671875
+          ],
+          [
+            2574.863037109375
+          ],
+          [
+            2578.55126953125
+          ],
+          [
+            2582.08251953125
+          ],
+          [
+            2585.458984375
+          ]
+        ],
+        "reference_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1150.0
+          ],
+          [
+            1150.0001220703125
+          ],
+          [
+            1150.0009765625
+          ],
+          [
+            1150.0052490234375
+          ],
+          [
+            1150.0255126953125
+          ],
+          [
+            1150.126953125
+          ],
+          [
+            1150.7127685546875
+          ],
+          [
+            1154.54638671875
+          ],
+          [
+            1176.5201416015625
+          ],
+          [
+            1313.2237548828125
+          ],
+          [
+            1728.532470703125
+          ],
+          [
+            1929.278076171875
+          ],
+          [
+            2053.38818359375
+          ],
+          [
+            2142.9091796875
+          ],
+          [
+            2212.45654296875
+          ],
+          [
+            2268.95166015625
+          ],
+          [
+            2316.23486328125
+          ],
+          [
+            2356.66162109375
+          ],
+          [
+            2391.782958984375
+          ],
+          [
+            2422.673095703125
+          ],
+          [
+            2450.108154296875
+          ],
+          [
+            2474.666015625
+          ],
+          [
+            2496.789794921875
+          ],
+          [
+            2516.82568359375
+          ],
+          [
+            2535.051025390625
+          ],
+          [
+            2551.68994140625
+          ],
+          [
+            2566.927734375
+          ],
+          [
+            2580.919189453125
+          ],
+          [
+            2593.794677734375
+          ],
+          [
+            2605.665771484375
+          ],
+          [
+            2616.62890625
+          ],
+          [
+            2626.767333984375
+          ],
+          [
+            2636.154296875
+          ],
+          [
+            2644.85498046875
+          ],
+          [
+            2652.92626953125
+          ],
+          [
+            2660.419677734375
+          ],
+          [
+            2667.38134765625
+          ],
+          [
+            2673.852783203125
+          ],
+          [
+            2679.87158203125
+          ],
+          [
+            2685.471923828125
+          ],
+          [
+            2690.684814453125
+          ],
+          [
+            2695.538818359375
+          ],
+          [
+            2700.06005859375
+          ],
+          [
+            2704.272216796875
+          ],
+          [
+            2708.19775390625
+          ],
+          [
+            2711.856689453125
+          ],
+          [
+            2715.267822265625
+          ],
+          [
+            2718.4482421875
+          ],
+          [
+            2721.414306640625
+          ],
+          [
+            2724.1806640625
+          ],
+          [
+            2726.76123046875
+          ],
+          [
+            2729.168212890625
+          ],
+          [
+            2731.414306640625
+          ],
+          [
+            2733.509765625
+          ],
+          [
+            2735.465087890625
+          ],
+          [
+            2737.289794921875
+          ],
+          [
+            2738.99267578125
+          ],
+          [
+            2740.581787109375
+          ],
+          [
+            2742.065185546875
+          ],
+          [
+            2743.44970703125
+          ],
+          [
+            2744.741943359375
+          ],
+          [
+            2745.948486328125
+          ],
+          [
+            2747.074462890625
+          ],
+          [
+            2748.125732421875
+          ],
+          [
+            2749.107177734375
+          ],
+          [
+            2750.023193359375
+          ],
+          [
+            2750.878662109375
+          ],
+          [
+            2751.677001953125
+          ],
+          [
+            2752.422607421875
+          ],
+          [
+            2753.11865234375
+          ],
+          [
+            2753.7685546875
+          ],
+          [
+            2754.37548828125
+          ],
+          [
+            2754.94189453125
+          ],
+          [
+            2755.470947265625
+          ],
+          [
+            2755.96484375
+          ],
+          [
+            2756.426025390625
+          ],
+          [
+            2756.856689453125
+          ],
+          [
+            2757.2587890625
+          ],
+          [
+            2757.63427734375
+          ],
+          [
+            2757.98486328125
+          ],
+          [
+            2758.312255859375
+          ],
+          [
+            2758.617919921875
+          ],
+          [
+            2758.903564453125
+          ],
+          [
+            2759.169921875
+          ],
+          [
+            2759.4189453125
+          ],
+          [
+            2759.6513671875
+          ],
+          [
+            2759.868408203125
+          ],
+          [
+            2760.071044921875
+          ],
+          [
+            2760.26025390625
+          ],
+          [
+            2760.43701171875
+          ],
+          [
+            2760.60205078125
+          ],
+          [
+            2760.75634765625
+          ],
+          [
+            2760.900146484375
+          ],
+          [
+            2761.034423828125
+          ],
+          [
+            2761.16015625
+          ],
+          [
+            2761.27734375
+          ],
+          [
+            2761.38671875
+          ],
+          [
+            2761.48876953125
+          ],
+          [
+            2761.584228515625
+          ]
+        ]
+      },
+      "strict_solver": {
+        "time_microseconds": [
+          0.0,
+          6.060606002807617,
+          12.121212005615234,
+          18.18181800842285,
+          24.24242401123047,
+          30.303030014038086,
+          36.3636360168457,
+          42.42424392700195,
+          48.48484802246094,
+          54.54545211791992,
+          60.60606002807617,
+          66.66666412353516,
+          72.7272720336914,
+          78.78787994384766,
+          84.8484878540039,
+          90.90908813476562,
+          96.96969604492188,
+          103.03030395507812,
+          109.09090423583984,
+          115.15151977539062,
+          121.21212005615234,
+          127.27272033691406,
+          133.3333282470703,
+          139.39395141601562,
+          145.4545440673828,
+          151.51515197753906,
+          157.5757598876953,
+          163.6363525390625,
+          169.6969757080078,
+          175.75758361816406,
+          181.81817626953125,
+          187.8787841796875,
+          193.93939208984375,
+          200.0,
+          206.06060791015625,
+          212.1212158203125,
+          218.1818084716797,
+          224.24241638183594,
+          230.30303955078125,
+          236.36363220214844,
+          242.4242401123047,
+          248.48483276367188,
+          254.54544067382812,
+          260.6060485839844,
+          266.6666564941406,
+          272.727294921875,
+          278.78790283203125,
+          284.8484802246094,
+          290.9090881347656,
+          296.9696960449219,
+          303.0303039550781,
+          309.0909118652344,
+          315.1515197753906,
+          321.21209716796875,
+          327.272705078125,
+          333.3333435058594,
+          339.3939514160156,
+          345.4545593261719,
+          351.5151672363281,
+          357.57574462890625,
+          363.6363525390625,
+          369.69696044921875,
+          375.757568359375,
+          381.81817626953125,
+          387.8787841796875,
+          393.9394226074219,
+          400.0,
+          406.06060791015625,
+          412.1212158203125,
+          418.18182373046875,
+          424.242431640625,
+          430.30303955078125,
+          436.3636169433594,
+          442.4242248535156,
+          448.4848327636719,
+          454.54547119140625,
+          460.6060791015625,
+          466.66668701171875,
+          472.7272644042969,
+          478.7878723144531,
+          484.8484802246094,
+          490.9090881347656,
+          496.96966552734375,
+          503.0303039550781,
+          509.09088134765625,
+          515.1515502929688,
+          521.2120971679688,
+          527.272705078125,
+          533.3333129882812,
+          539.3939208984375,
+          545.45458984375,
+          551.51513671875,
+          557.5758056640625,
+          563.6363525390625,
+          569.6969604492188,
+          575.757568359375,
+          581.8181762695312,
+          587.8787841796875,
+          593.9393920898438,
+          600.0
+        ],
+        "predicted_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1509.0357666015625
+          ],
+          [
+            1513.320556640625
+          ],
+          [
+            1510.88818359375
+          ],
+          [
+            1512.663818359375
+          ],
+          [
+            1518.349365234375
+          ],
+          [
+            1526.468017578125
+          ],
+          [
+            1536.1507568359375
+          ],
+          [
+            1546.8922119140625
+          ],
+          [
+            1558.42626953125
+          ],
+          [
+            1570.55615234375
+          ],
+          [
+            1583.161865234375
+          ],
+          [
+            1596.1514892578125
+          ],
+          [
+            1609.4176025390625
+          ],
+          [
+            1622.8978271484375
+          ],
+          [
+            1636.5615234375
+          ],
+          [
+            1650.385498046875
+          ],
+          [
+            1664.349609375
+          ],
+          [
+            1678.4302978515625
+          ],
+          [
+            1692.60693359375
+          ],
+          [
+            1706.869140625
+          ],
+          [
+            1721.212890625
+          ],
+          [
+            1735.621826171875
+          ],
+          [
+            1750.083251953125
+          ],
+          [
+            1764.59521484375
+          ],
+          [
+            1779.159912109375
+          ],
+          [
+            1793.76953125
+          ],
+          [
+            1808.419921875
+          ],
+          [
+            1823.10986328125
+          ],
+          [
+            1837.840087890625
+          ],
+          [
+            1852.6044921875
+          ],
+          [
+            1867.39697265625
+          ],
+          [
+            1882.2115478515625
+          ],
+          [
+            1897.0438232421875
+          ],
+          [
+            1911.8905029296875
+          ],
+          [
+            1926.75146484375
+          ],
+          [
+            1941.625
+          ],
+          [
+            1956.5084228515625
+          ],
+          [
+            1971.398193359375
+          ],
+          [
+            1986.285400390625
+          ],
+          [
+            2001.1622314453125
+          ],
+          [
+            2016.0203857421875
+          ],
+          [
+            2030.8524169921875
+          ],
+          [
+            2045.6512451171875
+          ],
+          [
+            2060.41796875
+          ],
+          [
+            2075.14501953125
+          ],
+          [
+            2089.828125
+          ],
+          [
+            2104.4404296875
+          ],
+          [
+            2118.962890625
+          ],
+          [
+            2133.3857421875
+          ],
+          [
+            2147.70361328125
+          ],
+          [
+            2161.91748046875
+          ],
+          [
+            2176.021728515625
+          ],
+          [
+            2190.00830078125
+          ],
+          [
+            2203.86083984375
+          ],
+          [
+            2217.57568359375
+          ],
+          [
+            2231.1484375
+          ],
+          [
+            2244.58056640625
+          ],
+          [
+            2257.85791015625
+          ],
+          [
+            2270.974609375
+          ],
+          [
+            2283.908447265625
+          ],
+          [
+            2296.64453125
+          ],
+          [
+            2309.171875
+          ],
+          [
+            2321.471923828125
+          ],
+          [
+            2333.535888671875
+          ],
+          [
+            2345.359619140625
+          ],
+          [
+            2356.93603515625
+          ],
+          [
+            2368.260498046875
+          ],
+          [
+            2379.32666015625
+          ],
+          [
+            2390.129638671875
+          ],
+          [
+            2400.6552734375
+          ],
+          [
+            2410.89794921875
+          ],
+          [
+            2420.8564453125
+          ],
+          [
+            2430.526123046875
+          ],
+          [
+            2439.9033203125
+          ],
+          [
+            2448.97216796875
+          ],
+          [
+            2457.722412109375
+          ],
+          [
+            2466.153076171875
+          ],
+          [
+            2474.26123046875
+          ],
+          [
+            2482.0498046875
+          ],
+          [
+            2489.52392578125
+          ],
+          [
+            2496.689697265625
+          ],
+          [
+            2503.54443359375
+          ],
+          [
+            2510.09765625
+          ],
+          [
+            2516.36572265625
+          ],
+          [
+            2522.3759765625
+          ],
+          [
+            2528.14013671875
+          ],
+          [
+            2533.6689453125
+          ],
+          [
+            2538.9755859375
+          ],
+          [
+            2544.0810546875
+          ],
+          [
+            2548.984619140625
+          ],
+          [
+            2553.69091796875
+          ],
+          [
+            2558.210205078125
+          ],
+          [
+            2562.5537109375
+          ],
+          [
+            2566.727783203125
+          ],
+          [
+            2570.73681640625
+          ],
+          [
+            2574.5771484375
+          ],
+          [
+            2578.257080078125
+          ],
+          [
+            2581.78271484375
+          ],
+          [
+            2585.156982421875
+          ]
+        ],
+        "reference_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1150.0
+          ],
+          [
+            1150.0001220703125
+          ],
+          [
+            1150.0009765625
+          ],
+          [
+            1150.0052490234375
+          ],
+          [
+            1150.0255126953125
+          ],
+          [
+            1150.126953125
+          ],
+          [
+            1150.7127685546875
+          ],
+          [
+            1154.54638671875
+          ],
+          [
+            1176.5201416015625
+          ],
+          [
+            1313.2237548828125
+          ],
+          [
+            1728.532470703125
+          ],
+          [
+            1929.278076171875
+          ],
+          [
+            2053.38818359375
+          ],
+          [
+            2142.9091796875
+          ],
+          [
+            2212.45654296875
+          ],
+          [
+            2268.95166015625
+          ],
+          [
+            2316.23486328125
+          ],
+          [
+            2356.66162109375
+          ],
+          [
+            2391.782958984375
+          ],
+          [
+            2422.673095703125
+          ],
+          [
+            2450.108154296875
+          ],
+          [
+            2474.666015625
+          ],
+          [
+            2496.789794921875
+          ],
+          [
+            2516.82568359375
+          ],
+          [
+            2535.051025390625
+          ],
+          [
+            2551.68994140625
+          ],
+          [
+            2566.927734375
+          ],
+          [
+            2580.919189453125
+          ],
+          [
+            2593.794677734375
+          ],
+          [
+            2605.665771484375
+          ],
+          [
+            2616.62890625
+          ],
+          [
+            2626.767333984375
+          ],
+          [
+            2636.154296875
+          ],
+          [
+            2644.85498046875
+          ],
+          [
+            2652.92626953125
+          ],
+          [
+            2660.419677734375
+          ],
+          [
+            2667.38134765625
+          ],
+          [
+            2673.852783203125
+          ],
+          [
+            2679.87158203125
+          ],
+          [
+            2685.471923828125
+          ],
+          [
+            2690.684814453125
+          ],
+          [
+            2695.538818359375
+          ],
+          [
+            2700.06005859375
+          ],
+          [
+            2704.272216796875
+          ],
+          [
+            2708.19775390625
+          ],
+          [
+            2711.856689453125
+          ],
+          [
+            2715.267822265625
+          ],
+          [
+            2718.4482421875
+          ],
+          [
+            2721.414306640625
+          ],
+          [
+            2724.1806640625
+          ],
+          [
+            2726.76123046875
+          ],
+          [
+            2729.168212890625
+          ],
+          [
+            2731.414306640625
+          ],
+          [
+            2733.509765625
+          ],
+          [
+            2735.465087890625
+          ],
+          [
+            2737.289794921875
+          ],
+          [
+            2738.99267578125
+          ],
+          [
+            2740.581787109375
+          ],
+          [
+            2742.065185546875
+          ],
+          [
+            2743.44970703125
+          ],
+          [
+            2744.741943359375
+          ],
+          [
+            2745.948486328125
+          ],
+          [
+            2747.074462890625
+          ],
+          [
+            2748.125732421875
+          ],
+          [
+            2749.107177734375
+          ],
+          [
+            2750.023193359375
+          ],
+          [
+            2750.878662109375
+          ],
+          [
+            2751.677001953125
+          ],
+          [
+            2752.422607421875
+          ],
+          [
+            2753.11865234375
+          ],
+          [
+            2753.7685546875
+          ],
+          [
+            2754.37548828125
+          ],
+          [
+            2754.94189453125
+          ],
+          [
+            2755.470947265625
+          ],
+          [
+            2755.96484375
+          ],
+          [
+            2756.426025390625
+          ],
+          [
+            2756.856689453125
+          ],
+          [
+            2757.2587890625
+          ],
+          [
+            2757.63427734375
+          ],
+          [
+            2757.98486328125
+          ],
+          [
+            2758.312255859375
+          ],
+          [
+            2758.617919921875
+          ],
+          [
+            2758.903564453125
+          ],
+          [
+            2759.169921875
+          ],
+          [
+            2759.4189453125
+          ],
+          [
+            2759.6513671875
+          ],
+          [
+            2759.868408203125
+          ],
+          [
+            2760.071044921875
+          ],
+          [
+            2760.26025390625
+          ],
+          [
+            2760.43701171875
+          ],
+          [
+            2760.60205078125
+          ],
+          [
+            2760.75634765625
+          ],
+          [
+            2760.900146484375
+          ],
+          [
+            2761.034423828125
+          ],
+          [
+            2761.16015625
+          ],
+          [
+            2761.27734375
+          ],
+          [
+            2761.38671875
+          ],
+          [
+            2761.48876953125
+          ],
+          [
+            2761.584228515625
+          ]
+        ]
+      }
+    },
+    "/Users/berke/projects/chemkan-with-functional-gradient-update/results/experiments/adaptive_fgd/hydrogen_stage2_current100_lr002_window5_fixed256_100steps": {
+      "training_solver": {
+        "time_microseconds": [
+          0.0,
+          6.060606002807617,
+          12.121212005615234,
+          18.18181800842285,
+          24.24242401123047,
+          30.303030014038086,
+          36.3636360168457,
+          42.42424392700195,
+          48.48484802246094,
+          54.54545211791992,
+          60.60606002807617,
+          66.66666412353516,
+          72.7272720336914,
+          78.78787994384766,
+          84.8484878540039,
+          90.90908813476562,
+          96.96969604492188,
+          103.03030395507812,
+          109.09090423583984,
+          115.15151977539062,
+          121.21212005615234,
+          127.27272033691406,
+          133.3333282470703,
+          139.39395141601562,
+          145.4545440673828,
+          151.51515197753906,
+          157.5757598876953,
+          163.6363525390625,
+          169.6969757080078,
+          175.75758361816406,
+          181.81817626953125,
+          187.8787841796875,
+          193.93939208984375,
+          200.0,
+          206.06060791015625,
+          212.1212158203125,
+          218.1818084716797,
+          224.24241638183594,
+          230.30303955078125,
+          236.36363220214844,
+          242.4242401123047,
+          248.48483276367188,
+          254.54544067382812,
+          260.6060485839844,
+          266.6666564941406,
+          272.727294921875,
+          278.78790283203125,
+          284.8484802246094,
+          290.9090881347656,
+          296.9696960449219,
+          303.0303039550781,
+          309.0909118652344,
+          315.1515197753906,
+          321.21209716796875,
+          327.272705078125,
+          333.3333435058594,
+          339.3939514160156,
+          345.4545593261719,
+          351.5151672363281,
+          357.57574462890625,
+          363.6363525390625,
+          369.69696044921875,
+          375.757568359375,
+          381.81817626953125,
+          387.8787841796875,
+          393.9394226074219,
+          400.0,
+          406.06060791015625,
+          412.1212158203125,
+          418.18182373046875,
+          424.242431640625,
+          430.30303955078125,
+          436.3636169433594,
+          442.4242248535156,
+          448.4848327636719,
+          454.54547119140625,
+          460.6060791015625,
+          466.66668701171875,
+          472.7272644042969,
+          478.7878723144531,
+          484.8484802246094,
+          490.9090881347656,
+          496.96966552734375,
+          503.0303039550781,
+          509.09088134765625,
+          515.1515502929688,
+          521.2120971679688,
+          527.272705078125,
+          533.3333129882812,
+          539.3939208984375,
+          545.45458984375,
+          551.51513671875,
+          557.5758056640625,
+          563.6363525390625,
+          569.6969604492188,
+          575.757568359375,
+          581.8181762695312,
+          587.8787841796875,
+          593.9393920898438,
+          600.0
+        ],
+        "predicted_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1173.8111572265625
+          ],
+          [
+            1194.282958984375
+          ],
+          [
+            1216.512451171875
+          ],
+          [
+            1240.7098388671875
+          ],
+          [
+            1263.001220703125
+          ],
+          [
+            1280.7767333984375
+          ],
+          [
+            1295.86767578125
+          ],
+          [
+            1310.3206787109375
+          ],
+          [
+            1324.9705810546875
+          ],
+          [
+            1364.45361328125
+          ],
+          [
+            1715.5302734375
+          ],
+          [
+            1725.039794921875
+          ],
+          [
+            1727.4774169921875
+          ],
+          [
+            1730.60302734375
+          ],
+          [
+            1735.6005859375
+          ],
+          [
+            1742.21728515625
+          ],
+          [
+            1750.099853515625
+          ],
+          [
+            1758.96142578125
+          ],
+          [
+            1768.615234375
+          ],
+          [
+            1778.8983154296875
+          ],
+          [
+            1789.704345703125
+          ],
+          [
+            1800.9522705078125
+          ],
+          [
+            1812.55810546875
+          ],
+          [
+            1824.4637451171875
+          ],
+          [
+            1836.63720703125
+          ],
+          [
+            1849.0556640625
+          ],
+          [
+            1861.673095703125
+          ],
+          [
+            1874.46728515625
+          ],
+          [
+            1887.41455078125
+          ],
+          [
+            1900.4912109375
+          ],
+          [
+            1913.672607421875
+          ],
+          [
+            1926.9443359375
+          ],
+          [
+            1940.2882080078125
+          ],
+          [
+            1953.696044921875
+          ],
+          [
+            1967.1553955078125
+          ],
+          [
+            1980.65478515625
+          ],
+          [
+            1994.1820068359375
+          ],
+          [
+            2007.725341796875
+          ],
+          [
+            2021.27294921875
+          ],
+          [
+            2034.8131103515625
+          ],
+          [
+            2048.333984375
+          ],
+          [
+            2061.82373046875
+          ],
+          [
+            2075.274658203125
+          ],
+          [
+            2088.678955078125
+          ],
+          [
+            2102.02880859375
+          ],
+          [
+            2115.315673828125
+          ],
+          [
+            2128.53173828125
+          ],
+          [
+            2141.669677734375
+          ],
+          [
+            2154.72119140625
+          ],
+          [
+            2167.67919921875
+          ],
+          [
+            2180.53662109375
+          ],
+          [
+            2193.2861328125
+          ],
+          [
+            2205.92041015625
+          ],
+          [
+            2218.43359375
+          ],
+          [
+            2230.818359375
+          ],
+          [
+            2243.06591796875
+          ],
+          [
+            2255.177734375
+          ],
+          [
+            2267.14453125
+          ],
+          [
+            2278.95947265625
+          ],
+          [
+            2290.615478515625
+          ],
+          [
+            2302.10693359375
+          ],
+          [
+            2313.428466796875
+          ],
+          [
+            2324.574951171875
+          ],
+          [
+            2335.54296875
+          ],
+          [
+            2346.328369140625
+          ],
+          [
+            2356.92822265625
+          ],
+          [
+            2367.34033203125
+          ],
+          [
+            2377.563232421875
+          ],
+          [
+            2387.59521484375
+          ],
+          [
+            2397.436279296875
+          ],
+          [
+            2407.0859375
+          ],
+          [
+            2416.544921875
+          ],
+          [
+            2425.81298828125
+          ],
+          [
+            2434.89501953125
+          ],
+          [
+            2443.794921875
+          ],
+          [
+            2452.517822265625
+          ],
+          [
+            2461.0693359375
+          ],
+          [
+            2469.454833984375
+          ],
+          [
+            2477.679931640625
+          ],
+          [
+            2485.75
+          ],
+          [
+            2493.67041015625
+          ],
+          [
+            2501.44677734375
+          ],
+          [
+            2509.0849609375
+          ],
+          [
+            2516.59033203125
+          ],
+          [
+            2523.96875
+          ],
+          [
+            2531.225341796875
+          ],
+          [
+            2538.366943359375
+          ],
+          [
+            2545.39599609375
+          ],
+          [
+            2552.31494140625
+          ],
+          [
+            2559.126953125
+          ],
+          [
+            2565.835205078125
+          ],
+          [
+            2572.44189453125
+          ],
+          [
+            2578.94921875
+          ],
+          [
+            2585.35986328125
+          ],
+          [
+            2591.676025390625
+          ],
+          [
+            2597.8994140625
+          ],
+          [
+            2604.031982421875
+          ],
+          [
+            2610.07568359375
+          ],
+          [
+            2616.03173828125
+          ]
+        ],
+        "reference_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1150.0
+          ],
+          [
+            1150.0001220703125
+          ],
+          [
+            1150.0009765625
+          ],
+          [
+            1150.0052490234375
+          ],
+          [
+            1150.0255126953125
+          ],
+          [
+            1150.126953125
+          ],
+          [
+            1150.7127685546875
+          ],
+          [
+            1154.54638671875
+          ],
+          [
+            1176.5201416015625
+          ],
+          [
+            1313.2237548828125
+          ],
+          [
+            1728.532470703125
+          ],
+          [
+            1929.278076171875
+          ],
+          [
+            2053.38818359375
+          ],
+          [
+            2142.9091796875
+          ],
+          [
+            2212.45654296875
+          ],
+          [
+            2268.95166015625
+          ],
+          [
+            2316.23486328125
+          ],
+          [
+            2356.66162109375
+          ],
+          [
+            2391.782958984375
+          ],
+          [
+            2422.673095703125
+          ],
+          [
+            2450.108154296875
+          ],
+          [
+            2474.666015625
+          ],
+          [
+            2496.789794921875
+          ],
+          [
+            2516.82568359375
+          ],
+          [
+            2535.051025390625
+          ],
+          [
+            2551.68994140625
+          ],
+          [
+            2566.927734375
+          ],
+          [
+            2580.919189453125
+          ],
+          [
+            2593.794677734375
+          ],
+          [
+            2605.665771484375
+          ],
+          [
+            2616.62890625
+          ],
+          [
+            2626.767333984375
+          ],
+          [
+            2636.154296875
+          ],
+          [
+            2644.85498046875
+          ],
+          [
+            2652.92626953125
+          ],
+          [
+            2660.419677734375
+          ],
+          [
+            2667.38134765625
+          ],
+          [
+            2673.852783203125
+          ],
+          [
+            2679.87158203125
+          ],
+          [
+            2685.471923828125
+          ],
+          [
+            2690.684814453125
+          ],
+          [
+            2695.538818359375
+          ],
+          [
+            2700.06005859375
+          ],
+          [
+            2704.272216796875
+          ],
+          [
+            2708.19775390625
+          ],
+          [
+            2711.856689453125
+          ],
+          [
+            2715.267822265625
+          ],
+          [
+            2718.4482421875
+          ],
+          [
+            2721.414306640625
+          ],
+          [
+            2724.1806640625
+          ],
+          [
+            2726.76123046875
+          ],
+          [
+            2729.168212890625
+          ],
+          [
+            2731.414306640625
+          ],
+          [
+            2733.509765625
+          ],
+          [
+            2735.465087890625
+          ],
+          [
+            2737.289794921875
+          ],
+          [
+            2738.99267578125
+          ],
+          [
+            2740.581787109375
+          ],
+          [
+            2742.065185546875
+          ],
+          [
+            2743.44970703125
+          ],
+          [
+            2744.741943359375
+          ],
+          [
+            2745.948486328125
+          ],
+          [
+            2747.074462890625
+          ],
+          [
+            2748.125732421875
+          ],
+          [
+            2749.107177734375
+          ],
+          [
+            2750.023193359375
+          ],
+          [
+            2750.878662109375
+          ],
+          [
+            2751.677001953125
+          ],
+          [
+            2752.422607421875
+          ],
+          [
+            2753.11865234375
+          ],
+          [
+            2753.7685546875
+          ],
+          [
+            2754.37548828125
+          ],
+          [
+            2754.94189453125
+          ],
+          [
+            2755.470947265625
+          ],
+          [
+            2755.96484375
+          ],
+          [
+            2756.426025390625
+          ],
+          [
+            2756.856689453125
+          ],
+          [
+            2757.2587890625
+          ],
+          [
+            2757.63427734375
+          ],
+          [
+            2757.98486328125
+          ],
+          [
+            2758.312255859375
+          ],
+          [
+            2758.617919921875
+          ],
+          [
+            2758.903564453125
+          ],
+          [
+            2759.169921875
+          ],
+          [
+            2759.4189453125
+          ],
+          [
+            2759.6513671875
+          ],
+          [
+            2759.868408203125
+          ],
+          [
+            2760.071044921875
+          ],
+          [
+            2760.26025390625
+          ],
+          [
+            2760.43701171875
+          ],
+          [
+            2760.60205078125
+          ],
+          [
+            2760.75634765625
+          ],
+          [
+            2760.900146484375
+          ],
+          [
+            2761.034423828125
+          ],
+          [
+            2761.16015625
+          ],
+          [
+            2761.27734375
+          ],
+          [
+            2761.38671875
+          ],
+          [
+            2761.48876953125
+          ],
+          [
+            2761.584228515625
+          ]
+        ]
+      },
+      "strict_solver": {
+        "time_microseconds": [
+          0.0,
+          6.060606002807617,
+          12.121212005615234,
+          18.18181800842285,
+          24.24242401123047,
+          30.303030014038086,
+          36.3636360168457,
+          42.42424392700195,
+          48.48484802246094,
+          54.54545211791992,
+          60.60606002807617,
+          66.66666412353516,
+          72.7272720336914,
+          78.78787994384766,
+          84.8484878540039,
+          90.90908813476562,
+          96.96969604492188,
+          103.03030395507812,
+          109.09090423583984,
+          115.15151977539062,
+          121.21212005615234,
+          127.27272033691406,
+          133.3333282470703,
+          139.39395141601562,
+          145.4545440673828,
+          151.51515197753906,
+          157.5757598876953,
+          163.6363525390625,
+          169.6969757080078,
+          175.75758361816406,
+          181.81817626953125,
+          187.8787841796875,
+          193.93939208984375,
+          200.0,
+          206.06060791015625,
+          212.1212158203125,
+          218.1818084716797,
+          224.24241638183594,
+          230.30303955078125,
+          236.36363220214844,
+          242.4242401123047,
+          248.48483276367188,
+          254.54544067382812,
+          260.6060485839844,
+          266.6666564941406,
+          272.727294921875,
+          278.78790283203125,
+          284.8484802246094,
+          290.9090881347656,
+          296.9696960449219,
+          303.0303039550781,
+          309.0909118652344,
+          315.1515197753906,
+          321.21209716796875,
+          327.272705078125,
+          333.3333435058594,
+          339.3939514160156,
+          345.4545593261719,
+          351.5151672363281,
+          357.57574462890625,
+          363.6363525390625,
+          369.69696044921875,
+          375.757568359375,
+          381.81817626953125,
+          387.8787841796875,
+          393.9394226074219,
+          400.0,
+          406.06060791015625,
+          412.1212158203125,
+          418.18182373046875,
+          424.242431640625,
+          430.30303955078125,
+          436.3636169433594,
+          442.4242248535156,
+          448.4848327636719,
+          454.54547119140625,
+          460.6060791015625,
+          466.66668701171875,
+          472.7272644042969,
+          478.7878723144531,
+          484.8484802246094,
+          490.9090881347656,
+          496.96966552734375,
+          503.0303039550781,
+          509.09088134765625,
+          515.1515502929688,
+          521.2120971679688,
+          527.272705078125,
+          533.3333129882812,
+          539.3939208984375,
+          545.45458984375,
+          551.51513671875,
+          557.5758056640625,
+          563.6363525390625,
+          569.6969604492188,
+          575.757568359375,
+          581.8181762695312,
+          587.8787841796875,
+          593.9393920898438,
+          600.0
+        ],
+        "predicted_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1173.809326171875
+          ],
+          [
+            1194.286865234375
+          ],
+          [
+            1216.509521484375
+          ],
+          [
+            1240.70751953125
+          ],
+          [
+            1263.005615234375
+          ],
+          [
+            1280.79443359375
+          ],
+          [
+            1295.8785400390625
+          ],
+          [
+            1310.3544921875
+          ],
+          [
+            1325.01025390625
+          ],
+          [
+            1364.94189453125
+          ],
+          [
+            1715.618408203125
+          ],
+          [
+            1725.064697265625
+          ],
+          [
+            1727.5003662109375
+          ],
+          [
+            1730.6229248046875
+          ],
+          [
+            1735.624267578125
+          ],
+          [
+            1742.2481689453125
+          ],
+          [
+            1750.1358642578125
+          ],
+          [
+            1759.011962890625
+          ],
+          [
+            1768.6689453125
+          ],
+          [
+            1778.95703125
+          ],
+          [
+            1789.763427734375
+          ],
+          [
+            1801.0074462890625
+          ],
+          [
+            1812.6175537109375
+          ],
+          [
+            1824.5423583984375
+          ],
+          [
+            1836.730712890625
+          ],
+          [
+            1849.1502685546875
+          ],
+          [
+            1861.7716064453125
+          ],
+          [
+            1874.56396484375
+          ],
+          [
+            1887.5045166015625
+          ],
+          [
+            1900.576416015625
+          ],
+          [
+            1913.758056640625
+          ],
+          [
+            1927.02685546875
+          ],
+          [
+            1940.373291015625
+          ],
+          [
+            1953.784912109375
+          ],
+          [
+            1967.246826171875
+          ],
+          [
+            1980.7437744140625
+          ],
+          [
+            1994.2664794921875
+          ],
+          [
+            2007.804443359375
+          ],
+          [
+            2021.3446044921875
+          ],
+          [
+            2034.880126953125
+          ],
+          [
+            2048.3974609375
+          ],
+          [
+            2061.88623046875
+          ],
+          [
+            2075.33740234375
+          ],
+          [
+            2088.7470703125
+          ],
+          [
+            2102.0966796875
+          ],
+          [
+            2115.38330078125
+          ],
+          [
+            2128.600341796875
+          ],
+          [
+            2141.73486328125
+          ],
+          [
+            2154.783203125
+          ],
+          [
+            2167.73876953125
+          ],
+          [
+            2180.5966796875
+          ],
+          [
+            2193.34228515625
+          ],
+          [
+            2205.97509765625
+          ],
+          [
+            2218.489013671875
+          ],
+          [
+            2230.87158203125
+          ],
+          [
+            2243.1201171875
+          ],
+          [
+            2255.227783203125
+          ],
+          [
+            2267.18896484375
+          ],
+          [
+            2279.00244140625
+          ],
+          [
+            2290.657958984375
+          ],
+          [
+            2302.14697265625
+          ],
+          [
+            2313.46533203125
+          ],
+          [
+            2324.61279296875
+          ],
+          [
+            2335.58154296875
+          ],
+          [
+            2346.37060546875
+          ],
+          [
+            2356.97265625
+          ],
+          [
+            2367.387451171875
+          ],
+          [
+            2377.609375
+          ],
+          [
+            2387.640625
+          ],
+          [
+            2397.483154296875
+          ],
+          [
+            2407.13427734375
+          ],
+          [
+            2416.5966796875
+          ],
+          [
+            2425.8671875
+          ],
+          [
+            2434.95166015625
+          ],
+          [
+            2443.853759765625
+          ],
+          [
+            2452.5830078125
+          ],
+          [
+            2461.1376953125
+          ],
+          [
+            2469.527099609375
+          ],
+          [
+            2477.75537109375
+          ],
+          [
+            2485.828125
+          ],
+          [
+            2493.75146484375
+          ],
+          [
+            2501.5302734375
+          ],
+          [
+            2509.17138671875
+          ],
+          [
+            2516.681640625
+          ],
+          [
+            2524.0615234375
+          ],
+          [
+            2531.3203125
+          ],
+          [
+            2538.4638671875
+          ],
+          [
+            2545.49609375
+          ],
+          [
+            2552.416015625
+          ],
+          [
+            2559.229248046875
+          ],
+          [
+            2565.9384765625
+          ],
+          [
+            2572.546875
+          ],
+          [
+            2579.05810546875
+          ],
+          [
+            2585.47119140625
+          ],
+          [
+            2591.79052734375
+          ],
+          [
+            2598.01806640625
+          ],
+          [
+            2604.15478515625
+          ],
+          [
+            2610.1982421875
+          ],
+          [
+            2616.15478515625
+          ]
+        ],
+        "reference_temperature_K": [
+          [
+            1150.0
+          ],
+          [
+            1150.0
+          ],
+          [
+            1150.0001220703125
+          ],
+          [
+            1150.0009765625
+          ],
+          [
+            1150.0052490234375
+          ],
+          [
+            1150.0255126953125
+          ],
+          [
+            1150.126953125
+          ],
+          [
+            1150.7127685546875
+          ],
+          [
+            1154.54638671875
+          ],
+          [
+            1176.5201416015625
+          ],
+          [
+            1313.2237548828125
+          ],
+          [
+            1728.532470703125
+          ],
+          [
+            1929.278076171875
+          ],
+          [
+            2053.38818359375
+          ],
+          [
+            2142.9091796875
+          ],
+          [
+            2212.45654296875
+          ],
+          [
+            2268.95166015625
+          ],
+          [
+            2316.23486328125
+          ],
+          [
+            2356.66162109375
+          ],
+          [
+            2391.782958984375
+          ],
+          [
+            2422.673095703125
+          ],
+          [
+            2450.108154296875
+          ],
+          [
+            2474.666015625
+          ],
+          [
+            2496.789794921875
+          ],
+          [
+            2516.82568359375
+          ],
+          [
+            2535.051025390625
+          ],
+          [
+            2551.68994140625
+          ],
+          [
+            2566.927734375
+          ],
+          [
+            2580.919189453125
+          ],
+          [
+            2593.794677734375
+          ],
+          [
+            2605.665771484375
+          ],
+          [
+            2616.62890625
+          ],
+          [
+            2626.767333984375
+          ],
+          [
+            2636.154296875
+          ],
+          [
+            2644.85498046875
+          ],
+          [
+            2652.92626953125
+          ],
+          [
+            2660.419677734375
+          ],
+          [
+            2667.38134765625
+          ],
+          [
+            2673.852783203125
+          ],
+          [
+            2679.87158203125
+          ],
+          [
+            2685.471923828125
+          ],
+          [
+            2690.684814453125
+          ],
+          [
+            2695.538818359375
+          ],
+          [
+            2700.06005859375
+          ],
+          [
+            2704.272216796875
+          ],
+          [
+            2708.19775390625
+          ],
+          [
+            2711.856689453125
+          ],
+          [
+            2715.267822265625
+          ],
+          [
+            2718.4482421875
+          ],
+          [
+            2721.414306640625
+          ],
+          [
+            2724.1806640625
+          ],
+          [
+            2726.76123046875
+          ],
+          [
+            2729.168212890625
+          ],
+          [
+            2731.414306640625
+          ],
+          [
+            2733.509765625
+          ],
+          [
+            2735.465087890625
+          ],
+          [
+            2737.289794921875
+          ],
+          [
+            2738.99267578125
+          ],
+          [
+            2740.581787109375
+          ],
+          [
+            2742.065185546875
+          ],
+          [
+            2743.44970703125
+          ],
+          [
+            2744.741943359375
+          ],
+          [
+            2745.948486328125
+          ],
+          [
+            2747.074462890625
+          ],
+          [
+            2748.125732421875
+          ],
+          [
+            2749.107177734375
+          ],
+          [
+            2750.023193359375
+          ],
+          [
+            2750.878662109375
+          ],
+          [
+            2751.677001953125
+          ],
+          [
+            2752.422607421875
+          ],
+          [
+            2753.11865234375
+          ],
+          [
+            2753.7685546875
+          ],
+          [
+            2754.37548828125
+          ],
+          [
+            2754.94189453125
+          ],
+          [
+            2755.470947265625
+          ],
+          [
+            2755.96484375
+          ],
+          [
+            2756.426025390625
+          ],
+          [
+            2756.856689453125
+          ],
+          [
+            2757.2587890625
+          ],
+          [
+            2757.63427734375
+          ],
+          [
+            2757.98486328125
+          ],
+          [
+            2758.312255859375
+          ],
+          [
+            2758.617919921875
+          ],
+          [
+            2758.903564453125
+          ],
+          [
+            2759.169921875
+          ],
+          [
+            2759.4189453125
+          ],
+          [
+            2759.6513671875
+          ],
+          [
+            2759.868408203125
+          ],
+          [
+            2760.071044921875
+          ],
+          [
+            2760.26025390625
+          ],
+          [
+            2760.43701171875
+          ],
+          [
+            2760.60205078125
+          ],
+          [
+            2760.75634765625
+          ],
+          [
+            2760.900146484375
+          ],
+          [
+            2761.034423828125
+          ],
+          [
+            2761.16015625
+          ],
+          [
+            2761.27734375
+          ],
+          [
+            2761.38671875
+          ],
+          [
+            2761.48876953125
+          ],
+          [
+            2761.584228515625
+          ]
+        ]
+      }
+    }
+  },
+  "reported_loss_reduction": "mean_over_time",
+  "report_conversion": "Rescaled existing saved evaluation metrics and histories only; no ODE solve or training performed."
+}

@@ -1,0 +1,17 @@
+{
+  "initial_train_loss": 791.8936358468239,
+  "initial_test_loss": 818.2448347011139,
+  "final_train_loss": 1.4472899434718807,
+  "final_test_loss": 1.0609731737925026,
+  "completed_steps": 620,
+  "elapsed_seconds": 77.44893662500544,
+  "status": "completed",
+  "stop_reason": "time_budget",
+  "wall_time_budget_seconds": 77.34517029201379,
+  "last_update_within_budget": {
+    "step": 619,
+    "elapsed_seconds": 77.33834608300822,
+    "loss_after": 1.449344795004643,
+    "test_loss": 1.0626323614061934
+  }
+}
