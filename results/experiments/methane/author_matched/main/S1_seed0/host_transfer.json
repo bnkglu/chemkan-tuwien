@@ -1,0 +1,18 @@
+{
+  "what": "Stage 1 moved from the university JupyterHub (CPU) to the MacBook and resumed here",
+  "epochs_completed_at_transfer": 28000,
+  "source_commit": "24beac6 (original checkpoint as pushed from JupyterHub)",
+  "checkpoint_sha256_before_edit": "75b796a47bde5e375c79fa827411e4858a77a1b2fcd8177b558d53299d77e45b",
+  "edited_config_fields": {
+    "from": {
+      "python": "3.11.16",
+      "torch": "2.13.0+cu130"
+    },
+    "to": {
+      "python": "3.11.3",
+      "torch": "2.13.0"
+    }
+  },
+  "reason": "the resume check compares python/torch versions; no model, optimizer or RNG state changed",
+  "date": "2026-10-05T18:26:36"
+}

@@ -273,10 +273,10 @@
     "name": "methane",
     "note": "project proposal extension, not in the paper; element table from Cantera gri30.yaml"
   },
-  "git_commit": "379d92c71074993cb4929514a9e0f264e446a174",
-  "created": "2026-10-05T09:34:13Z",
-  "python": "3.11.16",
-  "torch": "2.13.0+cu130",
+  "git_commit": "f4687a6b692e00ac54c13aff9e907676e2a92acf",
+  "created": "2026-10-06T14:44:30Z",
+  "python": "3.11.3",
+  "torch": "2.13.0",
   "stage": 1,
   "run_id": "S1_seed0",
   "epochs": {

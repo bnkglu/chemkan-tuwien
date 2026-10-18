@@ -95,3 +95,7 @@ lightning_logs/
 # Directory-only pattern: excluding the directory also blocks the negations above,
 # and smoke *scripts* (e.g. deeponet/biodiesel_deeponet_smoke.py) stay tracked.
 results/**/*smoke*/
+
+# Full methane Stage-2 history (236 MB, over the GitHub limit); the committed
+# stage2_history.csv has every row without the 52 per-species thermo-weight columns.
+results/experiments/methane/author_matched/main/S2_seed0/stage2_history_full.csv
