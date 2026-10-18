@@ -1,0 +1,31 @@
+reference at rtol 1e-06 atol 1e-08 fails for conditions [21, 22, 24]; not timed
+latency    reference_generator              median 3.9367e-03 s  IQR 6.87e-04
+latency    reference_rtol1e-6_atol1e-12     median 2.0427e-03 s  IQR 2.99e-04
+latency    reference_rtol1e-6_atol1e-10     median 1.9132e-03 s  IQR 3.10e-04
+latency    reference_biodiesel_tolerance    median 1.9825e-04 s  IQR 1.68e-05
+latency    chemkan_trained                  median 1.1151e-01 s  IQR 1.26e-02
+latency    chemkan_biodiesel_tolerance      median 4.8899e-02 s  IQR 1.38e-02
+throughput reference_generator_sequential           median 1.2601e-01 s  285.7 traj/s
+throughput reference_rtol1e-6_atol1e-12_sequential  median 6.4002e-02 s  562.5 traj/s
+throughput reference_rtol1e-6_atol1e-10_sequential  median 5.8899e-02 s  611.2 traj/s
+throughput reference_biodiesel_tolerance_sequential median 7.5939e-03 s  4740.6 traj/s
+throughput chemkan_trained_sequential               median 3.5042e+00 s  10.3 traj/s
+throughput chemkan_trained_batched                  median 5.8725e-01 s  61.3 traj/s
+throughput chemkan_biodiesel_tolerance_sequential   median 1.5022e+00 s  24.0 traj/s
+throughput chemkan_biodiesel_tolerance_batched      median 3.0183e-01 s  119.3 traj/s
+speed-up   reference_generator/chemkan_trained: latency 0.0353x, throughput seq 0.036x / batched 0.215x
+speed-up   reference_rtol1e-6_atol1e-12/chemkan_trained: latency 0.0183x, throughput seq 0.0183x / batched 0.109x
+speed-up   reference_rtol1e-6_atol1e-10/chemkan_trained: latency 0.0172x, throughput seq 0.0168x / batched 0.1x
+speed-up   reference_biodiesel_tolerance/chemkan_trained: latency 0.00178x, throughput seq 0.00217x / batched 0.0129x
+speed-up   reference_generator/chemkan_biodiesel_tolerance: latency 0.0805x, throughput seq 0.0839x / batched 0.418x
+speed-up   reference_rtol1e-6_atol1e-12/chemkan_biodiesel_tolerance: latency 0.0418x, throughput seq 0.0426x / batched 0.212x
+speed-up   reference_rtol1e-6_atol1e-10/chemkan_biodiesel_tolerance: latency 0.0391x, throughput seq 0.0392x / batched 0.195x
+speed-up   reference_biodiesel_tolerance/chemkan_biodiesel_tolerance: latency 0.00405x, throughput seq 0.00506x / batched 0.0252x
+accuracy   reference_generator              MSE median 0.000e+00  test 0.000e+00
+accuracy   reference_rtol1e-6_atol1e-12     MSE median 4.073e-10  test 1.258e-10
+accuracy   reference_rtol1e-6_atol1e-10     MSE median 3.728e-06  test 6.841e-07
+accuracy   reference_biodiesel_tolerance    MSE median 1.965e-01  test 3.150e-01
+accuracy   chemkan_trained                  MSE median 4.641e-04  test 3.507e-04
+accuracy   chemkan_biodiesel_tolerance      MSE median 5.637e-04  test 4.451e-04
+reference vs dataset: {'same_grid': True, 'max_abs_diff_species': 3.054822506065591e-10, 'max_abs_diff_T_K': 5.866041192348348e-06}
+wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/experiments/inference_benchmark/hydrogen

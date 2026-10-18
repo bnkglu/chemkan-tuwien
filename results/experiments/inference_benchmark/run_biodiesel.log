@@ -1,0 +1,20 @@
+latency    reference_generator              median 1.2036e-03 s  IQR 1.52e-04
+latency    reference_loose                  median 7.3127e-04 s  IQR 1.76e-04
+latency    chemkan_evaluation_7b            median 6.7170e-02 s  IQR 1.84e-02
+latency    chemkan_trained                  median 8.4965e-03 s  IQR 1.42e-03
+throughput reference_generator_sequential           median 3.7821e-02 s  793.2 traj/s
+throughput reference_loose_sequential               median 2.1571e-02 s  1390.7 traj/s
+throughput chemkan_evaluation_7b_sequential         median 1.9650e+00 s  15.3 traj/s
+throughput chemkan_evaluation_7b_batched            median 8.0829e-02 s  371.2 traj/s
+throughput chemkan_trained_sequential               median 2.5551e-01 s  117.4 traj/s
+throughput chemkan_trained_batched                  median 9.2092e-03 s  3257.6 traj/s
+speed-up   reference_generator/chemkan_evaluation_7b: latency 0.0179x, throughput seq 0.0192x / batched 0.468x
+speed-up   reference_loose/chemkan_evaluation_7b: latency 0.0109x, throughput seq 0.011x / batched 0.267x
+speed-up   reference_generator/chemkan_trained: latency 0.142x, throughput seq 0.148x / batched 4.11x
+speed-up   reference_loose/chemkan_trained: latency 0.0861x, throughput seq 0.0844x / batched 2.34x
+accuracy   reference_generator              MSE median 0.000e+00  test 0.000e+00
+accuracy   reference_loose                  MSE median 4.281e-15  test 3.775e-15
+accuracy   chemkan_evaluation_7b            MSE median 7.982e-05  test 1.611e-04
+accuracy   chemkan_trained                  MSE median 8.676e-05  test 1.616e-04
+reference vs dataset: {'same_grid': False, 'dataset_grid_points': 30, 'max_abs_diff_on_dataset_grid_mol_per_L': 3.0193625377705757e-12}
+wrote /Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/experiments/inference_benchmark/biodiesel

@@ -1,0 +1,3 @@
+cvode_bdf_rtol1e-9_atol1e-15: latency median 134.291 ms, sequential 4.8438 s
+cvode_bdf_rtol1e-6_atol1e-12: latency median 73.187 ms, sequential 2.6549 s
+cvode_bdf_rtol1e-2_atol1e-6: failed for conditions [33]; not timed
