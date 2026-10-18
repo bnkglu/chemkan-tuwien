@@ -380,8 +380,8 @@ def parity(system, model, ref, names, states, is_test, out):
         for ax in list(axes.flat)[n:]:
             ax.set_visible(False)
         axes.flat[0].legend(fontsize=7)
-        fig.supxlabel("Cantera rate at the reference state", fontsize=8.5)
-        fig.supylabel("ChemKAN rate", fontsize=8.5)
+        fig.supxlabel("reference rate (Cantera, at the reference state)", fontsize=9)
+        fig.supylabel("predicted rate (ChemKAN)", fontsize=9)
         fig.suptitle(f"{system}: instantaneous rates at every state of the reference trajectories (symlog axes). "
                      "Training states: rank correlation, share within a factor 2 (states with |rate| > 1 % of the "
                      "species' max), relative RMSE", fontsize=9)

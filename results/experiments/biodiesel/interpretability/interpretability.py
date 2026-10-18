@@ -224,15 +224,16 @@ def parity(model, states, split_names):
             lim = np.array(ax.get_xlim() + ax.get_ylim())
             lo, hi = lim.min(), lim.max()
             ax.plot([lo, hi], [lo, hi], color=MUTED, lw=0.8, ls="--")
-            ax.set_title(f"d[{LABEL.get(SPECIES[i], SPECIES[i])}]/dt  rel. RMSE "
-                         f"{out[SPECIES[i]]['train']['relative_rmse']:.2f} train, "
-                         f"{out[SPECIES[i]]['test']['relative_rmse']:.2f} test", loc="left")
-            ax.set_xlabel("known kinetics [mol L$^{-1}$ s$^{-1}$]")
-            ax.set_ylabel("ChemKAN [mol L$^{-1}$ s$^{-1}$]")
+            ax.set_title(f"d[{LABEL.get(SPECIES[i], SPECIES[i])}]/dt   rel. RMSE "
+                         f"{out[SPECIES[i]]['train']['relative_rmse']:.2f} / "
+                         f"{out[SPECIES[i]]['test']['relative_rmse']:.2f}", loc="left")
+            ax.set_xlabel("reference rate [mol L$^{-1}$ s$^{-1}$]")
+            ax.set_ylabel("predicted rate (ChemKAN) [mol L$^{-1}$ s$^{-1}$]")
             ax.grid(True, color=GRID, lw=0.5)
         axes.flat[0].legend(loc="upper left")
-        fig.suptitle("Species production rates at every state of the clean reference trajectories "
-                     "(30 points each): full ChemKAN vs known Arrhenius kinetics", fontsize=9)
+        fig.suptitle("Species production rates at every state of the clean reference trajectories (30 points "
+                     "each): predicted (ChemKAN) vs reference\n(reference = the known Arrhenius kinetics that "
+                     "generated the data). Panel titles: relative RMSE train / test", fontsize=9)
         fig.tight_layout(rect=(0, 0, 1, 0.95))
         save(fig, "fig3_rate_parity")
     return out
