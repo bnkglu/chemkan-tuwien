@@ -58,6 +58,14 @@ python scripts/evaluate_hydrogen.py
 
 Data generation setup and commands: **[`scripts/data_gen/README.md`](scripts/data_gen/README.md)**.
 
+## Local adaptive-FGD experiment
+
+An optional experimental trainer implements adaptive functional-gradient updates
+on the KAN edge functions, using the paper *Functional Gradient Descent with
+Adaptive Representations*. See [`docs/adaptive_fgd.md`](../docs/adaptive_fgd.md)
+for the mathematical mapping, runnable commands, checkpoints, and limitations.
+The existing reproduction commands above retain their original behavior.
+
 ## Reference
 
 Koenig, B. C., Kim, S., & Deng, S. (2025). ChemKANs for combustion chemistry modeling

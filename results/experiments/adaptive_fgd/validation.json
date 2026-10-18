@@ -1,0 +1,30 @@
+{
+  "base_repository": "https://github.com/bnkglu/chemkan-tuwien",
+  "base_branch": "dev",
+  "base_commit": "54d34d2772c708fcfeb4f13562e09164908b8b0f",
+  "reference_commit": "57f0bab8df7bd3fe5e4d1ff8c23953989c62befc",
+  "tests": {
+    "command": "/Users/berke/uni_projects/chemkan-venv/bin/python -m pytest chemkan/tests -q",
+    "passed": 403,
+    "new_adaptive_fgd_tests": 26,
+    "failed": 0,
+    "warnings": 601,
+    "warning_source": "Matplotlib/pyparsing deprecations in existing figure tests",
+    "elapsed_seconds": 596.3
+  },
+  "lint": "ruff check passed for the three new Python files",
+  "format": "ruff format --check passed for the three new Python files",
+  "biodiesel_adaptive_full_dataset": {
+    "accepted_updates": 10,
+    "relative_error_certified_updates": 10,
+    "armijo_decrease_updates": 10,
+    "maximum_relative_error_bound": 0.2584122169362595,
+    "threshold": 0.3333333333333333
+  },
+  "checkpoint_reload": "All three complete-dataset biodiesel runs and both hydrogen smoke runs reproduce saved train/test losses exactly",
+  "git": {
+    "commits_created": 0,
+    "pushes": 0,
+    "staged_files": 0
+  }
+}

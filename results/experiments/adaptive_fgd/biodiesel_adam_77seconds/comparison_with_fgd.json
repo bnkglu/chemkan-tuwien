@@ -1,0 +1,29 @@
+{
+  "time_budget_seconds": 77.34517029201379,
+  "adam_last_update_within_budget": {
+    "step": 619,
+    "elapsed_seconds": 77.33834608300822,
+    "loss_after": 1.449344795004643,
+    "test_loss": 1.0626323614061934
+  },
+  "adaptive_fgd": {
+    "step": 10,
+    "elapsed_seconds": 77.34517029201379,
+    "loss_after": 7.075672909038147,
+    "test_loss": 7.502073426422018
+  },
+  "test_loss_ratio_fgd_over_adam": 7.05989549997747,
+  "train_loss_ratio_fgd_over_adam": 4.8819804186176965,
+  "first_adam_update_beating_both_fgd_losses": {
+    "loss_before": 7.484926565214626,
+    "loss_after": 6.84056021203647,
+    "step_size": 0.002,
+    "stationary": false,
+    "test_loss": 7.004731218270126,
+    "step": 45,
+    "elapsed_seconds": 5.186674708005739
+  },
+  "initial_ten_adam_updates_reproduced_exactly": true,
+  "final_checkpoint_reload_matches_metrics_exactly": true,
+  "timing_caveat": "Single seed and different sessions; original FGD ran alongside the test suite, so recorded seconds are not controlled hardware benchmarks. Adam timing includes per-step train/test evaluation and logging; no concurrent test suite was run during Adam training."
+}

@@ -1,0 +1,27 @@
+{
+  "biodiesel_full_10steps": {
+    "train_loss": 7.075672909038147,
+    "test_loss": 7.502073426422018,
+    "bitwise_metric_match": true
+  },
+  "biodiesel_fixed_10steps": {
+    "train_loss": 14.4546646678122,
+    "test_loss": 13.703239111744637,
+    "bitwise_metric_match": true
+  },
+  "biodiesel_adam_10steps": {
+    "train_loss": 96.80362328875538,
+    "test_loss": 107.90829378455979,
+    "bitwise_metric_match": true
+  },
+  "hydrogen_stage1_smoke": {
+    "train_loss": 0.030418307980283263,
+    "test_loss": 0.030652081653250705,
+    "bitwise_metric_match": true
+  },
+  "hydrogen_full_smoke": {
+    "train_loss": 0.027606802345466003,
+    "test_loss": 0.027766738237912134,
+    "bitwise_metric_match": true
+  }
+}

@@ -1,0 +1,12 @@
+{"loss_before": 6.677277565002441, "loss_after": 8.303396224975586, "step_size": 0.002, "stationary": false, "test_loss": 7.77575159072876, "step": 1, "elapsed_seconds": 4.4449172080203425}
+{"loss_before": 8.303396224975586, "loss_after": 8.783441543579102, "step_size": 0.002, "stationary": false, "test_loss": 8.27938175201416, "step": 2, "elapsed_seconds": 7.503827666019788}
+{"loss_before": 8.783441543579102, "loss_after": 8.397270202636719, "step_size": 0.002, "stationary": false, "test_loss": 7.954869270324707, "step": 3, "elapsed_seconds": 10.586353332997533}
+{"loss_before": 8.397270202636719, "loss_after": 7.566444396972656, "step_size": 0.002, "stationary": false, "test_loss": 7.501234531402588, "step": 4, "elapsed_seconds": 14.575942249997752}
+{"loss_before": 7.566444396972656, "loss_after": 6.153533458709717, "step_size": 0.002, "stationary": false, "test_loss": 7.687293529510498, "step": 5, "elapsed_seconds": 19.598536083009094}
+{"loss_before": 6.153533458709717, "loss_after": 7.745680332183838, "step_size": 0.002, "stationary": false, "test_loss": 8.644556999206543, "step": 6, "elapsed_seconds": 24.45921237501898}
+{"loss_before": 7.745680332183838, "loss_after": 7.034353733062744, "step_size": 0.002, "stationary": false, "test_loss": 8.250661849975586, "step": 7, "elapsed_seconds": 29.308526375010842}
+{"loss_before": 7.034353733062744, "loss_after": 5.9381103515625, "step_size": 0.002, "stationary": false, "test_loss": 7.4464240074157715, "step": 8, "elapsed_seconds": 32.52072387500084}
+{"loss_before": 5.9381103515625, "loss_after": 6.729570388793945, "step_size": 0.002, "stationary": false, "test_loss": 7.261393070220947, "step": 9, "elapsed_seconds": 36.625202291004825}
+{"loss_before": 6.729570388793945, "loss_after": 7.058149337768555, "step_size": 0.002, "stationary": false, "test_loss": 7.363799571990967, "step": 10, "elapsed_seconds": 45.39513329102192}
+{"loss_before": 7.058149337768555, "loss_after": 6.9691643714904785, "step_size": 0.002, "stationary": false, "test_loss": 7.357814788818359, "step": 11, "elapsed_seconds": 52.679533041024115}
+{"loss_before": 6.9691643714904785, "loss_after": 6.431790351867676, "step_size": 0.002, "stationary": false, "test_loss": 7.198204040527344, "step": 12, "elapsed_seconds": 59.022951165999984}

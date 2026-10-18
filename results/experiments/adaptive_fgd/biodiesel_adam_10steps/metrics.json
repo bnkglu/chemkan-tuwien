@@ -1,0 +1,9 @@
+{
+  "initial_train_loss": 791.8936358468239,
+  "initial_test_loss": 818.2448347011139,
+  "final_train_loss": 96.80362328875538,
+  "final_test_loss": 107.90829378455979,
+  "completed_steps": 10,
+  "elapsed_seconds": 2.645747875008965,
+  "status": "completed"
+}
