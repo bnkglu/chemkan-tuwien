@@ -43,13 +43,10 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from _data import DATA_DIR, load_input_scaling, resolve_device
+from _data import DATA_DIR, resolve_device
 from _predictions import checkpoint_sha256
-from evaluate_hydrogen import build_chemkan, solver_from_ckpt
+from evaluate_hydrogen import load_predictor
 from _run import utc_now
-
-from chemkan.dynamics import ChemKANDynamics
-from chemkan.solver import integrate
 
 
 def repo_relative(path) -> str:
@@ -89,7 +86,9 @@ def temperature_rise(T: np.ndarray) -> float:
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--run-dir", required=True)
+    p.add_argument("--run-dir", required=True,
+                   help="directory holding checkpoint_final.pt or an author-matched "
+                        "stage2_final.pt")
     p.add_argument("--out", required=True, help="directory for the CSV / summary")
     p.add_argument("--label", default=None)
     p.add_argument("--points", type=int, default=601,
@@ -98,14 +97,21 @@ def main():
                    help="dense reference temperature cache resolution")
     p.add_argument("--held-out", default="1150:1.3")
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
+    p.add_argument("--rtol", type=float, default=None,
+                   help="solver rtol (default: the checkpoint's training tolerance)")
+    p.add_argument("--atol", type=float, default=None,
+                   help="solver atol (default: the checkpoint's training tolerance)")
+    p.add_argument("--float64", action="store_true",
+                   help="integrate in double precision (needed for rtol below ~1e-7)")
     p.add_argument("--force", action="store_true")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
     dev = resolve_device(args.device)
     run_dir = Path(args.run_dir)
-    ckpt_path = run_dir / "checkpoint_final.pt"
-    ckpt = torch.load(ckpt_path, map_location=dev, weights_only=False)
+    predictor = load_predictor(run_dir, dev, rtol=args.rtol, atol=args.atol,
+                               float64=args.float64)
+    ckpt, ckpt_path, solver = predictor["ckpt"], predictor["checkpoint"], predictor["solver"]
 
     canon = np.load(DATA_DIR / "hydrogen.npz", allow_pickle=True)
     cache = np.load(DATA_DIR / f"hydrogen_temperature_{args.cache_points}.npz",
@@ -127,14 +133,11 @@ def main():
     T_ref = np.stack([np.interp(t_dense, t_cache, T_cache[:, i]) for i in range(len(ics))],
                      axis=1)                                       # (P, 36)
 
-    model = build_chemkan(ckpt, m, dev)
-    dyn = ChemKANDynamics(model, input_normalizer=load_input_scaling(ckpt, dev)).to(dev)
-    solver = solver_from_ckpt(ckpt)
     u0 = torch.as_tensor(states[:, 0, :], dtype=torch.float32, device=dev)
     t_t = torch.as_tensor(t_dense, dtype=torch.float32, device=dev)
     try:
         with torch.no_grad():
-            pred = integrate(dyn, u0, t_t, solver).cpu().numpy()   # (P, 36, m+1)
+            pred = predictor["predict"](u0, t_t).cpu().numpy()     # (P, 36, m+1)
     except Exception as exc:
         logging.warning("batched integration raised (%s); retrying per condition",
                         type(exc).__name__)
@@ -142,7 +145,7 @@ def main():
         for i in range(len(ics)):
             try:
                 with torch.no_grad():
-                    pred[:, i:i + 1] = integrate(dyn, u0[i:i + 1], t_t, solver).cpu().numpy()
+                    pred[:, i:i + 1] = predictor["predict"](u0[i:i + 1], t_t).cpu().numpy()
             except Exception as inner:
                 logging.warning("T0=%.0f phi=%.2f integration failed: %s",
                                 ics[i, 0], ics[i, 1], type(inner).__name__)
@@ -200,7 +203,7 @@ def main():
     summary = {
         "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
         "checkpoint_sha256": checkpoint_sha256(ckpt_path),
-        "architecture": ckpt["architecture"],
+        "architecture": predictor["architecture"],
         "definition": "ignition delay = time of maximum dT/dt (paper Sec. III B)",
         "estimator": "numpy.gradient on the dense diagnostic grid, identical for "
                      "reference and model",
@@ -220,7 +223,8 @@ def main():
              if r["chemkan_temperature_rise_K"] != ""])),
         "median_abs_relative_delay_error": float(np.median(
             [abs(r["relative_error"]) for r in rows if r["relative_error"] != ""])),
-        "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol},
+        "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol,
+                   "precision": "float64" if args.float64 else "checkpoint dtype"},
         "evaluated_at": utc_now(),
     }
     (out / f"hydrogen_ignition_delay_{label}.json").write_text(

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,7 +26,6 @@ from common import (
     FIGURES_HYDROGEN,
     TABLES_HYDROGEN,
     add_repo_paths,
-    load_checkpoint,
     loss_reduction,
     relative_to_root,
     require_file,
@@ -38,12 +38,9 @@ from matplotlib.ticker import MaxNLocator
 
 add_repo_paths()
 
-from _data import load_input_scaling
-from evaluate_hydrogen import build_chemkan, solver_from_ckpt
+from evaluate_hydrogen import load_predictor
 
-from chemkan.dynamics import ChemKANDynamics
 from chemkan.normalization import MinMaxNormalizer
-from chemkan.solver import integrate
 
 # Panel rows: temperature, major species, minor species.
 GROUPS = [["T"], ["H2", "O2", "H2O", "O", "OH"], ["H", "HO2", "H2O2"]]
@@ -75,6 +72,11 @@ TAGS = {"H0 (primary, random init)": "H0",
         "Hnorm1 (labelled init comparison)": "Hnorm1"}
 
 
+def tag(label):
+    """File-name tag of a model label (``--run`` labels are used as given)."""
+    return TAGS.get(label, label)
+
+
 def load_reference(data_path=None):
     """Cantera reference trajectories, species names and the Eq. 18 normalizer."""
     npz = np.load(require_file(data_path or DATA / "hydrogen.npz", "hydrogen dataset"),
@@ -85,12 +87,9 @@ def load_reference(data_path=None):
                                            torch.as_tensor(npz["u_max"]))}
 
 
-def evaluate_condition(run_dir, reference, T0, phi, t_dense):
+def evaluate_condition(run_dir, reference, T0, phi, t_dense, solver_options=None):
     """Integrate one condition from its initial state; return curves and per-state losses."""
-    ckpt = load_checkpoint(require_file(run_dir / "checkpoint_final.pt", "checkpoint"))
-    model = build_chemkan(ckpt, len(reference["species"]), "cpu")
-    dynamics = ChemKANDynamics(model, input_normalizer=load_input_scaling(ckpt, "cpu"))
-    solver = solver_from_ckpt(ckpt)
+    predictor = load_predictor(run_dir, **(solver_options or {}))
 
     matches = np.flatnonzero(np.isclose(reference["ics"][:, 0], T0)
                              & np.isclose(reference["ics"][:, 1], phi))
@@ -100,16 +99,14 @@ def evaluate_condition(run_dir, reference, T0, phi, t_dense):
     ref = reference["states"][int(matches[0])]
     u0 = torch.as_tensor(ref[0], dtype=torch.float32).unsqueeze(0)
     with torch.no_grad():
-        dense = integrate(dynamics, u0, torch.as_tensor(t_dense, dtype=torch.float32),
-                          solver)[:, 0].numpy()
-        at_obs = integrate(dynamics, u0,
-                           torch.as_tensor(reference["t"], dtype=torch.float32), solver)[:, 0]
+        dense = predictor["predict"](u0, torch.as_tensor(t_dense, dtype=torch.float32))[:, 0].numpy()
+        at_obs = predictor["predict"](u0, torch.as_tensor(reference["t"], dtype=torch.float32))[:, 0]
         error = (reference["normalizer"].normalize(at_obs)
                  - reference["normalizer"].normalize(torch.as_tensor(ref, dtype=torch.float32)))
         losses = error.square().sum(0).numpy()
     if not (np.isfinite(dense).all() and np.isfinite(losses).all()):
         raise ValueError(f"non-finite prediction at T0={T0}, phi={phi}")
-    return {"ref": ref, "pred": dense, "losses": losses}
+    return {"ref": ref, "pred": dense, "losses": losses, "checkpoint": predictor["checkpoint"]}
 
 
 def shared_row_limits(cache, species):
@@ -165,12 +162,12 @@ def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, n
             # Species panels keep the top-right corner for the legend, so their loss box
             # sits at the right-hand middle, which the curves leave empty.
             ax.text(.97, .94 if row == 0 else .55,
-                    f"Normalized loss = {losses[indices].mean() / divisor:.3e}",
+                    f"MSE = {losses[indices].mean() / divisor:.3e}",
                     transform=ax.transAxes, ha="right", va="top", fontsize=8,
                     bbox={"facecolor": "white", "alpha": .85, "edgecolor": "none", "pad": 2})
             if row == 0:
                 ax.set_title(f"{kind}: $T_0$={T0:g} K, $\\phi$={phi:g}\n"
-                             f"10-state loss = {losses.mean() / divisor:.3e}", fontsize=9)
+                             f"10-state MSE = {losses.mean() / divisor:.3e}", fontsize=9)
             else:
                 ax.legend(loc="upper right", fontsize=8, ncol=2, framealpha=.9,
                           title="Species × multiplier (as labelled in the paper)",
@@ -179,7 +176,7 @@ def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, n
                           columnspacing=.8, labelspacing=.2)
     fig.suptitle(f"Figure 7 — {label}{note}", fontsize=14, y=.995)
     fig.legend(handles=[Line2D([], [], color="0.35", marker="o", ls="none", ms=4,
-                               label="Cantera reference (50 observation times)"),
+                               label=f"Cantera reference ({len(t_obs)} observation times)"),
                         Line2D([], [], color="0.35", lw=1.6,
                                label="ChemKAN (601-point curve)")],
                loc="lower center", bbox_to_anchor=(.5, .055), ncol=2, frameon=False)
@@ -194,23 +191,25 @@ def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, n
     return fig
 
 
-def evaluate_all(runs, reference, t_dense):
+def evaluate_all(runs, reference, t_dense, solver_options=None):
     """Evaluate every (model, condition) pair once; both Figure-7 views share the result."""
     species = reference["species"]
     cache, rows = {}, []
     for label, run_dir in runs.items():
         for T0, phi, kind in CONDITIONS:
-            item = evaluate_condition(run_dir, reference, T0, phi, t_dense)
+            item = evaluate_condition(run_dir, reference, T0, phi, t_dense, solver_options)
             cache[label, T0, phi] = item
             losses = item["losses"]
             rows.append({"model": label, "condition": f"{T0:g}/{phi:g}", "role": kind,
-                         "checkpoint": relative_to_root(run_dir / "checkpoint_final.pt"),
-                         "case_Eq18_MSE": float(losses.mean()), "T_MSE": float(losses[-1]),
+                         "checkpoint": relative_to_root(item["checkpoint"]),
+                         "case_Eq18_MSE": float(losses.mean()),
+                         "case_MSE_time_avg": float(losses.mean()) / len(reference["t"]),
+                         "T_MSE": float(losses[-1]),
                          **{f"{sp}_MSE": float(losses[k]) for k, sp in enumerate(species)}})
     return cache, rows
 
 
-def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits):
+def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0):
     """The same predictions with NO display multipliers, on a symlog species axis."""
     colours = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     colour_of = {sp: colours[j % len(colours)] for names in GROUPS
@@ -236,7 +235,7 @@ def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits):
                 ax.set_ylim(*row_limits[0])
                 ax.set_yticks(np.arange(1000, 3001, 500))
                 ax.set_title(f"{kind}: $T_0$={T0:g} K, $\\phi$={phi:g}\n"
-                             f"10-state loss = {losses.mean():.3e}", fontsize=9)
+                             f"10-state MSE = {losses.mean() / divisor:.3e}", fontsize=9)
             else:
                 ax.set_ylabel("Y (mass fraction, true scale)")
                 ax.set_yscale("symlog", linthresh=LINTHRESH)
@@ -248,7 +247,7 @@ def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits):
             letter = "ABC"[row] if col == 0 else "DEF"[row]
             ax.set_title(f"({letter})", loc="left", fontsize=13)
             ax.text(.97, .06 if row else .94,
-                    f"Normalized loss = {losses[indices].mean():.3e}",
+                    f"MSE = {losses[indices].mean() / divisor:.3e}",
                     transform=ax.transAxes, ha="right", va="bottom" if row else "top",
                     fontsize=8,
                     bbox={"facecolor": "white", "alpha": .85, "edgecolor": "none", "pad": 2})
@@ -259,7 +258,7 @@ def plot_model_true_scale(label, cache, species, t_obs, t_dense, row_limits):
     fig.suptitle(f"Figure 7 \u2014 {label} (true mass fraction, no display multipliers)",
                  fontsize=14, y=.995)
     fig.legend(handles=[Line2D([], [], color="0.35", marker="o", ls="none", ms=4,
-                               label="Cantera reference (50 observation times)"),
+                               label=f"Cantera reference ({len(t_obs)} observation times)"),
                         Line2D([], [], color="0.35", lw=1.6,
                                label="ChemKAN (601-point curve)"),
                         Patch(facecolor="0.9",
@@ -281,9 +280,10 @@ def make_true_scale_figure(run_dirs=None, data_path=None, output_dir=None,
     if precomputed is not None:
         cache, reference = precomputed["cache"], precomputed["reference"]
         row_limits, t_dense = precomputed["row_limits"], precomputed["t_dense"]
+        divisor, ta_suffix = precomputed.get("divisor", 1.0), precomputed.get("suffix", "")
     else:
-        runs = dict(DEFAULT_RUNS)
-        runs.update(run_dirs or {})
+        runs = dict(run_dirs) if run_dirs else dict(DEFAULT_RUNS)
+        divisor, ta_suffix = 1.0, ""
         reference = load_reference(data_path)
         t_dense = np.linspace(float(reference["t"][0]), float(reference["t"][-1]),
                               DENSE_POINTS)
@@ -300,12 +300,12 @@ def make_true_scale_figure(run_dirs=None, data_path=None, output_dir=None,
     figs = {}
     for label in {key[0] for key in cache}:
         fig = plot_model_true_scale(label, cache, species, reference["t"], t_dense,
-                                    row_limits)
+                                    row_limits, divisor)
         figs[label] = fig
         if output_dir is not None:
             save_figure(
                 fig,
-                f"{output_dir}/fig07_hydrogen_trajectories_{TAGS[label]}_true_scale",
+                f"{output_dir}/fig07_hydrogen_trajectories_{tag(label)}_true_scale{ta_suffix}",
                 dpi=200)
     if show:
         plt.show()
@@ -313,30 +313,29 @@ def make_true_scale_figure(run_dirs=None, data_path=None, output_dir=None,
 
 
 def make_figure(run_dirs=None, data_path=None, output_dir=None, table_path=None, *,
-                time_averaged=False, show=False):
+                time_averaged=True, solver_options=None, show=False):
     """Paper Figure 7. Returns ``(figs, results)``.
 
     ``figs`` maps each initialization label to its figure -- both are produced together
     because they share y-axis limits. ``results`` is one row per model and condition with
     the per-state Eq. 18 losses.
     """
-    runs = dict(DEFAULT_RUNS)
-    runs.update(run_dirs or {})
+    runs = dict(run_dirs) if run_dirs else dict(DEFAULT_RUNS)
     reference = load_reference(data_path)
     species = reference["species"]
     t_dense = np.linspace(float(reference["t"][0]), float(reference["t"][-1]), DENSE_POINTS)
 
-    cache, rows = evaluate_all(runs, reference, t_dense)
+    cache, rows = evaluate_all(runs, reference, t_dense, solver_options)
     row_limits = shared_row_limits(cache, species)
     divisor, note, ta_suffix = loss_reduction(len(reference["t"]), time_averaged)
     figs = {}
     for label in runs:
         fig = plot_model(label, cache, species, reference["t"], t_dense, row_limits,
-                         divisor, "" if divisor == 1.0 else f"  —  {note}")
+                         divisor)
         figs[label] = fig
         if output_dir is not None:
             save_figure(fig,
-                        f"{output_dir}/fig07_hydrogen_trajectories_{TAGS[label]}"
+                        f"{output_dir}/fig07_hydrogen_trajectories_{tag(label)}"
                         f"{ta_suffix}", dpi=200)
     if table_path is not None:
         with open(table_path, "w", newline="") as f:
@@ -346,7 +345,8 @@ def make_figure(run_dirs=None, data_path=None, output_dir=None, table_path=None,
     if show:
         plt.show()
     return figs, {"rows": rows, "row_limits": row_limits, "cache": cache,
-                  "reference": reference, "t_dense": t_dense, "reduction": note}
+                  "reference": reference, "t_dense": t_dense, "reduction": note,
+                  "divisor": divisor, "suffix": ta_suffix}
 
 
 def main():
@@ -354,16 +354,31 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
     p.add_argument("--table", default=TABLES_HYDROGEN / "fig07_hydrogen_per_state_mse.csv")
-    p.add_argument("--time-averaged", action="store_true",
-                   help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
+    p.add_argument("--run", action="append", default=[], metavar="LABEL=DIR",
+                   help="plot this run instead of the default ones (repeatable); DIR holds "
+                        "checkpoint_final.pt or an author-matched stage2_final.pt")
+    p.add_argument("--summed", action="store_true",
+                   help="report the Eq. 18 loss summed over the time points instead of the "
+                        "time-averaged loss")
+    p.add_argument("--rtol", type=float, default=None,
+                   help="solver rtol (default: the checkpoint's training tolerance)")
+    p.add_argument("--atol", type=float, default=None,
+                   help="solver atol (default: the checkpoint's training tolerance)")
+    p.add_argument("--float64", action="store_true",
+                   help="integrate in double precision (needed for rtol below ~1e-7)")
     args = p.parse_args()
-    _, results = make_figure(output_dir=args.output_dir, table_path=args.table,
-                             time_averaged=args.time_averaged)
+    runs = dict(r.split("=", 1) for r in args.run)
+    _, results = make_figure(run_dirs={k: Path(v) for k, v in runs.items()},
+                             output_dir=args.output_dir, table_path=args.table,
+                             time_averaged=not args.summed,
+                             solver_options={"rtol": args.rtol, "atol": args.atol,
+                                             "float64": args.float64})
     print(f"loss reported as {results['reduction']}")
     _, companion = make_true_scale_figure(output_dir=args.output_dir, precomputed=results)
     for r in results["rows"]:
         print(f"{r['model']:36} {r['condition']:>10} {r['role']:>9}  "
-              f"10-state {r['case_Eq18_MSE']:.4e}  T {r['T_MSE']:.4e}")
+              f"10-state Eq. 18 {r['case_Eq18_MSE']:.4e}  time-averaged "
+              f"{r['case_MSE_time_avg']:.4e}")
     print("Shared Figure-7 limits (temperature, major species, minor species):",
           results["row_limits"])
     print("Predicted mass fractions that go negative "

@@ -38,20 +38,19 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from _data import DATA_DIR, load_input_scaling, resolve_device
+from _data import DATA_DIR, resolve_device
 from _predictions import checkpoint_sha256
-from evaluate_hydrogen import build_chemkan, solver_from_ckpt
+from evaluate_hydrogen import load_predictor
 from _run import utc_now
 
-from chemkan.dynamics import ChemKANDynamics
 from chemkan.losses import trajectory_mse
 from chemkan.normalization import MinMaxNormalizer
-from chemkan.solver import integrate
 
 _METRIC_CONVENTION = ("normalized trajectory MSE (Eq. 18): mean over modeled state variables "
                       "(full [Y, T] state), summed over observation times, using the "
                       "canonical train-only min-max normalization; reported PER CONDITION "
-                      "(never averaged before plotting).")
+                      "(never averaged before plotting). trajectory_mse_time_avg = that value / the number of "
+                      "observation times.")
 
 
 
@@ -77,7 +76,9 @@ def _match_rows(ics: np.ndarray, targets: np.ndarray, tol: float = 1e-6) -> np.n
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--run-dir", required=True, help="directory holding checkpoint_final.pt")
+    p.add_argument("--run-dir", required=True,
+                   help="directory holding checkpoint_final.pt or an author-matched "
+                        "stage2_final.pt")
     p.add_argument("--out", required=True, help="directory for the CSV / predictions / summary")
     p.add_argument("--label", default=None,
                    help="artifact name stem (default: the run directory's name)")
@@ -87,29 +88,31 @@ def main():
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     p.add_argument("--save-predictions", action="store_true",
                    help="also persist all 441 predicted trajectories (npz)")
+    p.add_argument("--rtol", type=float, default=None,
+                   help="solver rtol (default: the checkpoint's training tolerance)")
+    p.add_argument("--atol", type=float, default=None,
+                   help="solver atol (default: the checkpoint's training tolerance)")
+    p.add_argument("--float64", action="store_true",
+                   help="integrate in double precision (needed for rtol below ~1e-7)")
     p.add_argument("--force", action="store_true")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
     dev = resolve_device(args.device)
     run_dir = Path(args.run_dir)
-    ckpt_path = run_dir / "checkpoint_final.pt"
-    ckpt = torch.load(ckpt_path, map_location=dev, weights_only=False)
+    predictor = load_predictor(run_dir, dev, rtol=args.rtol, atol=args.atol,
+                               float64=args.float64)
+    ckpt, ckpt_path, solver = predictor["ckpt"], predictor["checkpoint"], predictor["solver"]
 
     fine = np.load(DATA_DIR / f"{args.grid}.npz", allow_pickle=True)
     canon = np.load(DATA_DIR / "hydrogen.npz", allow_pickle=True)
     t = torch.as_tensor(fine["t"], dtype=torch.float32, device=dev)
     states = fine["states"]                       # (441, Nt, m+1)
     ics = fine["ics"]                             # (441, 2) = [T0, phi]
-    m = len(fine["species"])
 
-    model = build_chemkan(ckpt, m, dev)
-    input_normalizer = load_input_scaling(ckpt, dev)
-    solver = solver_from_ckpt(ckpt)
     # Canonical TRAIN statistics -- never the fine grid's own.
     norm = MinMaxNormalizer(torch.as_tensor(canon["u_min"], dtype=torch.float32),
                             torch.as_tensor(canon["u_max"], dtype=torch.float32)).to(dev)
-    dyn = ChemKANDynamics(model, input_normalizer=input_normalizer).to(dev)
 
     train_mask = _match_rows(ics, canon["train_ics"])
     T0_h, phi_h = (float(v) for v in args.held_out.split(":"))
@@ -131,7 +134,7 @@ def main():
         """(T, len(idx), m+1) predictions, or None if the solver raised."""
         try:
             with torch.no_grad():
-                return integrate(dyn, u0_all[idx], t, solver)
+                return predictor["predict"](u0_all[idx], t)
         except Exception as exc:                   # solver failure is data, not a crash
             logging.warning("integration raised for %d condition(s): %s",
                             len(idx), type(exc).__name__)
@@ -164,7 +167,8 @@ def main():
             logging.warning("T0=%.1f phi=%.2f -> %s", ics[i, 0], ics[i, 1], status)
         rows.append({
             "index": i, "T0_K": float(ics[i, 0]), "phi": float(ics[i, 1]),
-            "trajectory_mse": mse, "status": status,
+            "trajectory_mse": mse, "trajectory_mse_time_avg": mse / len(fine["t"]),
+            "status": status,
             "is_training": bool(train_mask[i]), "is_held_out": bool(held_mask[i]),
             "is_additional": bool(not train_mask[i] and not held_mask[i]),
         })
@@ -187,7 +191,8 @@ def main():
     summary = {
         "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
         "checkpoint_sha256": checkpoint_sha256(ckpt_path),
-        "architecture": ckpt["architecture"], "grid": args.grid,
+        "architecture": predictor["architecture"], "grid": args.grid,
+        "observation_times": len(fine["t"]),
         "grid_provenance": "RECONSTRUCTED 21x21: T0=linspace(950,1200,21), "
                            "phi=linspace(0.5,1.5,21); count and spacing inferred from the "
                            "paper's 441-condition figure, not tabulated there",
@@ -199,9 +204,14 @@ def main():
         "mse_min": None if not len(ok) else float(ok.min()),
         "mse_median": None if not len(ok) else float(np.median(ok)),
         "mse_max": None if not len(ok) else float(ok.max()),
+        "mse_time_avg": None if not len(ok) else float(ok.mean()) / len(fine["t"]),
+        "mse_time_avg_min": None if not len(ok) else float(ok.min()) / len(fine["t"]),
+        "mse_time_avg_median": None if not len(ok) else float(np.median(ok)) / len(fine["t"]),
+        "mse_time_avg_max": None if not len(ok) else float(ok.max()) / len(fine["t"]),
         "metric_convention": _METRIC_CONVENTION,
         "normalization": "canonical hydrogen.npz train-only min-max (not refit on the grid)",
-        "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol},
+        "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol,
+                   "precision": "float64" if args.float64 else "checkpoint dtype"},
         "wall_time_s": round(elapsed, 3), "evaluated_at": utc_now(),
     }
     (out / f"{label}_generalization_441.json").write_text(json.dumps(summary, indent=2,

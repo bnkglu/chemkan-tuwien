@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,7 +58,9 @@ def summarize(rows):
 
 
 def plot_figure(tables):
-    fig, axes = plt.subplots(1, 2, figsize=(14, 4.6), sharey=True)
+    fig, axes = plt.subplots(1, len(tables), figsize=(7 * len(tables), 4.6), sharey=True,
+                             squeeze=False)
+    axes = axes[0]
     for ax, (label, rows) in zip(axes, tables.items()):
         temperatures = sorted({float(r["T0_K"]) for r in rows})
         colours = plt.cm.viridis(np.linspace(0, .9, len(temperatures)))
@@ -92,10 +95,13 @@ def plot_figure(tables):
 
 
 def make_figure(table_paths=None, output_path=None, *, show=False):
-    """Paper Figure 8B. Returns ``(fig, results)`` with a summary per initialization."""
-    paths = {label: TABLES_HYDROGEN / f"hydrogen_ignition_delay_{stem}.csv"
-             for label, stem in DEFAULT_STEMS.items()}
-    paths.update(table_paths or {})
+    """Paper Figure 8B. Returns ``(fig, results)`` with a summary per initialization.
+
+    ``table_paths`` (label -> ignition-delay CSV) replaces the default models.
+    """
+    paths = dict(table_paths) if table_paths else {
+        label: TABLES_HYDROGEN / f"hydrogen_ignition_delay_{stem}.csv"
+        for label, stem in DEFAULT_STEMS.items()}
     tables = {label: load_delays(path) for label, path in paths.items()}
     fig = plot_figure(tables)
     save_figure(fig, output_path, dpi=200)
@@ -108,8 +114,12 @@ def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output", default=FIGURES_HYDROGEN / "fig08b_hydrogen_ignition_delay")
+    p.add_argument("--table", action="append", default=[], metavar="LABEL=CSV",
+                   help="plot this ignition-delay table instead of the default ones "
+                        "(repeatable; from evaluate_hydrogen_ignition.py)")
     args = p.parse_args()
-    _, results = make_figure(output_path=args.output)
+    tables = {k: Path(v) for k, v in (t.split("=", 1) for t in args.table)}
+    _, results = make_figure(table_paths=tables, output_path=args.output)
     for label, s in results.items():
         print(f"{label}: {s['conditions']} evaluated conditions (the paper's set) | "
               f"statuses {s['statuses']}")

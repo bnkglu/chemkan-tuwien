@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -80,12 +81,13 @@ def load_grid(csv_path):
 
 
 def plot_figure(grids, vmax, paper_scale, divisor=1.0, note=""):
-    """Two side-by-side maps sharing one colour scale."""
+    """One map per model, side by side, sharing one colour scale."""
     norm = Normalize(vmin=0, vmax=vmax, clip=False)
     cmap = plt.get_cmap("Reds").copy()            # lower MSE = lighter, as in the paper
     cmap.set_over(cmap(1.0))
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.6), sharex=True, sharey=True,
-                             layout="constrained")
+    fig, axes = plt.subplots(1, len(grids), figsize=(7 * len(grids), 5.6), sharex=True,
+                             sharey=True, layout="constrained", squeeze=False)
+    axes = axes[0]
     for ax, (label, g) in zip(axes, grids.items()):
         im = ax.pcolormesh(g["phis"], g["temps"], g["matrix"] / divisor,
                            shading="nearest",
@@ -107,11 +109,10 @@ def plot_figure(grids, vmax, paper_scale, divisor=1.0, note=""):
         ok, mse = g["ok"], g["mse"] / divisor
         detail = (f"{(mse[ok] > vmax).sum()}/{ok.sum()} errors above colour limit; "
                   if paper_scale else "")
-        ax.set_title(f"{label}\n{detail}median {np.median(mse[ok]):.3e}", fontsize=9)
+        ax.set_title(f"{label}\n{detail}Median MSE = {np.median(mse[ok]):.3e}", fontsize=9)
     bar = fig.colorbar(im, ax=axes, fraction=.035, pad=.025,
                        extend="max" if paper_scale else "neither")
-    bar.set_label(f"MSE — normalized trajectory loss{note}" if note
-                  else "MSE — normalized trajectory loss (Eq. 18)")
+    bar.set_label("MSE")
     if paper_scale:
         bar.set_ticks(np.linspace(0, PAPER_MSE_MAX, 11))
         bar.formatter = FuncFormatter(lambda value, pos: f"{value / 1e-4:g}")
@@ -127,12 +128,15 @@ def plot_figure(grids, vmax, paper_scale, divisor=1.0, note=""):
     return fig
 
 
-def make_figure(table_paths=None, output_dir=None, *, time_averaged=False,
+def make_figure(table_paths=None, output_dir=None, *, time_averaged=True,
                 show=False):
-    """Paper Figure 8A. Returns ``(figs, results)`` keyed by 'paper' and 'full_range'."""
-    paths = {label: GENERALIZATION / f"{stem}_generalization_441.csv"
-             for label, stem in DEFAULT_STEMS.items()}
-    paths.update(table_paths or {})
+    """Paper Figure 8A. Returns ``(figs, results)`` keyed by 'paper' and 'full_range'.
+
+    ``table_paths`` (label -> generalization CSV) replaces the default models.
+    """
+    paths = dict(table_paths) if table_paths else {
+        label: GENERALIZATION / f"{stem}_generalization_441.csv"
+        for label, stem in DEFAULT_STEMS.items()}
     grids = {label: load_grid(path) for label, path in paths.items()}
 
     n_times = observation_times("hydrogen_fine.npz")      # the grid the 441 losses sum over
@@ -140,10 +144,11 @@ def make_figure(table_paths=None, output_dir=None, *, time_averaged=False,
     maximum = max(float(np.nanmax(g["matrix"])) for g in grids.values()) / divisor
     ceiling = MaxNLocator(nbins=6).tick_values(0, maximum)[-1]
 
-    scale_rows = [{"model": label, "minimum": float(g["mse"][g["ok"]].min()),
-                   "median": float(np.median(g["mse"][g["ok"]])),
-                   "maximum": float(g["mse"][g["ok"]].max()),
-                   "above_paper_scale": int((g["mse"][g["ok"]] > PAPER_MSE_MAX).sum()),
+    scale_rows = [{"model": label, "minimum": float(g["mse"][g["ok"]].min()) / divisor,
+                   "median": float(np.median(g["mse"][g["ok"]])) / divisor,
+                   "mean": float(g["mse"][g["ok"]].mean()) / divisor,
+                   "maximum": float(g["mse"][g["ok"]].max()) / divisor,
+                   "above_paper_scale": int((g["mse"][g["ok"]] / divisor > PAPER_MSE_MAX).sum()),
                    "evaluated": int(g["ok"].sum()), "paper_scale_max": PAPER_MSE_MAX}
                   for label, g in grids.items()]
 
@@ -167,15 +172,20 @@ def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
-    p.add_argument("--time-averaged", action="store_true",
-                   help="write a _time_averaged companion (derived diagnostic: Eq. 18 / N_t)")
+    p.add_argument("--table", action="append", default=[], metavar="LABEL=CSV",
+                   help="plot this generalization table instead of the default ones "
+                        "(repeatable; from evaluate_hydrogen_grid.py)")
+    p.add_argument("--summed", action="store_true",
+                   help="report the Eq. 18 loss summed over the time points instead of the "
+                        "time-averaged loss")
     args = p.parse_args()
-    _, results = make_figure(output_dir=args.output_dir,
-                             time_averaged=args.time_averaged)
+    tables = {k: Path(v) for k, v in (t.split("=", 1) for t in args.table)}
+    _, results = make_figure(table_paths=tables, output_dir=args.output_dir,
+                             time_averaged=not args.summed)
     print(f"loss reported as {results['reduction']}")
-    print(f"{'model':36} {'min':>11} {'median':>11} {'max':>11} {'>paper':>7} {'n':>5}")
+    print(f"{'model':36} {'min':>11} {'median':>11} {'mean':>11} {'max':>11} {'>paper':>7} {'n':>5}")
     for r in results["scale_rows"]:
-        print(f"{r['model']:36} {r['minimum']:11.3e} {r['median']:11.3e} "
+        print(f"{r['model']:36} {r['minimum']:11.3e} {r['median']:11.3e} {r['mean']:11.3e} "
               f"{r['maximum']:11.3e} {r['above_paper_scale']:7d} {r['evaluated']:5d}")
 
 

@@ -83,6 +83,64 @@ def integrate_hydrogen(model, input_normalizer, solver, u0, t, device="cpu"):
         return integrate(dyn, u0.to(device), t.to(device), solver)
 
 
+def load_predictor(path, device="cpu", *, rtol=None, atol=None, float64=False) -> dict:
+    """A trained full ``[Y, T]`` hydrogen model from a run directory or checkpoint file.
+
+    Two checkpoint kinds: this script's ``checkpoint_final.pt`` (physical-state dynamics) and
+    the author-matched Stage-2 ``stage2_final.pt`` (``train_author_matched_hydrogen.py``;
+    integrated in its own normalized coordinates with its t_ref and tolerances, returned in
+    physical units). ``predict(u0, t)``: (B, m+1) physical, (T,) -> (T, B, m+1) physical.
+    ``rtol`` / ``atol`` replace the checkpoint's training tolerances; ``float64`` integrates
+    in double precision (needed for tolerances below float32's ~1e-7) and returns the input
+    dtype.
+    """
+    path = Path(path)
+    if path.is_dir():
+        found = [path / n for n in ("checkpoint_final.pt", "stage2_final.pt") if (path / n).exists()]
+        if not found:
+            raise FileNotFoundError(f"{path}: no checkpoint_final.pt or stage2_final.pt")
+        path = found[0]
+    ckpt = torch.load(path, map_location=device, weights_only=False)
+    dtype = torch.float64 if float64 else None
+
+    def tolerances(solver):
+        return SolverConfig(method=solver.method, rtol=rtol or solver.rtol,
+                            atol=atol or solver.atol, sensitivity=solver.sensitivity)
+
+    def cast(fn):
+        if dtype is None:
+            return fn
+        return lambda u0, t: fn(u0.to(dtype), t.to(dtype)).to(u0.dtype)
+
+    if "architecture" in ckpt:
+        if float64:
+            raise ValueError("float64 is supported for author-matched checkpoints only")
+        model = build_chemkan(ckpt, ckpt["data"]["species_dim"], device)
+        dyn = ChemKANDynamics(model, input_normalizer=load_input_scaling(ckpt, device)).to(device)
+        solver = tolerances(solver_from_ckpt(ckpt))
+        return {"predict": cast(lambda u0, t: integrate(dyn, u0, t, solver)), "checkpoint": path,
+                "ckpt": ckpt, "solver": solver, "architecture": ckpt["architecture"]}
+
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "author_repo_match"))
+    import train_author_matched_hydrogen as amh
+    cfg = ckpt["config"]
+    if ckpt.get("stage") != 2:
+        raise ValueError(f"{path}: a Stage-2 checkpoint is needed for the full [Y, T] state")
+    amh.configure_system(cfg.get("system", {}).get("name", "hydrogen"))
+    model = amh.build_model().to(device=device, dtype=dtype or torch.float32)
+    model.load_state_dict(ckpt["model_state"])
+    norm = MinMaxNormalizer(torch.tensor(cfg["normalization"]["u_min"], dtype=dtype),
+                            torch.tensor(cfg["normalization"]["u_max"], dtype=dtype)).to(device)
+    dyn = amh.Stage2Dynamics(model, cfg["t_ref"]["value_s"])
+    solver = tolerances(SolverConfig(method="tsit5", rtol=cfg["solver"]["rtol"],
+                                     atol=cfg["solver"]["atol"], sensitivity="direct_autograd"))
+    return {"predict": cast(lambda u0, t: norm.denormalize(
+                integrate(dyn, norm.normalize(u0), t, solver))),
+            "checkpoint": path, "ckpt": ckpt, "solver": solver,
+            "architecture": cfg["architecture"]}
+
+
 def evaluate_hydrogen(ckpt_path="hydrogen_chemkan.pt", split="test", device="cpu") -> dict:
     """Full-split evaluation. Returns predictions + metric + reusable model pieces."""
     dev = resolve_device(device)
