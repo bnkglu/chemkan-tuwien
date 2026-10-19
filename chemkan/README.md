@@ -56,6 +56,8 @@ python scripts/train_hydrogen.py --stage1-epochs 200 --stage2-epochs 200
 python scripts/evaluate_hydrogen.py
 ```
 
+Tested versions and the exact environment of the final results: [`docs/environment.md`](../docs/environment.md) (lock file `requirements-lock.txt`; torchdiffeq source in `third_party/torchdiffeq/`).
+
 Data generation setup and commands: **[`scripts/data_gen/README.md`](scripts/data_gen/README.md)**.
 
 ## Local adaptive-FGD experiment

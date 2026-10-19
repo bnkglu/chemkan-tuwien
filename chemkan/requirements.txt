@@ -7,12 +7,15 @@ numpy==1.26.4
 scipy==1.17.1
 cantera==3.0.0
 
-# torch is intentionally unpinned: the exact version used for the original runs was not
-# recoverable from the environment. Pin it here once a reference version is chosen.
-torch
+# torch version of the final results: every run config that records it has 2.13.0
+# (2.13.0+cu130 on JupyterHub, run on CPU). Full environment: requirements-lock.txt and
+# docs/environment.md.
+torch==2.13.0
 
 # GitHub torchdiffeq pinned to a Tsit5-capable commit so that method="tsit5" is available
 # (upstream PyPI torchdiffeq does not expose the Tsit5 solver used by ChemKAN).
+# A source distribution of this commit and its MIT license are kept in
+# third_party/torchdiffeq/ for installation without GitHub.
 torchdiffeq @ git+https://github.com/rtqichen/torchdiffeq.git@657943acefa826ef04c025ebeb1ff5e9d60dc268
 
 # training progress bar (optional at runtime; falls back to logging if absent)

@@ -1,3 +1,6 @@
+# Requirements of the original DeepONet code (deeponet/src/, TensorFlow + DeepXDE).
+# Not needed for this project's biodiesel DeepONet baseline, which is PyTorch and runs in
+# the ChemKAN environment (chemkan/requirements.txt); see docs/environment.md.
 deepxde
 matplotlib
 numpy
