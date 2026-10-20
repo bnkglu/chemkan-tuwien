@@ -32,7 +32,7 @@ JOBS = {
     "hydrogen": ["generate_hydrogen.py", "--grid", "coarse"],
 }
 # Output names that differ from the job name. The biodiesel defaults follow the authors'
-# released example, so they write a NEW versioned file; the legacy biodiesel_legacy.npz is kept.
+# released example and write the versioned file biodiesel_v2.npz.
 OUT_NAMES = {"biodiesel": "biodiesel_v2.npz"}
 
 # Optional hydrogen fine grid (Fig. 8A generalization set); only run with --include-fine.

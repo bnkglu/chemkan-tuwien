@@ -1,4 +1,4 @@
-r"""Author-matched hydrogen ChemKAN (standalone; canonical ``train_hydrogen.py`` untouched).
+r"""Author-matched hydrogen ChemKAN (standalone).
 
 Carries the conventions of the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN d7aa5ab)
 and the authors' email clarifications (items cited as in ``docs/authors_materials.md``) over
@@ -76,7 +76,7 @@ LIBRARY_H = RELEASED_RBF_H / math.sqrt(2.0)             # exp(-r^2/(2h^2)) == ex
 THERMO_LINEAR_INIT = 1e-5                               # email H6
 ALPHA_PINN = 1e-4                                       # paper Sec. II C 4
 LR = 2e-3                                               # paper Sec. II C 5; email H9
-RTOL, ATOL = 1e-6, 1e-8                                 # current train_hydrogen.py defaults
+RTOL, ATOL = 1e-6, 1e-8                                 # the earlier hydrogen trainer's defaults
 T_REF_DEFAULT = 6e-4                                    # hydrogen time window [s] (inference)
 DENSE_T_POINTS = 20000
 HISTORY_COLUMNS = ["epoch", "loss", "mse", "pinn", "mse_time_avg", "elapsed_seconds"]

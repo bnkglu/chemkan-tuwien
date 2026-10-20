@@ -12,28 +12,25 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 
-# Reproduction artifacts. Figure scripts default to these and accept overrides, so a
-# notebook can point any figure at a different run directory.
-FIGURES_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/figures"
-FIGURES_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/figures"
-TABLES_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/tables"
-TABLES_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/tables"
-CHEMKAN_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/chemkan"
-CHEMKAN_HYDROGEN = ROOT / "results/reproduction/legacy/hydrogen/chemkan"
-DEEPONET_BIODIESEL = ROOT / "results/reproduction/legacy/biodiesel/deeponet"
+# Result folders the figure scripts default to; every figure accepts overrides, so a
+# notebook can point it at a different run directory.
 DATA = ROOT / "chemkan/data/generated"
 # biodiesel_v2 figure runs (run_figures.py) and their plots
 FIGURES_AUTHOR = ROOT / "results/experiments/biodiesel/author_repo_match/figures/plots"
-
-# The DeepONet architecture the corrected reproduction uses (see notebook 07).
-DEEPONET_VERSION = "reference_final_trunk_relu"
+# The hydrogen main run; its 200k Stage-2 continuation is the default of Figs. 7 and 8
+# (notebook 08b's arguments).
+HYDROGEN_MAIN = ROOT / "results/experiments/hydrogen/author_matched/main"
+HYDROGEN_RUN = HYDROGEN_MAIN / "S2_seed0_200k"
+HYDROGEN_LABEL = "main_S2_seed0_200k"
+FIGURES_HYDROGEN = HYDROGEN_MAIN / "figures"
+TABLES_HYDROGEN = HYDROGEN_MAIN / "tables"
 
 
 def add_repo_paths() -> None:
     """Put the library, the script helpers and the DeepONet reference on ``sys.path``.
 
-    The figure scripts import ``evaluate_biodiesel``, ``_data`` and friends, which live in
-    ``chemkan/scripts`` rather than in an installed package.
+    The figure scripts import modules from ``chemkan/scripts`` (e.g. ``_data``) and
+    ``deeponet/``, which are not an installed package.
     """
     for folder in ("chemkan/src", "chemkan/scripts", "deeponet"):
         path = str(ROOT / folder)
@@ -47,8 +44,7 @@ def require_file(path, what: str = "file") -> Path:
     if not path.exists():
         raise FileNotFoundError(
             f"{what} not found: {path}\n"
-            f"Train or evaluate the corresponding run first (see "
-            f"chemkan/scripts/reproduction/), or pass an explicit path.")
+            f"Train or evaluate the corresponding run first, or pass an explicit path.")
     return path
 
 

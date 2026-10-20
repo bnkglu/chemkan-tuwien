@@ -1,12 +1,12 @@
-"""Reproduce ChemKAN Figure 7 -- hydrogen trajectories at the two published conditions.
+"""Figure 7 -- hydrogen trajectories at the two published conditions.
 
 Temperature and nine species predicted from the initial state alone, at the paper's
 training condition (T0 = 1050 K, phi = 0.9) and its held-out condition (T0 = 1150 K,
-phi = 1.3), for two Stage-2 initializations. Loads finished checkpoints only.
+phi = 1.3). Default model: the main run's 200k Stage-2 checkpoint (notebook 08b's
+arguments); ``--run`` plots other runs instead. Loads finished checkpoints only.
 
-Two figures are produced together, one per initialization, because they share one set of
-y-axis limits per row -- computed across both models and both conditions so the panels are
-directly comparable.
+Several runs passed together share one set of y-axis limits per row -- computed across all
+models and both conditions so the panels are directly comparable.
 
     python chemkan/scripts/figures/fig07_hydrogen_trajectories.py
 """
@@ -21,9 +21,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from common import (
-    CHEMKAN_HYDROGEN,
     DATA,
     FIGURES_HYDROGEN,
+    HYDROGEN_LABEL,
+    HYDROGEN_RUN,
     TABLES_HYDROGEN,
     add_repo_paths,
     loss_reduction,
@@ -63,18 +64,7 @@ PAPER_ROW_LIMITS = [(1000., 3000.), (0., 4.), (0., 7.)]
 # go negative at the held-out condition, and a log axis would drop them silently.
 LINTHRESH = 1e-6
 
-BASE_ON_N4 = CHEMKAN_HYDROGEN / "diagnostics/base_on_n4"
-DEFAULT_RUNS = {
-    "H0 (primary, random init)": BASE_ON_N4 / "random_stage2_10000_seed0",
-    "Hnorm1 (labelled init comparison)": BASE_ON_N4 / "normmatched_dir1_stage2_10000",
-}
-TAGS = {"H0 (primary, random init)": "H0",
-        "Hnorm1 (labelled init comparison)": "Hnorm1"}
-
-
-def tag(label):
-    """File-name tag of a model label (``--run`` labels are used as given)."""
-    return TAGS.get(label, label)
+DEFAULT_RUNS = {HYDROGEN_LABEL: HYDROGEN_RUN}
 
 
 def load_reference(data_path=None):
@@ -129,7 +119,7 @@ def shared_row_limits(cache, species):
 
 
 def plot_model(label, cache, species, t_obs, t_dense, row_limits, divisor=1.0, note=""):
-    """Three rows (temperature, major, minor) x two conditions for one initialization."""
+    """Three rows (temperature, major, minor) x two conditions for one model."""
     colours = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     colour_of = {sp: colours[j % len(colours)] for names in GROUPS
                  for j, sp in enumerate(names)}
@@ -305,7 +295,7 @@ def make_true_scale_figure(run_dirs=None, data_path=None, output_dir=None,
         if output_dir is not None:
             save_figure(
                 fig,
-                f"{output_dir}/fig07_hydrogen_trajectories_{tag(label)}_true_scale{ta_suffix}",
+                f"{output_dir}/fig07_hydrogen_trajectories_{label}_true_scale{ta_suffix}",
                 dpi=200)
     if show:
         plt.show()
@@ -316,8 +306,8 @@ def make_figure(run_dirs=None, data_path=None, output_dir=None, table_path=None,
                 time_averaged=True, solver_options=None, show=False):
     """Paper Figure 7. Returns ``(figs, results)``.
 
-    ``figs`` maps each initialization label to its figure -- both are produced together
-    because they share y-axis limits. ``results`` is one row per model and condition with
+    ``figs`` maps each model label to its figure -- all are produced together because
+    they share y-axis limits. ``results`` is one row per model and condition with
     the per-state Eq. 18 losses.
     """
     runs = dict(run_dirs) if run_dirs else dict(DEFAULT_RUNS)
@@ -335,7 +325,7 @@ def make_figure(run_dirs=None, data_path=None, output_dir=None, table_path=None,
         figs[label] = fig
         if output_dir is not None:
             save_figure(fig,
-                        f"{output_dir}/fig07_hydrogen_trajectories_{tag(label)}"
+                        f"{output_dir}/fig07_hydrogen_trajectories_{label}"
                         f"{ta_suffix}", dpi=200)
     if table_path is not None:
         with open(table_path, "w", newline="") as f:
@@ -353,9 +343,9 @@ def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
-    p.add_argument("--table", default=TABLES_HYDROGEN / "fig07_hydrogen_per_state_mse.csv")
+    p.add_argument("--table", default=TABLES_HYDROGEN / "fig07_per_state_mse_200k.csv")
     p.add_argument("--run", action="append", default=[], metavar="LABEL=DIR",
-                   help="plot this run instead of the default ones (repeatable); DIR holds "
+                   help="plot this run instead of the default one (repeatable); DIR holds "
                         "checkpoint_final.pt or an author-matched stage2_final.pt")
     p.add_argument("--summed", action="store_true",
                    help="report the Eq. 18 loss summed over the time points instead of the "

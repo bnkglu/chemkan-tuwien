@@ -179,8 +179,8 @@ class HistoryWriter:
 class RunManager:
     """One directory per training run, with resume + overwrite protection.
 
-    Legacy mode: if ``run_dir`` is ``None`` the manager is inert -- the caller keeps its
-    old ``--out`` single-file behavior. All run-dir artifacts are produced only when a
+    Inert mode: if ``run_dir`` is ``None`` the manager does nothing -- the caller keeps
+    its own single-file output. All run-dir artifacts are produced only when a
     ``run_dir`` is supplied.
     """
 
@@ -311,7 +311,7 @@ class RunManager:
 
 
 class _NullHistory:
-    """No-op history used in legacy (no run-dir) mode."""
+    """No-op history used in inert (no run-dir) mode."""
 
     def on_epoch(self, *a, **k):
         pass

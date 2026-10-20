@@ -130,8 +130,6 @@ def test_per_level_normalization_from_training_data():
     assert d["normalization_keys"] == ["u_min_noise05", "u_max_noise05"]
     noisy = stored["train_states_noise05"]
     assert np.allclose(d["u_min"].numpy(), noisy.min(axis=(0, 1)), atol=1e-6)
-    legacy = load_biodiesel("train", noise_percent=5)                 # legacy archive
-    assert legacy["normalization_keys"] == ["u_min", "u_max"]
 
 
 # --------------------------------------------------------------------------- DeepONet
@@ -140,33 +138,18 @@ def test_deeponet_three_input_branch_has_308_parameters():
     model = bdon.build(8, seed=0)
     assert model.branch_dims == (3, 8, 8, 8) and model.trunk_dims == (1, 7, 8)
     assert bdon.n_params(model) == 308 == bdon.PAPER_PARAMS
-    assert bdon.n_params(bdon.build(8, seed=0, branch_in=bdon.LEGACY_BRANCH_IN)) == 340
+    with pytest.raises(ValueError, match="branch_in"):          # only the 3-input branch
+        bdon.build(8, seed=0, branch_in=7)
     for w in (2, 5, 10):
         assert bdon.n_params(bdon.build(w)) == 3 * w * w + 14 * w + 4
 
 
-def test_legacy_checkpoint_still_reconstructs_with_seven_inputs():
-    from evaluate_biodiesel_deeponet import build_model
-    path = (REPO / "results/reproduction/legacy/biodiesel/deeponet/reference_final_trunk_relu"
-            / "noise/noise00_seed0/checkpoint_final.pt")
-    if not path.exists():
-        pytest.skip("legacy DeepONet checkpoint not present")
-    model = build_model(torch.load(path, map_location="cpu", weights_only=False), "cpu")
-    assert model.branch_dims[0] == 7 and bdon.n_params(model) == 340
-
-
 # --------------------------------------------------------------------------- decisions
 
-LEGACY = REPO / "chemkan/data/generated/biodiesel_legacy.npz"
-LEGACY_SHA256 = "347e39d3113896d85628c3c8ac0a85d9be30bf946e57807d229c8b9f25f32023"
-
-
-def test_legacy_file_renamed_unchanged_and_default():
-    assert not (REPO / "chemkan/data/generated/biodiesel.npz").exists()
-    assert gb.file_sha256(LEGACY) == LEGACY_SHA256
-    d = load_biodiesel("train")                                  # default = legacy file
+def test_default_archive_is_v2():
+    d = load_biodiesel("train")                                  # default = biodiesel_v2.npz
     assert np.array_equal(d["species_TBm"].permute(1, 0, 2).numpy(),
-                          np.load(LEGACY)["train_states"].astype(np.float32))
+                          np.load(V2)["train_states"].astype(np.float32))
 
 
 def test_v2_has_eight_additive_levels():
@@ -186,11 +169,14 @@ def test_fig4_deeponet_architectures(n, arch):
 
 
 def test_deeponet_trunk_hidden_round_trip():
-    from evaluate_biodiesel_deeponet import build_model
+    """Rebuild from the architecture record as author_runs.deeponet_predict does."""
     model = bdon.build(7, seed=0, trunk_hidden=6)
-    rebuilt = build_model({"architecture": bdon.architecture(model),
-                           "model_state": model.state_dict()}, "cpu")
+    arch = bdon.architecture(model)
+    rebuilt = bdon.build(arch["w"], trunk_hidden=arch["q"])
+    rebuilt.load_state_dict(model.state_dict())
     assert rebuilt.trunk_dims == (1, 6, 7) and bdon.n_params(rebuilt) == 249
+    assert all(torch.equal(a, b) for a, b in zip(model.state_dict().values(),
+                                                 rebuilt.state_dict().values()))
 
 
 @pytest.mark.parametrize("hidden, n", [(2, 78), (3, 117), (4, 156), (9, 351), (11, 429)])

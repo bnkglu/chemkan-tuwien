@@ -1,11 +1,14 @@
-"""Regenerate every ChemKAN paper figure into the reproduction results directory.
+"""Regenerate every final ChemKAN paper figure.
 
-Calls each figure's own ``make_figure``; there is no separate implementation here. Every
-figure reads finished checkpoints, histories and tables -- nothing trains.
+Biodiesel Figs. 3, 4, 5A, 5B, 6 from the biodiesel_v2 figure runs (time-averaged MSE) into
+``results/experiments/biodiesel/author_repo_match/figures/plots/``; hydrogen Figs. 7, 8A,
+8B from the main run's 200k Stage-2 checkpoint into
+``results/experiments/hydrogen/author_matched/main/figures/`` (notebook 08b's arguments).
+Calls each figure's own function; there is no separate implementation here. Every figure
+reads finished checkpoints, histories and tables -- nothing trains.
 
     python chemkan/scripts/figures/plot_all.py
     python chemkan/scripts/figures/plot_all.py --only fig07 fig08a
-    python chemkan/scripts/figures/plot_all.py --runs figures      # biodiesel_v2 figure runs
 """
 
 from __future__ import annotations
@@ -21,83 +24,21 @@ import fig06_biodiesel_profiles as fig06
 import fig07_hydrogen_trajectories as fig07
 import fig08_hydrogen_generalization as fig08a
 import fig08_hydrogen_ignition as fig08b
-from common import (
-    FIGURES_BIODIESEL,
-    FIGURES_HYDROGEN,
-    TABLES_BIODIESEL,
-    TABLES_HYDROGEN,
-    loss_reduction,
-    use_headless_backend,
-)
-
-# Figures that carry a loss value accept --time-averaged; the flag writes a "_time_averaged"
-# companion showing the derived diagnostic Eq. 18 loss / N_t, where N_t is the number of time
-# points the loss sums over (30 biodiesel, 50 hydrogen).
-# Figures 6 and 8B show no loss, so they have no such variant.
-TIME_AVERAGED = False
-
-
-def _suffix():
-    return loss_reduction(0, TIME_AVERAGED)[2]
-
-
-def _fig03():
-    fig03.make_figure(
-        output_path=f"{FIGURES_BIODIESEL / 'fig03_biodiesel_noise_columns'}{_suffix()}",
-        time_averaged=TIME_AVERAGED)
-    fig03.make_clean_column_figure(
-        output_path=f"{FIGURES_BIODIESEL / 'fig03_biodiesel_clean_column'}{_suffix()}",
-        time_averaged=TIME_AVERAGED)
-
-
-def _fig04():
-    fig04.make_figure(n_mu="scaled", time_averaged=TIME_AVERAGED)
-    fig04.make_figure(n_mu="2", time_averaged=TIME_AVERAGED)
-
-
-def _fig06():
-    fig06.make_figure(output_path=FIGURES_BIODIESEL / "fig06_biodiesel_15pct_profiles",
-                      metrics_path=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics.json")
-    fig06.make_case0_figure(
-        output_path=FIGURES_BIODIESEL / "fig06_biodiesel_15pct_profiles_case0",
-        metrics_path=TABLES_BIODIESEL / "biodiesel_fig6_profile_metrics_case0.json")
-
-
-def _fig07():
-    """Both Figure-7 views; the companion reuses the main view's evaluation."""
-    _, results = fig07.make_figure(
-        output_dir=FIGURES_HYDROGEN,
-        table_path=TABLES_HYDROGEN / "fig07_hydrogen_per_state_mse.csv",
-        time_averaged=TIME_AVERAGED)
-    if not TIME_AVERAGED:      # the companion shows mass fractions, not loss
-        fig07.make_true_scale_figure(output_dir=FIGURES_HYDROGEN, precomputed=results)
-
+from common import FIGURES_HYDROGEN, TABLES_HYDROGEN, use_headless_backend
 
 FIGURES = {
-    "fig03": _fig03,
-    "fig04": _fig04,
-    "fig05a": lambda: fig05a.make_figure(
-        output_path=f"{FIGURES_BIODIESEL / 'fig05a_biodiesel_noise_robustness'}{_suffix()}",
-        time_averaged=TIME_AVERAGED),
-    "fig05b": lambda: fig05b.make_figure(
-        output_path=f"{FIGURES_BIODIESEL / 'fig05b_biodiesel_loss_dynamics'}{_suffix()}",
-        time_averaged=TIME_AVERAGED),
-    "fig06": _fig06,
-    "fig07": _fig07,
-    "fig08a": lambda: fig08a.make_figure(output_dir=FIGURES_HYDROGEN,
-                                         time_averaged=TIME_AVERAGED),
-    "fig08b": lambda: fig08b.make_figure(
-        output_path=FIGURES_HYDROGEN / "fig08b_hydrogen_ignition_delay"),
-}
-
-
-# The biodiesel_v2 figure runs (run_figures.py), plotted into FIGURES_AUTHOR.
-AUTHOR_FIGURES = {
     "fig03": fig03.make_author_figure,
     "fig04": fig04.make_author_figure,
     "fig05a": fig05a.make_author_figure,
     "fig05b": fig05b.make_author_figure,
     "fig06": fig06.make_author_figure,
+    "fig07": lambda: fig07.make_figure(output_dir=FIGURES_HYDROGEN,
+                                       table_path=TABLES_HYDROGEN / "fig07_per_state_mse_200k.csv",
+                                       time_averaged=True),
+    "fig08a": lambda: fig08a.make_figure(output_dir=FIGURES_HYDROGEN / "fig08a_200k",
+                                         time_averaged=True),
+    "fig08b": lambda: fig08b.make_figure(
+        output_path=FIGURES_HYDROGEN / "fig08b_hydrogen_ignition_delay_200k"),
 }
 
 
@@ -108,26 +49,7 @@ def main():
                    help="regenerate a subset (default: all)")
     p.add_argument("--keep-going", action="store_true",
                    help="continue after a figure fails, and report at the end")
-    p.add_argument("--time-averaged", action="store_true",
-                   help="write '_time_averaged' companions showing the derived diagnostic "
-                        "Eq. 18 loss / N_t (figures 3, 4, 5A, 5B, "
-                        "7, 8A; 6 and 8B show no loss)")
-    p.add_argument("--runs", choices=["legacy", "figures"], default="legacy",
-                   help="figures: Figs. 3, 4, 5A, 5B, 6 from the biodiesel_v2 figure runs "
-                        "(time-averaged MSE) into results/experiments/biodiesel/"
-                        "author_repo_match/figures/plots/")
     args = p.parse_args()
-    if args.runs == "figures":
-        names = [n for n in args.only if n in AUTHOR_FIGURES]
-        for name in names:
-            print(f"--- {name} (biodiesel_v2 runs) ---", flush=True)
-            AUTHOR_FIGURES[name]()
-        return
-    global TIME_AVERAGED
-    TIME_AVERAGED = args.time_averaged
-    if TIME_AVERAGED:
-        args.only = [n for n in args.only if n not in ("fig06", "fig08b")]
-
     failures = []
     for name in args.only:
         print(f"--- {name} ---", flush=True)
@@ -142,7 +64,7 @@ def main():
         print(f"\n{len(failures)} figure(s) failed: "
               f"{', '.join(name for name, _ in failures)}")
         raise SystemExit(1)
-    print(f"\nregenerated {len(args.only)} figure group(s)")
+    print(f"\nregenerated {len(args.only)} figure(s)")
 
 
 if __name__ == "__main__":

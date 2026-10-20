@@ -3,8 +3,8 @@ reproduction; no repository default changes).
 
 Matches the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN, d7aa5ab):
   data      experiment-local ``data/author_repo_match_biodiesel.npz`` (the example's arrays);
-            ``--data canonical`` instead trains on OUR ``biodiesel_legacy.npz`` with legacy B0's
-            train-only normalization, to test the settings on our problem
+            ``--data canonical`` instead trains on a canonical-layout archive (``--data-file``,
+            default ``biodiesel_v2.npz``; the figure runs) with its train-only normalization
   model     ``_author_match.build_core()``: 7 -> 4 -> 6, G = 3, 156 params, base off,
             layer-1 normalizer off, layer-2 tanh, n_mu = 2, Julia RBF exp(-(x - c)^2)
   dynamics  normalized coordinates, ``dz/dt = [KAN(z), 0] / 50``
@@ -55,20 +55,12 @@ from chemkan.fsa import (NonFiniteFSAError, ParameterPacking,  # noqa: E402
 from chemkan.solver import SolverConfig, integrate  # noqa: E402
 
 DATA = EXP / "data/author_repo_match_biodiesel.npz"
-CANONICAL_DATA = "chemkan/data/generated/biodiesel_legacy.npz"
+CANONICAL_DATA = "chemkan/data/generated/biodiesel_v2.npz"
 N_T = 30                                   # Eq. 18 sums over these 30 times; Flux mse averages
 JULIA = {"train_mse_final_logged": 4.9196e-5, "val_mse_final_logged": 2.12588e-4,
          "train_mse_min": 4.18160e-5, "train_mse_min_epoch": 9957,
          "val_mse_min": 1.92183e-4, "val_mse_min_epoch": 9454,
          "wall_clock_s": 36 * 60 + 47.66}
-# Legacy B0 (results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0) on
-# the SAME canonical data and normalization; Eq. 18 values from its history/metrics, mse = /30.
-LEGACY_B0 = {"run": "results/reproduction/legacy/biodiesel/chemkan/main/direct_autograd_seed0",
-             "train_eq18_last20pct_median": 3.578290529549122e-2,
-             "train_mse_last20pct_median": 3.578290529549122e-2 / N_T,
-             "train_eq18_min": 3.1129175797104836e-2, "train_mse_min": 3.1129175797104836e-2 / N_T,
-             "test_eq18_final_checkpoint": 8.140052855014801e-2,
-             "test_mse_final_checkpoint": 8.140052855014801e-2 / N_T}
 HISTORY_COLUMNS = ["epoch", "train_mse", "val_mse", "train_eq18", "val_eq18", "elapsed_seconds"]
 
 
@@ -92,12 +84,12 @@ def load_data(device, path: Path = DATA) -> dict:
 
 def load_canonical_data(device, data_file: Path | None = None,
                         noise_percent: int | None = None) -> dict:
-    """A canonical-layout biodiesel archive (default ``biodiesel_legacy.npz``; e.g.
-    ``biodiesel_v2.npz`` via ``data_file``), normalized with legacy B0's convention.
+    """A canonical-layout biodiesel archive (``data_file``; default ``biodiesel_v2.npz``),
+    normalized with its train-only statistics.
 
     Species: the archive's train-only ``u_min``/``u_max`` (a noisy level's own statistics
-    when the archive stores them); T: min/max of the TRAIN temperatures -- the full-state
-    normalizer ``train_biodiesel.py`` builds. Test states use the same (train) statistics.
+    when the archive stores them); T: min/max of the TRAIN temperatures. Test states use
+    the same (train) statistics.
     Training targets are the observations (noisy for ``noise_percent``); the test target is
     the noise-free test copy, and ``test_noisy_target`` the noisy test observations.
     """
@@ -117,7 +109,7 @@ def load_canonical_data(device, data_file: Path | None = None,
     n_train, n_test = u0_tr.shape[0], u0_te.shape[0]
     source = {"data_source": "canonical",
               "path": CANONICAL_DATA if data_file is None else str(data_file),
-              "normalization": "legacy B0: archive train-only species u_min/u_max, "
+              "normalization": "archive train-only species u_min/u_max, "
                                "T min/max over train temperatures",
               "species_min": y_min.tolist(), "species_max": y_max.tolist(),
               "T_min": float(T_min), "T_max": float(T_max)}
@@ -194,7 +186,8 @@ def main() -> int:
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--data", choices=["author_repo", "canonical"], default="author_repo",
                     help="author_repo: the released example's own arrays (default); "
-                         "canonical: our biodiesel_legacy.npz with legacy B0's train-only statistics")
+                         "canonical: a canonical-layout archive (--data-file, default "
+                         "biodiesel_v2.npz) with its train-only statistics")
     ap.add_argument("--sensitivity", choices=["direct_autograd", "fsa"], default="direct_autograd",
                     help="training gradients: backprop through the solver (default) or "
                          "chemkan.fsa forward sensitivity analysis (the paper's method)")
@@ -205,7 +198,7 @@ def main() -> int:
     ap.add_argument("--data-file", type=Path, default=None,
                     help="with --data author_repo: an .npz in the author_repo_match_biodiesel "
                          "layout; with --data canonical: a canonical-layout biodiesel archive "
-                         "(e.g. chemkan/data/generated/biodiesel_v2.npz) instead of biodiesel.npz")
+                         "instead of chemkan/data/generated/biodiesel_v2.npz")
     ap.add_argument("--noise-percent", type=int, default=None,
                     help="with --data canonical: train on this stored noise level; logs "
                          "noise-free (val_mse) and noisy (val_mse_noisy) test loss per epoch")
@@ -400,20 +393,11 @@ def main() -> int:
         "val_eq18_final_logged": N_T * val_s["final_logged"],
         "final_parameters": post,
     }
-    if args.data_file is not None or args.noise_percent:
-        pass                                         # other data: no Julia / B0 reference
-    elif args.data == "author_repo":                 # same data as the Julia run
-        metrics["julia_reference"] = JULIA
+    if args.data == "author_repo" and args.data_file is None and not args.noise_percent:
+        metrics["julia_reference"] = JULIA           # same data as the Julia run
         metrics["ratio_to_julia"] = {
             "train_final_logged": train_s["final_logged"] / JULIA["train_mse_final_logged"],
             "val_final_logged": val_s["final_logged"] / JULIA["val_mse_final_logged"]}
-    else:                                            # same data as legacy B0
-        metrics["legacy_b0_reference"] = LEGACY_B0
-        metrics["ratio_to_legacy_b0"] = {
-            "train_last20pct_median": train_s["last20pct_median"] / LEGACY_B0["train_mse_last20pct_median"],
-            "train_min": train_s["min"] / LEGACY_B0["train_mse_min"],
-            "val_last20pct_median_vs_b0_final_test": val_s["last20pct_median"]
-                                                     / LEGACY_B0["test_mse_final_checkpoint"]}
     (run / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
     if status == "completed":
         torch.save({"model_state": core.state_dict(), "config": config, "metrics": metrics,

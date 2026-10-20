@@ -54,11 +54,11 @@ FIG04_HIDDEN = (2, 3, 4, 9, 11)
 # Seconds per epoch, measured on this machine (torch default threads):
 #   ChemKAN batched FSA, H = 4: run_batched_fsa_juliainit, 1,588 s / 10,000 epochs; other
 #   widths scaled by H/4 (the FSA sensitivities grow with the 39*H parameters).
-#   DeepONet: slowest legacy reference_final_trunk_relu run (noise10: 42 s / 10,000 epochs).
+#   DeepONet: slowest earlier ReLU reference run (noise10: 42 s / 10,000 epochs).
 CHEMKAN_S_PER_EPOCH_H4 = 1588.36 / 10000
 DEEPONET_S_PER_EPOCH = 42.0 / 10000
 ESTIMATE_BASIS = ("ChemKAN: run_batched_fsa_juliainit (0.159 s/epoch at H = 4, noise-free "
-                  "author data) scaled by H/4; DeepONet: slowest legacy reference run "
+                  "author data) scaled by H/4; DeepONet: slowest earlier ReLU reference run "
                   "(0.0042 s/epoch). Measured with torch default threads; noisy data and "
                   "--jobs > 1 (one thread per run) can be slower.")
 

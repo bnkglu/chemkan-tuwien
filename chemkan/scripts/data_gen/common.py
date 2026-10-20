@@ -165,11 +165,11 @@ def add_noise(
         then clipped at 0. The t = 0 observation is noised as well; the ODE initial
         condition is taken from the clean states by the loader and stays clean.
 
-    mode="multiplicative" (legacy): u_noisy = u * (1 + level * N(0,1)).
+    mode="multiplicative" (first biodiesel archive): u_noisy = u * (1 + level * N(0,1)).
         Noise scales with the local signal, so near-zero species stay near zero.
-        The t = 0 observation is kept clean. Used by every legacy biodiesel archive.
+        The t = 0 observation is kept clean.
 
-    mode="range" (legacy sensitivity option): u_noisy = u + level * (u_max - u_min) * N(0,1),
+    mode="range" (sensitivity option): u_noisy = u + level * (u_max - u_min) * N(0,1),
         t = 0 kept clean; requires u_min/u_max.
     """
     if mode not in NOISE_MODES:

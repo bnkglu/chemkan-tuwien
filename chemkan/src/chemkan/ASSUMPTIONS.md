@@ -100,10 +100,6 @@ indexing convention, and because switching would change the dataset underlying t
 existing biodiesel results. Any future switch must regenerate the dataset and re-run
 every biodiesel result.
 
-The legacy `biodiesel_legacy.npz` (formerly `biodiesel.npz`) is reproduced **bitwise** by
-`generate_biodiesel.py --seed 0` at its committed defaults (verified 2026-09-04: every
-array identical; only the `git_commit` provenance stamp differs).
-
 ## 5. Deliberate structural choices
 
 - Model math (`model.py`) is free of solver, optimizer, temperature, and mode flags.
@@ -258,10 +254,10 @@ Jacobian; this implementation instead forms the per-trajectory Jacobians `df/du`
 equation was measured about 12x slower here). The reference is used for the sensitivity
 mathematics only; the solver remains torchdiffeq's Tsit5.
 
-Inference is the ordinary state-only solve for both backends. Validation (analytic
-problem, functional equivalence, FSA-vs-direct-autograd gradients under tolerance
-refinement, state consistency, trajectory independence, production dtype, resume) is in
-`chemkan/scripts/fsa/` with artifacts in `results/experiments/validation/fsa/`.
+Inference is the ordinary state-only solve for both backends. The unit tests in
+`chemkan/tests/test_fsa.py` check the analytic problem, parameter packing, functional
+equivalence, trajectory independence, FSA-vs-direct-autograd gradients on small ChemKAN
+problems, gradient accumulation and the non-finite abort.
 
 **Implementation choices of the FSA path (not paper-specified).** The augmented error
 norm (torchdiffeq's default RMS over state and sensitivities), float32 production dtype

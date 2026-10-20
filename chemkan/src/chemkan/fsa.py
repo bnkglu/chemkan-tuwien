@@ -281,8 +281,8 @@ class FunctionalDynamics:
     def accumulate_grad(self, grad_flat: torch.Tensor) -> None:
         """Add a flat gradient to ``.grad`` of every optimized parameter (explicit zeros too).
 
-        Accumulates like ``loss.backward()`` does, so observed-interval training can sum
-        interval contributions before one optimizer step.
+        Accumulates like ``loss.backward()`` does, so several gradient contributions can be
+        summed before one optimizer step.
         """
         for p, g in zip(self.params, self.packing.unpack(grad_flat).values()):
             g = g.to(dtype=p.dtype, device=p.device)

@@ -1,8 +1,9 @@
-"""Reproduce ChemKAN Figure 8A -- hydrogen generalization over a 441-condition grid.
+"""Figure 8A -- hydrogen generalization over a 441-condition grid.
 
-Eq. 18 loss for every (initial temperature, equivalence ratio) pair on a 21x21 grid, for
-two Stage-2 initializations. Reads the precomputed generalization tables; it neither
-trains nor re-integrates.
+Eq. 18 loss for every (initial temperature, equivalence ratio) pair on a 21x21 grid.
+Default table: the main run's 200k Stage-2 checkpoint (notebook 08b's arguments); ``--table``
+plots others instead. Reads the precomputed generalization tables
+(``evaluate_hydrogen_grid.py``); it neither trains nor re-integrates.
 
 Two views are produced: the paper's colour range (0-10 x 10^-4) and a full-range
 supplementary view, because our losses run far above the paper's scale and would otherwise
@@ -20,9 +21,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from common import (
-    CHEMKAN_HYDROGEN,
     DATA,
     FIGURES_HYDROGEN,
+    HYDROGEN_LABEL,
+    TABLES_HYDROGEN,
     loss_reduction,
     require_file,
     save_figure,
@@ -31,11 +33,7 @@ from common import (
 from matplotlib.colors import Normalize
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
-GENERALIZATION = CHEMKAN_HYDROGEN / "generalization"
-DEFAULT_STEMS = {
-    "H0 (primary, random init)": "random_stage2_10000_seed0",
-    "Hnorm1 (labelled init comparison)": "normmatched_dir1_stage2_10000",
-}
+DEFAULT_TABLES = {HYDROGEN_LABEL: TABLES_HYDROGEN / f"{HYDROGEN_LABEL}_generalization_441.csv"}
 # The paper's Figure-8A colour range. Ours exceed it, hence the second view.
 PAPER_MSE_MAX = 10 * 1e-4
 GRID_CONDITIONS = 441
@@ -134,9 +132,7 @@ def make_figure(table_paths=None, output_dir=None, *, time_averaged=True,
 
     ``table_paths`` (label -> generalization CSV) replaces the default models.
     """
-    paths = dict(table_paths) if table_paths else {
-        label: GENERALIZATION / f"{stem}_generalization_441.csv"
-        for label, stem in DEFAULT_STEMS.items()}
+    paths = dict(table_paths) if table_paths else dict(DEFAULT_TABLES)
     grids = {label: load_grid(path) for label, path in paths.items()}
 
     n_times = observation_times("hydrogen_fine.npz")      # the grid the 441 losses sum over
@@ -171,9 +167,9 @@ def make_figure(table_paths=None, output_dir=None, *, time_averaged=True,
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--output-dir", default=FIGURES_HYDROGEN)
+    p.add_argument("--output-dir", default=FIGURES_HYDROGEN / "fig08a_200k")
     p.add_argument("--table", action="append", default=[], metavar="LABEL=CSV",
-                   help="plot this generalization table instead of the default ones "
+                   help="plot this generalization table instead of the default one "
                         "(repeatable; from evaluate_hydrogen_grid.py)")
     p.add_argument("--summed", action="store_true",
                    help="report the Eq. 18 loss summed over the time points instead of the "

@@ -22,11 +22,11 @@ written to a NEW versioned file, ``biodiesel_v2.npz``):
                                      T = x*20 + 323 K; rows 1-20 train, 21-30 test
     --noise-mode additive_species_max  u + p * max_t(u_i) * N(0,1), clipped at 0 (email B5)
 
-The legacy archive ``biodiesel_legacy.npz`` (formerly ``biodiesel.npz``) was generated with
+The first biodiesel archive, made before the authors' clarification, used
 ``--reaction-order paper_text --ic-source sampled --noise-mode multiplicative``
 (paper Sec. II D 1: ln(A) = [18.60, 7.93, 19.13], Ea = [14.54, 6.47, 14.42];
-[TG]_0, [ROH]_0 ~ U(0.5, 2), T ~ U(323, 343) K from ``--seed``). It is never overwritten:
-this script refuses an existing output file unless ``--force`` is given.
+[TG]_0, [ROH]_0 ~ U(0.5, 2), T ~ U(323, 343) K from ``--seed``). Output files are never
+overwritten: this script refuses an existing output file unless ``--force`` is given.
 
 Both: 20 training + 10 testing sets, 30 s window, 30 sampled points; clean
 trajectories (train_states / test_states -- test_states is the noise-free test copy);
@@ -41,7 +41,7 @@ Usage
 -----
     python generate_biodiesel.py                       # -> chemkan/data/generated/biodiesel_v2.npz
     python generate_biodiesel.py --reaction-order paper_text --ic-source sampled \\
-        --noise-mode multiplicative --out <new file>     # legacy recipe
+        --noise-mode multiplicative --out <new file>     # paper-text recipe
 """
 
 from __future__ import annotations
@@ -67,11 +67,11 @@ KINETICS = {
     # released example, ChemKAN_biodiesel_example.jl lines 61-62 (DENG-MIT/ChemKAN d7aa5ab)
     "released_code": {"ln_A": np.array([18.60, 19.13, 7.93]),
                       "Ea_kcal": np.array([14.54, 14.42, 6.47])},
-    # paper Sec. II D 1 (the legacy archive's kinetics)
+    # paper Sec. II D 1 (the paper-text recipe)
     "paper_text": {"ln_A": np.array([18.60, 7.93, 19.13]),
                    "Ea_kcal": np.array([14.54, 6.47, 14.42])},
 }
-# Legacy names (paper-text order), kept for existing imports.
+# Paper-text constants (Sec. II D 1), shown by the data-generation walkthrough.
 EA_KCAL = KINETICS["paper_text"]["Ea_kcal"]
 LN_A = KINETICS["paper_text"]["ln_A"]
 
@@ -153,7 +153,7 @@ def integrate_case(y0: np.ndarray, T: float, t_eval: np.ndarray,
 
 
 def sample_initial_conditions(n: int, rng: np.random.Generator):
-    """[TG]_0, [ROH]_0 ~ U(0.5, 2); T ~ U(323, 343) K; others zero (legacy ICs)."""
+    """[TG]_0, [ROH]_0 ~ U(0.5, 2); T ~ U(323, 343) K; others zero (paper-text recipe ICs)."""
     # Biodiesel is isothermal here; T is sampled per trajectory and can be
     # appended later as a constant model input (it is not integrated).
     tg0 = rng.uniform(0.5, 2.0, size=n)
@@ -296,7 +296,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--noise-levels", type=float, nargs="*", default=DEFAULT_NOISE_LEVELS)
     p.add_argument("--noise-mode", choices=list(NOISE_MODES), default="additive_species_max")
     p.add_argument("--no-per-level-stats", dest="per_level_stats", action="store_false",
-                   help="omit u_min_noiseXX/u_max_noiseXX (the legacy archive has none)")
+                   help="omit u_min_noiseXX/u_max_noiseXX (as in the first archive)")
     return p
 
 

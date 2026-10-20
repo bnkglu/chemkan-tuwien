@@ -4,8 +4,7 @@ New reproduction path (``biodiesel_deeponet_repro.py``): raw time t in the trunk
 data (``biodiesel_v2.npz``: t = linspace(0, 30, 30)), a state mode (raw_states or
 author_global_normalized_states) and an explicit objective (mean_mse, eq18_obs,
 eq22_true). Full-batch Adam, lr 1e-3, the unchanged 308-parameter model (ReLU, Glorot
-normal, zero biases). The legacy trainer ``train_biodiesel_deeponet.py`` (tau = t/30,
-train-only min-max) is kept only for the existing runs.
+normal, zero biases).
 
 Every epoch logs, BEFORE the optimizer step (the state that produced the loss): the
 optimized objective and, for train and test, mean_mse (trained representation), Eq. 18
@@ -13,7 +12,9 @@ against the observations and Eq. 22 against the clean truth (author-global u uni
 The final metrics are those of the final checkpoint (after the last step).
 
     python train_biodiesel_deeponet_repro.py --state-mode raw_states --objective mean_mse \
-        --epochs 2500 --run-dir ../results/experiments/biodiesel/deeponet_diagnostics/A_raw_mean_mse_seed0
+        --epochs 2500 --run-dir <run_dir>
+
+The figure runs' exact arguments are in ``deeponet/run_figure_runs.sh``.
 """
 
 from __future__ import annotations

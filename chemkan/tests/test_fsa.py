@@ -1,9 +1,8 @@
 """Forward sensitivity analysis (chemkan.fsa): unit tests.
 
-Fast versions of the validation in ``scripts/fsa/validate_fsa.py``: the analytic scalar
-problem, parameter packing, functional equivalence with the existing dynamics wrappers,
-trajectory independence, FSA-vs-direct-autograd gradients on small ChemKAN problems,
-gradient accumulation / explicit zeros, and the non-finite abort.
+The analytic scalar problem, parameter packing, functional equivalence with the existing
+dynamics wrappers, trajectory independence, FSA-vs-direct-autograd gradients on small ChemKAN
+problems, gradient accumulation / explicit zeros, and the non-finite abort.
 """
 
 import math

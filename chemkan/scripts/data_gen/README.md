@@ -6,7 +6,7 @@ run some sanity checks, and save each system as a compressed `.npz`.
 
 **Biodiesel and hydrogen are the reproduction datasets. Methane is the extension
 required by the project proposal** (see the end of this file). Every `.npz` is regenerated from source; the
-biodiesel datasets `biodiesel_legacy.npz` (legacy runs) / `biodiesel_v2.npz` (current), `hydrogen.npz` and the production
+biodiesel dataset `biodiesel_v2.npz`, `hydrogen.npz` and the production
 `hydrogen_temperature_20000.npz` cache are tracked in Git (small, and needed to reproduce
 reported results), while diagnostic dense caches (50k/100k/200k) and any other `.npz`
 stay untracked. See the root `.gitignore` negation rules.
@@ -47,7 +47,7 @@ Individual generators accept CLI arguments (e.g. `--out`, `--seed`, `--n-train`,
 
 ```bash
 python generate_biodiesel.py --seed 0            # -> biodiesel_v2.npz (released-code order, authors' ICs, additive noise)
-# legacy recipe (biodiesel_legacy.npz was made this way, plus a 3 % level added later):
+# paper-text recipe (the first biodiesel archive, before the authors' clarification):
 # python generate_biodiesel.py --reaction-order paper_text --ic-source sampled \
 #     --noise-mode multiplicative --no-per-level-stats --out <new file> --seed 0
 python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
@@ -81,8 +81,8 @@ Archive schema: `t (N,)`, `train_T (N,35,1)`, `test_T (N,1,1)`, `train_ics (35,2
 training conditions. Load it with `_data.load_hydrogen_temperature(split, n_points)`,
 which validates the file against the canonical archive and fails loudly on mismatch.
 
-Training consumes it via `train_hydrogen.py --stage1-temperature-source dense-cantera`
-(the default). Important: this is still **linear interpolation** on a fine grid — it
+Stage 1 of `author_repo_match/train_author_matched_hydrogen.py` consumes it (the 20,000-point
+cache). Important: this is still **linear interpolation** on a fine grid — it
 reduces interpolation error, it does not eliminate interpolation, because the solver's
 internal query times almost never land exactly on the grid. The Stage-1 output grid
 and species targets stay on the canonical 50 points; only `T(t)` becomes dense.
@@ -114,7 +114,6 @@ uses the NumPy 1.x ABI.
 | File | Cases | Shape of `states` | `state_layout` |
 |---|---|---|---|
 | `biodiesel_v2.npz` | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
-| `biodiesel_legacy.npz` *(legacy runs; formerly `biodiesel.npz`)* | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
 | `hydrogen.npz` | 35 train + 1 test | `(cases, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
 | `hydrogen_fine.npz` *(optional)* | 35 train + 406 test | `(441, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
 | `methane.npz` *(extension)* | 35 train + 1 test | `(cases, 100, 53)` | `species_then_temperature` |

@@ -1,7 +1,8 @@
-"""Reproduce ChemKAN Figure 8B -- hydrogen ignition delay.
+"""Figure 8B -- hydrogen ignition delay.
 
 Ignition delay against equivalence ratio at several initial temperatures, comparing the
-Cantera reference with the ChemKAN prediction, for two Stage-2 initializations. The model's
+Cantera reference with the ChemKAN prediction. Default table: the main run's 200k Stage-2
+checkpoint (notebook 08b's arguments); ``--table`` plots others instead. The model's
 marker is absent wherever it fails to ignite.
 
 Reads the precomputed ignition-delay tables; it neither trains nor re-integrates.
@@ -17,12 +18,16 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from common import FIGURES_HYDROGEN, TABLES_HYDROGEN, require_file, save_figure, use_headless_backend
+from common import (
+    FIGURES_HYDROGEN,
+    HYDROGEN_LABEL,
+    TABLES_HYDROGEN,
+    require_file,
+    save_figure,
+    use_headless_backend,
+)
 
-DEFAULT_STEMS = {
-    "H0 (primary, random init)": "random_stage2_10000_seed0",
-    "Hnorm1 (labelled init comparison)": "normmatched_dir1_stage2_10000",
-}
+DEFAULT_TABLES = {HYDROGEN_LABEL: TABLES_HYDROGEN / f"hydrogen_ignition_delay_{HYDROGEN_LABEL}.csv"}
 
 
 def load_delays(csv_path):
@@ -95,13 +100,11 @@ def plot_figure(tables):
 
 
 def make_figure(table_paths=None, output_path=None, *, show=False):
-    """Paper Figure 8B. Returns ``(fig, results)`` with a summary per initialization.
+    """Paper Figure 8B. Returns ``(fig, results)`` with a summary per model.
 
     ``table_paths`` (label -> ignition-delay CSV) replaces the default models.
     """
-    paths = dict(table_paths) if table_paths else {
-        label: TABLES_HYDROGEN / f"hydrogen_ignition_delay_{stem}.csv"
-        for label, stem in DEFAULT_STEMS.items()}
+    paths = dict(table_paths) if table_paths else dict(DEFAULT_TABLES)
     tables = {label: load_delays(path) for label, path in paths.items()}
     fig = plot_figure(tables)
     save_figure(fig, output_path, dpi=200)
@@ -113,9 +116,9 @@ def make_figure(table_paths=None, output_path=None, *, show=False):
 def main():
     use_headless_backend()
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--output", default=FIGURES_HYDROGEN / "fig08b_hydrogen_ignition_delay")
+    p.add_argument("--output", default=FIGURES_HYDROGEN / "fig08b_hydrogen_ignition_delay_200k")
     p.add_argument("--table", action="append", default=[], metavar="LABEL=CSV",
-                   help="plot this ignition-delay table instead of the default ones "
+                   help="plot this ignition-delay table instead of the default one "
                         "(repeatable; from evaluate_hydrogen_ignition.py)")
     args = p.parse_args()
     tables = {k: Path(v) for k, v in (t.split("=", 1) for t in args.table)}

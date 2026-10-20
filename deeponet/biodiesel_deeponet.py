@@ -13,9 +13,6 @@ PAPER-DESCRIBED + AUTHORS' CLARIFICATION (email B3)
     8-dimensional latent to the six species: 3*8+8 + 8*8+8 + 8*8+8 = 176 (branch) +
     1*7+7 + 7*8+8 = 78 (trunk) + 8*6+6 = 54 (head) = **308** parameters at
     ``COMPARISON_WIDTH``, the count the paper reports.
-    LEGACY: every run before the clarification used the full 7-dimensional state
-    [Y0 (6), T] (``LEGACY_BRANCH_IN = 7``, 340 parameters at w = 8). Legacy checkpoints
-    record ``branch_dims[0] = 7`` and are rebuilt with it; they are never reinterpreted.
 
 FIG. 4 SIZES: EXPLICIT ARCHITECTURES (w, q, p)
     branch [3, w, w, p], trunk [1, q, p], head Linear(p, 6); here p = w throughout.
@@ -25,31 +22,15 @@ FIG. 4 SIZES: EXPLICIT ARCHITECTURES (w, q, p)
     are larger than 308 (paper Sec. III A 2). Reconstructed (our choice): every other size
     and architecture. The trunk hidden width q defaults to w - 1.
 
-LEGACY PREPROCESSING (input/output scaling) -- existing runs and checkpoints only.
-    New reproduction runs use ``biodiesel_deeponet_repro.py`` (raw time t in the trunk,
-    raw or author-global normalized states) and must not call ``prepare_inputs``.
-    The upstream repository has no biodiesel case and therefore does not specify
-    preprocessing for this 7-dimensional chemical input. DeepXDE 0.11.2 OpNN.build()
-    supports a trunk _input_transform and an _output_transform (see source below),
-    so transforms are supported reference behaviour. Our particular transforms are:
+PREPROCESSING
+    Input and output scaling (raw time t in the trunk, raw or author-global normalized
+    states) is applied by ``biodiesel_deeponet_repro.py``; this module only defines the
+    network.
 
-        branch input : min-max normalized [Y0, T] using the SAME train-only statistics
-        trunk input  : tau = t / t_end in [0, 1]
-        output       : normalized species u_hat, compared directly with the normalized
-                       targets, and denormalized for physical plots
-
-    ``prepare_inputs`` is the single implementation of this transform, shared by the
-    trainer and the evaluator, and its statistics are stored in the checkpoint so
-    evaluation reconstructs it rather than refitting it.
-    ChemKAN uses paper-specified tanh normalization at each layer input (Sec. II C 1);
-    Sec. III A 2-3 frames the experiments as a fair comparison. We retain DeepONet's
-    scaling to avoid introducing a conditioning disadvantage while ChemKAN keeps its
-    own normalization. These are distinct transforms, not a claim of identical scaling.
-    Eq. 18's normalized loss is a separate convention from output parameterization.
-
-REFERENCE-DERIVED REPRODUCTION CHOICES (from the bundled example
-``deeponet/src/deeponet_dataset.py``, which builds ``dde.maps.OpNN(..., "relu",
-"Glorot normal", use_bias=True, stacked=False)`` and trains with ``adam, lr=1e-3``)
+REFERENCE-DERIVED REPRODUCTION CHOICES (from the original DeepONet repository's example
+``src/deeponet_dataset.py`` (Lu et al., github.com/lululxvi/deeponet), which builds
+``dde.maps.OpNN(..., "relu", "Glorot normal", use_bias=True, stacked=False)`` and trains
+with ``adam, lr=1e-3``)
     * biased Linear layers throughout, including the six-output head;
     * ReLU between branch layers, with a LINEAR final branch layer; ReLU after EVERY
       trunk layer, including the last; the six-output head remains LINEAR.
@@ -61,13 +42,8 @@ REFERENCE-DERIVED REPRODUCTION CHOICES (from the bundled example
       applied identically to branch, trunk and head;
     * Adam, lr = 1e-3.
     These are the reference example's conventions, not ChemKAN-paper facts. They are held
-    fixed across every width and noise level.
-
-ARCHITECTURE VERSIONS
-    ``legacy_final_trunk_linear`` preserves the original missing final trunk ReLU.
-    ``reference_final_trunk_relu`` fixes only that activation and is the default for
-    new models. Checkpoint/config architecture records without a version are legacy;
-    existing weights must never be reinterpreted as the corrected architecture.
+    fixed across every width and noise level. The architecture record names this version
+    ``reference_final_trunk_relu`` (activation after the final trunk layer).
 """
 
 from __future__ import annotations
@@ -79,10 +55,7 @@ PAPER_PARAMS = 308          # count stated in the ChemKAN paper for this DeepONe
 COMPARISON_WIDTH = 8        # w reproducing the paper-described branch/trunk widths
 OUT_DIM = 6                 # TG, ROH, DG, MG, GL, R'CO2R
 BRANCH_IN = 3               # [TG0, ROH0, T0] (authors' clarification, email B3)
-LEGACY_BRANCH_IN = 7        # [Y0 (6), T]: every run before the clarification
-BRANCH_INPUTS = {3: ("TG0", "ROH0", "T0"),
-                 7: ("TG0", "ROH0", "DG0", "MG0", "GL0", "RCO2R0", "T0")}
-BRANCH_COLUMNS = {3: [0, 1, 6], 7: [0, 1, 2, 3, 4, 5, 6]}   # columns of [Y0 (6), T]
+BRANCH_INPUTS = {3: ("TG0", "ROH0", "T0")}
 # Fig. 4 DeepONet sweep: parameter count -> (w, q, p). Only 308 is confirmed (email B3).
 FIG4_ARCHITECTURES = {78: (3, 3, 3), 156: (5, 5, 5), 249: (7, 6, 7), 308: (8, 7, 8),
                       384: (9, 9, 9), 456: (10, 10, 10)}
@@ -93,9 +66,7 @@ def count_parameters(w: int, q: int, p: int, branch_in: int = BRANCH_IN) -> int:
     return ((branch_in + 1) * w + (w + 1) * w + (w + 1) * p   # branch
             + 2 * q + (q + 1) * p                             # trunk
             + (p + 1) * OUT_DIM)                              # head
-LEGACY_ARCHITECTURE_VERSION = "legacy_final_trunk_linear"
 REFERENCE_ARCHITECTURE_VERSION = "reference_final_trunk_relu"
-ARCHITECTURE_VERSIONS = (LEGACY_ARCHITECTURE_VERSION, REFERENCE_ARCHITECTURE_VERSION)
 
 
 def dims_for(width: int, branch_in: int = BRANCH_IN,
@@ -126,20 +97,16 @@ class BiodieselDeepONet(nn.Module):
     """u0:(B, branch_in), t:(T,) -> (T, B, 6) species."""
 
     def __init__(self, width: int = COMPARISON_WIDTH, out_dim: int = OUT_DIM,
-                 architecture_version: str = REFERENCE_ARCHITECTURE_VERSION,
                  branch_in: int = BRANCH_IN, trunk_hidden: int | None = None):
         super().__init__()
-        if architecture_version not in ARCHITECTURE_VERSIONS:
-            raise ValueError(f"unknown DeepONet architecture_version: {architecture_version!r}")
         branch_dims, trunk_dims = dims_for(width, branch_in, trunk_hidden)
         if branch_dims[-1] != trunk_dims[-1]:
             raise ValueError("branch and trunk must share the latent width")
         self.width = width
-        self.architecture_version = architecture_version
+        self.architecture_version = REFERENCE_ARCHITECTURE_VERSION
         self.branch_dims, self.trunk_dims = branch_dims, trunk_dims
         self.branch = mlp(branch_dims)
-        self.trunk = mlp(trunk_dims, activate_output=(
-            architecture_version == REFERENCE_ARCHITECTURE_VERSION))
+        self.trunk = mlp(trunk_dims, activate_output=True)
         self.head = nn.Linear(width, out_dim, bias=True)     # ChemKAN's MLP_opt
 
     def forward(self, u0: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
@@ -158,13 +125,12 @@ def glorot_normal_(model: nn.Module) -> nn.Module:
 
 
 def build(width: int = COMPARISON_WIDTH, seed: int | None = None,
-          architecture_version: str = REFERENCE_ARCHITECTURE_VERSION,
           branch_in: int = BRANCH_IN, trunk_hidden: int | None = None) -> BiodieselDeepONet:
     """Deterministically construct and initialize the model."""
     if seed is not None:
         torch.manual_seed(seed)
-    model = glorot_normal_(BiodieselDeepONet(width, architecture_version=architecture_version,
-                                             branch_in=branch_in, trunk_hidden=trunk_hidden))
+    model = glorot_normal_(BiodieselDeepONet(width, branch_in=branch_in,
+                                             trunk_hidden=trunk_hidden))
     w, q, p = width, model.trunk_dims[1], width
     assert n_params(model) == count_parameters(w, q, p, branch_in), n_params(model)
     if branch_in == BRANCH_IN and (w, q, p) in FIG4_ARCHITECTURES.values():
@@ -192,37 +158,12 @@ def architecture(model: BiodieselDeepONet) -> dict:
         "trunk_dims": list(model.trunk_dims),
         "combine": "hadamard",
         "out_dim": model.head.out_features,
-        "activation": ("relu between layers only (none on branch/trunk output or head)"
-                       if model.architecture_version == LEGACY_ARCHITECTURE_VERSION else
-                       "relu between branch layers and after every trunk layer "
+        "activation": ("relu between branch layers and after every trunk layer "
                        "(none on branch output or head)"),
         "bias": True,
         "weight_init": "glorot_normal (xavier_normal_), zero bias",
         "parameter_count": n_params(model),
     }
-
-
-def raw_branch_input(data: dict, branch_in: int = BRANCH_IN) -> torch.Tensor:
-    """Physical branch input from a ``_data.load_biodiesel`` dict: [TG0, ROH0, T] -> (B, 3)
-    (default), or the legacy full [Y0, T] -> (B, 7)."""
-    full = torch.cat([data["Y0"], data["T_const"].reshape(-1, 1)], dim=-1)
-    return full[:, BRANCH_COLUMNS[branch_in]]
-
-
-def prepare_inputs(data: dict, full_normalizer, t_end: float, branch_in: int = BRANCH_IN):
-    """LEGACY: (branch_input, tau = t / t_end) for the existing runs and checkpoints.
-    Not used by the reproduction path (``biodiesel_deeponet_repro.py``).
-
-    ``full_normalizer`` is the (m+1,) train-only min-max normalizer over [Y1..Ym, T]; the
-    branch columns are selected after normalizing, so each keeps its own statistics.
-    ``t_end`` is the training time window. Both come from the training split and are
-    stored in the checkpoint -- never refitted on test data.
-    """
-    full = torch.cat([data["Y0"], data["T_const"].reshape(-1, 1)], dim=-1)
-    branch = full_normalizer.normalize(full.to(full_normalizer.u_min.device))
-    branch = branch[:, BRANCH_COLUMNS[branch_in]]
-    tau = data["t"].to(branch.device) / t_end
-    return branch, tau
 
 
 if __name__ == "__main__":                                   # quick count audit
@@ -235,5 +176,4 @@ if __name__ == "__main__":                                   # quick count audit
         print(f"w={w:3d}  branch{list(m.branch_dims)}  trunk{list(m.trunk_dims)}  "
               f"params={n_params(m):5d}{marker}")
     print(f"\nat w={COMPARISON_WIDTH}: {n_params(build(COMPARISON_WIDTH))} parameters "
-          f"(branch [TG0, ROH0, T0]); paper reports {PAPER_PARAMS}. Legacy 7-input: "
-          f"{n_params(build(COMPARISON_WIDTH, branch_in=LEGACY_BRANCH_IN))}")
+          f"(branch [TG0, ROH0, T0]); paper reports {PAPER_PARAMS}.")

@@ -1,9 +1,8 @@
 r"""Source-faithful preprocessing and metrics for the biodiesel DeepONet REPRODUCTION path.
 
-The model itself (308 parameters, ReLU, Glorot normal, zero biases) is unchanged and lives
-in ``biodiesel_deeponet.py``. What this module replaces, for new runs only, is the legacy
-preprocessing of ``biodiesel_deeponet.prepare_inputs`` (trunk tau = t / t_end, train-only
-min-max), which stays for loading legacy checkpoints.
+The model itself (308 parameters, ReLU, Glorot normal, zero biases) lives in
+``biodiesel_deeponet.py``; this module holds its input/output preprocessing, the
+initialization and activation options, and the metrics.
 
 SOURCES
     * Time grid, initial conditions, split, noise: the ChemKAN authors' released

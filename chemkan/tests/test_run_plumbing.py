@@ -213,7 +213,7 @@ def test_resume_allows_runtime_only_changes():
     check_resume_config(_BASE_CFG, new)                        # no raise
 
 
-def test_legacy_mode_is_inert():
+def test_inert_mode_without_run_dir():
     rm = RunManager(None, "biodiesel")
     assert rm.enabled is False and rm.run_id is None            # 11
     rm.start(); rm.write_config({}); rm.save_final({}); rm.finish()  # all no-ops

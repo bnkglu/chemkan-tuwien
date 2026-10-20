@@ -99,9 +99,9 @@ def noise_tag(noise_percent) -> str:
 
 
 def _load_biodiesel_archive(data_file=None):
-    """``biodiesel_legacy.npz`` (default) or an explicit biodiesel archive path (e.g. biodiesel_v2.npz)."""
+    """``biodiesel_v2.npz`` (default) or an explicit biodiesel archive path."""
     if data_file is None:
-        return _load("biodiesel_legacy")
+        return _load("biodiesel_v2")
     path = Path(data_file)
     if not path.exists():
         raise FileNotFoundError(f"{path} not found")
@@ -129,11 +129,11 @@ def load_biodiesel(split: str = "train", noise_percent=None, data_file=None):
     noise-free reference); the selected observations are returned separately as
     ``targets_TBm``, so a caller that ignores the new key keeps its previous behavior.
     ``Y0`` comes from the clean states: the initial condition is a model input, not an
-    observation (legacy noise arrays keep t=0 exact; the additive_species_max arrays of
-    ``biodiesel_v2.npz`` noise the t=0 observation, the ODE initial condition stays clean).
+    observation (the additive_species_max arrays of ``biodiesel_v2.npz`` noise the t=0
+    observation; the ODE initial condition stays clean).
 
-    ``data_file``: another biodiesel archive (e.g. ``biodiesel_v2.npz``); default is the
-    legacy ``biodiesel_legacy.npz``. If the archive stores per-level normalization statistics
+    ``data_file``: another biodiesel archive; default ``biodiesel_v2.npz``. If the archive
+    stores per-level normalization statistics
     (``u_min_noiseXX``/``u_max_noiseXX``, fitted on that level's noisy TRAINING data),
     they are returned for a noisy level; otherwise the clean-train ``u_min``/``u_max``.
     """
@@ -146,8 +146,8 @@ def load_biodiesel(split: str = "train", noise_percent=None, data_file=None):
         if key not in d.files:
             raise KeyError(
                 f"{key} not in the biodiesel archive; stored levels are "
-                f"{available_noise_percents(data_file)} percent. Add the missing level with "
-                f"scripts/data_gen/add_biodiesel_noise_level.py -- never fabricate it here.")
+                f"{available_noise_percents(data_file)} percent. Regenerate the archive with "
+                f"scripts/data_gen/generate_biodiesel.py -- never fabricate a level here.")
         targets = _to_TBx(d[key])
     stats = ("u_min", "u_max")
     if noise_percent is not None and f"u_min_{noise_tag(noise_percent)}" in d.files:
