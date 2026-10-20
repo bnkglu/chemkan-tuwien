@@ -25,13 +25,18 @@ They show the library's own building blocks (`KineticCore`, `KineticDynamics`,
 authors' released example (`scripts/train_biodiesel.py`, `scripts/combustion/train_combustion.py`;
 the shortest complete example is `scripts/train.py`).
 
-| Notebook | State |
+| Notebook | Contents |
 |---|---|
-| `01_implement_kan.ipynb` | runs; its stored outputs were computed on an earlier biodiesel dataset, the code now loads `biodiesel_v2.npz`, so a re-run prints different numbers |
-| `02_einsum_edge_functions_paper_aligned.ipynb` | **does not run** on the current library (`TypeError: 'Tensor' object is not callable`); needs updating |
-| `03_chemkan_from_scratch_paper_aligned.ipynb` | runs; stored outputs from the earlier biodiesel dataset, as for 01 |
-| `04_chemkan_actual_solution_walkthrough.ipynb` | **does not run** (`NameError: edge0`), and its Part VII reviews an earlier biodiesel trainer that had the same file name as the current `scripts/train_biodiesel.py`; needs rewriting against the current trainer |
+| `01_implement_kan.ipynb` | a guided workbook: one learnable RBF function, the AddKAN and LeanKAN layers, and a small KAN-ODE (milestones 1–4) |
+| `02_einsum_edge_functions_paper_aligned.ipynb` | the one `einsum` that evaluates every KAN edge function, mapped to the paper's indices and re-derived by loops, broadcasting and `matmul` on three biodiesel trajectories |
+| `03_chemkan_from_scratch_paper_aligned.ipynb` | a ChemKAN built inline step by step (RBF, edges, layers, the 156-parameter core, scaling, dynamics) and trained as a neural ODE on biodiesel |
+| `04_chemkan_actual_solution_walkthrough.ipynb` | the library's kinetic path checked step by step (normalization, core, dynamics, solver, loss), and how `scripts/train.py` chains the same pieces |
+
+The four were re-executed top to bottom on `biodiesel_v2.npz` with the current library.
 
 `chemkan/scripts/data_gen/data_generation_walkthrough.ipynb` (data generation step by step)
-has cells that use names defined in no earlier cell (`t_linspace`, `SPECIES`, …), so it
-does not run top to bottom as stored.
+does not run top to bottom as stored: section 1e configures `generate_biodiesel.generate()`
+with an earlier argument set (no `ic_source`), and sections 1c, 1e and 1g describe the
+earlier recipe (sampled initial conditions, multiplicative noise) rather than the one that
+produced `biodiesel_v2.npz`; the cells after 1e that use its dataset fail with it. The other
+sections run.
