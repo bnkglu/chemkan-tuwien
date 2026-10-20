@@ -163,7 +163,8 @@ python chemkan/scripts/interpretability/combustion.py --system hydrogen   # or m
 ```
 
 `plot_all.py` reproduces the committed figures (PNG identical; PDF apart from its creation
-date). `chemkan/scripts/figures/README.md` lists each figure's script and options; every
+date); it also rewrites `results/hydrogen/tables/fig07_per_state_mse_200k.csv`, with the same
+numbers and the checkpoint's current path. `chemkan/scripts/figures/README.md` lists each figure's script and options; every
 interpretability script takes `--out`.
 
 ## Data
