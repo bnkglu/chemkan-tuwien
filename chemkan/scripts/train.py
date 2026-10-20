@@ -6,7 +6,7 @@ biodiesel system (6 species, constant temperature per trajectory):
     1. load the data            normalized initial states u0 = [Y_hat, T_hat] and targets
     2. settings                 everything below in SETTINGS, nothing hidden in a config
     3. the ChemKAN model        kinetic core 7 -> H -> 6 (additive KAN, then LeanKAN)
-    4. dynamics and solver      dz/dt = [KAN(z), 0] / t_window, integrated with Tsit5
+    4. dynamics and solver      dz/dt = [KAN(z), 0] / 50 s, integrated with Tsit5
     5. loss                     mean squared error over species and times, mean over cases
     6. optimization             Adam, one full-batch step per epoch
     7. save                     the trained parameters and the settings
@@ -17,7 +17,7 @@ biodiesel system (6 species, constant temperature per trajectory):
 It uses the same components as the full biodiesel trainer (``train_biodiesel.py``): the
 same data loader, model, initialization, dynamics, solver call and loss, so with the same
 settings it computes the same losses (that trainer's ``--data canonical --solve-mode
-batched --sensitivity direct_autograd``). ``train_biodiesel.py`` adds forward sensitivity
+batched --sensitivity direct_autograd --rhs-divisor 50``). ``train_biodiesel.py`` adds forward sensitivity
 analysis, noise levels, resumption and the run records.
 
 Adapting it to another chemical system: provide u0 with shape (cases, m + 1) (normalized
@@ -50,6 +50,8 @@ SETTINGS = {
     "epochs": 1000,             # the paper trains 10,000
     "lr": 1e-2,                 # Adam
     "rtol": 1e-2, "atol": 1e-6,  # Tsit5 tolerances during training
+    "rhs_divisor": 50.0,        # dz/dt = KAN(z) / divisor [s]; 50 as the released example and
+                                # the figure runs (the trainer's default is the 30 s window)
     "out_dir": Path("train_example"),
 }
 
@@ -67,8 +69,8 @@ def main(settings: dict) -> Path:
     glorot_uniform_(core, torch.Generator().manual_seed(settings["seed"]))
     print(f"ChemKAN kinetic core: {sum(p.numel() for p in core.parameters())} parameters")
 
-    # 4. dynamics in normalized coordinates, divided by the time window; the ODE solver
-    dynamics = NormalizedDynamics(core, float(t[-1] - t[0]))
+    # 4. dynamics in normalized coordinates, divided by a time scale; the ODE solver
+    dynamics = NormalizedDynamics(core, settings["rhs_divisor"])
     solver = SolverConfig(method="tsit5", rtol=settings["rtol"], atol=settings["atol"],
                           sensitivity="direct_autograd")
     optimizer = torch.optim.Adam(core.parameters(), lr=settings["lr"], betas=(0.9, 0.999),

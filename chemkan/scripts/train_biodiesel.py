@@ -1,14 +1,20 @@
-r"""Authors-repo-matched PyTorch biodiesel run (controlled experiment, NOT the canonical
-reproduction; no repository default changes).
+r"""ChemKAN biodiesel trainer: one training run per call.
 
-Matches the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN, d7aa5ab):
-  data      experiment-local ``data/released_example_biodiesel.npz`` (the example's arrays);
-            ``--data canonical`` instead trains on a canonical-layout archive (``--data-file``,
-            default ``biodiesel_v2.npz``; the figure runs) with its train-only normalization
-  model     ``reference_components.build_core()``: 7 -> 4 -> 6, G = 3, 156 params, base off,
-            layer-1 normalizer off, layer-2 tanh, n_mu = 2, Julia RBF exp(-(x - c)^2)
-  dynamics  normalized coordinates, ``dz/dt = [KAN(z), 0] / 50``
-  init      Lux glorot_uniform on each C (out x G*in)
+The settings follow the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN, d7aa5ab):
+  data      ``--data author_repo`` (default): the released example's own arrays,
+            ``results/biodiesel/released_example/data/released_example_biodiesel.npz`` (built by
+            ``biodiesel/build_released_dataset.py``); ``--data canonical``: a canonical-layout
+            archive (``--data-file``, default ``chemkan/data/generated/biodiesel_v2.npz``) with
+            its train-only normalization and an optional stored noise level
+            (``--noise-percent``) -- the configuration of the paper-figure runs
+  model     ``reference_components.build_core()``: 7 -> H -> 6 (``--hidden``, default 4: 156
+            params), G = 3, base off, layer-1 normalizer off, layer-2 tanh, n_mu = ceil(H/2),
+            Julia RBF exp(-(x - c)^2)
+  dynamics  normalized coordinates, ``dz/dt = [KAN(z), 0] / divisor``; divisor = the data's
+            time window (30 s) unless ``--rhs-divisor``. The released example and all recorded
+            biodiesel runs divide by 50 (``--rhs-divisor 50``)
+  init      Lux glorot_uniform on each C (out x G*in), seeded by ``--seed``; or the Julia
+            initial parameters (``--init-from``)
   optimizer Adam lr 1e-2, betas (0.9, 0.999), eps 1e-8; full batch; one step per epoch
   solver    torchdiffeq tsit5, rtol 1e-2, atol 1e-6, one trajectory per solve (as Julia);
             gradients by direct autograd through the solver; ``--sensitivity fsa`` uses
@@ -25,6 +31,9 @@ PyTorch RNG (so a different initial draw), torchdiffeq's step-size controller an
 output vs OrdinaryDiffEq's ``AutoTsit5(Rosenbrock23)``, float64 throughout here.
 
     python train_biodiesel.py --run-dir <dir> [--epochs 10000] [--seed 0] [--resume]
+    # a paper-figure run (Fig. 5, 5 % noise; biodiesel/run_figure_runs.py runs all of them):
+    python train_biodiesel.py --data canonical --noise-percent 5 --hidden 4 --solve-mode batched \
+        --sensitivity fsa --rhs-divisor 50 --epochs 10000 --run-dir <dir>
 """
 
 from __future__ import annotations

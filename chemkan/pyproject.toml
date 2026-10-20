@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "PyTorch reproduction of ChemKAN (RBF-based KAN chemical-kinetics neural ODE)."
 requires-python = ">=3.10"
 dependencies = [
-    "torch==2.13.0",               # version of the final results (docs/environment.md)
+    "torch==2.13.0",               # version of the final results (README: Environment)
     # GitHub torchdiffeq pinned to a Tsit5-capable commit so method="tsit5" is available.
     "torchdiffeq @ git+https://github.com/rtqichen/torchdiffeq.git@657943acefa826ef04c025ebeb1ff5e9d60dc268",
     "numpy==1.26.4",               # 1.x for Cantera 3.0.0 wheel compatibility

@@ -3,7 +3,7 @@ Fig. 5 runs). Results: ``results/biodiesel/chemkan_figure_runs/``.
 
     fig05/  noise 0, 1, 2, 3, 5, 7, 10, 15 %, 10,000 epochs each:
             ChemKAN  train_biodiesel.py --data canonical --hidden 4
-                     --solve-mode batched --sensitivity fsa
+                     --solve-mode batched --sensitivity fsa --rhs-divisor 50
             DeepONet --width 8   (308 parameters)
     fig04/  noise-free:
             ChemKAN  --hidden 2, 3, 4, 9, 11 (same settings as fig05), 5,000 epochs
@@ -45,6 +45,7 @@ from deeponet_model import FIG4_ARCHITECTURES  # noqa: E402
 
 OUT = ROOT / "results/biodiesel/chemkan_figure_runs"
 DATA = "chemkan/data/generated/biodiesel_v2.npz"
+RHS_DIVISOR = "50"           # the released example's divisor, used by every recorded figure run
 PY = sys.executable
 CHEMKAN = "chemkan/scripts/train_biodiesel.py"
 DEEPONET_LAUNCHER = "deeponet/run_figure_runs.sh"
@@ -113,7 +114,7 @@ def command(run: dict, threads: int | None) -> list[str]:
               "--run-dir", _rel(run["dir"])]
     if run["model"] == "chemkan":
         cmd = [PY, CHEMKAN, *run["args"], "--solve-mode", "batched", "--sensitivity", "fsa",
-               *common]
+               "--rhs-divisor", RHS_DIVISOR, *common]
         if threads is not None:
             cmd += ["--threads", str(threads)]
     else:

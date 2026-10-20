@@ -1,4 +1,4 @@
-r"""Evaluate an author-matched hydrogen Stage-1 or Stage-2 checkpoint on all 36 conditions.
+r"""Evaluate a hydrogen Stage-1 or Stage-2 checkpoint on all 36 conditions.
 
 Evaluation only. The checkpoint's own configuration fixes the model, normalization
 statistics, t_ref and solver tolerances; the current ``hydrogen.npz`` and dense temperature

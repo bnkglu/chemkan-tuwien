@@ -2,7 +2,7 @@
 # `pip freeze` of the project venv on 2026-10-20. torch and the core runtime pins match
 # pyproject.toml; the rest are transitive, notebook and test tools. The editable
 # chemkan install is omitted: install it with `pip install -e chemkan --no-deps`.
-# See docs/environment.md.
+# See the "Environment" section of the top-level README.md.
 appnope==0.1.4; sys_platform == "darwin"
 asttokens==3.0.2
 attrs==26.1.0

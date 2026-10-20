@@ -1,8 +1,10 @@
-r"""Author-matched hydrogen ChemKAN (standalone).
+r"""ChemKAN trainer for hydrogen and methane, one stage per call (entry points:
+``train_hydrogen.py``, ``train_methane.py``).
 
 Carries the conventions of the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN d7aa5ab)
-and the authors' email clarifications (items cited as in ``docs/authors_materials.md``) over
-to the two-stage hydrogen case. No hydrogen code was released, so every carried-over choice
+and the authors' email clarifications (items G*, B*, H*; summarized in
+``docs/authors_materials.md`` on the development branch) over to the two-stage combustion
+case. No hydrogen code was released, so every carried-over choice
 is labelled with its source in ``config.json["provenance"]``.
 
 Model (344 parameters)

@@ -5,11 +5,11 @@ paper (Koenig, Kim & Deng, 2025). They integrate the reference kinetic models,
 run some sanity checks, and save each system as a compressed `.npz`.
 
 **Biodiesel and hydrogen are the reproduction datasets. Methane is the extension
-required by the project proposal** (see the end of this file). Every `.npz` is regenerated from source; the
-biodiesel dataset `biodiesel_v2.npz`, `hydrogen.npz` and the production
-`hydrogen_temperature_20000.npz` cache are tracked in Git (small, and needed to reproduce
-reported results), while diagnostic dense caches (50k/100k/200k) and any other `.npz`
-stay untracked. See the root `.gitignore` negation rules.
+required by the project proposal** (see the end of this file). Every `.npz` is regenerated from source.
+The eight datasets the training, evaluation and figure scripts read are tracked in Git (table
+below); regenerating any of them with the commands in this file reproduces its arrays exactly
+(checked for all eight; only the `git_commit` stamp in the metadata differs). Any other
+`.npz` stays untracked (root `.gitignore`).
 
 ## Files
 
@@ -21,7 +21,8 @@ stay untracked. See the root `.gitignore` negation rules.
 | `generate_hydrogen.py` | hydrogen–air combustion trajectories |
 | `generate_all.py` | runs the biodiesel + hydrogen generators |
 | `verify_data.py` | sanity checks on a generated `.npz` |
-| `generate_methane.py` | methane extension from the project proposal (not run by default) |
+| `generate_methane.py` | methane extension from the project proposal (not run by `generate_all.py`) |
+| `methane_ignition_window.py` | diagnostic that chose the 5 ms methane window |
 | `data_generation_walkthrough.ipynb` | notebook that traces each step with intermediate outputs and plots |
 
 ## Quickstart
@@ -34,7 +35,7 @@ pip install -r ../../requirements.txt
 # generate the two reproduction datasets (biodiesel + hydrogen)
 python generate_all.py --out-dir ../../data/generated
 
-# optionally also generate the hydrogen fine grid (hydrogen_fine.npz)
+# also generate the hydrogen fine grid (hydrogen_fine.npz, Fig. 8A)
 python generate_all.py --out-dir ../../data/generated --include-fine
 
 # check them
@@ -51,7 +52,8 @@ python generate_biodiesel.py --seed 0            # -> biodiesel_v2.npz (released
 # python generate_biodiesel.py --reaction-order paper_text --ic-source sampled \
 #     --noise-mode multiplicative --no-per-level-stats --out <new file> --seed 0
 python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
-python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Figure 8 (A) 441 total data. 406 of which were unseen, 35 were seen during training.
+python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Fig. 8A: 441 conditions, 35 of them the training conditions
+python generate_biodiesel.py --reaction-order paper_text --out ../../data/generated/biodiesel_v2_paper_order.npz  # paper-text reaction order, for the reaction-order comparison
 ```
 
 ### Dense Stage-1 temperature cache
@@ -114,14 +116,18 @@ uses the NumPy 1.x ABI.
 | File | Cases | Shape of `states` | `state_layout` |
 |---|---|---|---|
 | `biodiesel_v2.npz` | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
-| `hydrogen.npz` | 35 train + 1 test | `(cases, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
-| `hydrogen_fine.npz` *(optional)* | 35 train + 406 test | `(441, n_points, 10)`, default `n_points=50` | `species_then_temperature` |
+| `biodiesel_v2_paper_order.npz` | 20 train + 10 test | `(cases, 30, 6)` | `species_only` |
+| `hydrogen.npz` | 35 train + 1 test | `(cases, 100, 10)` | `species_then_temperature` |
+| `hydrogen_fine.npz` | 35 train + 406 test | `(cases, 100, 10)` | `species_then_temperature` |
+| `hydrogen_temperature_20000.npz` | 35 train + 1 test | `(20000, cases, 1)` | `temperature_only` |
 | `methane.npz` *(extension)* | 35 train + 1 test | `(cases, 100, 53)` | `species_then_temperature` |
+| `methane_fine.npz` *(extension)* | 440 + 1 | `(cases, 100, 53)` | `species_then_temperature` |
 | `methane_temperature_20000.npz` *(extension)* | 35 train + 1 test | `(20000, cases, 1)` | `temperature_only` |
 
 For hydrogen the last axis is `10 = 9 species + temperature`; the default
-`n_points=50` follows ChemNODE-style saved trajectories, and `--n-points 601`
-gives the 1 µs high-resolution grid.
+`n_points=100` follows ChemNODE-style saved trajectories, and `--n-points 601`
+gives the 1 µs high-resolution grid. `methane_fine.npz` is only read by
+`combustion/evaluate_methane_grid.py`, which ignores its own train/test split.
 
 **The two layouts are not interchangeable — check `state_layout` before
 indexing.** For the combustion systems, `u = [Y_1, ..., Y_m, T]` with
@@ -288,10 +294,12 @@ ambiguous, the choice is labelled below in plain wording.
 Methane is not in the ChemKAN paper; it is the extension required by the project proposal. It is an extension dataset using the same style of 0-D constant-pressure reactor generation. The setup mirrors the hydrogen generator where possible, but methane is a larger and different chemical system, not a controlled one-variable comparison.
 
 ```bash
-cd extensions
-python generate_methane.py --out ../../../data/generated/methane.npz
+python generate_methane.py --out ../../data/generated/methane.npz
 python generate_methane.py --temperature-only --n-points 20000 \
-    --out ../../../data/generated/methane_temperature_20000.npz
+    --out ../../data/generated/methane_temperature_20000.npz
+# the 21 x 21 generalization grid (T0 1400-1650 K in 12.5 K steps, phi 0.5-1.5 in 0.05 steps)
+python generate_methane.py --T0s $(seq 1400 12.5 1650) --phis $(seq 0.5 0.05 1.5) \
+    --out ../../data/generated/methane_fine.npz
 ```
 
 As for hydrogen, `methane.npz` has 100 time points (50 µs spacing over 5 ms) and is the
