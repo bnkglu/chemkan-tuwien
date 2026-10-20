@@ -128,7 +128,17 @@ python chemkan/scripts/train_hydrogen.py stage2 --run-dir runs/hydrogen/S2_more 
 
 The two biodiesel launchers write into `results/` and skip every run whose
 `checkpoint_final.pt` exists, so on a fresh clone they report everything as done; move a run
-folder away to retrain it. The combustion launchers write to `runs/<system>/`
+folder away to retrain it. `BIODIESEL_RESULTS=<dir>` redirects both launchers and the
+biodiesel figures (Figs. 3–6 of `plot_all.py`) to `<dir>` instead of `results/biodiesel/`, so
+an independent rerun leaves the recorded results untouched:
+
+```bash
+export BIODIESEL_RESULTS=runs/biodiesel_rerun
+python chemkan/scripts/biodiesel/run_figure_runs.py && bash deeponet/run_figure_runs.sh
+python chemkan/scripts/figures/plot_all.py --only fig03 fig04 fig05a fig05b fig06
+```
+
+The combustion launchers write to `runs/<system>/`
 (`OUT=<dir>` to change). The recorded runs were interrupted and resumed several times
 (their `run.log`), so a rerun is not claimed to be bit-identical to them; a rerun of a
 biodiesel figure configuration matched its recorded losses to 1e-12 relative (20 epochs

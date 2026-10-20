@@ -1,5 +1,6 @@
 r"""Figure runs on ``biodiesel_v2.npz`` (Figs. 4 and 5; Figs. 3 and 6 are evaluated from the
-Fig. 5 runs). Results: ``results/biodiesel/chemkan_figure_runs/``.
+Fig. 5 runs). Results: ``results/biodiesel/chemkan_figure_runs/``, or
+``$BIODIESEL_RESULTS/chemkan_figure_runs/`` when that environment variable is set.
 
     fig05/  noise 0, 1, 2, 3, 5, 7, 10, 15 %, 10,000 epochs each:
             ChemKAN  train_biodiesel.py --data canonical --hidden 4
@@ -43,7 +44,9 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "deeponet"))
 from deeponet_model import FIG4_ARCHITECTURES  # noqa: E402
 
-OUT = ROOT / "results/biodiesel/chemkan_figure_runs"
+# BIODIESEL_RESULTS=<dir> redirects the runs (and, in figures/, the plots) away from results/
+RESULTS = Path(os.environ.get("BIODIESEL_RESULTS", ROOT / "results/biodiesel")).resolve()
+OUT = RESULTS / "chemkan_figure_runs"
 DATA = "chemkan/data/generated/biodiesel_v2.npz"
 RHS_DIVISOR = "50"           # the released example's divisor, used by every recorded figure run
 PY = sys.executable

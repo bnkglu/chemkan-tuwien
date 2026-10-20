@@ -7,6 +7,7 @@ figure without following a trail through this file.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -15,8 +16,9 @@ ROOT = Path(__file__).resolve().parents[3]
 # Result folders the figure scripts default to; every figure accepts overrides, so a
 # notebook can point it at a different run directory.
 DATA = ROOT / "chemkan/data/generated"
-# biodiesel_v2 figure runs (run_figure_runs.py) and their plots
-FIGURES_AUTHOR = ROOT / "results/biodiesel/figures"
+# biodiesel_v2 figure runs (run_figure_runs.py) and their plots; BIODIESEL_RESULTS=<dir>
+# reads the runs from and writes the plots to <dir> instead of results/biodiesel
+FIGURES_AUTHOR = Path(os.environ.get("BIODIESEL_RESULTS", ROOT / "results/biodiesel")).resolve() / "figures"
 # The hydrogen main run; its 200k Stage-2 continuation is the default of Figs. 7 and 8
 # (the hydrogen_reproduction notebook's arguments).
 HYDROGEN_MAIN = ROOT / "results/hydrogen"

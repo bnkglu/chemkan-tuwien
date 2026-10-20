@@ -8,15 +8,18 @@
 #
 #   bash deeponet/run_figure_runs.sh            # run every missing run, one at a time
 #   DRY_RUN=1 bash deeponet/run_figure_runs.sh  # print the commands only
+#   BIODIESEL_RESULTS=<dir> bash deeponet/run_figure_runs.sh   # into <dir>/deeponet_figure_runs
 #
 # Run from anywhere; PYTHON selects the interpreter (default: python). A run whose directory
 # already has checkpoint_final.pt is skipped, so an interrupted batch can be restarted.
 
 set -euo pipefail
+RESULTS=${BIODIESEL_RESULTS:-}                # optional: another results root
+[[ -n $RESULTS && $RESULTS != /* ]] && RESULTS=$PWD/$RESULTS
 cd "$(dirname "$0")/.."
 PY=${PYTHON:-python}
 T=deeponet/train_deeponet.py
-OUT=results/biodiesel/deeponet_figure_runs
+OUT=${RESULTS:-results/biodiesel}/deeponet_figure_runs
 BASE=(--state-mode author_global_normalized_states --objective mean_mse
       --init Aprime_tf_truncated_glorot_zero_bias --lr 1e-2 --activation tanh
       --branch-mode normalized --seed 0 --report-train-only-norm)
