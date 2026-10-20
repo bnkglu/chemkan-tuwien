@@ -34,9 +34,9 @@ the shortest complete example is `scripts/train.py`).
 
 The four were re-executed top to bottom on `biodiesel_v2.npz` with the current library.
 
-`chemkan/scripts/data_gen/data_generation_walkthrough.ipynb` (data generation step by step)
-does not run top to bottom as stored: section 1e configures `generate_biodiesel.generate()`
-with an earlier argument set (no `ic_source`), and sections 1c, 1e and 1g describe the
-earlier recipe (sampled initial conditions, multiplicative noise) rather than the one that
-produced `biodiesel_v2.npz`; the cells after 1e that use its dataset fail with it. The other
-sections run.
+`01_implement_kan.ipynb` is the workbook of `docs/implementing_chemkan_from_scratch_guide.md`,
+which holds its reference solutions and the later milestones.
+
+`chemkan/scripts/data_gen/data_generation_walkthrough.ipynb` traces the generation of
+`biodiesel_v2.npz` and `hydrogen.npz` step by step with the generators' own functions; it
+was re-executed and checks every array against the committed files.

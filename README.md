@@ -28,6 +28,7 @@ chemkan/
 ├── data/generated/         the datasets the scripts read (tracked; regenerable)
 ├── tests/                  pytest suite
 └── third_party/torchdiffeq the pinned ODE-solver source, for installation without GitHub
+docs/                       implementing_chemkan_from_scratch_guide.md (the guide of notebook extra/01)
 deeponet/                   the DeepONet baseline (separate from ChemKAN, see its README)
 └── upstream_reference/     unmodified copy of the original DeepONet code, for reference only
 results/                    the recorded experiments: biodiesel/, hydrogen/, methane/,
