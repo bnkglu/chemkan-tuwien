@@ -24,12 +24,12 @@ Run from the repository root with the project environment.
 | **All of them** | `python chemkan/scripts/figures/plot_all.py` | |
 
 The biodiesel figures read the biodiesel_v2 figure runs (ChemKAN:
-`chemkan/scripts/author_repo_match/run_figures.py`; DeepONet: `deeponet/run_figure_runs.sh`)
-and write to `results/experiments/biodiesel/author_repo_match/figures/plots/`. Their losses
+`chemkan/scripts/biodiesel/run_figure_runs.py`; DeepONet: `deeponet/run_figure_runs.sh`)
+and write to `results/biodiesel/figures/`. Their losses
 are time-averaged MSE (Eq. 18 / 30); they take no options.
 
 The hydrogen figures default to the main run's 200k Stage-2 checkpoint and its tables
-(notebook 08b's arguments) and write to `results/experiments/hydrogen/author_matched/main/`
+(the hydrogen_reproduction notebook's arguments) and write to `results/hydrogen/`
 `figures/` and `tables/`. `--run LABEL=DIR` (Fig. 7) or `--table LABEL=CSV` (Figs. 8A, 8B)
 plots other runs instead; `--output-dir` / `--output` writes elsewhere; `--summed` (Figs. 7,
 8A) shows the Eq. 18 loss summed over the time points instead of the time-averaged one;
@@ -61,8 +61,8 @@ plotting code into the notebook.
 
 ```
 common.py                            repo paths, checkpoint loading, figure saving
-author_runs.py                       the biodiesel figure runs: plan, histories, predictions, losses
-author_paper_table.py                paper-vs-ours comparison table for Figs. 4 and 5
+biodiesel_runs.py                       the biodiesel figure runs: plan, histories, predictions, losses
+paper_table.py                paper-vs-ours comparison table for Figs. 4 and 5
 fig03_biodiesel_trajectories.py      Figure 3
 fig04_biodiesel_scaling.py           Figure 4
 fig05_biodiesel_noise.py             Figure 5A (+ the palette shared with 5B)

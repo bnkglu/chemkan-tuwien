@@ -2,7 +2,7 @@
 
 Ignition delay against equivalence ratio at several initial temperatures, comparing the
 Cantera reference with the ChemKAN prediction. Default table: the main run's 200k Stage-2
-checkpoint (notebook 08b's arguments); ``--table`` plots others instead. The model's
+checkpoint (notebook hydrogen_reproduction's arguments); ``--table`` plots others instead. The model's
 marker is absent wherever it fails to ignite.
 
 Reads the precomputed ignition-delay tables; it neither trains nor re-integrates.

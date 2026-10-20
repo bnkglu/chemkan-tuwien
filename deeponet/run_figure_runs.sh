@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# DeepONet figure runs of the biodiesel figures (results/experiments/biodiesel/author_repo_match/
-# figures_tanh_r1_lr1e-2/): the reference DeepONet settings (Lu/DeepXDE truncated Glorot normal,
+# DeepONet figure runs of the biodiesel figures (results/biodiesel/deeponet_figure_runs/):
+# the reference DeepONet settings (Lu/DeepXDE truncated Glorot normal,
 # zero biases, raw t, author-global normalized states, mean-MSE objective) with tanh and Adam
 # lr 1e-2, seed 0, biodiesel_v2. Fig. 5: 8 noise levels, 10,000 epochs; Fig. 4: 6 sizes, 50,000
 # epochs. The commands are those of the figure_runs target that produced the runs; the ChemKAN
-# figure runs are launched by chemkan/scripts/author_repo_match/run_figures.py.
+# figure runs are launched by chemkan/scripts/biodiesel/run_figure_runs.py.
 #
 #   bash deeponet/run_figure_runs.sh            # run every missing run, one at a time
 #   DRY_RUN=1 bash deeponet/run_figure_runs.sh  # print the commands only
@@ -15,8 +15,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY=${PYTHON:-python}
-T=deeponet/train_biodiesel_deeponet_repro.py
-OUT=results/experiments/biodiesel/author_repo_match/figures_tanh_r1_lr1e-2
+T=deeponet/train_deeponet.py
+OUT=results/biodiesel/deeponet_figure_runs
 BASE=(--state-mode author_global_normalized_states --objective mean_mse
       --init Aprime_tf_truncated_glorot_zero_bias --lr 1e-2 --activation tanh
       --branch-mode normalized --seed 0 --report-train-only-norm)

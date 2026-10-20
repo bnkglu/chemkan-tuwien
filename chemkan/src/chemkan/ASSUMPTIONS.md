@@ -216,9 +216,7 @@ Analysis (FSA)** (p. 8) but does not print the sensitivity equations. `SolverCon
 accepts two backends:
 
 - `direct_autograd` — backprop through `odeint`. Every run made before the FSA work used
-  it; it stays the default and is unchanged (the regression in
-  `results/experiments/validation/fsa/da_regression.json` reproduces archived history rows
-  bit-for-bit). It is a different mechanism from FSA.
+  it; it stays the default and is unchanged. It is a different mechanism from FSA.
 - `fsa` — `chemkan/fsa.py`. The sensitivity equations are obtained by differentiating
   the paper's Eqs. 13 and 15 (paper notation, `u = [u_tilde, T]`):
   - biodiesel and hydrogen Stage 1 (only `u_tilde` is integrated; `T` is an external

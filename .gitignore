@@ -38,64 +38,39 @@ ENV/
 *.ckpt
 *.pkl
 
-# Generated datasets: regenerated from source, never committed
+# Generated datasets and model files are ignored by default ...
 *.npz
-
-# Logs
 *.log
-wandb/
+
+# ... except the datasets the training, evaluation and figure scripts read (regenerate any
+# of them with chemkan/scripts/data_gen/, see its README)
+!chemkan/data/generated/biodiesel_v2.npz
+!chemkan/data/generated/biodiesel_v2_paper_order.npz
+!chemkan/data/generated/hydrogen.npz
+!chemkan/data/generated/hydrogen_fine.npz
+!chemkan/data/generated/hydrogen_temperature_20000.npz
+!chemkan/data/generated/methane.npz
+!chemkan/data/generated/methane_fine.npz
+!chemkan/data/generated/methane_temperature_20000.npz
+
+# results/ holds the records of the reported experiments: tracked, except resume checkpoints
+!results/**/*.pt
+!results/**/*.npz
+!results/**/*.log
+results/**/*_working.pt
+results/**/checkpoint_resume.pt
+# committed with the methane Stage-1 record
+!results/methane/S1_seed0/stage1_working.pt
+
+# Inputs rebuilt from the released example (chemkan/scripts/biodiesel/build_*.py)
+results/biodiesel/released_example/data/
+
+# New training runs (launchers and examples write here)
 runs/
+train_example/
+wandb/
 lightning_logs/
 
 # Environment variables
 .env
 .env.local
-
-# ------------------------------------------------------------------------------
-# Scientific-reproduction artifacts: the blanket rules above ignore *.pt / *.npz /
-# *.log, but selected FINAL artifacts must be tracked. Negations below re-include
-# only those. Transient artifacts (checkpoint_resume.pt, diagnostic dense caches,
-# smoke runs) stay ignored. Keep large binaries (>10 MB) out -- regenerate instead.
-
-# Canonical reproduction datasets + the production dense H2 temperature cache
-!chemkan/data/generated/biodiesel_legacy.npz
-!chemkan/data/generated/biodiesel_v2.npz
-!chemkan/data/generated/hydrogen.npz
-!chemkan/data/generated/hydrogen_temperature_20000.npz
-
-# Final trained checkpoints supporting reported results (resume checkpoints stay ignored)
-!**/checkpoint_final.pt
-
-# Hydrogen Stage-1 checkpoints (~6 KB): the shared branch point every Stage-2 thermo-init
-# diagnostic starts from, and required by tests/test_thermo_diagnostics.py.
-!**/checkpoint_stage1.pt
-
-# Mid-training epoch snapshots (8-12 KB each) that ARE themselves reported results:
-# checkpoint_epoch_5000.pt is Fig. 4's h=4 scaling point, and the Stage-2 500-epoch
-# snapshots are the short-budget arm of notebook 09's initialization comparison.
-# Ordinary transient checkpoints (checkpoint_resume.pt) stay ignored.
-!**/checkpoint_epoch_*.pt
-!**/checkpoint_stage2_epoch_*.pt
-
-# Final prediction artifacts (<10 MB) live under a predictions/ directory
-!**/predictions/*.npz
-
-# Run logs for reproduction runs
-!**/run.log
-
-# Julia/LeanKAN reconstruction: PyTorch reference exports and Julia parameter files are
-# small (< 1 MB each) and back the equivalence reports; resume snapshots stay transient.
-!results/experiments/julia_leankan/**/*.npz
-**/resume.jls
-
-# Session scratch (review lists, not part of the science)
-.scratch/
-
-# Smoke-run output directories (quick pipeline checks, not reported results).
-# Directory-only pattern: excluding the directory also blocks the negations above,
-# and smoke *scripts* (e.g. deeponet/biodiesel_deeponet_smoke.py) stay tracked.
-results/**/*smoke*/
-
-# Full methane Stage-2 history (236 MB, over the GitHub limit); the committed
-# stage2_history.csv has every row without the 52 per-species thermo-weight columns.
-results/experiments/methane/author_matched/main/S2_seed0/stage2_history_full.csv

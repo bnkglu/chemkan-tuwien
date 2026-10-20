@@ -78,7 +78,7 @@ AUTHOR_NOISE = (0, 1, 2, 3, 5, 7, 10, 15)
 def author_noise_rows():
     """Converged (final-checkpoint, after 10,000 epochs) train / noisy-test /
     noise-free-test loss of the Fig. 5 runs, time-averaged, as plot_figure ``rows``."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     runs = ar.by_name()
     rows = []
     for model, key in (("ChemKAN", "chemkan"), ("DeepONet", "deeponet")):
@@ -92,7 +92,7 @@ def author_noise_rows():
 
 def make_author_figure(output_path=None, *, show=False):
     """Fig. 5A from the biodiesel_v2 runs, drawn by ``plot_figure``."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     rows, levels = author_noise_rows()
     fig = plot_figure(rows, levels, 1.0, f"\n{ar.CONVENTION_SHORT}")
     fig.axes[0].set_title("Fig. 5A - noise robustness (biodiesel_v2 runs; final checkpoints "

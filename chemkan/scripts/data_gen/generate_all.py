@@ -6,7 +6,7 @@ hydrogen). The hydrogen fine-grid generalization set (hydrogen_fine.npz) is
 optional; pass --include-fine to also generate it. Methane is the project
 proposal's extension and is not part of the original ChemKAN reproduction, so it is not
 run here -- generate it separately with
-`python extensions/generate_methane.py` if needed.
+`python generate_methane.py` if needed.
 
 This just runs the generators in turn and prints the output path and runtime
 for each.

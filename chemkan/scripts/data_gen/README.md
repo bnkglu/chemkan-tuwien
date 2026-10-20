@@ -21,7 +21,7 @@ stay untracked. See the root `.gitignore` negation rules.
 | `generate_hydrogen.py` | hydrogen–air combustion trajectories |
 | `generate_all.py` | runs the biodiesel + hydrogen generators |
 | `verify_data.py` | sanity checks on a generated `.npz` |
-| `extensions/generate_methane.py` | methane extension from the project proposal (not run by default) |
+| `generate_methane.py` | methane extension from the project proposal (not run by default) |
 | `data_generation_walkthrough.ipynb` | notebook that traces each step with intermediate outputs and plots |
 
 ## Quickstart
@@ -81,7 +81,7 @@ Archive schema: `t (N,)`, `train_T (N,35,1)`, `test_T (N,1,1)`, `train_ics (35,2
 training conditions. Load it with `_data.load_hydrogen_temperature(split, n_points)`,
 which validates the file against the canonical archive and fails loudly on mismatch.
 
-Stage 1 of `author_repo_match/train_author_matched_hydrogen.py` consumes it (the 20,000-point
+Stage 1 of `combustion/train_combustion.py` (`train_hydrogen.py`) consumes it (the 20,000-point
 cache). Important: this is still **linear interpolation** on a fine grid — it
 reduces interpolation error, it does not eliminate interpolation, because the solver's
 internal query times almost never land exactly on the grid. The Stage-1 output grid

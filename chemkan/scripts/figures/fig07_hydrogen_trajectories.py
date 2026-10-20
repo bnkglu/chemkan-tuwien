@@ -2,7 +2,7 @@
 
 Temperature and nine species predicted from the initial state alone, at the paper's
 training condition (T0 = 1050 K, phi = 0.9) and its held-out condition (T0 = 1150 K,
-phi = 1.3). Default model: the main run's 200k Stage-2 checkpoint (notebook 08b's
+phi = 1.3). Default model: the main run's 200k Stage-2 checkpoint (notebook hydrogen_reproduction's
 arguments); ``--run`` plots other runs instead. Loads finished checkpoints only.
 
 Several runs passed together share one set of y-axis limits per row -- computed across all
@@ -39,7 +39,7 @@ from matplotlib.ticker import MaxNLocator
 
 add_repo_paths()
 
-from evaluate_hydrogen import load_predictor
+from predictor import load_predictor
 
 from chemkan.normalization import MinMaxNormalizer
 

@@ -51,7 +51,7 @@ def author_profile_data() -> dict:
     """Test row 24 at NOISE_PERCENT: clean truth, noisy test observations and both models'
     predictions on the observation grid (as plot_profiles expects), plus each model's
     time-averaged noise-free MSE on this trajectory."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     case = ar.fig3_case((NOISE_PERCENT,))
     runs = ar.by_name()
     clean = ar.dataset()["test_states"][ar.FIG3_TEST_INDEX]
@@ -68,7 +68,7 @@ def author_profile_data() -> dict:
 
 def make_author_figure(output_path=None, *, data=None, show=False):
     """Fig. 6 from the biodiesel_v2 runs, drawn by ``plot_profiles``."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     data = data or author_profile_data()
     case = data["case"]
     fig = plot_profiles(case["t"], case["species"], data["truth"], data["noisy"],

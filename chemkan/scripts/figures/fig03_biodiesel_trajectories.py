@@ -71,7 +71,7 @@ def author_trajectory_data():
     """Test row 24 (the paper's Fig. 3 condition) in plot_figure's format: the condition
     and results["levels"][pct] with the dense ChemKAN prediction and per-species
     time-averaged losses against the clean truth and the noisy test observations."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     case = ar.fig3_case(NOISE_LEVELS)
     clean = ar.dataset()["test_states"][ar.FIG3_TEST_INDEX]
     condition = {"t_dense": case["t_dense"], "t": case["t"], "states_dense": case["truth"],
@@ -95,7 +95,7 @@ def author_trajectory_data():
 
 def make_author_figure(output_path=None, *, show=False):
     """Fig. 3 from the biodiesel_v2 runs, drawn by ``plot_figure``."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     condition, results = author_trajectory_data()
     fig = plot_figure(condition, results,
                       f"\nbiodiesel_v2 runs (test row 24); loss: {ar.CONVENTION_SHORT}; "

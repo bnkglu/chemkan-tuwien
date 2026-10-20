@@ -12,11 +12,11 @@ import pytest
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-for sub in ("chemkan/scripts/data_gen", "chemkan/scripts", "chemkan/scripts/author_repo_match",
+for sub in ("chemkan/scripts/data_gen", "chemkan/scripts", "chemkan/scripts/biodiesel",
             "deeponet"):
     sys.path.insert(0, str(REPO / sub))
 
-import biodiesel_deeponet as bdon  # noqa: E402
+import deeponet_model as bdon  # noqa: E402
 import generate_biodiesel as gb  # noqa: E402
 from _data import load_biodiesel  # noqa: E402
 from common import add_noise, make_rng  # noqa: E402
@@ -169,7 +169,7 @@ def test_fig4_deeponet_architectures(n, arch):
 
 
 def test_deeponet_trunk_hidden_round_trip():
-    """Rebuild from the architecture record as author_runs.deeponet_predict does."""
+    """Rebuild from the architecture record as biodiesel_runs.deeponet_predict does."""
     model = bdon.build(7, seed=0, trunk_hidden=6)
     arch = bdon.architecture(model)
     rebuilt = bdon.build(arch["w"], trunk_hidden=arch["q"])
@@ -183,7 +183,7 @@ def test_deeponet_trunk_hidden_round_trip():
 def test_author_core_hidden_widths(hidden, n):
     import math
 
-    from _author_match import build_core
+    from reference_components import build_core
     core = build_core(hidden)
     assert sum(p.numel() for p in core.parameters()) == n == 39 * hidden
     assert core.lean.n_mu == math.ceil(hidden / 2)

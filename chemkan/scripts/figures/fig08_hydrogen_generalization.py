@@ -1,7 +1,7 @@
 """Figure 8A -- hydrogen generalization over a 441-condition grid.
 
 Eq. 18 loss for every (initial temperature, equivalence ratio) pair on a 21x21 grid.
-Default table: the main run's 200k Stage-2 checkpoint (notebook 08b's arguments); ``--table``
+Default table: the main run's 200k Stage-2 checkpoint (notebook hydrogen_reproduction's arguments); ``--table``
 plots others instead. Reads the precomputed generalization tables
 (``evaluate_hydrogen_grid.py``); it neither trains nor re-integrates.
 

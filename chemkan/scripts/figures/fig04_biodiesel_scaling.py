@@ -131,7 +131,7 @@ AUTHOR_FIT_EXCLUDE = {"ChemKAN": 1, "DeepONet": 2}
 def author_scaling_data() -> dict:
     """Final-checkpoint train / noise-free test loss (time-averaged) of the noise-free Fig. 4
     runs as plot_figure ``points``, and ``fits`` (fit_line) with the paper's exclusions."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     points = []
     for model, key in (("ChemKAN", "chemkan"), ("DeepONet", "deeponet")):
         for run in (r for r in ar.plan() if r["name"].startswith(f"fig04_{key}")):
@@ -158,7 +158,7 @@ def author_scaling_data() -> dict:
 
 def make_author_figure(output_path=None, *, data=None, show=False):
     """Fig. 4 from the biodiesel_v2 runs, drawn by ``plot_figure``."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     data = data or author_scaling_data()
     fig = plot_figure(data["points"], data["fits"], "scaled",
                       f"{ar.DEEPONET_LABEL[ar.DEEPONET_VARIANT]}, biodiesel_v2 runs", 1.0,

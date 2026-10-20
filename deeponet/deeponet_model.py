@@ -1,0 +1,179 @@
+r"""Biodiesel DeepONet: the model, its width family, and its parameter count.
+
+Single source of truth for the DeepONet baseline used in ChemKAN Figs. 4, 5 and 6. It is
+a RECONSTRUCTION: the ChemKAN paper describes the architecture in prose (Sec. III A 3)
+but tabulates neither every layer nor the optimizer, so the choices below are labelled by
+where they come from.
+
+Eq. 4:  u(u0, t) = MLP_opt[ MLP_br(u0) (Hadamard) MLP_tr(t) ]
+
+PAPER-DESCRIBED + AUTHORS' CLARIFICATION (email B3)
+    Branch input [TG0, ROH0, T0] (``BRANCH_IN = 3``): the four always-zero initial species
+    are dropped. Three branch layers of width 8; trunk 1 -> 7 -> 8; a final mapping from the
+    8-dimensional latent to the six species: 3*8+8 + 8*8+8 + 8*8+8 = 176 (branch) +
+    1*7+7 + 7*8+8 = 78 (trunk) + 8*6+6 = 54 (head) = **308** parameters at
+    ``COMPARISON_WIDTH``, the count the paper reports.
+
+FIG. 4 SIZES: EXPLICIT ARCHITECTURES (w, q, p)
+    branch [3, w, w, p], trunk [1, q, p], head Linear(p, 6); here p = w throughout.
+    count = w*w + w*p + q*p + 5w + 2q + 8p + 6. ``FIG4_ARCHITECTURES`` lists the sweep:
+    78 (3,3,3), 156 (5,5,5), 249 (7,6,7), 308 (8,7,8), 384 (9,9,9), 456 (10,10,10).
+    Confirmed: the 308 architecture (email B3); 456 is the largest DeepONet and exactly two
+    are larger than 308 (paper Sec. III A 2). Reconstructed (our choice): every other size
+    and architecture. The trunk hidden width q defaults to w - 1.
+
+PREPROCESSING
+    Input and output scaling (raw time t in the trunk, raw or author-global normalized
+    states) is applied by ``deeponet_data.py``; this module only defines the
+    network.
+
+REFERENCE-DERIVED REPRODUCTION CHOICES (from the original DeepONet repository's example
+``src/deeponet_dataset.py`` (Lu et al., github.com/lululxvi/deeponet), which builds
+``dde.maps.OpNN(..., "relu", "Glorot normal", use_bias=True, stacked=False)`` and trains
+with ``adam, lr=1e-3``)
+    * biased Linear layers throughout, including the six-output head;
+    * ReLU between branch layers, with a LINEAR final branch layer; ReLU after EVERY
+      trunk layer, including the last; the six-output head remains LINEAR.
+      DeepXDE 0.11.2 deepxde/maps/opnn.py, OpNN.build(), stacked=False, uses
+      ``range(1, len(self.layer_size_loc))`` for the trunk, applying activation_trunk
+      inside that loop, including the final layer:
+      https://github.com/lululxvi/deepxde/blob/v0.11.2/deepxde/maps/opnn.py#L116-L158
+    * Glorot-normal (Xavier normal) weight initialization, zero bias initialization,
+      applied identically to branch, trunk and head;
+    * Adam, lr = 1e-3.
+    These are the reference example's conventions, not ChemKAN-paper facts. They are held
+    fixed across every width and noise level. The architecture record names this version
+    ``reference_final_trunk_relu`` (activation after the final trunk layer).
+"""
+
+from __future__ import annotations
+
+import torch
+import torch.nn as nn
+
+PAPER_PARAMS = 308          # count stated in the ChemKAN paper for this DeepONet
+COMPARISON_WIDTH = 8        # w reproducing the paper-described branch/trunk widths
+OUT_DIM = 6                 # TG, ROH, DG, MG, GL, R'CO2R
+BRANCH_IN = 3               # [TG0, ROH0, T0] (authors' clarification, email B3)
+BRANCH_INPUTS = {3: ("TG0", "ROH0", "T0")}
+# Fig. 4 DeepONet sweep: parameter count -> (w, q, p). Only 308 is confirmed (email B3).
+FIG4_ARCHITECTURES = {78: (3, 3, 3), 156: (5, 5, 5), 249: (7, 6, 7), 308: (8, 7, 8),
+                      384: (9, 9, 9), 456: (10, 10, 10)}
+
+
+def count_parameters(w: int, q: int, p: int, branch_in: int = BRANCH_IN) -> int:
+    """Branch [branch_in, w, w, p] + trunk [1, q, p] + head p -> 6, all biased."""
+    return ((branch_in + 1) * w + (w + 1) * w + (w + 1) * p   # branch
+            + 2 * q + (q + 1) * p                             # trunk
+            + (p + 1) * OUT_DIM)                              # head
+REFERENCE_ARCHITECTURE_VERSION = "reference_final_trunk_relu"
+
+
+def dims_for(width: int, branch_in: int = BRANCH_IN,
+             trunk_hidden: int | None = None) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """(branch_dims, trunk_dims): branch [branch_in, w, w, w], trunk [1, q, w], q = w - 1
+    unless ``trunk_hidden`` is given."""
+    if width < 2:
+        raise ValueError(f"width must be >= 2; got {width}")
+    if branch_in not in BRANCH_INPUTS:
+        raise ValueError(f"branch_in must be one of {sorted(BRANCH_INPUTS)}; got {branch_in}")
+    q = width - 1 if trunk_hidden is None else trunk_hidden
+    if q < 1:
+        raise ValueError(f"trunk_hidden must be >= 1; got {q}")
+    return (branch_in, width, width, width), (1, q, width)
+
+
+def mlp(dims, *, activate_output: bool = False) -> nn.Sequential:
+    """Biased Linear stack, with an optional ReLU on its final layer."""
+    layers = []
+    for i in range(len(dims) - 1):
+        layers.append(nn.Linear(dims[i], dims[i + 1], bias=True))
+        if i < len(dims) - 2 or activate_output:
+            layers.append(nn.ReLU())
+    return nn.Sequential(*layers)
+
+
+class BiodieselDeepONet(nn.Module):
+    """u0:(B, branch_in), t:(T,) -> (T, B, 6) species."""
+
+    def __init__(self, width: int = COMPARISON_WIDTH, out_dim: int = OUT_DIM,
+                 branch_in: int = BRANCH_IN, trunk_hidden: int | None = None):
+        super().__init__()
+        branch_dims, trunk_dims = dims_for(width, branch_in, trunk_hidden)
+        if branch_dims[-1] != trunk_dims[-1]:
+            raise ValueError("branch and trunk must share the latent width")
+        self.width = width
+        self.architecture_version = REFERENCE_ARCHITECTURE_VERSION
+        self.branch_dims, self.trunk_dims = branch_dims, trunk_dims
+        self.branch = mlp(branch_dims)
+        self.trunk = mlp(trunk_dims, activate_output=True)
+        self.head = nn.Linear(width, out_dim, bias=True)     # ChemKAN's MLP_opt
+
+    def forward(self, u0: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
+        b = self.branch(u0).unsqueeze(0)                     # (1, B, w)
+        tr = self.trunk(t.reshape(-1, 1)).unsqueeze(1)       # (T, 1, w)
+        return self.head(b * tr)                             # (T, B, out_dim)
+
+
+def glorot_normal_(model: nn.Module) -> nn.Module:
+    """Glorot-normal weights, zero biases, on every Linear (the reference convention)."""
+    for module in model.modules():
+        if isinstance(module, nn.Linear):
+            nn.init.xavier_normal_(module.weight)
+            nn.init.zeros_(module.bias)
+    return model
+
+
+def build(width: int = COMPARISON_WIDTH, seed: int | None = None,
+          branch_in: int = BRANCH_IN, trunk_hidden: int | None = None) -> BiodieselDeepONet:
+    """Deterministically construct and initialize the model."""
+    if seed is not None:
+        torch.manual_seed(seed)
+    model = glorot_normal_(BiodieselDeepONet(width, branch_in=branch_in,
+                                             trunk_hidden=trunk_hidden))
+    w, q, p = width, model.trunk_dims[1], width
+    assert n_params(model) == count_parameters(w, q, p, branch_in), n_params(model)
+    if branch_in == BRANCH_IN and (w, q, p) in FIG4_ARCHITECTURES.values():
+        expected = next(n for n, a in FIG4_ARCHITECTURES.items() if a == (w, q, p))
+        assert n_params(model) == expected, (n_params(model), expected)
+    if width == COMPARISON_WIDTH and branch_in == BRANCH_IN and q == COMPARISON_WIDTH - 1:
+        assert n_params(model) == PAPER_PARAMS, n_params(model)
+    return model
+
+
+def n_params(model: nn.Module) -> int:
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+def architecture(model: BiodieselDeepONet) -> dict:
+    """Checkpoint/config record of what was actually built."""
+    return {
+        "architecture_version": model.architecture_version,
+        "family": f"DeepONet: branch [{model.branch_dims[0]},w,w,p], trunk [1,q,p], "
+                  "Hadamard combine, head Linear(p,6)",
+        "w": model.width, "q": model.trunk_dims[1], "p": model.trunk_dims[-1],
+        "branch_input": list(BRANCH_INPUTS[model.branch_dims[0]]),
+        "width": model.width,
+        "branch_dims": list(model.branch_dims),
+        "trunk_dims": list(model.trunk_dims),
+        "combine": "hadamard",
+        "out_dim": model.head.out_features,
+        "activation": ("relu between branch layers and after every trunk layer "
+                       "(none on branch output or head)"),
+        "bias": True,
+        "weight_init": "glorot_normal (xavier_normal_), zero bias",
+        "parameter_count": n_params(model),
+    }
+
+
+if __name__ == "__main__":                                   # quick count audit
+    for n, (w, q, p) in FIG4_ARCHITECTURES.items():
+        m = build(w, trunk_hidden=q)
+        print(f"Fig. 4 {n:4d}: (w, q, p) = ({w}, {q}, {p}) -> {n_params(m)} parameters")
+    for w in (2, 3, 4, 6, 8, 10, 12, 18):
+        m = build(w)
+        marker = "   <- paper-described widths" if w == COMPARISON_WIDTH else ""
+        print(f"w={w:3d}  branch{list(m.branch_dims)}  trunk{list(m.trunk_dims)}  "
+              f"params={n_params(m):5d}{marker}")
+    print(f"\nat w={COMPARISON_WIDTH}: {n_params(build(COMPARISON_WIDTH))} parameters "
+          f"(branch [TG0, ROH0, T0]); paper reports {PAPER_PARAMS}.")

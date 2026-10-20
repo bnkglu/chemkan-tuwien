@@ -70,7 +70,7 @@ def plot_figure(panels, divisor=1.0, note=""):
 
 def make_author_figure(output_path=None, *, show=False):
     """Fig. 5B from the biodiesel_v2 runs, drawn by ``plot_figure``."""
-    import author_runs as ar
+    import biodiesel_runs as ar
     runs = ar.by_name()
     panels = {}
     for pct in NOISE_LEVELS:

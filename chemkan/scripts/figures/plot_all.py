@@ -1,9 +1,9 @@
 """Regenerate every final ChemKAN paper figure.
 
 Biodiesel Figs. 3, 4, 5A, 5B, 6 from the biodiesel_v2 figure runs (time-averaged MSE) into
-``results/experiments/biodiesel/author_repo_match/figures/plots/``; hydrogen Figs. 7, 8A,
+``results/biodiesel/figures/``; hydrogen Figs. 7, 8A,
 8B from the main run's 200k Stage-2 checkpoint into
-``results/experiments/hydrogen/author_matched/main/figures/`` (notebook 08b's arguments).
+``results/hydrogen/figures/`` (notebook hydrogen_reproduction's arguments).
 Calls each figure's own function; there is no separate implementation here. Every figure
 reads finished checkpoints, histories and tables -- nothing trains.
 
