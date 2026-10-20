@@ -62,12 +62,8 @@ class RBFEdgeFunctions(nn.Module):
             self.base = None
             self.register_parameter("w_base", None)           # not trainable, not counted
 
-    def representation_input(self, x: torch.Tensor) -> torch.Tensor:
-        """Coordinates used by this edge's univariate basis functions."""
-        return torch.tanh(x)
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # (B, in) -> (B, out, in)
-        x = self.representation_input(x)                       # KAN internal normalization
+        x = torch.tanh(x)                                     # KAN internal normalization
         psi = gaussian(x, self.centers, self.h)              # (B, in, num_basis)
         edge = torch.einsum("bik,oik->boi", psi, self.w_rbf)  # (B, out, in)
         if self.w_base is not None:

@@ -22,7 +22,7 @@ GitHub commit `657943a` (reports 0.2.5), matplotlib 3.8.4.
   torchdiffeq commit, for installation without GitHub.
 - Every run's `config.json` records the git commit; the author-matched runs also record the
   Python and torch versions. All configs that record a torch version have 2.13.0
-  (22 runs on the Mac, 16 on JupyterHub, and the 17 adaptive-FGD runs as `torch_version`).
+  (22 runs on the Mac, 16 on JupyterHub).
 
 Install:
 

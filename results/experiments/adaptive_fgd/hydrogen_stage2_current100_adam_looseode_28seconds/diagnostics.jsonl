@@ -1,4 +1,0 @@
-{"loss_before": 40.4769401550293, "loss_after": 29.997451782226562, "step_size": 0.002, "stationary": false, "test_loss": 39.7700080871582, "step": 1, "elapsed_seconds": 10.235190375009552}
-{"loss_before": 29.997451782226562, "loss_after": 29.173633575439453, "step_size": 0.002, "stationary": false, "test_loss": 39.34151077270508, "step": 2, "elapsed_seconds": 18.25794241699623}
-{"loss_before": 29.173633575439453, "loss_after": 28.23243522644043, "step_size": 0.002, "stationary": false, "test_loss": 39.04324722290039, "step": 3, "elapsed_seconds": 26.434904209017986}
-{"loss_before": 28.23243522644043, "loss_after": 27.53838539123535, "step_size": 0.002, "stationary": false, "test_loss": 38.78817367553711, "step": 4, "elapsed_seconds": 33.176070959016215}

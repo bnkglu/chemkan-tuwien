@@ -47,13 +47,10 @@ N_TRAIN, N_TEST = 20, 10
 class NoInputTanhRBFEdges(RBFEdgeFunctions):
     """``RBFEdgeFunctions`` without the input ``tanh`` (Julia ``normalizer=false``)."""
 
-    def representation_input(self, x: torch.Tensor) -> torch.Tensor:
-        return x
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # (B, in) -> (B, out, in)
         if self.w_base is not None:
             raise ValueError("the released example has no base activation")
-        psi = gaussian(self.representation_input(x), self.centers, self.h)
+        psi = gaussian(x, self.centers, self.h)
         return torch.einsum("bik,oik->boi", psi, self.w_rbf)
 
 
