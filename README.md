@@ -29,6 +29,7 @@ chemkan/
 ├── tests/                  pytest suite
 └── third_party/torchdiffeq the pinned ODE-solver source, for installation without GitHub
 deeponet/                   the DeepONet baseline (separate from ChemKAN, see its README)
+└── upstream_reference/     unmodified copy of the original DeepONet code, for reference only
 results/                    the recorded experiments: biodiesel/, hydrogen/, methane/,
                             inference_benchmark/; PATHS.md maps original record paths
 ```
@@ -193,6 +194,8 @@ python generate_methane.py --out ../../data/generated/methane.npz      # methane
 
 Self-contained under `deeponet/` (model, preprocessing, trainer, figure-run launcher);
 `deeponet/README.md` gives the commands and the attribution to the original DeepONet work.
+`deeponet/upstream_reference/` keeps an unmodified copy of the original DeepONet code with its
+own README and licence (CC BY-NC-SA 4.0); nothing in this repository imports or runs it.
 
 ## Adapting ChemKAN to another chemical system
 

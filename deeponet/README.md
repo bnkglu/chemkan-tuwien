@@ -52,5 +52,12 @@ https://github.com/lululxvi/deeponet and https://github.com/lululxvi/deepxde. Th
 reference-derived conventions used here (biased layers, activation placement, Glorot-normal
 initialization, Adam lr 1e-3 as the reference default) are cited in the docstrings of
 `deeponet_model.py` and `deeponet_data.py` with the DeepXDE 0.11.2 source lines they follow.
-This folder contains no code from those repositories; the original repository's own README
-and license (CC BY-NC-SA 4.0) are not included, since they apply to that code.
+
+`upstream_reference/` is a copy of the original repository's `src/`, `seq2seq/` and
+`fractional/` folders, `README.md`, `LICENSE` (CC BY-NC-SA 4.0, which applies to that code)
+and `requirements.txt`, byte-identical to the copy kept on the project's development branch
+(`requirements.txt` as first committed there, before a project comment was added; the
+upstream commit the copy was taken from was not recorded). It is kept for reference: the
+benchmark above is the implementation used for every recorded run, it does not import
+`upstream_reference/`, and the upstream requirements (TensorFlow, DeepXDE 0.11.2, Matlab
+for parts) are not part of the ChemKAN environment.
