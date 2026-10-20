@@ -79,7 +79,7 @@ python generate_hydrogen.py --temperature-only --n-points 20000 \
 
 Archive schema: `t (N,)`, `train_T (N,35,1)`, `test_T (N,1,1)`, `train_ics (35,2)`,
 `test_ics (1,2)`, plus `n_points`, `t_end`, `mechanism`, `pressure`, `rtol`, `atol`,
-`metadata`. `train_T[:, b, :]` follows the exact ordering of the 50-point hydrogen
+`metadata`. `train_T[:, b, :]` follows the exact ordering of the hydrogen.npz
 training conditions. Load it with `_data.load_hydrogen_temperature(split, n_points)`,
 which validates the file against the canonical archive and fails loudly on mismatch.
 
@@ -87,21 +87,21 @@ Stage 1 of `combustion/train_combustion.py` (`train_hydrogen.py`) consumes it (t
 cache). Important: this is still **linear interpolation** on a fine grid — it
 reduces interpolation error, it does not eliminate interpolation, because the solver's
 internal query times almost never land exactly on the grid. The Stage-1 output grid
-and species targets stay on the canonical 50 points; only `T(t)` becomes dense.
-`20000` is a reproduction choice, not a paper-specified value. The original 50-point
-provider remains available as an ablation via
-`--stage1-temperature-source training-data`.
+and species targets stay on the 100 saved points of `hydrogen.npz`; only `T(t)` becomes
+dense. `20000` is a reproduction choice, not a paper-specified value.
 
 ### Interactive walkthrough
 
 `data_generation_walkthrough.ipynb` runs the *same* functions as the scripts and
 shows each intermediate step (rate constants, a single trajectory, the full
 train/test split, normalization, noise, ignition delay, verification) with inline
-plots. It reuses the generators — it does not re-implement them. It needs the
-runtime plus a small plotting/notebook stack:
+plots. It reuses the generators — it does not re-implement them. With the generators'
+defaults it rebuilds `biodiesel_v2.npz` and `hydrogen.npz` in memory and checks every
+array against the committed files (only `metadata` differs); it writes nothing. Where the
+paper text describes another biodiesel recipe (reaction order, sampled initial
+conditions, multiplicative noise), it says so. It runs in the project environment:
 
 ```bash
-pip install -r ../../requirements.txt -r ../../requirements-dev.txt
 jupyter lab data_generation_walkthrough.ipynb   # or: jupyter notebook / VS Code
 ```
 
@@ -265,11 +265,11 @@ ambiguous, the choice is labelled below in plain wording.
   `phi = {0.5, 0.7, 0.9, 1.1, 1.3, 1.5}`. The omitted value appears to be
   `phi = 0.5`.
 
-- **Hydrogen sample count — implementation choice with related-paper support.**
+- **Hydrogen sample count — from the authors' clarification.**
   ChemKAN states the hydrogen time span but does not state the number of saved
-  time points. Because ChemKAN says the setup is largely identical to ChemNODE,
-  and ChemNODE saved each time series at 50 points, this implementation uses
-  50 points by default. Use `--n-points 601` for a 1 µs high-resolution grid.
+  time points. The authors clarified that the training grid has 100 time steps
+  (email H3; `docs/authors_materials.md` on the development branch), so `hydrogen.npz`
+  saves 100 points (the default). An earlier dataset used ChemNODE's 50 points. Use `--n-points 601` for a 1 µs high-resolution grid.
 
 - **Train-only normalization — implementation choice.**
   Eq. 18 states that each thermochemical state \(u_k\) is normalized to \([0,1]\)
