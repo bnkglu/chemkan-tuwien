@@ -1,0 +1,1159 @@
+{
+  "checkpoint": "results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise00_seed0/checkpoint_final.pt",
+  "checkpoint_parameters_sha256": "e83046d37fd37600a81f9d57530a1bdbae6bfd9e7267ff72b469be62649ed236",
+  "parameters_unchanged": true,
+  "model": {
+    "layers": "7 -> 4 -> 6",
+    "n_mu": 2,
+    "rbf": "exp(-((x - c)/1)^2) (library gaussian with h = 1/sqrt(2))",
+    "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / 50",
+    "rhs_divisor": 50.0,
+    "parameters": 156
+  },
+  "normalization": {
+    "inputs": [
+      "TG",
+      "ROH",
+      "DG",
+      "MG",
+      "GL",
+      "RCO2R",
+      "T"
+    ],
+    "u_min": [
+      0.20834006369113922,
+      0.024992823600769043,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      323.4449157714844
+    ],
+    "u_max": [
+      1.9220625162124634,
+      1.9127856492996216,
+      0.4581192433834076,
+      0.21017393469810486,
+      0.4167952537536621,
+      1.6566635370254517,
+      342.9372253417969
+    ],
+    "source": "legacy B0: archive train-only species u_min/u_max, T min/max over train temperatures"
+  },
+  "data": {
+    "file": "chemkan/data/generated/biodiesel_v2.npz",
+    "sha256": "c79afbfbbee863f50704985aaf658931d8e989f8086d528f97dfd6d680ca7b31",
+    "clean_train_states": 600,
+    "clean_test_states": 300
+  },
+  "reference_kinetics": {
+    "orders": "released_code",
+    "ln_A": [
+      18.6,
+      19.13,
+      7.93
+    ],
+    "Ea_kcal": [
+      14.54,
+      14.42,
+      6.47
+    ]
+  },
+  "input_ranges_seen_in_training": {
+    "normalized_z": {
+      "TG": [
+        4.104791666892113e-09,
+        1.0000000197158743
+      ],
+      "ROH": [
+        3.105260055961116e-10,
+        1.000000000371004
+      ],
+      "DG": [
+        0.0,
+        1.000000024568574
+      ],
+      "MG": [
+        0.0,
+        1.0000000223118084
+      ],
+      "GL": [
+        0.0,
+        0.9999999917458675
+      ],
+      "RCO2R": [
+        0.0,
+        1.0000000156546858
+      ],
+      "T": [
+        1.5947395061577018e-07,
+        1.0000005057483345
+      ]
+    },
+    "hidden_h": {
+      "h1": [
+        0.08563193019240556,
+        1.9326894545386115
+      ],
+      "h2": [
+        0.08173006192172638,
+        2.444878107270613
+      ],
+      "h3": [
+        -2.3073084358598517,
+        0.1911717980392359
+      ],
+      "h4": [
+        0.28092143264374947,
+        3.0384657656974854
+      ]
+    }
+  },
+  "edge_contributions": {
+    "definition": "std over the 600 training states of each edge output (layer 1) or of each layer-2 term (product phi_i1*phi_i2, phi_i3, phi_i4), and its share of the sum within the node",
+    "layer1_share": {
+      "h1": {
+        "TG": 0.26988356108275746,
+        "ROH": 0.31733225934867487,
+        "DG": 0.11231491826554821,
+        "MG": 0.027489712879650834,
+        "GL": 0.05349439982450409,
+        "RCO2R": 0.037767192493680775,
+        "T": 0.1817179561051838
+      },
+      "h2": {
+        "TG": 0.04700410167737615,
+        "ROH": 0.21661022312869851,
+        "DG": 0.26736608280202717,
+        "MG": 0.04393038381200418,
+        "GL": 0.1708591696617391,
+        "RCO2R": 0.0873272168509124,
+        "T": 0.16690282206724258
+      },
+      "h3": {
+        "TG": 0.1081030456864986,
+        "ROH": 0.2634348258263979,
+        "DG": 0.2920584747755583,
+        "MG": 0.059875128626490824,
+        "GL": 0.034566962224708134,
+        "RCO2R": 0.11138864506742849,
+        "T": 0.13057291779291777
+      },
+      "h4": {
+        "TG": 0.29543076884239833,
+        "ROH": 0.25927881856393103,
+        "DG": 0.22910038690276482,
+        "MG": 0.016166286143588973,
+        "GL": 0.03505910353435666,
+        "RCO2R": 0.02604717296899594,
+        "T": 0.1389174630439643
+      }
+    },
+    "layer2_share": {
+      "TG": {
+        "h1*h2": 0.8352134985902028,
+        "h3": 0.06800006456877304,
+        "h4": 0.09678643684102431
+      },
+      "ROH": {
+        "h1*h2": 0.6082858008408087,
+        "h3": 0.30258035589034316,
+        "h4": 0.08913384326884813
+      },
+      "DG": {
+        "h1*h2": 0.8049068523972452,
+        "h3": 0.14088013073762612,
+        "h4": 0.054213016865128576
+      },
+      "MG": {
+        "h1*h2": 0.7651146877037738,
+        "h3": 0.0732372593469705,
+        "h4": 0.1616480529492557
+      },
+      "GL": {
+        "h1*h2": 0.16358410041672994,
+        "h3": 0.8175099270432726,
+        "h4": 0.018905972539997297
+      },
+      "RCO2R": {
+        "h1*h2": 0.5993156885678417,
+        "h3": 0.3089442442587062,
+        "h4": 0.09174006717345214
+      }
+    }
+  },
+  "rate_parity_all_reference_states": {
+    "TG": {
+      "train": {
+        "rmse_mol_per_L_s": 0.002729872871227069,
+        "relative_rmse": 0.08737629514967571,
+        "r2": 0.9858995725355637,
+        "sign_agreement": 1.0,
+        "n_states": 600
+      },
+      "test": {
+        "rmse_mol_per_L_s": 0.002911891379990511,
+        "relative_rmse": 0.09951441844635764,
+        "r2": 0.9821373726876543,
+        "sign_agreement": 1.0,
+        "n_states": 300
+      }
+    },
+    "ROH": {
+      "train": {
+        "rmse_mol_per_L_s": 0.0040874603015101625,
+        "relative_rmse": 0.08690147673885033,
+        "r2": 0.9806612493221796,
+        "sign_agreement": 1.0,
+        "n_states": 600
+      },
+      "test": {
+        "rmse_mol_per_L_s": 0.005551346746698586,
+        "relative_rmse": 0.12509293791117337,
+        "r2": 0.9572930917591834,
+        "sign_agreement": 1.0,
+        "n_states": 300
+      }
+    },
+    "DG": {
+      "train": {
+        "rmse_mol_per_L_s": 0.0024221450656997526,
+        "relative_rmse": 0.10271504521042614,
+        "r2": 0.9861696904024313,
+        "sign_agreement": 0.96,
+        "n_states": 600
+      },
+      "test": {
+        "rmse_mol_per_L_s": 0.0020607694739894268,
+        "relative_rmse": 0.09307746255778306,
+        "r2": 0.9891835384347014,
+        "sign_agreement": 0.9166666666666666,
+        "n_states": 300
+      }
+    },
+    "MG": {
+      "train": {
+        "rmse_mol_per_L_s": 0.0014273805636635226,
+        "relative_rmse": 0.24276978919244943,
+        "r2": 0.8994892292164556,
+        "sign_agreement": 0.9616666666666667,
+        "n_states": 600
+      },
+      "test": {
+        "rmse_mol_per_L_s": 0.0015073493961204353,
+        "relative_rmse": 0.2788765147367726,
+        "r2": 0.8650794257247042,
+        "sign_agreement": 0.8966666666666666,
+        "n_states": 300
+      }
+    },
+    "GL": {
+      "train": {
+        "rmse_mol_per_L_s": 0.000885484247182861,
+        "relative_rmse": 0.11778400514087209,
+        "r2": 0.9640480423682036,
+        "sign_agreement": 0.9666666666666667,
+        "n_states": 600
+      },
+      "test": {
+        "rmse_mol_per_L_s": 0.0010460802966649717,
+        "relative_rmse": 0.1391231015775423,
+        "r2": 0.9420283820604732,
+        "sign_agreement": 0.9666666666666667,
+        "n_states": 300
+      }
+    },
+    "RCO2R": {
+      "train": {
+        "rmse_mol_per_L_s": 0.004312075421404579,
+        "relative_rmse": 0.0916769079789989,
+        "r2": 0.9784774356144367,
+        "sign_agreement": 1.0,
+        "n_states": 600
+      },
+      "test": {
+        "rmse_mol_per_L_s": 0.005527351428057564,
+        "relative_rmse": 0.12455223219742827,
+        "r2": 0.9576614892589932,
+        "sign_agreement": 1.0,
+        "n_states": 300
+      }
+    }
+  },
+  "initial_state_structure_checks": {
+    "train": {
+      "t0_MG_rate_chemkan_median_max": [
+        0.004904388364536629,
+        0.01232333091734075
+      ],
+      "t0_GL_rate_chemkan_median_max": [
+        0.0005307661360692334,
+        0.0014060841821713968
+      ],
+      "t0_MG_GL_rate_known": 0.0,
+      "zero_concentration_species_with_negative_chemkan_rate": 4,
+      "zero_concentration_species_total": 80
+    },
+    "test": {
+      "t0_MG_rate_chemkan_median_max": [
+        0.00610478156413948,
+        0.010585534958486433
+      ],
+      "t0_GL_rate_chemkan_median_max": [
+        0.0008455977132952931,
+        0.001530272320798806
+      ],
+      "t0_MG_GL_rate_known": 0.0,
+      "zero_concentration_species_with_negative_chemkan_rate": 3,
+      "zero_concentration_species_total": 40
+    }
+  },
+  "perturbations": [
+    {
+      "split": "train",
+      "trajectory": 10,
+      "time_index": 1,
+      "t_s": 1.0344827586206897,
+      "u": [
+        1.5006717967480923,
+        1.3384128010493594,
+        0.07417693058145396,
+        0.0036449996421740313,
+        0.00028677302827941764,
+        0.08232724895064025,
+        333.542064
+      ],
+      "sweeps": {
+        "T": {
+          "range": [
+            323.44491888,
+            342.9372352
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 6.028762277976424,
+          "nearest_training_state_distance_median": 4.723772035795345,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.04431644775683738,
+              "true_change_over_sweep": -0.09424279860794242,
+              "chemkan_change_over_sweep": -0.0804473186635982,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.036347426843782074,
+              "true_change_over_sweep": -0.10408722733199637,
+              "chemkan_change_over_sweep": -0.09222208945483047,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.041260443351914415,
+              "true_change_over_sweep": 0.08484325503147713,
+              "chemkan_change_over_sweep": 0.07285026057727172,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.19094054007337646,
+              "true_change_over_sweep": 0.008954658428876643,
+              "chemkan_change_over_sweep": 0.010405437349528616,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.42247942349304246,
+              "true_change_over_sweep": 0.00044488514758864737,
+              "chemkan_change_over_sweep": -0.0002505830393861524,
+              "same_direction_of_change": false
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.048055611341590754,
+              "true_change_over_sweep": 0.10408722733199637,
+              "chemkan_change_over_sweep": 0.09055380559002063,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_Ea_TG_consumption_kcal_per_mol": {
+            "whole_sweep": {
+              "chemkan": 12.71079586097191,
+              "known": 14.540000000000026
+            },
+            "near_training_states": {
+              "chemkan": 13.365066234652108,
+              "known": 14.540000000001177,
+              "points": 8,
+              "range": [
+                331.729153316,
+                335.140308672
+              ]
+            }
+          }
+        },
+        "TG": {
+          "range": [
+            1.2005374373984739,
+            1.8008061560977107
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 5.106750823562169,
+          "nearest_training_state_distance_median": 2.5533754117810843,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.037964533265436695,
+              "true_change_over_sweep": -0.02856443444214627,
+              "chemkan_change_over_sweep": -0.021199840704058212,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.03636375822618558,
+              "true_change_over_sweep": -0.028564434442146278,
+              "chemkan_change_over_sweep": -0.021650333326476784,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.03890959656500467,
+              "true_change_over_sweep": 0.02856443444214627,
+              "chemkan_change_over_sweep": 0.02076599696073135,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.18646885213450165,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": 0.0011952688190396549,
+              "same_direction_of_change": null
+            },
+            "GL": {
+              "relative_l2_deviation": 0.35374474351537843,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": -0.00019873460461718086,
+              "same_direction_of_change": null
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.047730700841105235,
+              "true_change_over_sweep": 0.028564434442146278,
+              "chemkan_change_over_sweep": 0.022223797245264923,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 0.7286050502256126,
+              "known": 0.9999999999999997
+            },
+            "near_training_states": {
+              "chemkan": 0.6796182504479983,
+              "known": 0.9999999999999994,
+              "points": 29,
+              "range": [
+                1.3355978991058022,
+                1.7857994381302298
+              ]
+            }
+          }
+        },
+        "ROH": {
+          "range": [
+            1.0707302408394876,
+            1.6060953612592312
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 4.134616031027863,
+          "nearest_training_state_distance_median": 1.789098300764122,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.034565115539738886,
+              "true_change_over_sweep": -0.02856443444214627,
+              "chemkan_change_over_sweep": -0.02241217921149869,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.03410141056775098,
+              "true_change_over_sweep": -0.03175186384743993,
+              "chemkan_change_over_sweep": -0.02570809330485474,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.029757428700469594,
+              "true_change_over_sweep": 0.025689605719968957,
+              "chemkan_change_over_sweep": 0.020229641130438486,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.17132409683030483,
+              "true_change_over_sweep": 0.0025622280390609443,
+              "chemkan_change_over_sweep": 0.0027236062604787947,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.33370592481713174,
+              "true_change_over_sweep": 0.00031260068311636264,
+              "chemkan_change_over_sweep": 5.945360695915904e-05,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.0479439539415448,
+              "true_change_over_sweep": 0.03175186384743993,
+              "chemkan_change_over_sweep": 0.025400401500457484,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 0.7707591532102283,
+              "known": 1.0000000000000047
+            },
+            "near_training_states": {
+              "chemkan": 0.7927071357467227,
+              "known": 0.9999999999999987,
+              "points": 35,
+              "range": [
+                1.0707302408394876,
+                1.5257905931962696
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "split": "train",
+      "trajectory": 10,
+      "time_index": 5,
+      "t_s": 5.172413793103448,
+      "u": [
+        1.261999010596492,
+        1.021391341718252,
+        0.25223608639422934,
+        0.046523587140315646,
+        0.018021815868962475,
+        0.39934870828174807,
+        333.542064
+      ],
+      "sweeps": {
+        "T": {
+          "range": [
+            323.44491888,
+            342.9372352
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 5.999630312785218,
+          "nearest_training_state_distance_median": 4.373319153889367,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.050614648778579026,
+              "true_change_over_sweep": -0.060481639949749165,
+              "chemkan_change_over_sweep": -0.0643644646779946,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.04238966160480819,
+              "true_change_over_sweep": -0.08920699831565136,
+              "chemkan_change_over_sweep": -0.09563356790202021,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.0887656794776972,
+              "true_change_over_sweep": 0.03608965086677995,
+              "chemkan_change_over_sweep": 0.03865264133498107,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.0706274211515951,
+              "true_change_over_sweep": 0.020058619800036235,
+              "chemkan_change_over_sweep": 0.01652586334447554,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.14230613057851216,
+              "true_change_over_sweep": 0.00433336928293298,
+              "chemkan_change_over_sweep": 0.008277877731385393,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.03791532769204647,
+              "true_change_over_sweep": 0.08920699831565136,
+              "chemkan_change_over_sweep": 0.095751519015125,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_Ea_TG_consumption_kcal_per_mol": {
+            "whole_sweep": {
+              "chemkan": 15.436337529920413,
+              "known": 14.540000000000036
+            },
+            "near_training_states": {
+              "chemkan": 16.14963544998319,
+              "known": 14.540000000001237,
+              "points": 8,
+              "range": [
+                331.729153316,
+                335.140308672
+              ]
+            }
+          }
+        },
+        "TG": {
+          "range": [
+            1.0095992084771936,
+            1.5143988127157904
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 4.2945529466628,
+          "nearest_training_state_distance_median": 2.1472764733314023,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.031613644279361204,
+              "true_change_over_sweep": -0.018331627082565305,
+              "chemkan_change_over_sweep": -0.01940506013774581,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.0245460813623322,
+              "true_change_over_sweep": -0.018331627082565305,
+              "chemkan_change_over_sweep": -0.016129077044856138,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.07342101348297202,
+              "true_change_over_sweep": 0.01833162708256531,
+              "chemkan_change_over_sweep": 0.018412077725877652,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.05358818757296082,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": 0.0015782601318598839,
+              "same_direction_of_change": null
+            },
+            "GL": {
+              "relative_l2_deviation": 0.06797735824897773,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": -0.0016221431937445026,
+              "same_direction_of_change": null
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.013433419859953367,
+              "true_change_over_sweep": 0.018331627082565305,
+              "chemkan_change_over_sweep": 0.016926256939750015,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 1.0391050813257587,
+              "known": 0.9999999999999966
+            },
+            "near_training_states": {
+              "chemkan": 1.03792335547764,
+              "known": 1.0000000000000004,
+              "points": 27,
+              "range": [
+                1.0979391392189481,
+                1.4260588819740359
+              ]
+            }
+          }
+        },
+        "ROH": {
+          "range": [
+            0.8171130733746017,
+            1.2256696100619024
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 3.1552754218357197,
+          "nearest_training_state_distance_median": 1.5776377109178599,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.03954628454284241,
+              "true_change_over_sweep": -0.018331627082565298,
+              "chemkan_change_over_sweep": -0.02157635800042424,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.03177380888750162,
+              "true_change_over_sweep": -0.028836723396118716,
+              "chemkan_change_over_sweep": -0.034319040179828925,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.08369579440475962,
+              "true_change_over_sweep": 0.010871393483315901,
+              "chemkan_change_over_sweep": 0.012160305014597837,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.03587475966674146,
+              "true_change_over_sweep": 0.004415370884945383,
+              "chemkan_change_over_sweep": 0.005054090672497322,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.05639466121069956,
+              "true_change_over_sweep": 0.003044862714304016,
+              "chemkan_change_over_sweep": 0.004002713818887243,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.025496042011613804,
+              "true_change_over_sweep": 0.028836723396118716,
+              "chemkan_change_over_sweep": 0.03427595902009416,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 1.1519019584809465,
+              "known": 1.0000000000000044
+            },
+            "near_training_states": {
+              "chemkan": 1.1542722112685828,
+              "known": 0.9999999999999937,
+              "points": 40,
+              "range": [
+                0.8171130733746017,
+                1.21545569664472
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "split": "train",
+      "trajectory": 10,
+      "time_index": 20,
+      "t_s": 20.689655172413794,
+      "u": [
+        0.9070476697953618,
+        0.30298544496734797,
+        0.3824412596632946,
+        0.13256136625467294,
+        0.1567302042866706,
+        1.1177546050326526,
+        333.542064
+      ],
+      "sweeps": {
+        "T": {
+          "range": [
+            323.44491888,
+            342.9372352
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 9.080971610867504,
+          "nearest_training_state_distance_median": 5.587954112047092,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.05519626963837091,
+              "true_change_over_sweep": -0.012895086212027274,
+              "chemkan_change_over_sweep": -0.012468220764204343,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.06631451755775895,
+              "true_change_over_sweep": -0.027528466828147264,
+              "chemkan_change_over_sweep": -0.03308286567733932,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.2470438826496921,
+              "true_change_over_sweep": 0.001924386405395365,
+              "chemkan_change_over_sweep": 0.0012420246639512891,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.4097218329756126,
+              "true_change_over_sweep": 0.007308018997143827,
+              "chemkan_change_over_sweep": 0.002949473350696509,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.22202879183387697,
+              "true_change_over_sweep": 0.003662680809488083,
+              "chemkan_change_over_sweep": 0.008566984045184313,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.062298851797927046,
+              "true_change_over_sweep": 0.027528466828147264,
+              "chemkan_change_over_sweep": 0.03264179921839095,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_Ea_TG_consumption_kcal_per_mol": {
+            "whole_sweep": {
+              "chemkan": 15.133051587869396,
+              "known": 14.540000000000028
+            },
+            "near_training_states": {
+              "chemkan": 15.377128154438156,
+              "known": 14.540000000001243,
+              "points": 8,
+              "range": [
+                331.729153316,
+                335.140308672
+              ]
+            }
+          }
+        },
+        "TG": {
+          "range": [
+            0.7256381358362894,
+            1.088457203754434
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 3.027007888360332,
+          "nearest_training_state_distance_median": 1.5433309417739285,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.0561793279941963,
+              "true_change_over_sweep": -0.003908424305835871,
+              "chemkan_change_over_sweep": -0.0038975964599834477,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.05197832300535343,
+              "true_change_over_sweep": -0.003908424305835871,
+              "chemkan_change_over_sweep": -9.397383785234026e-05,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.25830120948339735,
+              "true_change_over_sweep": 0.003908424305835871,
+              "chemkan_change_over_sweep": 0.005341626884014334,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.12285213921145956,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": 0.0005959959177955069,
+              "same_direction_of_change": null
+            },
+            "GL": {
+              "relative_l2_deviation": 0.0971876984838596,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": -0.0021095750583059814,
+              "same_direction_of_change": null
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.05464700421764592,
+              "true_change_over_sweep": 0.003908424305835871,
+              "chemkan_change_over_sweep": 0.00029048533310616423,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 1.056557478444951,
+              "known": 0.9999999999999998
+            },
+            "near_training_states": {
+              "chemkan": 1.05862444757299,
+              "known": 0.9999999999999958,
+              "points": 39,
+              "range": [
+                0.734708612534243,
+                1.0793867270564803
+              ]
+            }
+          }
+        },
+        "ROH": {
+          "range": [
+            0.2423883559738784,
+            0.3635825339608176
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 0.9264807204352591,
+          "nearest_training_state_distance_median": 0.46799032292127224,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.0666854035090216,
+              "true_change_over_sweep": -0.003908424305835875,
+              "chemkan_change_over_sweep": -0.002853457814475739,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.04037417181852761,
+              "true_change_over_sweep": -0.00983738777810253,
+              "chemkan_change_over_sweep": -0.00754385948100254,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.12467507241345564,
+              "true_change_over_sweep": 0.0005530610746404844,
+              "chemkan_change_over_sweep": 0.0003476559714061442,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.09098577329098968,
+              "true_change_over_sweep": 0.0007817629901241286,
+              "chemkan_change_over_sweep": 0.0004797810958442909,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.029601680759149734,
+              "true_change_over_sweep": 0.0025736002410712616,
+              "chemkan_change_over_sweep": 0.002077809708408613,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.04779345773629857,
+              "true_change_over_sweep": 0.00983738777810253,
+              "chemkan_change_over_sweep": 0.007445577220977259,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 0.7697804844771674,
+              "known": 0.9999999999999966
+            },
+            "near_training_states": {
+              "chemkan": 0.7697804844771674,
+              "known": 0.9999999999999966,
+              "points": 41,
+              "range": [
+                0.2423883559738784,
+                0.3635825339608176
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "split": "test",
+      "trajectory": 3,
+      "time_index": 8,
+      "t_s": 8.275862068965518,
+      "u": [
+        1.3984078757474225,
+        0.6809634362234486,
+        0.388725282084066,
+        0.09747087481305004,
+        0.05622240735546194,
+        0.7523342537765516,
+        334.7486334
+      ],
+      "sweeps": {
+        "T": {
+          "range": [
+            323.44491888,
+            342.9372352
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 5.61320223162639,
+          "nearest_training_state_distance_median": 3.7248429768516575,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.07049275901899547,
+              "true_change_over_sweep": -0.04468173481199875,
+              "chemkan_change_over_sweep": -0.04841587872202619,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.0910680749380014,
+              "true_change_over_sweep": -0.07579649587418504,
+              "chemkan_change_over_sweep": -0.08412797789823745,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.02330427582721969,
+              "true_change_over_sweep": 0.019619810945752644,
+              "chemkan_change_over_sweep": 0.020407113267041418,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.12607699713741036,
+              "true_change_over_sweep": 0.019009086670305916,
+              "chemkan_change_over_sweep": 0.014462609342599854,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.18235918427593792,
+              "true_change_over_sweep": 0.006052837195940188,
+              "chemkan_change_over_sweep": 0.011717734088943915,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.09340587165224183,
+              "true_change_over_sweep": 0.07579649587418504,
+              "chemkan_change_over_sweep": 0.08609721335450095,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_Ea_TG_consumption_kcal_per_mol": {
+            "whole_sweep": {
+              "chemkan": 15.397692689810889,
+              "known": 14.54000000000004
+            },
+            "near_training_states": {
+              "chemkan": 15.957067801302541,
+              "known": 14.540000000000113,
+              "points": 9,
+              "range": [
+                328.805305868,
+                333.678384948
+              ]
+            }
+          }
+        },
+        "TG": {
+          "range": [
+            1.118726300597938,
+            1.678089450896907
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 6.996927376664242,
+          "nearest_training_state_distance_median": 3.7657712939302916,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.06903093972452155,
+              "true_change_over_sweep": -0.014657050915483152,
+              "chemkan_change_over_sweep": -0.016017067698605312,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.10144850687200652,
+              "true_change_over_sweep": -0.014657050915483152,
+              "chemkan_change_over_sweep": -0.011380154065245299,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.02852439796502494,
+              "true_change_over_sweep": 0.014657050915483152,
+              "chemkan_change_over_sweep": 0.014121373173283215,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.10072849868775946,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": 0.001459118884102292,
+              "same_direction_of_change": null
+            },
+            "GL": {
+              "relative_l2_deviation": 0.1422821279272081,
+              "true_change_over_sweep": 0.0,
+              "chemkan_change_over_sweep": -0.0016462675260440207,
+              "same_direction_of_change": null
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.09815988609839495,
+              "true_change_over_sweep": 0.014657050915483152,
+              "chemkan_change_over_sweep": 0.01291838340197815,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 1.0378333632733745,
+              "known": 1.000000000000005
+            },
+            "near_training_states": {
+              "chemkan": null,
+              "known": null,
+              "points": 2,
+              "range": [
+                1.300519324445103,
+                1.314503403202577
+              ]
+            }
+          }
+        },
+        "ROH": {
+          "range": [
+            0.5447707489787589,
+            0.8171561234681383
+          ],
+          "points": 41,
+          "nearest_training_state_distance_max": 5.0136747119123415,
+          "nearest_training_state_distance_median": 3.3712076338711943,
+          "distance_unit": "median training nearest-neighbour spacing (0.0343, normalized 7-D)",
+          "deviation": {
+            "TG": {
+              "relative_l2_deviation": 0.08256327560218199,
+              "true_change_over_sweep": -0.014657050915483149,
+              "chemkan_change_over_sweep": -0.018624425903679975,
+              "same_direction_of_change": true
+            },
+            "ROH": {
+              "relative_l2_deviation": 0.10525176674014022,
+              "true_change_over_sweep": -0.02735280587255156,
+              "chemkan_change_over_sweep": -0.033419744379288976,
+              "same_direction_of_change": true
+            },
+            "DG": {
+              "relative_l2_deviation": 0.016672167350966313,
+              "true_change_over_sweep": 0.006366653946227478,
+              "chemkan_change_over_sweep": 0.007073666800275883,
+              "same_direction_of_change": true
+            },
+            "MG": {
+              "relative_l2_deviation": 0.10168736651479168,
+              "true_change_over_sweep": 0.0038850389814429342,
+              "chemkan_change_over_sweep": 0.004873759566263628,
+              "same_direction_of_change": true
+            },
+            "GL": {
+              "relative_l2_deviation": 0.12365056270004197,
+              "true_change_over_sweep": 0.0044053579878127365,
+              "chemkan_change_over_sweep": 0.005642733833343275,
+              "same_direction_of_change": true
+            },
+            "RCO2R": {
+              "relative_l2_deviation": 0.10283957539031972,
+              "true_change_over_sweep": 0.02735280587255156,
+              "chemkan_change_over_sweep": 0.03457226613426315,
+              "same_direction_of_change": true
+            }
+          },
+          "apparent_order_TG_consumption": {
+            "whole_sweep": {
+              "chemkan": 1.1849609099668186,
+              "known": 0.9999999999999998
+            },
+            "near_training_states": {
+              "chemkan": 1.2068562976707309,
+              "known": 1.0000000000000042,
+              "points": 15,
+              "range": [
+                0.7218212423968555,
+                0.8171561234681383
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "hidden_node_vs_true_reaction_rate_correlation_descriptive": {
+    "h1": {
+      "r1": -0.8924003625067544,
+      "r2": -0.4093697636011353,
+      "r3": -0.06594522460617255
+    },
+    "h2": {
+      "r1": -0.5282016708216718,
+      "r2": -0.7998023574707618,
+      "r3": -0.5348668929491052
+    },
+    "h3": {
+      "r1": -0.00894245395261005,
+      "r2": 0.7672596143055302,
+      "r3": 0.8838456164320049
+    },
+    "h4": {
+      "r1": -0.6128699587598087,
+      "r2": -0.5514415741062243,
+      "r3": -0.2605645019269424
+    }
+  }
+}

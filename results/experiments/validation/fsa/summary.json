@@ -1,0 +1,57 @@
+{
+  "A": {
+    "status": "PASS",
+    "file": "A_analytic.json",
+    "seconds": 1.8,
+    "created": "2026-09-13T16:32:32Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+  },
+  "B": {
+    "status": "PASS",
+    "file": "B_functional_equivalence.json",
+    "seconds": 8.0,
+    "created": "2026-09-13T16:32:39Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+  },
+  "C": {
+    "status": "PASS",
+    "file": "C_gradients.json",
+    "seconds": 228.4,
+    "created": "2026-09-13T16:36:28Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "original_status": "FAIL",
+    "amendment_file": "C_gradients_amendment1.json"
+  },
+  "D": {
+    "status": "PASS",
+    "file": "D_state_consistency.json",
+    "seconds": 244.8,
+    "created": "2026-09-13T16:36:34Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+  },
+  "E": {
+    "status": "PASS",
+    "file": "E_independence.json",
+    "seconds": 82.0,
+    "created": "2026-09-13T16:37:56Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "original_status": "FAIL",
+    "amendment_file": "E_independence_amendment1.json"
+  },
+  "F": {
+    "status": "PASS",
+    "file": "F_production_dtype.json",
+    "seconds": 637.4,
+    "created": "2026-09-13T16:43:07Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+  },
+  "G": {
+    "status": "INCONCLUSIVE",
+    "file": "G_finite_differences.json",
+    "seconds": 84.3,
+    "created": "2026-09-13T16:44:31Z",
+    "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd"
+  },
+  "core_validation": "PASS",
+  "optional_G": "INCONCLUSIVE"
+}

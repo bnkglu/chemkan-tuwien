@@ -1,0 +1,46 @@
+{
+  "n_probe_states": 60,
+  "probe_states": "50 normalized test states (experiments 21-30 at time indices 1,5,10,20,30 with normalized T) + 10 uniform states in [-0.2,1.2]^7",
+  "layer1_output": {
+    "max_abs_error": 1.1102230246251565e-15,
+    "rel_l2_error": 4.117656815301428e-16,
+    "cosine_similarity": 0.9999999999999999,
+    "worst_state_rel_l2_error": 1.0909406763852072e-15,
+    "worst_state_cosine_similarity": 0.9999999999999998,
+    "ref_abs_max": 3.485632962357966
+  },
+  "kan_output_before_div50": {
+    "max_abs_error": 8.881784197001252e-15,
+    "rel_l2_error": 5.967334438836876e-16,
+    "cosine_similarity": 1.0,
+    "worst_state_rel_l2_error": 2.6305975797700646e-15,
+    "worst_state_cosine_similarity": 0.9999999999999998,
+    "ref_abs_max": 12.950755004383513
+  },
+  "rhs_after_div50": {
+    "max_abs_error": 1.942890293094024e-16,
+    "rel_l2_error": 6.159502674051061e-16,
+    "cosine_similarity": 1.0,
+    "worst_state_rel_l2_error": 2.6271264329820745e-15,
+    "worst_state_cosine_similarity": 0.9999999999999997,
+    "ref_abs_max": 0.25901510008767026
+  },
+  "pass_threshold_rel_l2": 1e-10,
+  "rhs_equivalent": true,
+  "julia_params_in_pytorch_solver": {
+    "solver": "torchdiffeq tsit5, rtol 1e-2, atol 1e-6, one trajectory per solve",
+    "train_mse_pytorch": 7.195284309547836e-05,
+    "val_mse_pytorch": 0.00018332599673740078,
+    "train_mse_julia": 5.0301429286792066e-05,
+    "val_mse_julia": 0.0002105408095328664,
+    "prediction_max_abs_diff_vs_julia": 0.04408346738087543,
+    "prediction_rel_l2_diff_vs_julia": 0.011305666056206294
+  },
+  "julia_params_tight_solver": {
+    "solver": "torchdiffeq tsit5, rtol 1e-10, atol 1e-12, one trajectory per solve",
+    "train_mse": 4.732974997578477e-05,
+    "val_mse": 0.00020765908898067738,
+    "julia_solver_prediction_max_abs_error": 0.0147723095878598,
+    "pytorch_rtol1e-2_prediction_max_abs_error": 0.044026933374623156
+  }
+}

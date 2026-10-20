@@ -1,0 +1,235 @@
+{
+  "section": "G_finite_differences",
+  "created": "2026-09-13T16:44:31Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "c02b5d0348616f7bbd814f8cae66145e85dfc096ac35db75dc920a93581aaeb6",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_c02b5d034861.patch"
+  },
+  "torch": "2.13.0",
+  "torch_num_threads": 1,
+  "status": "INCONCLUSIVE",
+  "optional": true,
+  "cases": [
+    {
+      "problem": "biodiesel/trained",
+      "parameter": "kinetic.add.edges.w_rbf",
+      "index": 3,
+      "fsa_L2": 0.4758745924420098,
+      "sweep": [
+        {
+          "h": 0.012232984304428101,
+          "estimate": 0.4762896367669917
+        },
+        {
+          "h": 0.0012232984304428101,
+          "estimate": 0.47587874271286945
+        },
+        {
+          "h": 0.00012232984304428102,
+          "estimate": 0.4758746340892015
+        },
+        {
+          "h": 1.2232984304428101e-05,
+          "estimate": 0.47587459300307483
+        },
+        {
+          "h": 1.22329843044281e-06,
+          "estimate": 0.4758745926613199
+        },
+        {
+          "h": 1.22329843044281e-07,
+          "estimate": 0.47587459283432443
+        },
+        {
+          "h": 1.22329843044281e-08,
+          "estimate": 0.47587460661797015
+        }
+      ],
+      "stable": {
+        "h": 0.00012232984304428102,
+        "estimate": 0.4758746340892015
+      },
+      "relative_error": 8.751715758050147e-08,
+      "status": "PASS"
+    },
+    {
+      "problem": "biodiesel/trained",
+      "parameter": "kinetic.lean.edges.w_rbf",
+      "index": 17,
+      "fsa_L2": 0.0219542724835641,
+      "sweep": [
+        {
+          "h": 0.0009067471325397492,
+          "estimate": 0.02195426557833483
+        },
+        {
+          "h": 9.067471325397492e-05,
+          "estimate": 0.021954272408883445
+        },
+        {
+          "h": 9.067471325397491e-06,
+          "estimate": 0.021954272484872896
+        },
+        {
+          "h": 9.067471325397492e-07,
+          "estimate": 0.021954272433983686
+        },
+        {
+          "h": 9.067471325397492e-08,
+          "estimate": 0.02195427345942038
+        },
+        {
+          "h": 9.067471325397491e-09,
+          "estimate": 0.02195429622564552
+        },
+        {
+          "h": 9.067471325397491e-10,
+          "estimate": 0.021954320331060376
+        }
+      ],
+      "stable": {
+        "h": 9.067471325397492e-05,
+        "estimate": 0.021954272408883445
+      },
+      "relative_error": 3.401645583011255e-09,
+      "status": "PASS"
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "parameter": "model.kinetic.add.edges.w_rbf",
+      "index": 11,
+      "fsa_L2": 0.019617170904928816,
+      "sweep": [
+        {
+          "h": 0.009935530424118042,
+          "estimate": 0.01918104139251934
+        },
+        {
+          "h": 0.0009935530424118042,
+          "estimate": 0.019612806328297847
+        },
+        {
+          "h": 9.935530424118043e-05,
+          "estimate": 0.019617129190468284
+        },
+        {
+          "h": 9.935530424118044e-06,
+          "estimate": 0.019617172547475088
+        },
+        {
+          "h": 9.935530424118041e-07,
+          "estimate": 0.019617172995842688
+        },
+        {
+          "h": 9.935530424118041e-08,
+          "estimate": 0.019617246941576353
+        },
+        {
+          "h": 9.935530424118042e-09,
+          "estimate": 0.019617540545528295
+        }
+      ],
+      "stable": {
+        "h": 9.935530424118044e-06,
+        "estimate": 0.019617172547475088
+      },
+      "relative_error": 8.37300281761799e-08,
+      "status": "PASS"
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "parameter": "model.thermo.linear.weight",
+      "index": 4,
+      "fsa_L2": -1.508347783753783e-06,
+      "sweep": [
+        {
+          "h": 1066.4889062500001,
+          "estimate": -1.518281644024771e-06
+        },
+        {
+          "h": 106.648890625,
+          "estimate": -1.5084474298694467e-06
+        },
+        {
+          "h": 10.6648890625,
+          "estimate": -1.5083487456792704e-06
+        },
+        {
+          "h": 1.06648890625,
+          "estimate": -1.5083477579088275e-06
+        },
+        {
+          "h": 0.10664889062499999,
+          "estimate": -1.508347776998304e-06
+        },
+        {
+          "h": 0.0106648890625,
+          "estimate": -1.5083473988523043e-06
+        },
+        {
+          "h": 0.00106648890625,
+          "estimate": -1.508347358513261e-06
+        }
+      ],
+      "stable": {
+        "h": 10.6648890625,
+        "estimate": -1.5083487456792704e-06
+      },
+      "relative_error": 6.377345449245552e-07,
+      "status": "PASS"
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "parameter": "model.thermo.correction.edges.w_rbf",
+      "index": 6,
+      "fsa_L2": -3.670355589491062e-08,
+      "sweep": [
+        {
+          "h": 0.0013637638092041016,
+          "estimate": -3.670277727333415e-08
+        },
+        {
+          "h": 0.00013637638092041016,
+          "estimate": -3.669326262606698e-08
+        },
+        {
+          "h": 1.3637638092041016e-05,
+          "estimate": -3.6944306848613545e-08
+        },
+        {
+          "h": 1.3637638092041018e-06,
+          "estimate": -3.9218663708733395e-08
+        },
+        {
+          "h": 1.3637638092041015e-07,
+          "estimate": -5.790197106971797e-08
+        },
+        {
+          "h": 1.3637638092041015e-08,
+          "estimate": -4.884524800257403e-08
+        },
+        {
+          "h": 1.3637638092041016e-09,
+          "estimate": -6.482171453674929e-06
+        }
+      ],
+      "stable": null,
+      "relative_error": null,
+      "status": "INCONCLUSIVE"
+    }
+  ],
+  "criteria": {
+    "optional": true,
+    "dtype": "float64",
+    "solves": "state-only at 1e-12/1e-14",
+    "sweep": "h = max(|theta_q|, 1e-2) * 10^-k, k = 2..8",
+    "stable_region": "two consecutive h whose estimates differ by <= 1e-4 relative",
+    "pass": "stable estimate within 1e-3 relative of the FSA L2 gradient",
+    "inconclusive": "no stable region"
+  },
+  "seconds": 84.3
+}

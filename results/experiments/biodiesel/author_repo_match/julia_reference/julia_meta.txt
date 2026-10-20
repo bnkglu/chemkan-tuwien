@@ -1,0 +1,8 @@
+julia_version=1.11.1
+param_axis=(Axis(layer_1 = ViewAxis(1:84, Axis(C = ViewAxis(1:84, ShapedAxis((4, 21))),)), layer_2 = ViewAxis(85:156, Axis(C = ViewAxis(1:72, ShapedAxis((6, 12))),))),)
+checkpoint_iter=10000
+loss_train_at_final_p=5.0301429286792066e-5
+loss_val_at_final_p=0.00021054080953286633
+loss_val_noisefree_at_final_p=0.00021054080953286633
+loss_train_last_logged=4.919594644027722e-5
+loss_val_last_logged=0.00021258833310498619

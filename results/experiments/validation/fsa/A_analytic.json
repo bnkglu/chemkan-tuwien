@@ -1,0 +1,139 @@
+{
+  "section": "A_analytic",
+  "created": "2026-09-13T16:32:32Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "d90c30e78a0487d9056d809d77e1fc6a0b85ef28b893ec3557c02fac305df78b",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_d90c30e78a04.patch"
+  },
+  "torch": "2.13.0",
+  "torch_num_threads": 1,
+  "status": "PASS",
+  "problem": "dy/dt = theta*y, y(0)=y0; S = dy/dtheta = t*y(t); L = 0.5*sum_j (y_j - d_j)^2",
+  "cases": [
+    {
+      "theta": -0.7,
+      "y0": 1.3,
+      "levels": {
+        "L0": {
+          "state_rel_err": 8.094985885316358e-07,
+          "sensitivity_rel_err": 2.231985957085467e-06,
+          "S_t0": 0.0,
+          "fsa_gradient": 0.3724918942075343,
+          "exact_gradient": 0.3724921151927908,
+          "loss_gradient_rel_err": 5.932615684183152e-07,
+          "direct_autograd_gradient": 0.37249095293152595,
+          "fsa_vs_direct_autograd_rel": 2.5269768324611954e-06,
+          "no_graph": true
+        },
+        "L1": {
+          "state_rel_err": 2.2762862960527093e-08,
+          "sensitivity_rel_err": 6.022622268919675e-08,
+          "S_t0": 0.0,
+          "fsa_gradient": 0.37249210877625466,
+          "exact_gradient": 0.3724921151927908,
+          "loss_gradient_rel_err": 1.722596499105755e-08,
+          "direct_autograd_gradient": 0.3724920893105621,
+          "fsa_vs_direct_autograd_rel": 5.225800256287146e-08,
+          "no_graph": true
+        },
+        "L2": {
+          "state_rel_err": 5.905499553186282e-10,
+          "sensitivity_rel_err": 1.5368852642890816e-09,
+          "S_t0": 0.0,
+          "fsa_gradient": 0.37249211501994706,
+          "exact_gradient": 0.3724921151927908,
+          "loss_gradient_rel_err": 4.640198604786015e-10,
+          "direct_autograd_gradient": 0.3724921145800165,
+          "fsa_vs_direct_autograd_rel": 1.1810465758193076e-09,
+          "no_graph": true
+        }
+      },
+      "checks": {
+        "state_L2": true,
+        "sensitivity_L2": true,
+        "gradient_L2": true,
+        "fsa_vs_da_L2": true,
+        "S_t0_zero": true,
+        "no_graph": true,
+        "refines": true
+      }
+    },
+    {
+      "theta": 0.5,
+      "y0": 1.3,
+      "levels": {
+        "L0": {
+          "state_rel_err": 2.7421393111104653e-07,
+          "sensitivity_rel_err": 1.6327226099727803e-06,
+          "S_t0": 0.0,
+          "fsa_gradient": 60.44351673886509,
+          "exact_gradient": 60.44342017993671,
+          "loss_gradient_rel_err": 1.5975093417318463e-06,
+          "direct_autograd_gradient": 60.44391780378683,
+          "fsa_vs_direct_autograd_rel": 6.6353230616375544e-06,
+          "no_graph": true
+        },
+        "L1": {
+          "state_rel_err": 8.98825269638762e-09,
+          "sensitivity_rel_err": 5.2904423538140606e-08,
+          "S_t0": 0.0,
+          "fsa_gradient": 60.44342338977111,
+          "exact_gradient": 60.44342017993671,
+          "loss_gradient_rel_err": 5.310477789063365e-08,
+          "direct_autograd_gradient": 60.44343908804599,
+          "fsa_vs_direct_autograd_rel": 2.5971842628379776e-07,
+          "no_graph": true
+        },
+        "L2": {
+          "state_rel_err": 2.4424347216914346e-10,
+          "sensitivity_rel_err": 1.4553419923012572e-09,
+          "S_t0": 0.0,
+          "fsa_gradient": 60.443420267088136,
+          "exact_gradient": 60.44342017993671,
+          "loss_gradient_rel_err": 1.4418679013972318e-09,
+          "direct_autograd_gradient": 60.443420716098736,
+          "fsa_vs_direct_autograd_rel": 7.42860999673042e-09,
+          "no_graph": true
+        }
+      },
+      "checks": {
+        "state_L2": true,
+        "sensitivity_L2": true,
+        "gradient_L2": true,
+        "fsa_vs_da_L2": true,
+        "S_t0_zero": true,
+        "no_graph": true,
+        "refines": true
+      }
+    }
+  ],
+  "criteria": {
+    "dtype": "float64",
+    "levels": {
+      "L0": [
+        1e-06,
+        1e-08
+      ],
+      "L1": [
+        1e-08,
+        1e-10
+      ],
+      "L2": [
+        1e-10,
+        1e-12
+      ]
+    },
+    "at_L2": {
+      "state_rel_err_max": 1e-08,
+      "sensitivity_rel_err_max": 1e-07,
+      "loss_gradient_rel_err_max": 1e-07,
+      "fsa_vs_direct_autograd_rel_max": 1e-07
+    },
+    "refinement": "every error at L2 is smaller than at L0 (no strict monotonicity)"
+  },
+  "seconds": 1.8
+}

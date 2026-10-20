@@ -1,0 +1,85 @@
+{
+  "created": "2026-09-14T08:16:49Z",
+  "status": "PASS",
+  "jobs": {
+    "B0-FSA": {
+      "config": {
+        "sensitivity_backend": "fsa",
+        "unexplained_differences": [],
+        "explained": [
+          "batching",
+          "initialization",
+          "training_formulation"
+        ]
+      },
+      "initial_tensors_equal_seed0_construction": true,
+      "rbf_grids": {
+        "add.edges": {
+          "h": 1.0,
+          "centers": [
+            -1.0,
+            0.0,
+            1.0
+          ]
+        },
+        "lean.edges": {
+          "h": 1.0,
+          "centers": [
+            -1.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "pass": true
+    },
+    "H_STAGE1-FSA": {
+      "config": {
+        "sensitivity_backend": "fsa",
+        "unexplained_differences": []
+      },
+      "initial_tensors_equal_seed0_construction": true,
+      "rbf_grids_equal_baseline_construction": true,
+      "pass": true
+    },
+    "H0-FSA": {
+      "config": {
+        "sensitivity_backend": "fsa",
+        "unexplained_differences": [],
+        "stage1_from": {
+          "new_sha256": "037160da5a591fe11937c8cd7d077143242b299f0f397a1955f9e124896a794c",
+          "baseline_sha256": "6b25dfcf49305ba85f7b29d5a3fd3c91871b8cbe15c2e8facc9357a850175837"
+        },
+        "explained": [
+          "stage1_from"
+        ]
+      },
+      "initial_kinetic_equals_fsa_stage1_checkpoint": true,
+      "initial_thermo_linear_equals_archived_baseline_init": true,
+      "initial_kan_cor_equals_archived_baseline_init": true,
+      "stage1_checkpoint_sha256": "037160da5a591fe11937c8cd7d077143242b299f0f397a1955f9e124896a794c",
+      "stage1_from_sensitivity": "fsa",
+      "pass": true
+    },
+    "Hnorm1-FSA": {
+      "config": {
+        "sensitivity_backend": "fsa",
+        "unexplained_differences": [],
+        "stage1_from": {
+          "new_sha256": "037160da5a591fe11937c8cd7d077143242b299f0f397a1955f9e124896a794c",
+          "baseline_sha256": "6b25dfcf49305ba85f7b29d5a3fd3c91871b8cbe15c2e8facc9357a850175837"
+        },
+        "explained": [
+          "stage1_from"
+        ]
+      },
+      "initial_kinetic_equals_fsa_stage1_checkpoint": true,
+      "initial_thermo_linear_equals_archived_baseline_init": true,
+      "initial_kan_cor_equals_archived_baseline_init": true,
+      "stage1_checkpoint_sha256": "037160da5a591fe11937c8cd7d077143242b299f0f397a1955f9e124896a794c",
+      "stage1_from_sensitivity": "fsa",
+      "pass": true
+    },
+    "shared_stage1_checkpoint": true
+  }
+}

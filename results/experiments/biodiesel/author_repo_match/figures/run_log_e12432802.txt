@@ -1,0 +1,54 @@
+2026-09-29T23:03:59Z START fig04_chemkan_h11 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --hidden 11 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 5000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/chemkan_h11_seed0
+2026-09-29T23:04:29Z START fig04_chemkan_h09 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --hidden 9 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 5000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/chemkan_h09_seed0
+2026-09-29T23:04:50Z START fig05_chemkan_noise00 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 0 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise00_seed0
+2026-09-29T23:05:05Z START fig05_chemkan_noise01 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 1 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise01_seed0
+2026-09-29T23:45:15Z FINISH fig04_chemkan_h09 ok 2447s
+2026-09-29T23:45:15Z START fig05_chemkan_noise05 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 5 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise05_seed0
+2026-09-29T23:53:46Z FINISH fig04_chemkan_h11 ok 2987s
+2026-09-29T23:53:46Z START fig05_chemkan_noise07 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 7 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise07_seed0
+2026-09-29T23:59:16Z FINISH fig05_chemkan_noise00 ok 3266s
+2026-09-29T23:59:16Z START fig05_chemkan_noise02 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 2 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise02_seed0
+2026-09-30T00:01:04Z FINISH fig05_chemkan_noise01 ok 3359s
+2026-09-30T00:01:04Z START fig05_chemkan_noise03 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 3 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise03_seed0
+2026-09-30T00:37:56Z FINISH fig05_chemkan_noise05 ok 3161s
+2026-09-30T00:37:56Z START fig04_chemkan_h04 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 5000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/chemkan_h04_seed0
+2026-09-30T00:46:14Z FINISH fig05_chemkan_noise07 ok 3148s
+2026-09-30T00:46:14Z START fig04_chemkan_h03 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --hidden 3 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 5000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/chemkan_h03_seed0
+2026-09-30T00:52:03Z FINISH fig05_chemkan_noise02 ok 3167s
+2026-09-30T00:52:03Z START fig05_chemkan_noise10 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 10 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise10_seed0
+2026-09-30T00:54:18Z FINISH fig05_chemkan_noise03 ok 3193s
+2026-09-30T00:54:18Z START fig05_chemkan_noise15 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --noise-percent 15 --hidden 4 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/chemkan_noise15_seed0
+2026-09-30T01:04:01Z FINISH fig04_chemkan_h04 ok 1565s
+2026-09-30T01:04:01Z START fig04_chemkan_h02 chemkan/scripts/author_repo_match/train_author_repo_match.py --data canonical --hidden 2 --solve-mode batched --sensitivity fsa --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 5000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/chemkan_h02_seed0
+2026-09-30T01:10:59Z FINISH fig04_chemkan_h03 ok 1485s
+2026-09-30T01:10:59Z START fig04_deeponet_p078 deeponet/train_biodiesel_deeponet.py --width 3 --trunk-hidden 3 --experiment-name fig04 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 50000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p078_seed0
+2026-09-30T01:12:22Z FINISH fig04_deeponet_p078 ok 84s
+2026-09-30T01:12:22Z START fig04_deeponet_p249 deeponet/train_biodiesel_deeponet.py --width 7 --trunk-hidden 6 --experiment-name fig04 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 50000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p249_seed0
+2026-09-30T01:13:48Z FINISH fig04_deeponet_p249 ok 85s
+2026-09-30T01:13:48Z START fig05_deeponet_noise00 deeponet/train_biodiesel_deeponet.py --noise-percent 0 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise00_seed0
+2026-09-30T01:14:11Z FINISH fig05_deeponet_noise00 ok 23s
+2026-09-30T01:14:11Z START fig05_deeponet_noise01 deeponet/train_biodiesel_deeponet.py --noise-percent 1 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise01_seed0
+2026-09-30T01:14:34Z FINISH fig05_deeponet_noise01 ok 23s
+2026-09-30T01:14:34Z START fig05_deeponet_noise02 deeponet/train_biodiesel_deeponet.py --noise-percent 2 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise02_seed0
+2026-09-30T01:14:58Z FINISH fig05_deeponet_noise02 ok 24s
+2026-09-30T01:14:58Z START fig05_deeponet_noise03 deeponet/train_biodiesel_deeponet.py --noise-percent 3 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise03_seed0
+2026-09-30T01:15:21Z FINISH fig05_deeponet_noise03 ok 23s
+2026-09-30T01:15:21Z START fig05_deeponet_noise05 deeponet/train_biodiesel_deeponet.py --noise-percent 5 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise05_seed0
+2026-09-30T01:15:44Z FINISH fig05_deeponet_noise05 ok 23s
+2026-09-30T01:24:06Z FINISH fig04_chemkan_h02 ok 1205s
+2026-09-30T01:24:06Z START fig04_deeponet_p156 deeponet/train_biodiesel_deeponet.py --width 5 --trunk-hidden 5 --experiment-name fig04 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 50000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p156_seed0
+2026-09-30T01:25:30Z FINISH fig04_deeponet_p156 ok 84s
+2026-09-30T01:25:30Z START fig04_deeponet_p456 deeponet/train_biodiesel_deeponet.py --width 10 --trunk-hidden 10 --experiment-name fig04 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 50000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p456_seed0
+2026-09-30T01:26:58Z FINISH fig04_deeponet_p456 ok 88s
+2026-09-30T01:26:58Z START fig05_deeponet_noise15 deeponet/train_biodiesel_deeponet.py --noise-percent 15 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise15_seed0
+2026-09-30T01:27:21Z FINISH fig05_deeponet_noise15 ok 23s
+2026-09-30T01:41:05Z FINISH fig05_chemkan_noise10 ok 2942s
+2026-09-30T01:41:05Z START fig04_deeponet_p308 deeponet/train_biodiesel_deeponet.py --width 8 --trunk-hidden 7 --experiment-name fig04 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 50000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p308_seed0
+2026-09-30T01:42:28Z FINISH fig04_deeponet_p308 ok 83s
+2026-09-30T01:42:28Z START fig05_deeponet_noise07 deeponet/train_biodiesel_deeponet.py --noise-percent 7 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise07_seed0
+2026-09-30T01:42:51Z FINISH fig05_deeponet_noise07 ok 23s
+2026-09-30T01:43:51Z FINISH fig05_chemkan_noise15 ok 2973s
+2026-09-30T01:43:51Z START fig04_deeponet_p384 deeponet/train_biodiesel_deeponet.py --width 9 --trunk-hidden 9 --experiment-name fig04 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 50000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig04/deeponet_p384_seed0
+2026-09-30T01:45:14Z FINISH fig04_deeponet_p384 ok 83s
+2026-09-30T01:45:14Z START fig05_deeponet_noise10 deeponet/train_biodiesel_deeponet.py --noise-percent 10 --width 8 --eval-every 1 --experiment-name fig05 --data-file chemkan/data/generated/biodiesel_v2.npz --seed 0 --epochs 10000 --run-dir results/experiments/biodiesel/author_repo_match/figures/fig05/deeponet_noise10_seed0
+2026-09-30T01:45:37Z FINISH fig05_deeponet_noise10 ok 23s

@@ -1,0 +1,241 @@
+r"""Ignition-delay evaluation for a trained hydrogen ChemKAN (Fig. 8B).
+
+Evaluation only -- nothing is trained and no checkpoint is written.
+
+Paper definition (Sec. III B): ignition delay = the time of maximum temperature-rise
+rate. Estimating that from the 50 sparse training/plotting samples would compare a coarse
+reference derivative with a fine model derivative, so BOTH sides are put on the SAME dense
+diagnostic grid (601 points over 0-0.6 ms by default, the resolution the data generator
+already uses for its stored reference delays) and run through the SAME estimator:
+
+    delay = t[argmax(gradient(T, t))]
+
+The reference temperature comes from the dense Cantera cache
+``hydrogen_temperature_20000.npz``, linearly interpolated onto the diagnostic grid -- the
+same interpolation the Stage-1 temperature provider uses. The model is integrated from
+its initial state only, on that identical grid.
+
+The delay is the paper's definition throughout: no minimum-rise requirement is imposed on
+it, so ``chemkan_delay_s`` is always the argmax for a finite trajectory. No binary
+ignited/not verdict is applied to a prediction anywhere. Instead every row carries neutral
+diagnostics for BOTH sides -- ``*_temperature_rise_K`` and ``*_peak_dTdt_K_per_s`` -- so a
+flat trajectory with a confident-looking delay cannot be mistaken for an ignition.
+
+The evaluated set is the paper's own: Fig. 8B reports the 30 conditions that ignite in the
+window, and the paper states the lowest-temperature cases do not. Those are the six
+T0 = 950 K cases, so the evaluated set is T0 in {1000, 1050, 1100, 1150, 1200} K across the
+six equivalence ratios. It is written out explicitly rather than derived from a threshold,
+and the stored reference confirms it (950 K rises by exactly 0.0 K, every other case by at
+least 1160 K). Conditions whose integration fails are recorded separately.
+
+    python evaluate_hydrogen_ignition.py \
+        --run-dir ../../results/reproduction/legacy/hydrogen/chemkan/diagnostics/base_on_n4/random_stage2_10000_seed0 \
+        --out ../../results/reproduction/legacy/hydrogen/tables
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import logging
+from pathlib import Path
+
+import numpy as np
+import torch
+from _data import DATA_DIR, resolve_device
+from _predictions import checkpoint_sha256
+from evaluate_hydrogen import load_predictor
+from _run import utc_now
+
+
+def repo_relative(path) -> str:
+    """Path from the repository root, so provenance never bakes in a local absolute path.
+
+    Falls back to the string as given if no 'results' component is present.
+    """
+    parts = Path(path).resolve().parts
+    if "results" in parts:
+        return "/".join(parts[parts.index("results"):])
+    return str(path)
+
+# The paper's Fig. 8B set: the 30 reference-igniting conditions. Stated explicitly, never
+# derived from a threshold.
+PAPER_FIG8B_T0_K = (1000.0, 1050.0, 1100.0, 1150.0, 1200.0)
+
+def ignition_delay_index(t: np.ndarray, T: np.ndarray):
+    """argmax of dT/dt -- the paper's definition -- or None for a non-finite trajectory.
+
+    ``np.gradient`` uses second-order central differences inside the window and
+    second-order one-sided differences at both endpoints, so an argmax landing on the
+    first or last sample is reported as such by the caller rather than silently trusted.
+    """
+    T = np.asarray(T, dtype=float)
+    t = np.asarray(t, dtype=float)
+    if not np.isfinite(T).all():
+        return None
+    return int(np.argmax(np.gradient(T, t)))
+
+
+def temperature_rise(T: np.ndarray) -> float:
+    """max(T) - T[0] in kelvin."""
+    T = np.asarray(T, dtype=float)
+    return float(T.max() - T[0])
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--run-dir", required=True,
+                   help="directory holding checkpoint_final.pt or an author-matched "
+                        "stage2_final.pt")
+    p.add_argument("--out", required=True, help="directory for the CSV / summary")
+    p.add_argument("--label", default=None)
+    p.add_argument("--points", type=int, default=601,
+                   help="dense diagnostic grid resolution over the 0-0.6 ms window")
+    p.add_argument("--cache-points", type=int, default=20000,
+                   help="dense reference temperature cache resolution")
+    p.add_argument("--held-out", default="1150:1.3")
+    p.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
+    p.add_argument("--rtol", type=float, default=None,
+                   help="solver rtol (default: the checkpoint's training tolerance)")
+    p.add_argument("--atol", type=float, default=None,
+                   help="solver atol (default: the checkpoint's training tolerance)")
+    p.add_argument("--float64", action="store_true",
+                   help="integrate in double precision (needed for rtol below ~1e-7)")
+    p.add_argument("--force", action="store_true")
+    args = p.parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+    dev = resolve_device(args.device)
+    run_dir = Path(args.run_dir)
+    predictor = load_predictor(run_dir, dev, rtol=args.rtol, atol=args.atol,
+                               float64=args.float64)
+    ckpt, ckpt_path, solver = predictor["ckpt"], predictor["checkpoint"], predictor["solver"]
+
+    canon = np.load(DATA_DIR / "hydrogen.npz", allow_pickle=True)
+    cache = np.load(DATA_DIR / f"hydrogen_temperature_{args.cache_points}.npz",
+                    allow_pickle=True)
+    ics, is_test = canon["ics"], canon["is_test"]                  # (36, 2), (36,)
+    states = canon["states"]                                       # (36, 50, m+1)
+    m = len(canon["species"])
+
+    # Reassemble the cache's split-ordered dense temperature back into canonical order.
+    t_cache = np.asarray(cache["t"], dtype=float)
+    T_cache = np.empty((len(t_cache), len(ics)))
+    T_cache[:, ~is_test] = cache["train_T"][..., 0]
+    T_cache[:, is_test] = cache["test_T"][..., 0]
+    if not np.allclose(cache["train_ics"], ics[~is_test]) or \
+       not np.allclose(cache["test_ics"], ics[is_test]):
+        raise SystemExit("dense temperature cache IC ordering does not match hydrogen.npz")
+
+    t_dense = np.linspace(float(canon["t"][0]), float(canon["t"][-1]), args.points)
+    T_ref = np.stack([np.interp(t_dense, t_cache, T_cache[:, i]) for i in range(len(ics))],
+                     axis=1)                                       # (P, 36)
+
+    u0 = torch.as_tensor(states[:, 0, :], dtype=torch.float32, device=dev)
+    t_t = torch.as_tensor(t_dense, dtype=torch.float32, device=dev)
+    try:
+        with torch.no_grad():
+            pred = predictor["predict"](u0, t_t).cpu().numpy()     # (P, 36, m+1)
+    except Exception as exc:
+        logging.warning("batched integration raised (%s); retrying per condition",
+                        type(exc).__name__)
+        pred = np.full((args.points, len(ics), m + 1), np.nan, dtype=np.float32)
+        for i in range(len(ics)):
+            try:
+                with torch.no_grad():
+                    pred[:, i:i + 1] = predictor["predict"](u0[i:i + 1], t_t).cpu().numpy()
+            except Exception as inner:
+                logging.warning("T0=%.0f phi=%.2f integration failed: %s",
+                                ics[i, 0], ics[i, 1], type(inner).__name__)
+    T_pred = pred[..., -1]                                          # (P, 36)
+
+    T0_h, phi_h = (float(v) for v in args.held_out.split(":"))
+    rows = []
+    for i in range(len(ics)):
+        # Case selection: the paper's 30 igniting conditions, by initial temperature.
+        if not any(np.isclose(ics[i, 0], T0) for T0 in PAPER_FIG8B_T0_K):
+            continue                       # not part of the paper's Fig. 8B set
+        k_ref = ignition_delay_index(t_dense, T_ref[:, i])
+        d_ref = float(t_dense[k_ref])
+        finite = bool(np.isfinite(T_pred[:, i]).all())
+        k_pred = ignition_delay_index(t_dense, T_pred[:, i]) if finite else None
+        rise_pred = temperature_rise(T_pred[:, i]) if finite else ""
+        rate_pred = (float(np.max(np.gradient(T_pred[:, i], t_dense))) if finite else "")
+        if not finite:
+            status, d_pred, abs_err, rel_err = "integration_failed", "", "", ""
+        else:
+            # Paper definition for every evaluated trajectory; no threshold decides
+            # whether it counts. Read the delay together with the rise and peak rate.
+            d_pred = float(t_dense[k_pred])
+            abs_err = d_pred - d_ref
+            rel_err = abs_err / d_ref
+            status = ("argmax_at_window_edge" if k_pred in (0, len(t_dense) - 1)
+                      else "evaluated")
+        rows.append({
+            "T0_K": float(ics[i, 0]), "phi": float(ics[i, 1]),
+            "reference_delay_s": d_ref, "chemkan_delay_s": d_pred,
+            "absolute_error_s": abs_err, "relative_error": rel_err,
+            "is_held_out": bool(np.isclose(ics[i, 0], T0_h) and np.isclose(ics[i, 1], phi_h)),
+            "reference_peak_T_K": float(T_ref[:, i].max()),
+            "reference_temperature_rise_K": temperature_rise(T_ref[:, i]),
+            "reference_peak_dTdt_K_per_s": float(np.max(np.gradient(T_ref[:, i], t_dense))),
+            "chemkan_temperature_rise_K": rise_pred,
+            "chemkan_peak_dTdt_K_per_s": rate_pred,
+            "chemkan_peak_T_K": float(T_pred[:, i].max()) if finite else "",
+            "status": status,
+        })
+    rows.sort(key=lambda r: (r["T0_K"], r["phi"]))
+
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    label = args.label or run_dir.name
+    csv_path = out / f"hydrogen_ignition_delay_{label}.csv"
+    if csv_path.exists() and not args.force:
+        raise SystemExit(f"{csv_path} exists -- pass --force to overwrite.")
+    with csv_path.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    logging.info("wrote %s", csv_path)
+
+    summary = {
+        "run_id": ckpt.get("run_id"), "checkpoint": repo_relative(ckpt_path),
+        "checkpoint_sha256": checkpoint_sha256(ckpt_path),
+        "architecture": predictor["architecture"],
+        "definition": "ignition delay = time of maximum dT/dt (paper Sec. III B)",
+        "estimator": "numpy.gradient on the dense diagnostic grid, identical for "
+                     "reference and model",
+        "diagnostic_grid": {"points": args.points,
+                            "t_start_s": float(t_dense[0]), "t_end_s": float(t_dense[-1])},
+        "reference_source": f"hydrogen_temperature_{args.cache_points}.npz, linearly "
+                            f"interpolated onto the diagnostic grid",
+        "ignition_delay_definition": "argmax dT/dt (paper Sec. III B); no minimum rise",
+        "conditions_total": int(len(ics)),
+        "evaluated_conditions": len(rows),
+        "case_selection": ("the paper's Fig. 8B set: T0 in "
+                           f"{list(PAPER_FIG8B_T0_K)} K, all equivalence ratios"),
+        "median_reference_temperature_rise_K": float(np.median(
+            [r["reference_temperature_rise_K"] for r in rows])),
+        "median_model_temperature_rise_K": float(np.median(
+            [r["chemkan_temperature_rise_K"] for r in rows
+             if r["chemkan_temperature_rise_K"] != ""])),
+        "median_abs_relative_delay_error": float(np.median(
+            [abs(r["relative_error"]) for r in rows if r["relative_error"] != ""])),
+        "solver": {"method": solver.method, "rtol": solver.rtol, "atol": solver.atol,
+                   "precision": "float64" if args.float64 else "checkpoint dtype"},
+        "evaluated_at": utc_now(),
+    }
+    (out / f"hydrogen_ignition_delay_{label}.json").write_text(
+        json.dumps(summary, indent=2, default=str))
+    logging.info("%d evaluated conditions | median temperature rise: model %.1f K vs "
+                 "reference %.1f K | median |relative delay error| %.1f%%",
+                 summary["evaluated_conditions"],
+                 summary["median_model_temperature_rise_K"],
+                 summary["median_reference_temperature_rise_K"],
+                 100 * summary["median_abs_relative_delay_error"])
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,106 @@
+{
+  "created": "2026-09-13T16:30:22Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "criteria": {
+    "A_analytic": {
+      "dtype": "float64",
+      "levels": {
+        "L0": [
+          1e-06,
+          1e-08
+        ],
+        "L1": [
+          1e-08,
+          1e-10
+        ],
+        "L2": [
+          1e-10,
+          1e-12
+        ]
+      },
+      "at_L2": {
+        "state_rel_err_max": 1e-08,
+        "sensitivity_rel_err_max": 1e-07,
+        "loss_gradient_rel_err_max": 1e-07,
+        "fsa_vs_direct_autograd_rel_max": 1e-07
+      },
+      "refinement": "every error at L2 is smaller than at L0 (no strict monotonicity)"
+    },
+    "B_functional_equivalence": {
+      "metric": "max|F_functional - F_wrapper| / max(1, max|F_wrapper|) over states/times",
+      "float64_max": 1e-12,
+      "float32_max": 1e-05,
+      "blocking": "any failure stops gradient validation"
+    },
+    "C_gradients": {
+      "dtype": "float64",
+      "levels": {
+        "L0": [
+          1e-06,
+          1e-08
+        ],
+        "L1": [
+          1e-08,
+          1e-10
+        ],
+        "L2": [
+          1e-10,
+          1e-12
+        ]
+      },
+      "agreement_at_L2": {
+        "relative_l2_max": 0.0001,
+        "cosine_min": 0.99999999,
+        "max_abs_err_over_max_abs_grad_max": 0.001,
+        "per_group_relative_l2_max": 0.001,
+        "near_zero_group": "a group whose DA norm is < 1e-8 x the full gradient norm is judged by ||dg_group|| / ||g_full|| <= 1e-6 instead"
+      },
+      "refinement_stability": {
+        "fsa_L1_vs_L2_relative_max": 0.001,
+        "direct_autograd_L1_vs_L2_relative_max": 0.001
+      },
+      "section10_production_adequacy": {
+        "definition": "FSA gradient at the production tolerance L0 vs the refined FSA gradient at L2",
+        "relative_l2_max": 0.05,
+        "cosine_min": 0.998
+      },
+      "a_large_disagreement_persisting_under_refinement": "FAIL"
+    },
+    "D_state_consistency": {
+      "metric": "max over (t, b, i) of |x - x_ref| / train_range_i, x_ref = state-only solve at rtol/atol = 1e-12/1e-14 (float64)",
+      "per_level": "err_augmented <= 10 * err_state_only + 1e-10",
+      "at_L2": "err_augmented <= 1e-6 and |x_augmented - x_state_only| <= 1e-6",
+      "sensitivity_refinement": "||S_L1 - S_L2|| / ||S_L2|| <= 1e-3 (reported per model)"
+    },
+    "E_independence": {
+      "structural": "d F_b / d x_c == 0 exactly for every b != c (float64 jacrev)",
+      "stage1_temperature": "perturbing T_obs of trajectory c leaves F_b bit-identical",
+      "batch_vs_individual_at_L2": {
+        "state_normalized_max": 1e-07,
+        "sensitivity_relative_max": 1e-05
+      }
+    },
+    "F_production_dtype": {
+      "dtype": "float32",
+      "tolerance": [
+        1e-06,
+        1e-08
+      ],
+      "requirements": "finite states, sensitivities, losses, gradients",
+      "vs_float64_reference": {
+        "relative_l2_max": 0.05,
+        "cosine_min": 0.998,
+        "reference": "float64 FSA gradient at L2 on the same batch"
+      }
+    },
+    "G_finite_differences": {
+      "optional": true,
+      "dtype": "float64",
+      "solves": "state-only at 1e-12/1e-14",
+      "sweep": "h = max(|theta_q|, 1e-2) * 10^-k, k = 2..8",
+      "stable_region": "two consecutive h whose estimates differ by <= 1e-4 relative",
+      "pass": "stable estimate within 1e-3 relative of the FSA L2 gradient",
+      "inconclusive": "no stable region"
+    }
+  }
+}

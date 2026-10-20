@@ -1,0 +1,44 @@
+
+==== loss convention check, epoch 1 (mean over 20 training trajectories) ====
+n_species                     = 6
+n_times                       = 30
+training loss used (Flux mse) = 2.7781654215e-01
+Flux.mse                      = 2.7781654215e-01
+explicit MSE  (sum/(ns*nt))   = 2.7781654215e-01
+|Flux.mse - explicit MSE|     = 0.000e+00
+Eq.18-style   (sum/ns)        = 8.3344962644e+00
+n_times * Flux.mse            = 8.3344962644e+00
+|Eq.18 - n_times*Flux.mse|    = 0.000e+00
+
+==== loss convention check, epoch 100 (mean over 20 training trajectories) ====
+n_species                     = 6
+n_times                       = 30
+training loss used (Flux mse) = 2.5267430095e-02
+Flux.mse                      = 2.5267430095e-02
+explicit MSE  (sum/(ns*nt))   = 2.5267430095e-02
+|Flux.mse - explicit MSE|     = 0.000e+00
+Eq.18-style   (sum/ns)        = 7.5802290286e-01
+n_times * Flux.mse            = 7.5802290286e-01
+|Eq.18 - n_times*Flux.mse|    = 1.110e-16
+
+==== loss convention check, epoch 500 (mean over 20 training trajectories) ====
+n_species                     = 6
+n_times                       = 30
+training loss used (Flux mse) = 2.3773363322e-03
+Flux.mse                      = 2.3773363322e-03
+explicit MSE  (sum/(ns*nt))   = 2.3773363322e-03
+|Flux.mse - explicit MSE|     = 0.000e+00
+Eq.18-style   (sum/ns)        = 7.1320089966e-02
+n_times * Flux.mse            = 7.1320089966e-02
+|Eq.18 - n_times*Flux.mse|    = 0.000e+00
+
+==== loss convention check, epoch 1000 (mean over 20 training trajectories) ====
+n_species                     = 6
+n_times                       = 30
+training loss used (Flux mse) = 9.9675210793e-04
+Flux.mse                      = 9.9675210793e-04
+explicit MSE  (sum/(ns*nt))   = 9.9675210793e-04
+|Flux.mse - explicit MSE|     = 0.000e+00
+Eq.18-style   (sum/ns)        = 2.9902563238e-02
+n_times * Flux.mse            = 2.9902563238e-02
+|Eq.18 - n_times*Flux.mse|    = 6.939e-18

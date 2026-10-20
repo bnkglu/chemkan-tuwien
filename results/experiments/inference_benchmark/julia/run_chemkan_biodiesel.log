@@ -1,0 +1,2 @@
+julia_chemkan_tol0 rtol 1.0e-10: latency median 0.69 ms, sequential 0.0201 s, batched 0.0227 s
+julia_chemkan_tol1 rtol 0.01: latency median 0.114 ms, sequential 0.0034 s, batched 0.0034 s

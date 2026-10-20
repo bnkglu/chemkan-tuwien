@@ -1,0 +1,104 @@
+{
+ "checkpoint": "results/experiments/hydrogen/author_matched/main/S2_seed0_200k/stage2_final.pt",
+ "note": "time-averaged MSE in normalized coordinates (training statistics); batched Tsit5 solves from the initial states",
+ "results": {
+  "A float32 1e-6/1e-8": {
+   "hydrogen": {
+    "seconds": 0.76,
+    "finite": true,
+    "mse_time_avg_mean": 0.000677547010127455,
+    "mse_time_avg_median": 0.0004641390696633607,
+    "mse_time_avg_min": 4.3558877223404124e-05,
+    "mse_time_avg_max": 0.0031302827410399914,
+    "train_median": 0.00047477896441705525,
+    "not_train_median": 0.00035070240846835077,
+    "held_out_1150_1.3": 0.00035070240846835077,
+    "max_abs_diff_vs_D_normalized": 0.0001345356907150319
+   },
+   "hydrogen_fine": {
+    "seconds": 4.96,
+    "finite": true,
+    "mse_time_avg_mean": 0.004160428885370493,
+    "mse_time_avg_median": 0.0004910961142741144,
+    "mse_time_avg_min": 3.833658411167562e-05,
+    "mse_time_avg_max": 0.061154190450906754,
+    "train_median": 0.0004747700004372746,
+    "not_train_median": 0.0004961367230862379,
+    "max_abs_diff_vs_D_normalized": 0.0019133456578491748
+   }
+  },
+  "B float64 1e-6/1e-8": {
+   "hydrogen": {
+    "seconds": 0.78,
+    "finite": true,
+    "mse_time_avg_mean": 0.0006775744445814165,
+    "mse_time_avg_median": 0.00046413308291824083,
+    "mse_time_avg_min": 4.355890242347867e-05,
+    "mse_time_avg_max": 0.0031308390581586574,
+    "train_median": 0.00047476615672992434,
+    "not_train_median": 0.00035070265740320055,
+    "held_out_1150_1.3": 0.00035070265740320055,
+    "max_abs_diff_vs_D_normalized": 4.108313372230832e-05
+   },
+   "hydrogen_fine": {
+    "seconds": 5.68,
+    "finite": true,
+    "mse_time_avg_mean": 0.004160703006206201,
+    "mse_time_avg_median": 0.0004909347441543064,
+    "mse_time_avg_min": 3.8336551536844055e-05,
+    "mse_time_avg_max": 0.06115558231371936,
+    "train_median": 0.00047477025380797476,
+    "not_train_median": 0.0004961396834807536,
+    "max_abs_diff_vs_D_normalized": 0.00010371405273262857
+   }
+  },
+  "C float64 1e-8/1e-10": {
+   "hydrogen": {
+    "seconds": 1.61,
+    "finite": true,
+    "mse_time_avg_mean": 0.0006775917387027559,
+    "mse_time_avg_median": 0.0004641330684298584,
+    "mse_time_avg_min": 4.355890241621957e-05,
+    "mse_time_avg_max": 0.0031310955264439943,
+    "train_median": 0.00047476395546891233,
+    "not_train_median": 0.00035070686944796767,
+    "held_out_1150_1.3": 0.00035070686944796767,
+    "max_abs_diff_vs_D_normalized": 8.075271125118633e-07
+   },
+   "hydrogen_fine": {
+    "seconds": 11.94,
+    "finite": true,
+    "mse_time_avg_mean": 0.004160696521030153,
+    "mse_time_avg_median": 0.000490887275072266,
+    "mse_time_avg_min": 3.8336551536838986e-05,
+    "mse_time_avg_max": 0.06115556153879152,
+    "train_median": 0.0004747639964543254,
+    "not_train_median": 0.0004961487404646065,
+    "max_abs_diff_vs_D_normalized": 1.857091960488777e-06
+   }
+  },
+  "D float64 1e-10/1e-12": {
+   "hydrogen": {
+    "seconds": 3.76,
+    "finite": true,
+    "mse_time_avg_mean": 0.0006775920057352922,
+    "mse_time_avg_median": 0.00046413302644966053,
+    "mse_time_avg_min": 4.355890241429358e-05,
+    "mse_time_avg_max": 0.003131097367199559,
+    "train_median": 0.00047476381696685827,
+    "not_train_median": 0.00035070705600964523,
+    "held_out_1150_1.3": 0.00035070705600964523
+   },
+   "hydrogen_fine": {
+    "seconds": 27.63,
+    "finite": true,
+    "mse_time_avg_mean": 0.0041606964218714945,
+    "mse_time_avg_median": 0.0004908862815428842,
+    "mse_time_avg_min": 3.833655153683948e-05,
+    "mse_time_avg_max": 0.061155560833304846,
+    "train_median": 0.0004747638195400308,
+    "not_train_median": 0.0004961488724670605
+   }
+  }
+ }
+}

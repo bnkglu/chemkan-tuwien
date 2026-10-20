@@ -1,0 +1,361 @@
+{
+  "created": "2026-09-13T16:39:02Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "f2f75fd2ae3d5a55e2d369864440d6046396bc25ac4e0f6b9fe5e03bdb2fc04a",
+    "uncommitted_changes": true
+  },
+  "hypothesis": "the Stage-1 forcing T_obs(t) is a piecewise-LINEAR interpolant of 20,000\nCantera points, i.e. only C0 in time with a slope jump every ~3e-8 s. Tsit5's order and\nits local error estimate assume a smooth right-hand side, so convergence under tolerance\nrefinement is slower and less regular than for a smooth problem -- for direct autograd and\nFSA alike, since both integrate the same forcing.",
+  "ladder": {
+    "L0": [
+      1e-06,
+      1e-08
+    ],
+    "L1": [
+      1e-08,
+      1e-10
+    ],
+    "L2": [
+      1e-10,
+      1e-12
+    ],
+    "L3": [
+      1e-12,
+      1e-14
+    ]
+  },
+  "cases": [
+    {
+      "problem": "stage1/init",
+      "levels": {
+        "L0": {
+          "tolerance": [
+            1e-06,
+            1e-08
+          ],
+          "nfe_fsa": 14,
+          "nfe_direct_autograd": 8,
+          "fsa_vs_direct_autograd": 0.005230885745899112
+        },
+        "L1": {
+          "tolerance": [
+            1e-08,
+            1e-10
+          ],
+          "nfe_fsa": 74,
+          "nfe_direct_autograd": 26,
+          "fsa_vs_direct_autograd": 0.0084459411149358
+        },
+        "L2": {
+          "tolerance": [
+            1e-10,
+            1e-12
+          ],
+          "nfe_fsa": 158,
+          "nfe_direct_autograd": 170,
+          "fsa_vs_direct_autograd": 1.5818548875474337e-05
+        },
+        "L3": {
+          "tolerance": [
+            1e-12,
+            1e-14
+          ],
+          "nfe_fsa": 284,
+          "nfe_direct_autograd": 218,
+          "fsa_vs_direct_autograd": 6.274932991169502e-08
+        }
+      },
+      "consecutive_change": {
+        "L0->L1": {
+          "fsa": 0.04301313894752442,
+          "direct_autograd": 0.03858430478276615
+        },
+        "L1->L2": {
+          "fsa": 0.001571308265106519,
+          "direct_autograd": 0.0069071973531630235
+        },
+        "L2->L3": {
+          "fsa": 6.495366828955684e-06,
+          "direct_autograd": 1.9055026316200988e-05
+        }
+      },
+      "vs_finest_fsa": {
+        "L0": {
+          "fsa": 0.04187342566590803,
+          "direct_autograd": 0.04283101413741903
+        },
+        "L1": {
+          "fsa": 0.0015772728633699443,
+          "direct_autograd": 0.00688998964803803
+        },
+        "L2": {
+          "fsa": 6.495366828955684e-06,
+          "direct_autograd": 1.90214504472553e-05
+        },
+        "L3": {
+          "fsa": 0.0,
+          "direct_autograd": 6.274933111214441e-08
+        }
+      }
+    },
+    {
+      "problem": "stage1/init [smooth control: T = T0]",
+      "levels": {
+        "L0": {
+          "tolerance": [
+            1e-06,
+            1e-08
+          ],
+          "nfe_fsa": 8,
+          "nfe_direct_autograd": 8,
+          "fsa_vs_direct_autograd": 0.003917931083264508
+        },
+        "L1": {
+          "tolerance": [
+            1e-08,
+            1e-10
+          ],
+          "nfe_fsa": 20,
+          "nfe_direct_autograd": 26,
+          "fsa_vs_direct_autograd": 0.00043179128158218893
+        },
+        "L2": {
+          "tolerance": [
+            1e-10,
+            1e-12
+          ],
+          "nfe_fsa": 26,
+          "nfe_direct_autograd": 32,
+          "fsa_vs_direct_autograd": 1.8110040908332745e-06
+        },
+        "L3": {
+          "tolerance": [
+            1e-12,
+            1e-14
+          ],
+          "nfe_fsa": 44,
+          "nfe_direct_autograd": 38,
+          "fsa_vs_direct_autograd": 2.875270379023453e-08
+        }
+      },
+      "consecutive_change": {
+        "L0->L1": {
+          "fsa": 0.03088796775817773,
+          "direct_autograd": 0.030759956652349034
+        },
+        "L1->L2": {
+          "fsa": 0.0005943414082568142,
+          "direct_autograd": 0.0009097613497938478
+        },
+        "L2->L3": {
+          "fsa": 1.7773927485393173e-07,
+          "direct_autograd": 1.9591479998992387e-06
+        }
+      },
+      "vs_finest_fsa": {
+        "L0": {
+          "fsa": 0.03032198822314492,
+          "direct_autograd": 0.029910016011160626
+        },
+        "L1": {
+          "fsa": 0.0005941681408436085,
+          "direct_autograd": 0.0009080047670594127
+        },
+        "L2": {
+          "fsa": 1.7773927485393173e-07,
+          "direct_autograd": 1.9877081627641345e-06
+        },
+        "L3": {
+          "fsa": 0.0,
+          "direct_autograd": 2.8752704606831084e-08
+        }
+      }
+    },
+    {
+      "problem": "stage1/trained",
+      "levels": {
+        "L0": {
+          "tolerance": [
+            1e-06,
+            1e-08
+          ],
+          "nfe_fsa": 1664,
+          "nfe_direct_autograd": 1538,
+          "fsa_vs_direct_autograd": 0.0019429673062619543
+        },
+        "L1": {
+          "tolerance": [
+            1e-08,
+            1e-10
+          ],
+          "nfe_fsa": 2390,
+          "nfe_direct_autograd": 1928,
+          "fsa_vs_direct_autograd": 9.817437797163874e-05
+        },
+        "L2": {
+          "tolerance": [
+            1e-10,
+            1e-12
+          ],
+          "nfe_fsa": 9284,
+          "nfe_direct_autograd": 7400,
+          "fsa_vs_direct_autograd": 2.31389583317901e-06
+        },
+        "L3": {
+          "tolerance": [
+            1e-12,
+            1e-14
+          ],
+          "nfe_fsa": 68906,
+          "nfe_direct_autograd": 58226,
+          "fsa_vs_direct_autograd": 5.84748996412458e-09
+        }
+      },
+      "consecutive_change": {
+        "L0->L1": {
+          "fsa": 0.00032301616470590763,
+          "direct_autograd": 0.0021616689813821594
+        },
+        "L1->L2": {
+          "fsa": 9.059865139332563e-06,
+          "direct_autograd": 0.00010427601902984448
+        },
+        "L2->L3": {
+          "fsa": 1.5089426460796566e-06,
+          "direct_autograd": 8.482594010129413e-07
+        }
+      },
+      "vs_finest_fsa": {
+        "L0": {
+          "fsa": 0.0003299291070560034,
+          "direct_autograd": 0.0022639199621726585
+        },
+        "L1": {
+          "fsa": 7.565754255120694e-06,
+          "direct_autograd": 0.00010501528338134578
+        },
+        "L2": {
+          "fsa": 1.5089426460796566e-06,
+          "direct_autograd": 8.450526236344652e-07
+        },
+        "L3": {
+          "fsa": 0.0,
+          "direct_autograd": 5.847489942857303e-09
+        }
+      }
+    },
+    {
+      "problem": "stage1/trained [smooth control: T = T0]",
+      "levels": {
+        "L0": {
+          "tolerance": [
+            1e-06,
+            1e-08
+          ],
+          "nfe_fsa": 1604,
+          "nfe_direct_autograd": 1706,
+          "fsa_vs_direct_autograd": 9.879178848911619e-05
+        },
+        "L1": {
+          "tolerance": [
+            1e-08,
+            1e-10
+          ],
+          "nfe_fsa": 2276,
+          "nfe_direct_autograd": 1958,
+          "fsa_vs_direct_autograd": 2.566941381512846e-06
+        },
+        "L2": {
+          "tolerance": [
+            1e-10,
+            1e-12
+          ],
+          "nfe_fsa": 4256,
+          "nfe_direct_autograd": 2972,
+          "fsa_vs_direct_autograd": 1.781299416756934e-08
+        },
+        "L3": {
+          "tolerance": [
+            1e-12,
+            1e-14
+          ],
+          "nfe_fsa": 10076,
+          "nfe_direct_autograd": 6734,
+          "fsa_vs_direct_autograd": 1.3027542385376846e-10
+        }
+      },
+      "consecutive_change": {
+        "L0->L1": {
+          "fsa": 6.41144412908406e-06,
+          "direct_autograd": 0.00010263730741935178
+        },
+        "L1->L2": {
+          "fsa": 3.4870599431430385e-08,
+          "direct_autograd": 2.583664775922033e-06
+        },
+        "L2->L3": {
+          "fsa": 4.4787010195891626e-10,
+          "direct_autograd": 1.735876949745396e-08
+        }
+      },
+      "vs_finest_fsa": {
+        "L0": {
+          "fsa": 6.442562952289506e-06,
+          "direct_autograd": 0.00010517206448133215
+        },
+        "L1": {
+          "fsa": 3.459901117360383e-08,
+          "direct_autograd": 2.5998838266372062e-06
+        },
+        "L2": {
+          "fsa": 4.4787010195891626e-10,
+          "direct_autograd": 1.7482546607018647e-08
+        },
+        "L3": {
+          "fsa": 0.0,
+          "direct_autograd": 1.302754238370134e-10
+        }
+      }
+    }
+  ],
+  "batch_vs_individual_stage1_trained": [
+    {
+      "level": "L2",
+      "train_index": 2,
+      "state_normalized_max": 5.194682075140775e-09,
+      "sensitivity_relative": 2.067699498601147e-09
+    },
+    {
+      "level": "L2",
+      "train_index": 14,
+      "state_normalized_max": 1.9175188520459812e-07,
+      "sensitivity_relative": 5.0883080456578604e-08
+    },
+    {
+      "level": "L2",
+      "train_index": 31,
+      "state_normalized_max": 1.7632885048464536e-07,
+      "sensitivity_relative": 8.187992353584342e-08
+    },
+    {
+      "level": "L3",
+      "train_index": 2,
+      "state_normalized_max": 1.3866742116477802e-09,
+      "sensitivity_relative": 6.067213387586322e-10
+    },
+    {
+      "level": "L3",
+      "train_index": 14,
+      "state_normalized_max": 1.2295340988150791e-08,
+      "sensitivity_relative": 5.952048210124229e-09
+    },
+    {
+      "level": "L3",
+      "train_index": 31,
+      "state_normalized_max": 1.6424775897200264e-08,
+      "sensitivity_relative": 2.4688984624460663e-09
+    }
+  ]
+}

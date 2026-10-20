@@ -1,0 +1,39 @@
+{
+  "run_id": "S2_seed0",
+  "checkpoint": "results/experiments/hydrogen/author_matched/main/S2_seed0/stage2_final.pt",
+  "checkpoint_sha256": "28fac80048466b79b2e7860d0514fd30e84a091d74886d9edd90fa6d21dc3963",
+  "architecture": {
+    "hidden_dim": 3,
+    "num_basis": 5,
+    "n_mu": 3,
+    "use_base_act": false,
+    "parameter_count": 344,
+    "rbf": "exp(-((x-c)/h)^2), c = linspace(-1, 1, 5), h = 0.5 (library gaussian with h = 0.5/sqrt(2))",
+    "input_tanh": {
+      "kinetic_layer1": false,
+      "kinetic_layer2": true,
+      "correction": false
+    }
+  },
+  "definition": "ignition delay = time of maximum dT/dt (paper Sec. III B)",
+  "estimator": "numpy.gradient on the dense diagnostic grid, identical for reference and model",
+  "diagnostic_grid": {
+    "points": 601,
+    "t_start_s": 0.0,
+    "t_end_s": 0.0006
+  },
+  "reference_source": "hydrogen_temperature_20000.npz, linearly interpolated onto the diagnostic grid",
+  "ignition_delay_definition": "argmax dT/dt (paper Sec. III B); no minimum rise",
+  "conditions_total": 36,
+  "evaluated_conditions": 30,
+  "case_selection": "the paper's Fig. 8B set: T0 in [1000.0, 1050.0, 1100.0, 1150.0, 1200.0] K, all equivalence ratios",
+  "median_reference_temperature_rise_K": 1580.730690362979,
+  "median_model_temperature_rise_K": 1597.672119140625,
+  "median_abs_relative_delay_error": 0.03688761999337971,
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08
+  },
+  "evaluated_at": "2026-10-03T14:47:59Z"
+}

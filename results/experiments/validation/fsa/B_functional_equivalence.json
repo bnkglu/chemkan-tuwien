@@ -1,0 +1,153 @@
+{
+  "section": "B_functional_equivalence",
+  "created": "2026-09-13T16:32:39Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "d90c30e78a0487d9056d809d77e1fc6a0b85ef28b893ec3557c02fac305df78b",
+    "uncommitted_changes": true,
+    "patch": "training_4cd1cde96e68_tools_d90c30e78a04.patch"
+  },
+  "torch": "2.13.0",
+  "torch_num_threads": 1,
+  "status": "PASS",
+  "rows": [
+    {
+      "problem": "biodiesel/init",
+      "dtype": "torch.float64",
+      "metric": 1.1102230246251565e-16,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 20"
+    },
+    {
+      "problem": "biodiesel/init",
+      "dtype": "torch.float32",
+      "metric": 5.960464477539063e-08,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 20"
+    },
+    {
+      "problem": "biodiesel/trained",
+      "dtype": "torch.float64",
+      "metric": 1.3877787807814457e-16,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 20"
+    },
+    {
+      "problem": "biodiesel/trained",
+      "dtype": "torch.float32",
+      "metric": 5.21540641784668e-08,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 20"
+    },
+    {
+      "problem": "stage1/init",
+      "dtype": "torch.float64",
+      "metric": 3.469446951953614e-18,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage1/init",
+      "dtype": "torch.float32",
+      "metric": 2.3283064365386963e-09,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage1/trained",
+      "dtype": "torch.float64",
+      "metric": 4.9493352222097005e-15,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage1/trained",
+      "dtype": "torch.float32",
+      "metric": 2.6331592835049378e-06,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/H0-init",
+      "dtype": "torch.float64",
+      "metric": 7.024001015776257e-16,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/H0-init",
+      "dtype": "torch.float32",
+      "metric": 5.184802489566209e-07,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/Hnorm1-init",
+      "dtype": "torch.float64",
+      "metric": 8.863704443800677e-15,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/Hnorm1-init",
+      "dtype": "torch.float32",
+      "metric": 4.765597168443492e-06,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/H0-final",
+      "dtype": "torch.float64",
+      "metric": 1.1603633966368445e-14,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/H0-final",
+      "dtype": "torch.float32",
+      "metric": 2.911373485403601e-06,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "dtype": "torch.float64",
+      "metric": 1.3968131842632329e-14,
+      "limit": 1e-12,
+      "pass": true,
+      "trajectories": "all 35"
+    },
+    {
+      "problem": "stage2/Hnorm1-final",
+      "dtype": "torch.float32",
+      "metric": 6.456593382608844e-06,
+      "limit": 1e-05,
+      "pass": true,
+      "trajectories": "all 35"
+    }
+  ],
+  "criteria": {
+    "metric": "max|F_functional - F_wrapper| / max(1, max|F_wrapper|) over states/times",
+    "float64_max": 1e-12,
+    "float32_max": 1e-05,
+    "blocking": "any failure stops gradient validation"
+  },
+  "h0_init_thermo_equals_archived_stage1_run_final_thermo": true,
+  "seconds": 8.0
+}

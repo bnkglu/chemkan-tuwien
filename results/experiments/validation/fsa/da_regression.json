@@ -1,0 +1,169 @@
+{
+  "created": "2026-09-13T16:40:29Z",
+  "git_commit": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+  "code_state": {
+    "git_head": "7d3d5962bf80566448eb4db5e464a097a850d7bd",
+    "training_code_sha256": "4cd1cde96e68fc7ac44c1c8cf9a2af601ba257c1f85d7827afda4ceebce40fbc",
+    "fsa_tools_sha256": "c02b5d0348616f7bbd814f8cae66145e85dfc096ac35db75dc920a93581aaeb6",
+    "uncommitted_changes": true
+  },
+  "status": "PASS",
+  "relative_tolerance": 1e-05,
+  "note": "timing columns are excluded; nfe compared exactly via relative diff",
+  "results": [
+    {
+      "name": "B0",
+      "baseline": "results/reproduction/chemkan/biodiesel/main/direct_autograd_seed0",
+      "argv": [
+        "train_biodiesel.py",
+        "--seed",
+        "0",
+        "--epochs",
+        "20",
+        "--experiment-name",
+        "main"
+      ],
+      "history": "history.csv",
+      "rows_compared": 20,
+      "columns": [
+        "mse_loss",
+        "total_loss"
+      ],
+      "max_relative_diff": 0.0,
+      "bit_identical": true,
+      "config_comparison": {
+        "differing_keys": [],
+        "explained_newer_schema_keys": [
+          "batching",
+          "initialization",
+          "training_formulation"
+        ],
+        "stage1_checkpoint_sha256_equal": null
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "H_STAGE1",
+      "baseline": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0",
+      "argv": [
+        "train_hydrogen.py",
+        "--seed",
+        "0",
+        "--experiment-name",
+        "base_on_n4",
+        "--count-nfe",
+        "--stage1-temperature-source",
+        "dense-cantera",
+        "--stage1-temperature-points",
+        "20000",
+        "--stage1-epochs",
+        "20",
+        "--stage2-epochs",
+        "0"
+      ],
+      "history": "history_stage1.csv",
+      "rows_compared": 20,
+      "columns": [
+        "nfe",
+        "pinn_loss",
+        "species_mse",
+        "total_loss"
+      ],
+      "max_relative_diff": 0.0,
+      "bit_identical": true,
+      "config_comparison": {
+        "differing_keys": [],
+        "explained_newer_schema_keys": [],
+        "stage1_checkpoint_sha256_equal": null
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "H0",
+      "baseline": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/random_stage2_10000_seed0",
+      "argv": [
+        "train_hydrogen.py",
+        "--seed",
+        "0",
+        "--experiment-name",
+        "base_on_n4",
+        "--count-nfe",
+        "--stage1-temperature-source",
+        "dense-cantera",
+        "--stage1-temperature-points",
+        "20000",
+        "--stage1-from",
+        "/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_stage1.pt",
+        "--stage2-epochs",
+        "5",
+        "--stage2-probe",
+        "--stage2-probe-epochs",
+        "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000"
+      ],
+      "history": "history_stage2.csv",
+      "rows_compared": 5,
+      "columns": [
+        "nfe",
+        "pinn_loss",
+        "state_mse",
+        "total_loss"
+      ],
+      "max_relative_diff": 0.0,
+      "bit_identical": true,
+      "config_comparison": {
+        "differing_keys": [],
+        "explained_newer_schema_keys": [],
+        "stage1_checkpoint_sha256_equal": true
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "Hnorm1",
+      "baseline": "results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/normmatched_dir1_stage2_10000",
+      "argv": [
+        "train_hydrogen.py",
+        "--seed",
+        "0",
+        "--experiment-name",
+        "base_on_n4",
+        "--count-nfe",
+        "--stage1-temperature-source",
+        "dense-cantera",
+        "--stage1-temperature-points",
+        "20000",
+        "--stage1-from",
+        "/Users/berke/Desktop/University/TU_Wien-MSC/2026S/Interdisciplinary_Project/development/chemkan-tuwien/results/reproduction/chemkan/hydrogen/diagnostics/base_on_n4/stage1_seed0/checkpoint_stage1.pt",
+        "--stage2-epochs",
+        "5",
+        "--stage2-probe",
+        "--stage2-probe-epochs",
+        "0,1,2,5,10,20,50,100,200,500,1000,2000,3000,5000,7500,10000",
+        "--thermo-init",
+        "scaled-random",
+        "--thermo-match-cantera-norm",
+        "--thermo-linear-init-seed",
+        "1",
+        "--thermo-init-temperature",
+        "1050.0",
+        "--thermo-init-phi",
+        "0.5"
+      ],
+      "history": "history_stage2.csv",
+      "rows_compared": 5,
+      "columns": [
+        "nfe",
+        "pinn_loss",
+        "state_mse",
+        "total_loss"
+      ],
+      "max_relative_diff": 0.0,
+      "bit_identical": true,
+      "config_comparison": {
+        "differing_keys": [],
+        "explained_newer_schema_keys": [],
+        "stage1_checkpoint_sha256_equal": true
+      },
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+Source integrity check of the local authors' copy used for the Julia reference run
+repository: https://github.com/DENG-MIT/ChemKAN
+commit:     d7aa5abecbb595d504c86d031cd478a549c614cb (2026-09-21T19:26:26-07:00) initial commit
+checked:    2026-09-28T17:15:05Z
+compared:   fresh clone at that commit vs the local copy (development/chemkan-authors)
+
+file                               sha256_clone                                                     sha256_local                                                     result
+ChemKAN_biodiesel_example.jl       f3b6cd1cfb819fb90b31cf5a680691e50404294d3e2e793966941861ffa47802 f3b6cd1cfb819fb90b31cf5a680691e50404294d3e2e793966941861ffa47802 MATCH
+src/KolmogorovArnold_mult_add.jl   01f1f83895f6074ef9c408f467abe045cefa0af841209600718b6335e9aca107 01f1f83895f6074ef9c408f467abe045cefa0af841209600718b6335e9aca107 MATCH
+src/kdense_mult_add.jl             359dce963ee85958909edac6157686ee7acc84b578a311ef83bc763387246b46 359dce963ee85958909edac6157686ee7acc84b578a311ef83bc763387246b46 MATCH
+src/readme.md                      4a03372a6f1fcf02e3bec1d297ae402754bb15cbc6bf9db3299ab5ef2edc6db0 4a03372a6f1fcf02e3bec1d297ae402754bb15cbc6bf9db3299ab5ef2edc6db0 MATCH
+src/utils.jl                       c4a07b21ac51e13daa4cb0526c8a0e8d00acb9b0572420d50b48b3696354d61c c4a07b21ac51e13daa4cb0526c8a0e8d00acb9b0572420d50b48b3696354d61c MATCH
+diesel_u0_samples.txt              1a2464e24d4a4f00359f288d2b53f16e27cbf1f98d85983ba8c4bd20c779956d 1a2464e24d4a4f00359f288d2b53f16e27cbf1f98d85983ba8c4bd20c779956d MATCH
+Project.toml                       3f07d21c59f631f6d2344076f0a13784e928efdc9c0fa216a8407ab677060752 3f07d21c59f631f6d2344076f0a13784e928efdc9c0fa216a8407ab677060752 MATCH
+Manifest.toml                      6c15365ebf80ee2c742b510b5fcad82e4636ced53ef03229770cd2052ef46041 6c15365ebf80ee2c742b510b5fcad82e4636ced53ef03229770cd2052ef46041 MATCH
+
+result: all 8 files identical to the released commit

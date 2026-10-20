@@ -1,0 +1,2 @@
+cvode_bdf_rtol1e-10_atol1e-12: latency median 0.204 ms, sequential 0.0062 s
+autotsit5_rosenbrock23_default_tol: latency median 0.049 ms, sequential 0.0015 s

@@ -1,0 +1,1211 @@
+{
+  "system": "hydrogen",
+  "checkpoint": "results/experiments/hydrogen/author_matched/main/S2_seed0_200k/stage2_final.pt",
+  "checkpoint_epochs": 200000,
+  "checkpoint_parameters_sha256": "39268093499bd1a8bc6a7811806ee95953b5c537b6471250566fa2dd6c1abe5a",
+  "parameters_unchanged": true,
+  "model": {
+    "architecture": {
+      "hidden_dim": 3,
+      "num_basis": 5,
+      "n_mu": 3,
+      "use_base_act": false,
+      "parameter_count": 344,
+      "rbf": "exp(-((x-c)/h)^2), c = linspace(-1, 1, 5), h = 0.5 (library gaussian with h = 0.5/sqrt(2))",
+      "input_tanh": {
+        "kinetic_layer1": false,
+        "kinetic_layer2": true,
+        "correction": false
+      }
+    },
+    "t_ref_s": 0.0006
+  },
+  "normalization": {
+    "states": [
+      "H2",
+      "H",
+      "O",
+      "O2",
+      "OH",
+      "H2O",
+      "HO2",
+      "H2O2",
+      "N2",
+      "T"
+    ],
+    "u_min": [
+      8.909811731427908e-05,
+      0.0,
+      0.0,
+      0.0012554745189845562,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.7346466779708862,
+      950.0
+    ],
+    "u_max": [
+      0.042182017117738724,
+      0.0069539668038487434,
+      0.01870926469564438,
+      0.229628786444664,
+      0.02144547365605831,
+      0.2398243397474289,
+      0.00017081416444852948,
+      1.0709639354899991e-05,
+      0.7559037208557129,
+      2781.069580078125
+    ]
+  },
+  "reference": {
+    "mechanism": "h2o2.yaml",
+    "pressure_pa": 101325.0,
+    "rates": "Cantera net production rates, constant-pressure adiabatic energy equation",
+    "finite_difference_check_max_rel_error": 0.00010218978888513032
+  },
+  "data": {
+    "file": "chemkan/data/generated/hydrogen.npz",
+    "train_states": 3500,
+    "test_states": 100
+  },
+  "edges": {
+    "layer1_share": {
+      "h1": {
+        "H2": 0.08979069045774164,
+        "H": 0.03535825378583048,
+        "O": 0.052142627808417254,
+        "O2": 0.33476488861264475,
+        "OH": 0.061121982235940155,
+        "H2O": 0.18561327310214887,
+        "HO2": 0.04168857967853832,
+        "H2O2": 0.016669884673671472,
+        "N2": 0.06699547563330863,
+        "T": 0.1158543440117585
+      },
+      "h2": {
+        "H2": 0.1040155280552241,
+        "H": 0.07903446681342476,
+        "O": 0.06287710841989486,
+        "O2": 0.2686322450079633,
+        "OH": 0.09157249653106557,
+        "H2O": 0.04443950099251495,
+        "HO2": 0.18389663441950233,
+        "H2O2": 0.020279287097957347,
+        "N2": 0.03377749943421136,
+        "T": 0.11147523322824145
+      },
+      "h3": {
+        "H2": 0.14564892811757876,
+        "H": 0.025311039433501478,
+        "O": 0.055126116697175494,
+        "O2": 0.33469107849096125,
+        "OH": 0.01450589240498262,
+        "H2O": 0.0921816891737252,
+        "HO2": 0.0636283856701009,
+        "H2O2": 0.0211615943799513,
+        "N2": 0.028846947793277962,
+        "T": 0.21889832783874516
+      }
+    },
+    "layer2_log_share": {
+      "H2": {
+        "h1": 0.15155702053912307,
+        "h2": 0.6056750100594558,
+        "h3": 0.2427679694014211
+      },
+      "H": {
+        "h1": 0.24596660829857686,
+        "h2": 0.5199199181730987,
+        "h3": 0.2341134735283244
+      },
+      "O": {
+        "h1": 0.32474319666653934,
+        "h2": 0.13359136046709222,
+        "h3": 0.5416654428663685
+      },
+      "O2": {
+        "h1": 0.10977413221480005,
+        "h2": 0.47062908513913454,
+        "h3": 0.41959678264606537
+      },
+      "OH": {
+        "h1": 0.11262737802594296,
+        "h2": 0.7075641264795297,
+        "h3": 0.17980849549452732
+      },
+      "H2O": {
+        "h1": 0.1387861545889055,
+        "h2": 0.5305182248241088,
+        "h3": 0.33069562058698576
+      },
+      "HO2": {
+        "h1": 0.3782182996809651,
+        "h2": 0.12229192162683664,
+        "h3": 0.4994897786921983
+      },
+      "H2O2": {
+        "h1": 0.22950398730912913,
+        "h2": 0.18592682590459433,
+        "h3": 0.5845691867862766
+      },
+      "N2": {
+        "h1": 0.3427434850148416,
+        "h2": 0.12090031156544365,
+        "h3": 0.5363562034197149
+      }
+    },
+    "layer2_factor_changes_sign_over_data": {
+      "H2": [
+        true,
+        false,
+        true
+      ],
+      "H": [
+        true,
+        false,
+        false
+      ],
+      "O": [
+        true,
+        false,
+        true
+      ],
+      "O2": [
+        true,
+        true,
+        true
+      ],
+      "OH": [
+        true,
+        true,
+        false
+      ],
+      "H2O": [
+        false,
+        false,
+        false
+      ],
+      "HO2": [
+        true,
+        true,
+        true
+      ],
+      "H2O2": [
+        false,
+        true,
+        true
+      ],
+      "N2": [
+        true,
+        true,
+        true
+      ]
+    },
+    "hidden_range": {
+      "h1": [
+        -0.2568973984923212,
+        3.465749716163379
+      ],
+      "h2": [
+        -1.9946932226116592,
+        5.719412288972795
+      ],
+      "h3": [
+        -1.0880087112961663,
+        2.282921172976695
+      ]
+    }
+  },
+  "temperature_structure": {
+    "implied_coefficient_K": {
+      "H2": -27042.054768127822,
+      "H": -251217.40284019627,
+      "O": 15186.50330882957,
+      "O2": -2120.294038790845,
+      "OH": -28435.466334120916,
+      "H2O": 4499.496469015332,
+      "HO2": -1090917.3900411879,
+      "H2O2": 40839030.85244671,
+      "N2": 327321.3520331714
+    },
+    "cantera_minus_h_over_cp_median_K": {
+      "H2": -18832.836333894295,
+      "H": -152197.92064172996,
+      "O": -10796.57995361607,
+      "O2": -1318.821372787289,
+      "OH": -3484.2560465999686,
+      "H2O": 5494.685185797207,
+      "HO2": -2004.7756992561808,
+      "H2O2": 145.0378428456863,
+      "N2": -1427.7756999758342
+    },
+    "cantera_minus_h_over_cp_range_K": {
+      "H2": [
+        -22656.693138030638,
+        -5521.6262868710755
+      ],
+      "H": [
+        -171337.7008122794,
+        -130404.31690655029
+      ],
+      "O": [
+        -12260.692697078557,
+        -9252.830557823485
+      ],
+      "O2": [
+        -1584.5770508992407,
+        -380.3493924363612
+      ],
+      "OH": [
+        -4149.381756574739,
+        -2004.5227582987352
+      ],
+      "H2O": [
+        3550.668644095635,
+        9020.66221260092
+      ],
+      "HO2": [
+        -2400.4487175897675,
+        -698.8739770041915
+      ],
+      "H2O2": [
+        -491.4466241340774,
+        2217.4404423306246
+      ],
+      "N2": [
+        -1715.2007296951433,
+        -411.0224664072195
+      ]
+    },
+    "within_cantera_range": {
+      "H2": false,
+      "H": false,
+      "O": false,
+      "O2": false,
+      "OH": false,
+      "H2O": true,
+      "HO2": false,
+      "H2O2": false,
+      "N2": false
+    },
+    "relative_deviation_from_median": {
+      "H2": 0.4358992075696549,
+      "H": 0.6505968135501382,
+      "O": 2.4066031441505875,
+      "O2": 0.6077188939618624,
+      "OH": 7.161129938159686,
+      "H2O": 0.1811184231908795,
+      "HO2": 543.1593243802506,
+      "H2O2": 281574.0017455623,
+      "N2": 230.25264244146436
+    },
+    "sign_agreement": 0.7777777777777778,
+    "spread_dT_hat_linear_term": 61.828058811828605,
+    "spread_dT_hat_KAN_cor": 0.1876622234513352,
+    "KAN_cor_edge_share": {
+      "H2": 0.12772706819187285,
+      "H": 0.03336447261567064,
+      "O": 0.05262879091972599,
+      "O2": 0.09169612514987262,
+      "OH": 0.20577513207122156,
+      "H2O": 0.2088569719093035,
+      "HO2": 0.017592540915761297,
+      "H2O2": 0.017199219222601335,
+      "N2": 0.030708584899200423,
+      "T": 0.21445109410476992
+    }
+  },
+  "rate_parity_all_reference_states": {
+    "H2": {
+      "train": {
+        "relative_rmse": 0.9797590849940174,
+        "r2": 0.025799608479925684,
+        "rmse": 238.8259117427965,
+        "spearman": 0.17569576086146155,
+        "within_factor_2": 0.04838709677419355,
+        "rms_reference": 243.75983382104062,
+        "sign_agreement": 0.3062857142857143,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 0.36788959204596766,
+        "r2": 0.8627217544161948,
+        "rmse": 113.24066921109025,
+        "spearman": 0.1238163816381638,
+        "within_factor_2": 0.2,
+        "rms_reference": 307.81155993383163,
+        "sign_agreement": 0.25,
+        "n_states": 100
+      }
+    },
+    "H": {
+      "train": {
+        "relative_rmse": 16.621613977139393,
+        "r2": -275.2801130804852,
+        "rmse": 928.6699139661789,
+        "spearman": 0.9544941059528718,
+        "within_factor_2": 0.47699757869249393,
+        "rms_reference": 55.871223771856876,
+        "sign_agreement": 0.6954285714285714,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 24.00827366650079,
+        "r2": -575.4391789316489,
+        "rmse": 1932.2928659699355,
+        "spearman": 0.999123912391239,
+        "within_factor_2": 0.4090909090909091,
+        "rms_reference": 80.484456850644,
+        "sign_agreement": 0.93,
+        "n_states": 100
+      }
+    },
+    "O": {
+      "train": {
+        "relative_rmse": 2.5055839716993704,
+        "r2": -5.278276715794775,
+        "rmse": 436.2747623192122,
+        "spearman": 0.688509013872456,
+        "within_factor_2": 0.4168126094570928,
+        "rms_reference": 174.1209902549449,
+        "sign_agreement": 0.606,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 6.486837651832627,
+        "r2": -41.10656826062613,
+        "rmse": 937.5813945191628,
+        "spearman": 0.9059225922592258,
+        "within_factor_2": 0.35714285714285715,
+        "rms_reference": 144.53597343449505,
+        "sign_agreement": 0.63,
+        "n_states": 100
+      }
+    },
+    "O2": {
+      "train": {
+        "relative_rmse": 1.3121663627248021,
+        "r2": -0.7549708997990248,
+        "rmse": 2305.7148953039114,
+        "spearman": 0.048962752171886476,
+        "within_factor_2": 0.18181818181818182,
+        "rms_reference": 1757.1818336479366,
+        "sign_agreement": 0.5025714285714286,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 1.6228610776886638,
+        "r2": -1.6908761896570077,
+        "rmse": 3342.0327413098835,
+        "spearman": 0.6362436243624362,
+        "within_factor_2": 0.0,
+        "rms_reference": 2059.346167861592,
+        "sign_agreement": 0.24,
+        "n_states": 100
+      }
+    },
+    "OH": {
+      "train": {
+        "relative_rmse": 4.106474906439287,
+        "r2": -16.062820817283995,
+        "rmse": 600.8525617797125,
+        "spearman": 0.7715694443030451,
+        "within_factor_2": 0.5736301369863014,
+        "rms_reference": 146.31833274751705,
+        "sign_agreement": 0.65,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 8.690371193323848,
+        "r2": -75.66022216781529,
+        "rmse": 1271.5077328736252,
+        "spearman": 0.7823102310231022,
+        "within_factor_2": 0.7560975609756098,
+        "rms_reference": 146.31224657589172,
+        "sign_agreement": 0.89,
+        "n_states": 100
+      }
+    },
+    "H2O": {
+      "train": {
+        "relative_rmse": 3.868506085213284,
+        "r2": -14.320104501226696,
+        "rmse": 6454.546385490012,
+        "spearman": 0.9348386355670024,
+        "within_factor_2": 0.2878787878787879,
+        "rms_reference": 1668.4855195553223,
+        "sign_agreement": 0.99,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 5.488477585680906,
+        "r2": -29.897453481865185,
+        "rmse": 11210.048118052782,
+        "spearman": 0.9961596159615961,
+        "within_factor_2": 0.21428571428571427,
+        "rms_reference": 2042.4695087211608,
+        "sign_agreement": 0.99,
+        "n_states": 100
+      }
+    },
+    "HO2": {
+      "train": {
+        "relative_rmse": 1.0651642212712094,
+        "r2": -0.1347534085514559,
+        "rmse": 1.6049617940975285,
+        "spearman": 0.4408737472899852,
+        "within_factor_2": 0.3835051546391753,
+        "rms_reference": 1.5067740373236562,
+        "sign_agreement": 0.7082857142857143,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 1.6704777100576709,
+        "r2": -1.795173424449617,
+        "rmse": 2.526143878027342,
+        "spearman": -0.022310231023102308,
+        "within_factor_2": 0.23076923076923078,
+        "rms_reference": 1.5122284259274137,
+        "sign_agreement": 0.76,
+        "n_states": 100
+      }
+    },
+    "H2O2": {
+      "train": {
+        "relative_rmse": 0.9650692834821365,
+        "r2": 0.06853704340617939,
+        "rmse": 0.08991630791346426,
+        "spearman": 0.34927914762628615,
+        "within_factor_2": 0.455,
+        "rms_reference": 0.09317083182777376,
+        "sign_agreement": 0.7048571428571428,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 0.9815061210065092,
+        "r2": 0.034679221641408464,
+        "rmse": 0.09253866137874064,
+        "spearman": 0.4306150615061506,
+        "within_factor_2": 0.36363636363636365,
+        "rms_reference": 0.09428230695478967,
+        "sign_agreement": 0.76,
+        "n_states": 100
+      }
+    },
+    "N2": {
+      "train": {
+        "relative_rmse": null,
+        "r2": null,
+        "rmse": 17.875859169596325,
+        "spearman": -0.07755500826688115,
+        "within_factor_2": null,
+        "rms_reference": 0.0,
+        "sign_agreement": 0.0,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": null,
+        "r2": null,
+        "rmse": 13.602373545458327,
+        "spearman": -0.4486528652865286,
+        "within_factor_2": null,
+        "rms_reference": 0.0,
+        "sign_agreement": 0.0,
+        "n_states": 100
+      }
+    },
+    "T": {
+      "train": {
+        "relative_rmse": 26.951898485519628,
+        "r2": -790.0303841713076,
+        "rmse": 192834799.30150422,
+        "spearman": 0.5423895256994365,
+        "within_factor_2": 0.5410526315789473,
+        "rms_reference": 7154776.106221535,
+        "sign_agreement": 0.7097142857142857,
+        "n_states": 3500
+      },
+      "test": {
+        "relative_rmse": 49.729538398978086,
+        "r2": -2761.7409439708476,
+        "rmse": 395022772.2407284,
+        "spearman": 0.5882508250825083,
+        "within_factor_2": 0.35,
+        "rms_reference": 7943423.264287647,
+        "sign_agreement": 0.96,
+        "n_states": 100
+      }
+    }
+  },
+  "rate_along_own_trajectory_vs_reference_same_time": {
+    "H2": {
+      "spearman": 0.06433729817417425,
+      "within_factor_2": 0.6640625,
+      "relative_rmse": 0.5952570199672643
+    },
+    "H": {
+      "spearman": 0.9759900130650729,
+      "within_factor_2": 0.8607888631090487,
+      "relative_rmse": 0.7335525528315449
+    },
+    "O": {
+      "spearman": 0.8962822121616935,
+      "within_factor_2": 0.8811544991511036,
+      "relative_rmse": 0.7692588081237816
+    },
+    "O2": {
+      "spearman": -0.022247053928527823,
+      "within_factor_2": 0.6804123711340206,
+      "relative_rmse": 0.6339792146983949
+    },
+    "OH": {
+      "spearman": 0.8674955340145731,
+      "within_factor_2": 0.8322368421052632,
+      "relative_rmse": 0.697555083128944
+    },
+    "H2O": {
+      "spearman": 0.9473225059662427,
+      "within_factor_2": 0.8278388278388278,
+      "relative_rmse": 0.5797894736787743
+    },
+    "HO2": {
+      "spearman": 0.5190025703962888,
+      "within_factor_2": 0.6955645161290323,
+      "relative_rmse": 0.5844118119335637
+    },
+    "H2O2": {
+      "spearman": 0.5433099840516963,
+      "within_factor_2": 0.6024390243902439,
+      "relative_rmse": 0.8625062656857155
+    },
+    "N2": {
+      "spearman": -0.22951018951981916,
+      "within_factor_2": null,
+      "relative_rmse": null
+    },
+    "T": {
+      "spearman": 0.7387193309197015,
+      "within_factor_2": 0.9207317073170732,
+      "relative_rmse": 0.4608774078578101
+    }
+  },
+  "element_conservation_of_rates": {
+    "per_element": {
+      "O": {
+        "chemkan_median": 0.3607194127654212,
+        "chemkan_p90": 0.7200740841762225,
+        "cantera_median": 7.773169052667184e-17
+      },
+      "H": {
+        "chemkan_median": 0.04590097981059556,
+        "chemkan_p90": 0.5504493657431995,
+        "cantera_median": 6.254317061951034e-17
+      },
+      "N": {
+        "chemkan_median": 1.0,
+        "chemkan_p90": 1.0,
+        "cantera_median": 0.0
+      }
+    },
+    "definition": "per state and element: |sum_k a_ek dY_k/dt / W_k| / sum_k |a_ek dY_k/dt / W_k| (0 = conserved; 1 = all contributions of one sign, e.g. an element held only by an inert species that ChemKAN gives a nonzero rate)"
+  },
+  "perturbations": {
+    "T_range_K": 60.0,
+    "fraction_factor": [
+      0.8,
+      1.2
+    ],
+    "near_threshold_spacings": 3.0,
+    "states": [
+      {
+        "condition": 21,
+        "T0": 1100.0,
+        "phi": 1.1,
+        "split": "train",
+        "phase": "induction",
+        "time_index": 7,
+        "t_s": 4.242424242424242e-05,
+        "u": {
+          "H2": 0.031284502384228315,
+          "H": 1.880880695120638e-07,
+          "O": 3.283258448663038e-07,
+          "O2": 0.22570207081203283,
+          "OH": 1.4974889588644226e-07,
+          "H2O": 5.37296975243134e-06,
+          "HO2": 2.9946446791755527e-06,
+          "H2O2": 1.3409938500948373e-08,
+          "N2": 0.7430043796164153,
+          "T": 1100.0163509388099
+        },
+        "sweeps": {
+          "T": {
+            "range": [
+              1040.0163509388099,
+              1160.0163509388099
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 2.309398168687519,
+            "nearest_training_state_distance_max": 3.548507066262672,
+            "points_within_near": 34,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.9806065863507872,
+                "relative_l2_deviation_near_data": 0.9820610567403482,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 1.7726381785897778,
+                "relative_l2_deviation_near_data": 1.750864129128828,
+                "same_direction_of_change": false
+              },
+              "H2O": {
+                "relative_l2_deviation": 5.76534582999471,
+                "relative_l2_deviation_near_data": 5.733558886342107,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 1.0181651050434846,
+                "relative_l2_deviation_near_data": 1.0139209845201722,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 247.94867285376756,
+                "relative_l2_deviation_near_data": 240.3754368755361,
+                "same_direction_of_change": false
+              }
+            }
+          },
+          "H2": {
+            "range": [
+              0.02502760190738265,
+              0.03754140286107398
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 14.892634538899713,
+            "nearest_training_state_distance_max": 27.272700812694335,
+            "points_within_near": 1,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.9877365878750733,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 1.6072379796629683,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 5.54498494514434,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 1.0523648836588515,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "T": {
+                "relative_l2_deviation": 220.62042399920946,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              }
+            }
+          },
+          "O2": {
+            "range": [
+              0.18056165664962628,
+              0.2296287876047819
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 130.00651110277457,
+            "nearest_training_state_distance_max": 374.1034182064177,
+            "points_within_near": 1,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 1.016790058289628,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 1.071623659305447,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "H2O": {
+                "relative_l2_deviation": 4.130054477018382,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 0.9512850443359486,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 315.64497246654065,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "condition": 21,
+        "T0": 1100.0,
+        "phi": 1.1,
+        "split": "train",
+        "phase": "ignition",
+        "time_index": 15,
+        "t_s": 9.09090909090909e-05,
+        "u": {
+          "H2": 0.008175162522483945,
+          "H": 0.004972794527781024,
+          "O": 0.013800765132585293,
+          "O2": 0.06287704747803435,
+          "OH": 0.010752802865340107,
+          "H2O": 0.1563663525786783,
+          "HO2": 4.6427600152746586e-05,
+          "H2O2": 4.267678385437803e-06,
+          "N2": 0.7430043796164153,
+          "T": 1595.6029333561655
+        },
+        "sweeps": {
+          "T": {
+            "range": [
+              1535.6029333561655,
+              1655.6029333561655
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 3.871626295460027,
+            "nearest_training_state_distance_max": 7.743252590920042,
+            "points_within_near": 15,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.7763150801356107,
+                "relative_l2_deviation_near_data": 0.7735763917814868,
+                "same_direction_of_change": false
+              },
+              "O2": {
+                "relative_l2_deviation": 0.7595730508707306,
+                "relative_l2_deviation_near_data": 0.7517487824258655,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.7397011807889611,
+                "relative_l2_deviation_near_data": 0.7240359791151633,
+                "same_direction_of_change": false
+              },
+              "OH": {
+                "relative_l2_deviation": 0.9559616214491049,
+                "relative_l2_deviation_near_data": 0.9224479418777084,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 0.37222584976847056,
+                "relative_l2_deviation_near_data": 0.19597394705583748,
+                "same_direction_of_change": false
+              }
+            }
+          },
+          "H2": {
+            "range": [
+              0.006540130017987156,
+              0.009810195026980733
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 10.1811597518125,
+            "nearest_training_state_distance_max": 20.3623195036261,
+            "points_within_near": 5,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.7525340954081202,
+                "relative_l2_deviation_near_data": 0.7727931068506597,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 0.7500399906041504,
+                "relative_l2_deviation_near_data": 0.7504425089684418,
+                "same_direction_of_change": false
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.7105599601343788,
+                "relative_l2_deviation_near_data": 0.7213920157895072,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 0.9217075362415494,
+                "relative_l2_deviation_near_data": 0.8602012758275824,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 0.27044272996175905,
+                "relative_l2_deviation_near_data": 0.15144936066459663,
+                "same_direction_of_change": true
+              }
+            }
+          },
+          "O2": {
+            "range": [
+              0.05030163798242748,
+              0.07545245697364122
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 60.08718580683881,
+            "nearest_training_state_distance_max": 107.34416923057682,
+            "points_within_near": 1,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.7783507351265366,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 0.7323420117859026,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.773390794683418,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 1.0327113307313454,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 0.6401920208186143,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "condition": 21,
+        "T0": 1100.0,
+        "phi": 1.1,
+        "split": "train",
+        "phase": "post-ignition",
+        "time_index": 99,
+        "t_s": 0.0006,
+        "u": {
+          "H2": 0.004872573257184112,
+          "H": 0.0007033688594976721,
+          "O": 0.0027676955651026835,
+          "O2": 0.011331654028614491,
+          "OH": 0.01610710672830663,
+          "H2O": 0.22120736249869388,
+          "HO2": 5.4260211060042135e-06,
+          "H2O2": 4.334249354942897e-07,
+          "N2": 0.7430043796164153,
+          "T": 2746.488232452225
+        },
+        "sweeps": {
+          "T": {
+            "range": [
+              2686.488232452225,
+              2781.069538877612
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 2.901022328486282,
+            "nearest_training_state_distance_max": 4.462863176262981,
+            "points_within_near": 27,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 1.0017837785140813,
+                "relative_l2_deviation_near_data": 1.0020429812488794,
+                "same_direction_of_change": false
+              },
+              "O2": {
+                "relative_l2_deviation": 0.9566729128817798,
+                "relative_l2_deviation_near_data": 0.9512087017220158,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.9980202384330317,
+                "relative_l2_deviation_near_data": 0.9977336343771155,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 0.9986111155991508,
+                "relative_l2_deviation_near_data": 0.9984118962404209,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 0.9367781419892018,
+                "relative_l2_deviation_near_data": 0.9283897500681357,
+                "same_direction_of_change": true
+              }
+            }
+          },
+          "H2": {
+            "range": [
+              0.0038980586057472903,
+              0.0058470879086209345
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 6.068190888849782,
+            "nearest_training_state_distance_max": 12.136381777699555,
+            "points_within_near": 9,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.9998155075440606,
+                "relative_l2_deviation_near_data": 0.9998251740140757,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 10.242799744455635,
+                "relative_l2_deviation_near_data": 24.000208449966564,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 1.0001750183928364,
+                "relative_l2_deviation_near_data": 1.000180181186999,
+                "same_direction_of_change": false
+              },
+              "OH": {
+                "relative_l2_deviation": 1.0003014322105757,
+                "relative_l2_deviation_near_data": 1.0003101292690313,
+                "same_direction_of_change": false
+              },
+              "T": {
+                "relative_l2_deviation": 1.0101835642910495,
+                "relative_l2_deviation_near_data": 1.0277118056670007,
+                "same_direction_of_change": false
+              }
+            }
+          },
+          "O2": {
+            "range": [
+              0.009065323222891592,
+              0.01359798483433739
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 12.651462342143436,
+            "nearest_training_state_distance_max": 25.30292468428687,
+            "points_within_near": 5,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 7.490657690439222,
+                "relative_l2_deviation_near_data": 12.56222858720714,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 0.9907072330842122,
+                "relative_l2_deviation_near_data": 1.0128510260812946,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 1.4048047077262793,
+                "relative_l2_deviation_near_data": 6.31608309811382,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 0.9924579489689507,
+                "relative_l2_deviation_near_data": 1.0171666863202151,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 1.2558049198560604,
+                "relative_l2_deviation_near_data": 8.176071859429465,
+                "same_direction_of_change": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "condition": 35,
+        "T0": 1150.0,
+        "phi": 1.3,
+        "split": "test",
+        "phase": "ignition, held-out",
+        "time_index": 11,
+        "t_s": 6.666666666666666e-05,
+        "u": {
+          "H2": 0.008994482232864058,
+          "H": 0.006005926282158575,
+          "O": 0.013846496893451845,
+          "O2": 0.03150621211336514,
+          "OH": 0.01348568407378076,
+          "H2O": 0.18733439371316452,
+          "HO2": 2.2271892181860956e-05,
+          "H2O2": 2.6454190037717877e-06,
+          "N2": 0.7388018873800396,
+          "T": 1728.5325309920759
+        },
+        "sweeps": {
+          "T": {
+            "range": [
+              1668.5325309920759,
+              1788.5325309920759
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 29.5099668653978,
+            "nearest_training_state_distance_max": 30.199156088287737,
+            "points_within_near": 0,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 1.0042229303322494,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "O2": {
+                "relative_l2_deviation": 0.885597254185529,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.9854527418737852,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "OH": {
+                "relative_l2_deviation": 1.0019341474742143,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "T": {
+                "relative_l2_deviation": 0.8801934466334451,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              }
+            }
+          },
+          "H2": {
+            "range": [
+              0.0071955857862912465,
+              0.010793378679436869
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 31.633130085364435,
+            "nearest_training_state_distance_max": 38.01517226846671,
+            "points_within_near": 0,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.9856917591733605,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 0.831103950672085,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.9727439397766531,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 1.0051818386303653,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "T": {
+                "relative_l2_deviation": 0.8553409720011469,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              }
+            }
+          },
+          "O2": {
+            "range": [
+              0.025204969690692115,
+              0.03780745453603817
+            ],
+            "points": 41,
+            "nearest_training_state_distance_median": 46.4284543686012,
+            "nearest_training_state_distance_max": 65.67915322122299,
+            "points_within_near": 0,
+            "distance_unit": "median nearest-neighbour spacing of training states (0.00423)",
+            "deviation": {
+              "H2": {
+                "relative_l2_deviation": 0.7267277743783189,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "O2": {
+                "relative_l2_deviation": 0.9334227397685385,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "H2O": {
+                "relative_l2_deviation": 0.838389833986448,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": true
+              },
+              "OH": {
+                "relative_l2_deviation": 1.011843423157359,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              },
+              "T": {
+                "relative_l2_deviation": 0.8523110761490044,
+                "relative_l2_deviation_near_data": null,
+                "same_direction_of_change": false
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "arrhenius_induction": {
+    "state": "induction",
+    "fuel": "H2",
+    "whole_sweep": {
+      "chemkan": null,
+      "cantera": 6.327419795104934
+    },
+    "near_training_states": {
+      "chemkan": null,
+      "cantera": 6.328116574729671,
+      "points": 34
+    },
+    "range_K": [
+      1040.0163509388099,
+      1160.0163509388099
+    ]
+  },
+  "hidden_node_correlations_descriptive": {
+    "h1": {
+      "T": 0.9397117711718816,
+      "dT/dt (Cantera)": -0.22105462327053738,
+      "H2": -0.7213264670944721,
+      "OH": 0.7648871078572482,
+      "H2O": 0.8944692992724385
+    },
+    "h2": {
+      "T": -0.8041558948331917,
+      "dT/dt (Cantera)": -0.3484081728054801,
+      "H2": 0.7264226245496677,
+      "OH": -0.804647365883105,
+      "H2O": -0.8140637353216517
+    },
+    "h3": {
+      "T": 0.29677956771889885,
+      "dT/dt (Cantera)": -0.5992255053488038,
+      "H2": -0.11586498380512299,
+      "OH": 0.11183188655433275,
+      "H2O": 0.2569357096786275
+    }
+  }
+}

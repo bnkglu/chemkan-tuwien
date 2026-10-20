@@ -1,0 +1,261 @@
+"""
+Small shared utilities for the ChemKAN reproduction data generators.
+
+This module holds only the little pieces that the biodiesel and hydrogen
+generators (and the methane extension) genuinely repeat: the RNG
+entry point, min/max normalization, the noise helper, a couple of diagnostics,
+and .npz I/O. It is intentionally not a framework.
+
+Conventions used across all generators
+--------------------------------------
+* A "case" is one trajectory produced from one initial condition.
+* Trajectories are stored as `states` of shape (n_cases, n_times, n_vars).
+  The layout of the last axis differs by system, and every archive records it
+  under the key `state_layout`:
+
+  - "species_then_temperature"  (hydrogen, methane): u = [Y_1, ..., Y_m, T],
+    temperature last, matching Eqs. 1-2 of Koenig, Kim & Deng (2025).
+
+  - "species_only"  (biodiesel): u = [Y_1, ..., Y_m]. The process is isothermal,
+    so T is not integrated. It is stored per case in `train_T` / `test_T`.
+    Eq. 13 still feeds the full u = [u~, T] into the kinetic core, so a training
+    loader broadcasts T across the time axis -- see `with_temperature` below.
+* Each system is saved as one compressed .npz. Every archive also records a
+  concise `metadata` string (system, generator, seed, mechanism, species, time
+  grid, normalization, library versions). Explanations live in the data-gen
+  README, not in the .npz.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import numpy as np
+
+# --------------------------------------------------------------------------
+# Reproducibility
+# --------------------------------------------------------------------------
+
+
+def make_rng(seed: int) -> np.random.Generator:
+    """Single entry point for randomness. Never use np.random.* directly."""
+    return np.random.default_rng(seed)
+
+
+def _git_commit() -> str:
+    try:
+        return (
+            subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL
+            )
+            .decode()
+            .strip()
+        )
+    except Exception:
+        return "unknown"
+
+
+def _versions() -> dict:
+    versions = {"python": sys.version.split()[0], "numpy": np.__version__}
+    for mod in ("scipy", "cantera"):
+        try:
+            versions[mod] = __import__(mod).__version__
+        except Exception:
+            versions[mod] = "not installed"
+    return versions
+
+
+def metadata(**fields) -> str:
+    """Concise technical metadata embedded in each .npz, as a JSON string.
+
+    Records only technical facts -- system, generator, seed, mechanism, species,
+    time grid, normalization method, library versions, git commit -- not
+    explanations. Any discussion of paper ambiguities belongs in the
+    data-generation README, not here. Pass the per-system fields as keyword
+    arguments; library versions and the git commit are added automatically.
+    """
+    base = {"git_commit": _git_commit(), "versions": _versions()}
+    base.update(fields)
+    return json.dumps(base, indent=2, default=str)
+
+
+# --------------------------------------------------------------------------
+# State-vector assembly
+# --------------------------------------------------------------------------
+
+
+def with_temperature(states: np.ndarray, T: np.ndarray) -> np.ndarray:
+    """Append a per-case constant temperature as the final state column.
+
+    For the isothermal biodiesel system, temperature is an *input* to the
+    kinetic core (Eq. 13 takes u = [u~, T]) but not an integrated state. This
+    helper broadcasts the per-case scalar T across the time axis so the model
+    input has the same [Y_1, ..., Y_m, T] layout as the combustion cases.
+
+        states : (n_cases, n_times, m)
+        T      : (n_cases,)
+        ->       (n_cases, n_times, m + 1)
+
+    Do not feed the appended column back through the ODE integrator: its
+    derivative is identically zero.
+    """
+    if states.shape[0] != T.shape[0]:
+        raise ValueError(f"case-count mismatch: {states.shape[0]} vs {T.shape[0]}")
+    col = np.broadcast_to(T[:, None, None], (*states.shape[:2], 1))
+    return np.concatenate([states, col], axis=-1)
+
+
+# --------------------------------------------------------------------------
+# Normalization  (u_hat = (u - min) / (max - min), fitted on TRAIN only)
+# --------------------------------------------------------------------------
+
+
+def fit_minmax(train_states: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Per-variable min/max over all training cases and times (train-only).
+
+    Returns (u_min, u_max), each of shape (n_vars,). Guards against a zero
+    range for variables that never change (e.g. N2 mass fraction).
+    """
+
+    # Compute one min/max pair per state variable using only clean training data.
+    # Axis convention: states has shape (n_cases, n_times, n_variables).
+    # We reduce over cases and time, not over variables.
+    # This avoids test-set leakage and keeps one consistent scale for train/test.
+
+    u_min = train_states.min(axis=(0, 1))
+    u_max = train_states.max(axis=(0, 1))
+
+    flat = (u_max - u_min) < 1e-12
+    u_max = np.where(flat, u_min + 1.0, u_max)
+    return u_min, u_max
+
+
+def normalize(states: np.ndarray, u_min: np.ndarray, u_max: np.ndarray) -> np.ndarray:
+    return (states - u_min) / (u_max - u_min)
+
+
+def denormalize(states_hat: np.ndarray, u_min: np.ndarray, u_max: np.ndarray) -> np.ndarray:
+    return states_hat * (u_max - u_min) + u_min
+
+
+# --------------------------------------------------------------------------
+# Noise
+# --------------------------------------------------------------------------
+
+
+NOISE_MODES = ("additive_species_max", "multiplicative", "range")
+
+
+def add_noise(
+    states: np.ndarray,
+    level: float,
+    rng: np.random.Generator,
+    mode: str = "additive_species_max",
+    u_min: np.ndarray | None = None,
+    u_max: np.ndarray | None = None,
+) -> np.ndarray:
+    """Add synthetic noise to the trajectories ``states`` (cases, times, vars).
+
+    mode="additive_species_max" (default; authors' clarification, email B5, and the
+    released example's line 98):
+        u_noisy = u + level * max_t(u_i) * N(0,1), per species i and trajectory,
+        then clipped at 0. The t = 0 observation is noised as well; the ODE initial
+        condition is taken from the clean states by the loader and stays clean.
+
+    mode="multiplicative" (legacy): u_noisy = u * (1 + level * N(0,1)).
+        Noise scales with the local signal, so near-zero species stay near zero.
+        The t = 0 observation is kept clean. Used by every legacy biodiesel archive.
+
+    mode="range" (legacy sensitivity option): u_noisy = u + level * (u_max - u_min) * N(0,1),
+        t = 0 kept clean; requires u_min/u_max.
+    """
+    if mode not in NOISE_MODES:
+        raise ValueError(f"unknown noise mode: {mode!r}")
+    if level == 0.0:
+        return states.copy()
+
+    if mode == "additive_species_max":
+        scale = states.max(axis=1, keepdims=True)                 # (cases, 1, vars)
+        noisy = states + level * scale * rng.standard_normal(states.shape)
+        return np.clip(noisy, 0.0, None)
+
+    noisy = states.copy()
+    if mode == "multiplicative":
+        noisy = states * (1.0 + level * rng.standard_normal(states.shape))
+    elif mode == "range":
+        if u_min is None or u_max is None:
+            raise ValueError("mode='range' requires u_min and u_max")
+        noisy = states + level * (u_max - u_min) * rng.standard_normal(states.shape)
+    else:
+        raise ValueError(f"unknown noise mode: {mode!r}")
+
+    noisy[:, 0, :] = states[:, 0, :]  # keep initial conditions exact
+    return noisy
+
+
+# --------------------------------------------------------------------------
+# Diagnostics
+# --------------------------------------------------------------------------
+
+
+def ignition_delay(t: np.ndarray, T: np.ndarray) -> float:
+    """Ignition delay = time of maximum temperature-rise rate (ChemKAN Sec. III B).
+
+    The paper states no minimum-rise requirement, so none is applied: every finite
+    trajectory has an argmax and gets a delay. Report it together with the neutral
+    diagnostics below -- a flat trajectory also has an argmax, and only
+    ``temperature_rise`` / ``peak_temperature_rate`` say whether it means anything.
+    """
+    return float(t[np.argmax(np.gradient(T, t))])
+
+
+def temperature_rise(T: np.ndarray) -> float:
+    """max(T) - T[0] in kelvin. Neutral diagnostic: no threshold, no verdict."""
+    T = np.asarray(T, dtype=float)
+    return float(T.max() - T[0])
+
+
+def peak_temperature_rate(t: np.ndarray, T: np.ndarray) -> float:
+    """max dT/dt in K/s, at the same instant ``ignition_delay`` reports."""
+    return float(np.max(np.gradient(np.asarray(T, dtype=float), np.asarray(t, dtype=float))))
+
+
+def stiffness_ratio(t: np.ndarray, states: np.ndarray) -> float:
+    """Crude stiffness proxy: ratio of slowest to fastest resolved time scale.
+
+    A rough diagnostic only -- the ratio of resolved time scales, not a
+    Jacobian eigenvalue spread. Reported to give a rough sense of relative
+    stiffness, not as a rigorous stiffness measure.
+    """
+    d = np.abs(np.gradient(states, t, axis=0))
+    scale = np.abs(states).max(axis=0) + 1e-30
+    tau = scale / (d.max(axis=0) + 1e-30)
+    return float(tau.max() / tau.min())
+
+
+# --------------------------------------------------------------------------
+# I/O
+# --------------------------------------------------------------------------
+
+
+def save(path: str | Path, **arrays) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(path, **arrays)
+    size = path.stat().st_size / 1e6
+    print(f"  wrote {path}  ({size:.1f} MB)")
+    return path
+
+
+def load(path: str | Path) -> dict:
+    """Load every array from a generated .npz into a plain dict.
+
+    Inspect `d["state_layout"]` before assuming the last column is temperature,
+    `d["mechanism"]` for the Cantera mechanism, and `d["metadata"]` for the
+    concise generation metadata (seed, time grid, library versions, ...).
+    """
+    with np.load(path, allow_pickle=False) as f:
+        return {k: f[k] for k in f.files}

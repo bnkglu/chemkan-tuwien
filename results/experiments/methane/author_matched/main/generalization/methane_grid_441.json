@@ -1,0 +1,70 @@
+{
+  "checkpoint": "results/experiments/methane/author_matched/main/S2_seed0/archive/stage2_S2_seed0_epoch180000.pt",
+  "checkpoint_sha256": "36939afbd19d39088846867e162e03221d164bb236824c1b45af31fc85ca5ac0",
+  "checkpoint_epochs": 180000,
+  "fine_grid": {
+    "file": "chemkan/data/generated/methane_fine.npz",
+    "sha256": "ea6eaec047a9326ed1188393464cf9364f105431af7464ee3b947bf8d1083527",
+    "T0_K": [
+      1400.0,
+      1650.0,
+      12.5
+    ],
+    "phi": [
+      0.5,
+      1.5,
+      0.05
+    ],
+    "conditions": 441,
+    "coarse_conditions_reproduce_methane_npz_max_abs_diff": 0.0
+  },
+  "solver": {
+    "method": "tsit5",
+    "rtol": 1e-06,
+    "atol": 1e-08,
+    "dtype": "torch.float32"
+  },
+  "metric": "time-averaged MSE over all 53 states on the 100 observation times, checkpoint's training min-max normalization; full trajectory from the initial state",
+  "mse_time_avg": {
+    "training_35": {
+      "median": 0.0009724221193274728,
+      "mean": 0.0012198082798656569,
+      "min": 0.00044966452667991437,
+      "max": 0.0031874726581679626,
+      "n": 35
+    },
+    "unseen_406": {
+      "median": 0.0009209394013324132,
+      "mean": 0.0017676391281377518,
+      "min": 0.0004839572867838444,
+      "max": 0.012668869651651636,
+      "n": 406
+    },
+    "held_out_1550K_phi1.3": 0.0011625511322524069,
+    "all_441": {
+      "median": 0.0009228093119666571,
+      "mean": 0.0017241604893859978,
+      "min": 0.00044966452667991437,
+      "max": 0.012668869651651636,
+      "n": 441
+    }
+  },
+  "ignition_delay_abs_rel_err": {
+    "training_35": {
+      "median": 0.010638297872340581,
+      "mean": 0.016395034885378173,
+      "min": 0.0,
+      "max": 0.05988023952095803,
+      "n": 35
+    },
+    "unseen_406": {
+      "median": 0.01445791527313264,
+      "mean": 0.018910559294243526,
+      "min": 0.0,
+      "max": 0.07317073170731694,
+      "n": 406
+    },
+    "held_out": 0.031578947368421
+  },
+  "diagnostic_grid_points": 601
+}
