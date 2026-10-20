@@ -17,7 +17,7 @@ biodiesel system (6 species, constant temperature per trajectory):
 It uses the same components as the full biodiesel trainer (``train_biodiesel.py``): the
 same data loader, model, initialization, dynamics, solver call and loss, so with the same
 settings it computes the same losses (that trainer's ``--data canonical --solve-mode
-batched --sensitivity direct_autograd --rhs-divisor 50``). ``train_biodiesel.py`` adds forward sensitivity
+batched --sensitivity direct_autograd``). ``train_biodiesel.py`` adds forward sensitivity
 analysis, noise levels, resumption and the run records.
 
 Adapting it to another chemical system: provide u0 with shape (cases, m + 1) (normalized
@@ -50,8 +50,8 @@ SETTINGS = {
     "epochs": 1000,             # the paper trains 10,000
     "lr": 1e-2,                 # Adam
     "rtol": 1e-2, "atol": 1e-6,  # Tsit5 tolerances during training
-    "rhs_divisor": 50.0,        # dz/dt = KAN(z) / divisor [s]; 50 as the released example and
-                                # the figure runs (the trainer's default is the 30 s window)
+    "rhs_divisor": 50.0,        # dz/dt = KAN(z) / divisor [s]; 50 as the released example,
+                                # the figure runs and the biodiesel trainer's default
     "out_dir": Path("train_example"),
 }
 

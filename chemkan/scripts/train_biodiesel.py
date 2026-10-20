@@ -10,9 +10,9 @@ The settings follow the authors' RELEASED biodiesel example (DENG-MIT/ChemKAN, d
   model     ``reference_components.build_core()``: 7 -> H -> 6 (``--hidden``, default 4: 156
             params), G = 3, base off, layer-1 normalizer off, layer-2 tanh, n_mu = ceil(H/2),
             Julia RBF exp(-(x - c)^2)
-  dynamics  normalized coordinates, ``dz/dt = [KAN(z), 0] / divisor``; divisor = the data's
-            time window (30 s) unless ``--rhs-divisor``. The released example and all recorded
-            biodiesel runs divide by 50 (``--rhs-divisor 50``)
+  dynamics  normalized coordinates, ``dz/dt = [KAN(z), 0] / divisor``; divisor = 50 s, as
+            the released example and every recorded biodiesel run (the data's time window
+            is 30 s); configurable with ``--rhs-divisor``
   init      Lux glorot_uniform on each C (out x G*in), seeded by ``--seed``; or the Julia
             initial parameters (``--init-from``)
   optimizer Adam lr 1e-2, betas (0.9, 0.999), eps 1e-8; full batch; one step per epoch
@@ -55,7 +55,7 @@ import numpy as np
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))             # chemkan/scripts
-from reference_components import (RELEASED, ROOT, NormalizedDynamics, build_core, glorot_uniform_,  # noqa: E402
+from reference_components import (RELEASED, RHS_DIVISOR, ROOT, NormalizedDynamics, build_core, glorot_uniform_,  # noqa: E402
                            julia_mse, load_julia_params, rhs_divisor_from_config)
 from _data import load_biodiesel  # noqa: E402
 from chemkan.fsa import (NonFiniteFSAError, ParameterPacking,  # noqa: E402
@@ -217,9 +217,9 @@ def main() -> int:
                     help="start from these 156 flat Julia parameters (p.txt layout, e.g. "
                          "julia_reference/p_init.txt) instead of the seeded glorot draw")
     ap.add_argument("--rhs-divisor", type=float, default=None,
-                    help="divide the learned RHS by this [s] (default: the data's time "
-                         "window t_end - t_start, 30 s for biodiesel; the released example "
-                         "and all earlier runs used 50)")
+                    help="divide the learned RHS by this [s] (default: 50, as the released "
+                         "example and every recorded biodiesel run; the data's time window "
+                         "is 30 s)")
     args = ap.parse_args()
     batched = args.solve_mode == "batched"
     if args.init_from is not None and args.hidden != 4:
@@ -253,7 +253,7 @@ def main() -> int:
     if args.init_from is not None:       # Julia values are Float32: parse as such, widen
         load_julia_params(core, np.loadtxt(args.init_from, dtype=np.float32).astype(np.float64))
     window = float(data["t"][-1] - data["t"][0])
-    divisor = window if args.rhs_divisor is None else args.rhs_divisor
+    divisor = RHS_DIVISOR if args.rhs_divisor is None else args.rhs_divisor
     if args.resume and (run / "config.json").exists():      # keep the run's own divisor
         saved = rhs_divisor_from_config(json.loads((run / "config.json").read_text()))
         if args.rhs_divisor is not None and args.rhs_divisor != saved:
@@ -283,7 +283,7 @@ def main() -> int:
         "dynamics": "normalized coordinates z = [Y_hat, T_hat]; dz/dt = [KAN(z), 0] / "
                     f"{divisor:g}",
         "rhs_divisor": {"value": divisor, "data_time_window": window,
-                        "source": "data time window (t_end - t_start)" if args.rhs_divisor
+                        "source": "default (the released example's 50)" if args.rhs_divisor
                                   is None else "--rhs-divisor",
                         "note": "the released example divides by 50 although its time "
                                 "window is 30 s"},

@@ -84,9 +84,9 @@ python chemkan/scripts/train_biodiesel.py --data canonical --noise-percent 5 --h
 `--noise-percent` selects a stored noise level (0, 1, 2, 3, 5, 7, 10, 15); `--hidden` the
 model size (39·H parameters); `--sensitivity` the gradient backend (`fsa`, forward
 sensitivity analysis as in the paper, or `direct_autograd`, backpropagation through the
-solver); `--solve-mode batched` solves all trajectories at once. The recorded biodiesel runs
-divide the right-hand side by 50 s (`--rhs-divisor 50`, as the authors' released example);
-without it the trainer divides by the data's 30 s window. The default `--data author_repo`
+solver); `--solve-mode batched` solves all trajectories at once. The right-hand side is
+divided by 50 s by default, as in the authors' released example and every recorded biodiesel
+run (`--rhs-divisor` changes it; the data's time window is 30 s). The default `--data author_repo`
 trains on the released example's own arrays, built first with
 `python chemkan/scripts/biodiesel/build_released_dataset.py`.
 
