@@ -2,8 +2,8 @@
 
 This package is experiment-agnostic: it knows nothing about biodiesel, hydrogen, or
 any specific chemical system. Dataset dimensions come from the data; architecture
-and training choices are passed in by the caller (see ``scripts/``). Paper-vs-
-implementation notes live in ASSUMPTIONS.md.
+and training choices are passed in by the caller (see ``scripts/``), which documents
+them in its docstrings and ``scripts/data_gen/README.md``.
 """
 
 from .dynamics import ChemKANDynamics, KineticDynamics

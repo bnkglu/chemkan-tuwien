@@ -285,6 +285,10 @@ ambiguous, the choice is labelled below in plain wording.
   ChemKAN describes 30 total data points over the biodiesel time history. This
   implementation uses `linspace(0, 30, 30)`, preserving the 30 s window and the
   30-point count. The resulting spacing is approximately 1.034 s.
+  The paper's three statements (30 s window, 30 points, 1 s interval) cannot all hold:
+  an exact 1 s interval over `[0, 30]` gives 31 points. The other reading, integrating on
+  `0, 1, ..., 30` and supervising only `t = 1...30`, was not adopted; switching would
+  change the dataset and require regenerating every biodiesel result.
 
 - **Mechanism and reactor — directly from ChemKAN plus related-paper support.**
   - The H2/O2 mechanism with 9 species and 29 reactions is directly from ChemKAN. The constant-pressure 1 atm reactor setup follows ChemNODE, which ChemKAN says it closely follows. The `c_p` temperature equation in ChemKAN is consistent with this constant-pressure setup.

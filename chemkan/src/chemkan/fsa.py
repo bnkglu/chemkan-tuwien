@@ -3,7 +3,10 @@ r"""Continuous forward sensitivity analysis (FSA) for the ChemKAN dynamics.
 The ChemKAN paper trains with forward sensitivity analysis and solves "ChemKANs and their
 corresponding forward sensitivity equations" with Tsit5 (p. 8), but does not print the
 sensitivity equations. They are derived here by differentiating the paper's own
-equations with respect to the learnable parameter groups.
+equations with respect to the learnable parameter groups. The formulation is the standard
+continuous forward sensitivity analysis of SciMLSensitivity.jl, "Sensitivity Math Details"
+(https://docs.sciml.ai/SciMLSensitivity/stable/sensitivity_math/), used for the mathematics
+only; the solver is torchdiffeq's Tsit5.
 
 State equations (paper notation, unchanged)
 -------------------------------------------

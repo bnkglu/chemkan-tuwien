@@ -79,7 +79,7 @@ def test_observed_temperature_rejects_length_mismatch():
         ObservedTemperature(times, temps)
 
 
-# --- unresolved reproduction issue: physical T saturates tanh (see ASSUMPTIONS.md) --
+# --- unresolved reproduction issue: physical T saturates tanh ---------------------
 
 def test_raw_physical_temperature_saturates_tanh_DIAGNOSTIC():
     """DIAGNOSTIC (does not change model behavior): physical combustion temperatures

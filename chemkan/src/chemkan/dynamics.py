@@ -4,8 +4,8 @@ These adapters carry NO trainable physics of their own -- they assemble the stat
 model expects, apply the pre-KAN input scaling, and forward ``t`` (which the
 autonomous ChemKAN ignores).
 
-Representation boundary (see ASSUMPTIONS.md)
--------------------------------------------
+Representation boundary
+-----------------------
 The ODE solver always integrates PHYSICAL coordinates and these adapters always
 return PHYSICAL derivatives. The ``input_normalizer`` transforms only the COPY of the
 current physical state handed to the KAN -- it never touches the integrated state or

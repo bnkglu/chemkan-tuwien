@@ -33,7 +33,9 @@ Stage 1 writes ``stage1_working.pt`` (resume), ``stage1_final.pt`` and a permane
 ``archive/stage1_<run_id>_epoch<N>.pt`` that is never overwritten; extending Stage 1
 (``--resume --epochs M``) writes a new archive. Any number of Stage-2 branches can start from
 one archive: each copies the kinetic weights, freshly initializes thermo.linear and KAN_cor,
-and writes to its own directory; the archive file is never modified.
+and writes to its own directory; the archive file is never modified. Stage 2 trains every
+parameter: the kinetic core is initialized from Stage 1 but not frozen (only the optional
+warm-up trains thermo.linear alone).
 """
 
 from __future__ import annotations
