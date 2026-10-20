@@ -67,8 +67,9 @@ New runs write to `runs/` (ignored by Git); nothing above touches `results/`.
 ## Training
 
 **The example.** `chemkan/scripts/train.py` is the whole workflow in one file: data, model,
-dynamics and solver, loss, optimization, saving. Its settings are a dictionary at the top.
-With the same settings it computes exactly what the biodiesel trainer computes (tested in
+dynamics and solver, loss, optimization, saving. Its settings are a dictionary at the top;
+`--data` trains on another dataset in its `.npz` format (next section). On the biodiesel data
+it computes exactly what the biodiesel trainer computes (tested in
 `tests/test_train_example.py`).
 
 **Biodiesel.** One configuration per call; `--help` lists every option. A paper-figure
@@ -185,11 +186,14 @@ Self-contained under `deeponet/` (model, preprocessing, trainer, figure-run laun
 
 ## Adapting ChemKAN to another chemical system
 
-Start from `chemkan/scripts/train.py`. Provide initial states of shape (cases, m + 1)
-(normalized species and temperature) and target trajectories of shape (cases, m, times),
-build the kinetic core with `chemkan.model.KineticCore(species_dim=m, ...)` (as
-`reference_components.build_core` does) and keep the dynamics, solver, loss and optimizer
-steps. A system whose temperature evolves also needs the temperature model
+For a system at constant temperature (temperature an input, not integrated), write the
+data as one `.npz` with `t` (n_t,), `train_states` and `test_states` (cases, n_t, m species)
+and `train_T`, `test_T` (one temperature per trajectory), and run
+`python chemkan/scripts/train.py --data my_system.npz`. The script normalizes with the
+training statistics, builds the kinetic core for m species and checks the file; its
+docstring states the format and the limits (one shared time grid, kinetic core only), and
+`rhs_divisor` should be of the order of the time window. A system whose temperature evolves
+also needs the temperature model
 (`ChemKAN`, `combustion/train_combustion.py`: a Stage 1 with observed temperature, a Stage 2
 with the full state and the element-conservation term); its `configure_system` shows how the
 methane extension was added next to hydrogen.

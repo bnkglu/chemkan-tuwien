@@ -55,17 +55,18 @@ class NoInputTanhRBFEdges(RBFEdgeFunctions):
         return torch.einsum("bik,oik->boi", psi, self.w_rbf)
 
 
-def build_core(hidden: int = HIDDEN) -> KineticCore:
-    """7 -> H -> 6 kinetic core configured like the released example (default H = 4: 156
-    parameters). n_mu = ceil(H/2) (LeanKAN rule, email B4), grid 3: 39 * H parameters."""
+def build_core(hidden: int = HIDDEN, species_dim: int = N_SPECIES) -> KineticCore:
+    """(m+1) -> H -> m kinetic core configured like the released example (biodiesel: m = 6,
+    default H = 4: 156 parameters). n_mu = ceil(H/2) (LeanKAN rule, email B4), grid 3:
+    3 * H * (2m + 1) parameters (39 * H for biodiesel)."""
     n_mu = math.ceil(hidden / 2)
-    core = KineticCore(species_dim=N_SPECIES, hidden_dim=hidden, num_basis=NUM_BASIS,
+    core = KineticCore(species_dim=species_dim, hidden_dim=hidden, num_basis=NUM_BASIS,
                        n_mu=n_mu, use_base_act=False)
-    core.add.edges = NoInputTanhRBFEdges(N_SPECIES + 1, hidden, NUM_BASIS, use_base_act=False)
+    core.add.edges = NoInputTanhRBFEdges(species_dim + 1, hidden, NUM_BASIS, use_base_act=False)
     for edges in (core.add.edges, core.lean.edges):
         edges.h = LIBRARY_H
         assert torch.equal(edges.centers, torch.tensor([-1.0, 0.0, 1.0]))
-    assert sum(p.numel() for p in core.parameters()) == 39 * hidden
+    assert sum(p.numel() for p in core.parameters()) == NUM_BASIS * hidden * (2 * species_dim + 1)
     return core
 
 
