@@ -9,7 +9,8 @@ positive values: a prediction that falls below 1e-5, or below zero, leaves the p
 lines on a dense time grid; reference: markers at every second observation time.
 
 Prediction and data loading are those of ``combustion/plot_trajectory.py``; nothing is
-trained.
+trained. Also exports each panel separately with ``_linear`` and ``_log`` suffixes.
+All species use their true mass fractions (no display multipliers).
 
     python chemkan/scripts/figures/methane_species.py
     python chemkan/scripts/figures/methane_species.py --condition 1450,0.9
@@ -18,6 +19,7 @@ trained.
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,11 +57,17 @@ def species_data(checkpoint=CHECKPOINT, condition=(1550.0, 1.3), points=601) -> 
 
 
 def make_figure(output_path=FIGURES_METHANE / "methane_main_species_S2_epoch180000_T1550_phi1p3",
-                checkpoint=CHECKPOINT, condition=(1550.0, 1.3)):
-    d = species_data(checkpoint, condition)
+                checkpoint=CHECKPOINT, condition=(1550.0, 1.3), *, scale=None,
+                precomputed=None):
+    """Plot both panels, or one of ``linear``/``log``; optionally reuse predictions."""
+    if scale not in (None, "linear", "log"):
+        raise ValueError("scale must be None, 'linear', or 'log'")
+    d = precomputed if precomputed is not None else species_data(checkpoint, condition)
     t_ms, dense_ms = d["t"] * 1e3, d["dense_t"] * 1e3
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
-    for ax, log in zip(axes, (False, True)):
+    modes = (False, True) if scale is None else (scale == "log",)
+    fig, axes = plt.subplots(1, len(modes), figsize=(11, 4.2) if scale is None else (7.5, 4.8),
+                             squeeze=False)
+    for ax, log in zip(axes.flat, modes):
         for j, s in enumerate(SPECIES):
             c = COLOURS[s]
             ax.plot(dense_ms, d["prediction"][:, j], "-", lw=1.6, color=c)
@@ -79,10 +87,12 @@ def make_figure(output_path=FIGURES_METHANE / "methane_main_species_S2_epoch1800
     handles = [plt.Line2D([], [], color=COLOURS[s], lw=2.5, label=LABELS[s]) for s in SPECIES]
     handles += [plt.Line2D([], [], color="0.2", lw=1.6, label="ChemKAN"),
                 plt.Line2D([], [], color="0.2", ls="none", marker="o", mfc="none", label="Cantera reference")]
-    fig.legend(handles=handles, loc="upper center", ncol=len(handles), frameon=False,
+    fig.legend(handles=handles, loc="upper center", ncol=len(handles) if scale is None else 5,
+               frameon=False,
                bbox_to_anchor=(0.5, 1.02), fontsize=9)
+    separator = "  |  " if scale is None else "\n"
     fig.suptitle(f"Methane, {d['label'].replace('phi', 'φ')} ({d['split']}): ChemKAN Stage 2, "
-                 f"epoch {d['epochs']:,}  |  time-averaged MSE (normalized, 52 species + T) "
+                 f"epoch {d['epochs']:,}{separator}time-averaged MSE (normalized, 52 species + T) "
                  f"{d['mse_time_avg']:.3e}", y=1.09, fontsize=10.5)
     fig.tight_layout()
     save_figure(fig, output_path)
@@ -99,10 +109,17 @@ def main():
     args = p.parse_args()
     T0, phi = map(float, args.condition.split(","))
     tag = f"T{T0:g}_phi{phi:g}".replace(".", "p")                 # no dot: save_figure sets the suffix
-    output = args.output or FIGURES_METHANE / f"methane_main_species_S2_epoch180000_{tag}"
+    output = Path(args.output or FIGURES_METHANE /
+                  f"methane_main_species_S2_epoch180000_{tag}").with_suffix(".png")
     _, d = make_figure(output, args.checkpoint, (T0, phi))
+    for scale in ("linear", "log"):
+        fig, _ = make_figure(output.with_stem(f"{output.stem}_{scale}"),
+                             scale=scale, precomputed=d)
+        plt.close(fig)
     print(f"{d['label']} ({d['split']}): time-averaged MSE {d['mse_time_avg']:.4e}")
-    print(f"wrote {output}.pdf/.png")
+    stem = output.with_suffix("")
+    print(f"wrote {stem}.pdf/.png")
+    print(f"wrote {stem}_linear.pdf/.png and {stem}_log.pdf/.png (no display multipliers)")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 # Paper figure scripts
 
 One script per paper figure. Each is the **single implementation** of that figure: the
-notebooks import these functions and supply paths, and no figure is drawn anywhere else.
+notebooks import these functions and supply paths for the paper figures.
+Notebooks also draw auxiliary diagnostics such as training histories.
 
 **No figure script trains anything.** They load finished checkpoints, histories and
 tables, integrate an already-trained model where the figure needs a curve, and compute
@@ -29,7 +30,9 @@ Project extension (not a figure of the paper, not part of `plot_all.py`):
 |---|---|---|
 | Methane main species (CH₄, O₂, CO₂, H₂O, CO), linear and logarithmic scale | `python chemkan/scripts/figures/methane_species.py` (`--condition T0,phi`; default the held-out 1550 K, φ 1.3) | methane Stage-2 epoch-180,000 snapshot |
 
-It writes `results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.{png,pdf}`.
+It writes `results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.{png,pdf}`,
+plus separate panels with `_linear` and `_log` suffixes. Both views use actual mass
+fractions, with no species display multipliers.
 The prediction comes from `combustion/plot_trajectory.py`'s loading and integration. At this
 condition the model's CH₄ and O₂ settle slightly below zero after ignition (about −3e-3 and
 −2e-3; reference ~0 and 6e-3), which the linear panel shows and the logarithmic one cannot.
@@ -83,7 +86,7 @@ fig07_hydrogen_trajectories.py       Figure 7 (+ the true-scale companion)
 fig08_hydrogen_generalization.py     Figure 8A (paper scale and full range)
 fig08_hydrogen_ignition.py           Figure 8B
 methane_species.py                   methane main species (project extension)
-plot_all.py                          regenerates every figure above
+plot_all.py                          regenerates the paper figures above (excludes methane)
 ```
 
 `common.py` is deliberately small: paths, `load_checkpoint`, `save_figure`,
