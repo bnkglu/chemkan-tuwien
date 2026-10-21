@@ -342,6 +342,7 @@ results/                     selected experimental artifacts; PATHS.md documents
 | [Sources and further reading](docs/sources.md) | Related literature, tools and code references |
 | [DeepONet details](deeponet/README.md) | Baseline implementation, reproduction choices and upstream relationship |
 | [Result mappings](results/PATHS.md) | Historical experiment paths, retained artifacts and diagnostics |
+| [Project poster](docs/report_poster_and_proposal_project/poster/Bankoglu_ChemKAN_Poster.pdf) | A0 poster; editable source and verification scripts in [`Bankoglu_ChemKAN_Poster_Source.zip`](docs/report_poster_and_proposal_project/poster/Bankoglu_ChemKAN_Poster_Source.zip) |
 
 **Primary reference**
 
