@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=*}
+\usepackage{csquotes} % recommended with biblatex
+\usepackage[backend=biber,style=numeric,natbib=true,sorting=nyt,maxbibnames=6,doi=false,isbn=false,url=true]{biblatex}
+\addbibresource{references.bib}
+
+\title{\textbf{Modeling Chemical Kinetics with ChemKANs}}
+\author{
+  Hasan Berke Bankoglu \quad Student ID: 12432802 \\[4pt]
+  \textit{MSc Data Science, TU Wien}
+}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1em}
+
+\noindent\textbf{Main Supervisor:} Ass.\ Prof.\ DI Dr.\ Markus B\"osenhofer \\
+\textbf{Co-Supervisor:} Univ.-Prof.\ Dr.\ Thomas G\"artner
+
+\section*{Abstract}
+
+In this project, I will implement the ChemKAN (Chemical Kolmogorov-Arnold Network) \cite{Koenig_2025} architecture in PyTorch to reproduce two benchmarks from the original paper: hydrogen-air combustion and biodiesel production. The evaluation will then be extended to one additional chemical system, such as methane oxidation. Hydrogen-air combustion data will be generated using Cantera \cite{cantera}, while biodiesel data will be obtained through direct Python ODE integration with the Arrhenius parameters given in the paper. Performance will be evaluated in terms of predictive accuracy, generalization, computational efficiency, and robustness to noise. The project will use two types of baselines: neural baselines following the original paper (ChemNODE \cite{OWOYELE2022100118} and DeepONet \cite{lu2019deeponet}) for architectural comparison, and traditional numerical integration or detailed solver references for efficiency comparison. The workflow will follow CRISP-DM adapted to a scientific machine learning setting and will emphasize reproducible computational practice.
+
+\section*{Motivation and Research Questions}
+
+Simulating chemical reaction dynamics requires solving large systems of stiff coupled ODEs, which is computationally expensive. Neural network models can accelerate these simulations, and ChemKAN \cite{Koenig_2025} is a recent architecture that combines Kolmogorov-Arnold Networks \cite{liu2025kankolmogorovarnoldnetworks} with a neural ODE formulation, reporting competitive accuracy with fewer parameters and better robustness to noise than MLP-based baselines.
+
+\noindent In this project, I will re-implement ChemKAN \cite{Koenig_2025} in PyTorch, reproduce the two benchmarks from the original paper (hydrogen-air combustion and biodiesel production), and extend the evaluation to one additional chemical system, e.g., methane oxidation. This setup serves both to verify the reported results under an independent implementation and to test how well the architecture transfers to a system not covered in the original study.
+
+\smallskip
+\subsection*{Research Questions:}
+\begin{enumerate}[label=\textbf{RQ\arabic*:}]
+  \item How accurately can a PyTorch reimplementation of ChemKAN \cite{Koenig_2025} reproduce the predictive accuracy reported in \cite{Koenig_2025} for the hydrogen combustion and biodiesel production benchmarks?
+  
+  \item How well does ChemKAN perform in terms of predictive accuracy (test MSE) and computational efficiency (inference time relative to a traditional numerical solver) when applied to a chemical system not covered in \cite{Koenig_2025}, such as methane oxidation?
+  
+  \item How does ChemKAN compare to (a) the neural baselines used in \cite{Koenig_2025} in terms of generalization to unseen initial conditions and robustness to noisy training data, and (b) traditional ODE solvers in terms of computational efficiency?
+\end{enumerate}
+
+\section*{Methodology and Process}
+
+The project is designed as a \textbf{reproducibility and extension} study of ChemKAN \cite{Koenig_2025}. The methodological workflow follows \textbf{CRISP-DM}~\cite{Chapman2000CRISPDM} and is applied here to a research setting.
+\begin{itemize}
+
+    \item \textbf{Problem understanding.}
+    Building on the chemical-kinetics background above (stiff ODE systems, neural ODEs, and the motivation for chemistry-specific KAN architectures), the project addresses a single guiding question: can a PyTorch reimplementation of ChemKAN \cite{Koenig_2025} reproduce the original paper's results on hydrogen-air combustion and biodiesel production, extend to one additional chemical system (e.g., methane oxidation), and evaluate whether it can match or outperform the neural baselines used in the original paper while offering efficiency gains over traditional ODE solvers? This question is decomposed into the research questions above.
+
+    \item \textbf{Data understanding and data preparation.}
+    Time-series training and testing data will be generated for three systems: hydrogen-air combustion and methane oxidation using Cantera \cite{cantera}, and biodiesel production via direct Python ODE integration using the Arrhenius parameters given in \cite{Koenig_2025}. Trajectories will be inspected for numerical stiffness, normalization needs, and noise characteristics, and train/test splits over initial conditions will be defined for generalization analysis, including controlled noise levels for robustness analysis.
+
+    \item \textbf{Modeling.}
+    ChemKAN's kinetic core and thermodynamic superstructure will be implemented in PyTorch and trained in two stages as in \cite{Koenig_2025}, using forward sensitivity analysis to handle stiffness. Two types of baselines will be used: (i) neural baselines following the original paper, specifically ChemNODE \cite{OWOYELE2022100118} for hydrogen-air combustion and DeepONet \cite{lu2019deeponet} for biodiesel production, used for architectural comparison; and (ii) a traditional ODE solver (Cantera for hydrogen and methane, direct Python integration for biodiesel), used as the efficiency reference.
+    
+    \item \textbf{Evaluation.}
+    Each research question will be answered against predefined metrics: reproduction accuracy (RQ1) and transfer to the additional system (RQ2) via test MSE; comparison with the neural baselines (RQ3a) via generalization error under unseen initial conditions and noise-free testing error; and comparison with traditional ODE solvers (RQ3b) via computational speed-up. These will be assessed against the success criteria below.
+
+    \item \textbf{Deployment.}
+    This phase is adapted to the academic setting as scientific communication and reproducible artifact packaging, including the final report, poster, version-controlled code, environment specification, experiment logs, and scripts or notebooks for reproducing the reported results.
+\end{itemize}
+
+\noindent\textbf{Reproducibility}:
+
+\noindent To support reproducibility, all experiments will use fixed random seeds, and the entire codebase, including hyperparameters and all data generation scripts, will be version-controlled. The full codebase, including the PyTorch implementation, Cantera \cite{cantera} data-generation scripts, and dependency specifications, will be maintained in a public GitHub repository with pinned dependencies.
+
+\section*{Expected Results, Metrics, and Evaluation}
+
+\noindent\textbf{Metrics}:
+\begin{itemize}
+  \item Training and testing MSE
+  \item Generalization error: test MSE on held-out initial conditions outside the training distribution.
+  \item Inference time, compared against traditional ODE solvers (e.g., Cantera \cite{cantera}) and the neural baselines.
+  \item Noise-free testing MSE: error against ground-truth data when trained on noisy observations.
+\end{itemize}
+
+\noindent\textbf{Baselines}: 
+\begin{enumerate}
+    \item Neural baselines following the original paper's methodological setup: ChemNODE \cite{OWOYELE2022100118} for combustion systems (hydrogen-air and the methane extension) and DeepONet \cite{lu2019deeponet} for biodiesel production. This assignment mirrors the baselines chosen in \cite{Koenig_2025} and is retained to preserve comparability with the reported results.
+    \item Traditional ODE solvers (Cantera \cite{cantera} for hydrogen and methane, direct Python integration for biodiesel), used as the efficiency reference.
+\end{enumerate}
+
+\smallskip
+\noindent\textbf{Success criteria:}
+\begin{enumerate}
+  \item \textbf{Implementation}: A working PyTorch ChemKAN with kinetic core and thermodynamic superstructure.
+  
+  \item \textbf{Reproduction}: On hydrogen-air combustion and biodiesel production, achieve test MSE on the same order of magnitude as reported in \cite{Koenig_2025}.
+
+  \item \textbf{Extension}: Apply ChemKAN to one additional chemical system beyond those in \cite{Koenig_2025}, such as methane oxidation, and report accuracy and efficiency.
+
+  \item \textbf{Comparative analysis}: Quantitative comparison with the neural baselines on generalization (unseen initial conditions) and robustness (noisy training data), and with traditional ODE solvers on computational efficiency.
+
+  \item \textbf{Interpretability}: Visualization of learned KAN activation functions showing physically meaningful dependencies.
+\end{enumerate}
+
+\smallskip
+
+\section*{Domain-Specific Lecture}
+
+165.171 AI in Chemistry \\
+\textit{Status: to be completed in parallel}
+
+\printbibliography
+
+\end{document}
