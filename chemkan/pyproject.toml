@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,7 @@ name = "chemkan"
 version = "0.1.0"
 description = "PyTorch reproduction of ChemKAN (RBF-based KAN chemical-kinetics neural ODE)."
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
     "torch==2.13.0",               # version of the final results (README: Installation)
     # GitHub torchdiffeq pinned to a Tsit5-capable commit so method="tsit5" is available.

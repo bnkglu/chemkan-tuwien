@@ -360,4 +360,4 @@ B. C. Koenig, S. Kim and S. Deng, *ChemKANs for combustion chemistry modeling an
 }
 ```
 
-The original paper PDF, vendored `torchdiffeq`, and upstream DeepONet source have **their own respective license terms**; see the license files and attribution within those directories.
+The code in this repository is released under the [MIT License](LICENSE). The original paper PDF, vendored `torchdiffeq`, and upstream DeepONet source have **their own respective license terms**; see the license files and attribution within those directories.
