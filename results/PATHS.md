@@ -1,12 +1,23 @@
 # Result locations: original → current
 
 The results were produced under `results/experiments/` on the development branch and moved
-here with `git mv`, without changing their content. The run records (configs, metrics,
-histories, logs, checkpoints, READMEs, reports and the historical launch scripts) still
-name the **original** paths and script names; this table maps them to the current ones.
-The only files under `results/` whose content was changed are the inference benchmark's code
-(`benchmark.py`, `make_report.py`, `julia/export_inputs.py`), updated to the current paths;
-its inputs and outputs are unchanged.
+here. The run records (configs, metrics, histories, logs, checkpoints, READMEs, reports and
+the historical launch scripts) still name the **original** paths and script names; this
+table maps them to the current ones. Their content is unchanged, with these exceptions:
+
+- **Training histories** (`history.csv`, `stage1_history.csv`, `stage2_history.csv`, 33 files)
+  keep every row but only the columns the figures, notebooks and READMEs use; the complete
+  files are on the development branch. The kept columns are identical to the originals.
+
+  | histories | kept columns | dropped (on the development branch) |
+  |---|---|---|
+  | biodiesel ChemKAN figure runs, reaction-order runs | `epoch, train_mse, val_mse, [val_mse_noisy,] elapsed_seconds` | `train_eq18`, `val_eq18` (= 30 × the MSE columns) |
+  | biodiesel DeepONet figure runs | `epoch, objective, train_mse_fig, test_noisy_mse_fig, test_clean_mse_fig, elapsed_seconds` | the other loss normalizations (`*_mean_mse`, `*_mean_mse_u`, `*_eq18_obs`, `*_eq22_true`) |
+  | hydrogen, methane Stage 1 and Stage 2 | `epoch, loss, pinn, mse_time_avg, elapsed_seconds` | `mse` (= `mse_time_avg` × time points), `kin_out_max_raw`, `kin_out_max_scaled`, `nfe`, and in Stage 2 the thermo-weight columns (`w_<species>`, `w_norm`) |
+
+- **The inference benchmark's code** (`benchmark.py`, `make_report.py`, `julia/export_inputs.py`)
+  was updated to the current paths; its inputs and outputs are unchanged.
+- **The hydrogen and methane READMEs** say which history columns are kept.
 
 ## Result folders
 

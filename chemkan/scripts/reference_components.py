@@ -115,8 +115,8 @@ def rhs_divisor_from_config(cfg: dict) -> float:
 
 class NormalizedDynamics(nn.Module):
     """``dz/dt = [KAN(z), 0] / divisor`` on normalized ``z = [Y_hat (6), T_hat]`` (B, 7).
-    The released example divides by 50 although its time window is 30 s; the trainer's
-    default is the data's time window. The constructor default 50 is for older checkpoints."""
+    The released example divides by 50 although its time window is 30 s; 50 is the default
+    here and in ``train_biodiesel.py`` (``--rhs-divisor`` changes it)."""
 
     def __init__(self, core: KineticCore, divisor: float = RHS_DIVISOR):
         super().__init__()

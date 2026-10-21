@@ -40,12 +40,13 @@ holds the weights *after* it, so the saved model's loss is history row N+1.
 
 ## Stage-2 history
 
-`S2_seed0/stage2_history.csv` holds all 200,000 rows, but **without the 52 per-species
-thermo-weight columns** `w_<species>` (it keeps `w_norm`).
-- **Why:** the full file is 236 MB, above GitHub's 100 MB limit.
-- **What was dropped:** only those 52 columns. All loss, time and `nfe` columns are identical to the original.
+`S2_seed0/stage2_history.csv` holds all 200,000 rows with the columns `epoch, loss, pinn,
+mse_time_avg, elapsed_seconds`, identical to the training output in those columns.
+- **On the development branch** the file also has `mse`, `kin_out_max_raw`, `kin_out_max_scaled`,
+  `w_norm` and `nfe` (`PATHS.md`).
+- **Not in either branch:** the training output's 52 per-species thermo-weight columns
+  `w_<species>` (the full file is 236 MB, above GitHub's 100 MB limit).
 - **The weights themselves** are in every checkpoint.
-- **The full file** stays outside git (`stage2_history_full.csv`, listed in `.gitignore`).
 
 **Checkpoints:**
 - committed: `stage2_final.pt` and all 40 snapshots in `S2_seed0/archive/` (5k–200k);

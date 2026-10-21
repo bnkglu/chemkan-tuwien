@@ -12,7 +12,10 @@ direct autograd, no warm-up).
 
 **Stage-2 history.** The full per-epoch history is `S2_seed0_200k/stage2_history.csv`
 (epochs 1-200,000). The `S2_seed0` and `S2_seed0_150k` histories are byte-identical to its
-first 100,000 and 150,000 rows, so only the 200k file is committed.
+first 100,000 and 150,000 rows, so only the 200k file is committed. In this repository the
+history files keep the columns `epoch, loss, pinn, mse_time_avg, elapsed_seconds` (all rows);
+the complete files, with the diagnostic and thermo-weight columns, are on the development
+branch (`PATHS.md`).
 
 **Checkpoints.** Each run's `stage2_final.pt`; the 5,000-epoch snapshots once each
 (`S2_seed0/archive`: 20k-95k, `S2_seed0_150k/archive`: 105k-145k,
