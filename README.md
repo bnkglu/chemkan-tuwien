@@ -21,6 +21,7 @@ summer semester 2026.
 [Quick start](#quick-start) · [Training](#training) ·
 [Reproducing the experiments](#reproducing-the-experiments) ·
 [Evaluation and figures](#evaluation-and-figures) · [Notebooks](#notebooks) ·
+[Documentation and resources](#documentation-and-resources) ·
 [Custom datasets](#custom-datasets) · [Reproducibility](#reproducibility) ·
 [Limitations](#limitations) · [References](#references)
 
@@ -95,7 +96,8 @@ chemkan/
 ├── data/generated/         the datasets the scripts read (tracked; regenerable)
 ├── tests/                  pytest suite
 └── third_party/torchdiffeq the pinned ODE-solver source, for installation without GitHub
-docs/                       the from-scratch guide of notebook extra/01
+docs/                       reproduction summary, sources, the paper (PDF), the architecture
+                            visualization, the from-scratch guide of notebook extra/01
 deeponet/                   the DeepONet baseline (separate from ChemKAN, see its README)
 └── upstream_reference/     unmodified copy of the original DeepONet code, for reference only
 results/                    the recorded experiments: biodiesel/, hydrogen/, methane/,
@@ -289,6 +291,18 @@ with `torch.func`. In the FSA notebook, its gradients converge to the direct-aut
 the tolerance tightens (agreement 2e-7 to 4e-6 at rtol 1e-10 on the final models). At the
 biodiesel training tolerance (rtol 1e-2, the released example's) the gradients of both
 backends are far from converged, while the loss is accurate.
+
+## Documentation and resources
+
+| Resource | What it is |
+|---|---|
+| [`docs/reproduction_summary.md`](docs/reproduction_summary.md) | paper-versus-ours for every reproduced result, with verdicts, numbers and links to the records; DeepONet, FSA, methane and inference speed |
+| [`docs/sources.md`](docs/sources.md) | the references used in the project, and further reading |
+| [`docs/paper/d5cp02009c.pdf`](docs/paper/d5cp02009c.pdf) | the published ChemKAN paper, CC BY-NC 4.0 ([licence and attribution](docs/paper/README.md); separate from the code's licence) |
+| [`docs/visualization/chemkan_architecture.html`](docs/visualization/chemkan_architecture.html) | interactive walk through the hydrogen ChemKAN as the paper describes it (open the file in a browser); its trajectories are schematic, not model predictions |
+| [`docs/implementing_chemkan_from_scratch_guide.md`](docs/implementing_chemkan_from_scratch_guide.md) | a step-by-step guide to building ChemKAN, with notebook [`extra/01`](chemkan/notebooks/extra/01_implement_kan.ipynb) |
+| [`chemkan/notebooks/extra/`](chemkan/notebooks/extra) | explanation notebooks: KAN layers, the edge-function `einsum`, ChemKAN from the paper's equations, the library's kinetic path |
+| [`forward_sensitivity_analysis.ipynb`](chemkan/notebooks/forward_sensitivity_analysis.ipynb) | the FSA formulation and its validation on the final models |
 
 ## Custom datasets
 

@@ -27,8 +27,8 @@ fine (generalization): 21 x 21 = 441 cases on the same ranges
 
 State vector: u = [Y_H2, ..., Y_N2, T]  (mass fractions, then temperature).
 
-Time sampling: uniform samples over [0, 0.6 ms]; default 50 follows ChemNODE-style
-saved trajectories. Use --n-points 601 for 1 us resolution.
+Time sampling: uniform samples over [0, 0.6 ms]; default 100, the authors' training grid
+(email H3; an earlier dataset used ChemNODE's 50). Use --n-points 601 for 1 us resolution.
 
 Usage
 -----
