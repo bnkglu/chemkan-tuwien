@@ -5,16 +5,16 @@ The stored outputs are the record of the executions that produced the results; t
 not re-executed when the repository was reorganized, so file paths printed in some outputs
 are the original ones (`results/PATHS.md` maps them).
 
-## Reproduction notebooks
+## Reproduction and validation notebooks
 
 | Notebook | Contents |
 |---|---|
 | `biodiesel_reproduction.ipynb` | biodiesel Figs. 3–6 and the paper-vs-ours table from the figure runs in `results/biodiesel/`, with the DeepONet baseline |
 | `hydrogen_reproduction.ipynb` | hydrogen Stage 1 and Stage 2 (100k, 150k, 200k): loss curves, evaluation, Figs. 7, 8A (441-condition grid) and 8B (ignition delay) |
 | `methane_extension.ipynb` | the methane extension (project proposal): Stage-2 training history, selection of the 180k snapshot, error per condition, trajectories, temperature of all 36 conditions, ignition delay (the 441-condition grid is `scripts/combustion/evaluate_methane_grid.py`) |
+| `forward_sensitivity_analysis.ipynb` | forward sensitivity analysis: the sensitivity equations and their implementation in `chemkan/src/chemkan/fsa.py`, the analytic check, FSA vs direct-autograd gradients on the final biodiesel and hydrogen Stage-1/Stage-2 models over solver tolerances, trajectory independence, the FSA unit tests, and the earlier validation record kept on the development branch (about 4 minutes) |
 
-Their code cells use only the current scripts and paths (checked statically). None of them
-trains. They read the committed results; `hydrogen_reproduction.ipynb` also re-runs the
+Their code cells use only the current scripts and paths. None of them trains. They read the committed results; `hydrogen_reproduction.ipynb` also re-runs the
 hydrogen evaluations and writes their tables and figures to `results/hydrogen/` again.
 
 ## Explanation notebooks (`extra/`)
