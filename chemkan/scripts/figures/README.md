@@ -23,6 +23,17 @@ Run from the repository root with the project environment.
 | Figure 8B — ignition delay | `python chemkan/scripts/figures/fig08_hydrogen_ignition.py` | `evaluate_hydrogen_ignition.py` table |
 | **All of them** | `python chemkan/scripts/figures/plot_all.py` | |
 
+Project extension (not a figure of the paper, not part of `plot_all.py`):
+
+| Figure | Command | Reads |
+|---|---|---|
+| Methane main species (CH₄, O₂, CO₂, H₂O, CO), linear and logarithmic scale | `python chemkan/scripts/figures/methane_species.py` (`--condition T0,phi`; default the held-out 1550 K, φ 1.3) | methane Stage-2 epoch-180,000 snapshot |
+
+It writes `results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.{png,pdf}`.
+The prediction comes from `combustion/plot_trajectory.py`'s loading and integration. At this
+condition the model's CH₄ and O₂ settle slightly below zero after ignition (about −3e-3 and
+−2e-3; reference ~0 and 6e-3), which the linear panel shows and the logarithmic one cannot.
+
 The biodiesel figures read the biodiesel_v2 figure runs (ChemKAN:
 `chemkan/scripts/biodiesel/run_figure_runs.py`; DeepONet: `deeponet/run_figure_runs.sh`)
 and write to `results/biodiesel/figures/`. Their losses
@@ -71,6 +82,7 @@ fig06_biodiesel_profiles.py          Figure 6
 fig07_hydrogen_trajectories.py       Figure 7 (+ the true-scale companion)
 fig08_hydrogen_generalization.py     Figure 8A (paper scale and full range)
 fig08_hydrogen_ignition.py           Figure 8B
+methane_species.py                   methane main species (project extension)
 plot_all.py                          regenerates every figure above
 ```
 
