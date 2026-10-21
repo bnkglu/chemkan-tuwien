@@ -1,6 +1,6 @@
 # Author-matched hydrogen, main run (seed 0)
 
-Settings: `run_main.sh` (t_ref 6e-4 s, lr 2e-3, Tsit5 rtol 1e-6 / atol 1e-8, batched, float32,
+Historical settings: `run_main.sh` (t_ref 6e-4 s, lr 2e-3, Tsit5 rtol 1e-6 / atol 1e-8, batched, float32,
 direct autograd, no warm-up).
 
 | dir | what | epochs |
@@ -23,3 +23,7 @@ branch (`PATHS.md`).
 directories are not committed.
 
 `eval/S2_seed0.json`, `figures/`, `plots/`, `tables/`: evaluations of the Stage-2 checkpoints.
+
+For a new training run, use `bash chemkan/scripts/combustion/run_hydrogen.sh`
+from the repository root (defaults to `runs/hydrogen/`). The launch scripts in this
+result folder retain historical paths; see [`../PATHS.md`](../PATHS.md).

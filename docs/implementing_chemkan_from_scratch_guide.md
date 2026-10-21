@@ -10,8 +10,14 @@ You already generated the training data (`chemkan/data/generated/*.npz` — see 
 This guide builds the *model* that learns from it.
 
 Paper: *ChemKANs for Combustion Chemistry Modeling and Acceleration*, Koenig, Kim
-& Deng, 2025 ([arXiv:2504.12580](https://arxiv.org/pdf/2504.12580)). Equation numbers
-below refer to it.
+& Deng, 2025 ([https://doi.org/10.1039/d5cp02009c](https://doi.org/10.1039/d5cp02009c)).
+Equation numbers below refer to it.
+
+This is a learning guide with illustrative model and training skeletons, not the
+configuration of the recorded final runs. The release trainers use the settings
+in the [root README](../README.md) and
+[reproduction summary](reproduction_summary.md), including no base activation,
+Tsit5 integration, and joint kinetic/thermodynamic optimization in combustion Stage 2.
 
 ---
 
@@ -525,8 +531,9 @@ and stiff). The paper splits it:
 - **Stage 1 — kinetics.** Train only `θ_kin`. Loss on the `m` species profiles
   (`n* = m` in Eq. 18). Temperature is just *read from the data* as an input. For
   isothermal biodiesel, **Stage 1 is the whole model.**
-- **Stage 2 — thermodynamics.** Freeze/stabilize the converged core, add the
-  thermo superstructure, and learn `dT/dt`. Loss on all `m+1` profiles (`n* = m+1`).
+- **Stage 2 — coupled kinetics and thermodynamics.** Initialize from the Stage-1
+  core, add the thermo superstructure, and optimize both parts together. Loss is
+  on all `m+1` profiles (`n* = m+1`), including temperature.
 
 ### The loss (Eq. 18)
 
@@ -545,7 +552,8 @@ where `n* = m` in Stage 1 and `n* = m+1` in Stage 2.
   in species `k`, `W_i` its atomic mass, `W_k` the species molar mass.
   `α_PINN = 1e-4`. The paper uses **MSE only for biodiesel**, and **MSE + PINN for
   H₂**. Add it *after* plain MSE works.
-- Optimizer: **Adam, lr = 2e-3**.
+- Optimizer: **Adam, lr = 2e-3** for combustion. The recorded biodiesel runs use
+  **lr = 1e-2**.
 
 ### Code you write (training skeleton)
 
@@ -567,10 +575,9 @@ def train_stage(func, u0, t, target, steps, params, lr=2e-3):
 model = ChemKAN(m=..., use_thermo=False)
 train_stage(model, u0, t, target_species, steps=..., params=model.kin.parameters())
 
-# Stage 2 (H2 only): switch on thermo, train the superstructure
+# Stage 2 (H2): switch on thermo and optimize kinetics and thermodynamics jointly
 model.use_thermo = True
-thermo_params = list(model.thermo_linear.parameters()) + list(model.cor.parameters())
-train_stage(model, u0, t, target_full, steps=..., params=thermo_params)
+train_stage(model, u0, t, target_full, steps=..., params=model.parameters())
 ```
 
 > **Stage-1 temperature source (H₂).** In Stage 1 temperature is supplied
@@ -598,14 +605,16 @@ train_stage(model, u0, t, target_full, steps=..., params=thermo_params)
 ## Milestone 7 — validate against the paper
 
 - **Parameter count.** Print `sum(p.numel() for p in model.parameters())`. The
-  paper's H₂ ChemKAN is **344 parameters**. You won't hit it exactly (it depends on
-  `hidden`, `num_basis`, `n_mu`), but you should be in the same order — if you're at
-  10k, your layers are too wide; shrink `hidden`/`num_basis`. Being *lean* is the point.
+  paper's H₂ ChemKAN is **344 parameters**, and the final release model matches
+  that count (hidden width 3, five RBF basis functions, n_mu = 3, no base term).
+  The illustrative model here has configurable dimensions and may differ.
 - **Biodiesel:** trajectories match under noise, no overfitting (paper's Fig. for the
   biodiesel case).
-- **H₂:** correct ignition timing and a ~2× speed-up vs. the detailed Cantera solve
-  for the same trajectory (the paper's acceleration claim). Measure wall-clock of a
-  `ChemKAN` rollout vs. a Cantera integration over the same window.
+- **H₂:** compare ignition timing and measure rollout time against a detailed
+  reference solver over the same window. The paper's approximately 2× speed-up is
+  relative to Arrhenius.jl. This project's Julia inference port and PyTorch
+  implementation have different runtimes; see the
+  [benchmark settings and results](../results/inference_benchmark/README.md).
 - Cross-check activations/loss against **DENG-MIT/KAN-ODEs** and **LeanKAN** if a
   number looks off.
 

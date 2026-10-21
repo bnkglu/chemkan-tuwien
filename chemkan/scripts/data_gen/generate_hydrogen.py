@@ -193,7 +193,7 @@ def generate_temperature_only(cfg) -> dict:
 
     This exists so the dense Stage-1 temperature trajectory can be precomputed once
     and reused across experiments, instead of calling
-    Cantera inside the training loop. The original 50-point ``hydrogen.npz`` remains
+    Cantera inside the training loop. The canonical 100-point ``hydrogen.npz`` remains
     the canonical trajectory/target dataset and is never touched here.
     """
     if cfg.grid != "coarse":

@@ -22,8 +22,11 @@ methane on 2026-10-16 after its training had finished. Single seed, one checkpoi
 | `julia/julia_*_<system>.json`, `*_pred.npz` | Julia timings and trajectories |
 | `run_<system>.log`, `julia/run_*.log` | console output of the measured runs |
 
-Re-run: `bash results/experiments/inference_benchmark/run_all.sh` from the repository root
-(about 10 minutes; Julia 1.12 with `julia --project=results/experiments/inference_benchmark/julia -e 'using Pkg; Pkg.instantiate()'` once).
+The `run_all.sh` and `run_methane.sh` files above are historical launch records with
+development-branch paths (see `results/PATHS.md`).
+
+Re-run all three systems: `bash chemkan/scripts/benchmark/run_inference_benchmark.sh` from the repository root
+(about 10 minutes; Julia 1.12 with `julia --project=results/inference_benchmark/julia -e 'using Pkg; Pkg.instantiate()'` once).
 
 ## Problems, models and references
 
@@ -32,9 +35,9 @@ every side.
 
 | system | conditions, window | ChemKAN | references |
 |---|---|---|---|
-| hydrogen | 36 (35 train, 1 held-out), 0.6 ms | author-matched Stage 2, 200k epochs (`hydrogen/author_matched/main/S2_seed0_200k/stage2_final.pt`), float32 | Cantera 3.0.0 IdealGasConstPressureReactor with `h2o2.yaml` (the data's generator: adiabatic, 1 atm, CVODES); Arrhenius.jl (GitHub master) with the same mechanism and the constant-pressure reactor of its ignition example, Sundials CVODE_BDF |
-| methane | 36 (35 train, 1 held-out: 1550 K, phi 1.3), 5 ms | author-matched Stage 2, the **epoch-180,000 snapshot** (`methane/author_matched/main/S2_seed0/archive/stage2_S2_seed0_epoch180000.pt`), float32; the final 200k model (`stage2_final.pt`) sits on a training-loss spike (training-condition full-trajectory MSE 2.89e-3 vs 1.22e-3), and 180k is the best 5k snapshot by training-condition MSE (notebook 15) | Cantera with `gri30.yaml` (GRI-Mech 3.0, 53 species, 325 reactions; Ar dropped from the state), same reactor as hydrogen; Arrhenius.jl with the same mechanism, CVODE_BDF |
-| biodiesel | 30 (20 train, 10 test), 30 s | 7b noise-free run (`biodiesel/author_repo_match/figures/fig05/chemkan_noise00_seed0`), float64 | the known mass-action kinetics: SciPy LSODA with analytic Jacobian (the data generator); in Julia the released example's `trueODEfunc` with CVODE_BDF, and with the example's own data-generation solver AutoTsit5(Rosenbrock23) at default tolerances. No Cantera mechanism exists for biodiesel |
+| hydrogen | 36 (35 train, 1 held-out), 0.6 ms | author-matched Stage 2, 200k epochs (`results/hydrogen/S2_seed0_200k/stage2_final.pt`), float32 | Cantera 3.0.0 IdealGasConstPressureReactor with `h2o2.yaml` (the data's generator: adiabatic, 1 atm, CVODES); Arrhenius.jl (GitHub master) with the same mechanism and the constant-pressure reactor of its ignition example, Sundials CVODE_BDF |
+| methane | 36 (35 train, 1 held-out: 1550 K, phi 1.3), 5 ms | author-matched Stage 2, the **epoch-180,000 snapshot** (`results/methane/S2_seed0/archive/stage2_S2_seed0_epoch180000.pt`), float32; the final 200k model (`stage2_final.pt`) sits on a training-loss spike (training-condition full-trajectory MSE 2.89e-3 vs 1.22e-3), and 180k is the best 5k snapshot by training-condition MSE (`chemkan/notebooks/methane_extension.ipynb`) | Cantera with `gri30.yaml` (GRI-Mech 3.0, 53 species, 325 reactions; Ar dropped from the state), same reactor as hydrogen; Arrhenius.jl with the same mechanism, CVODE_BDF |
+| biodiesel | 30 (20 train, 10 test), 30 s | noise-free Fig. 5 run (`results/biodiesel/chemkan_figure_runs/fig05/chemkan_noise00_seed0`), float64 | the known mass-action kinetics: SciPy LSODA with analytic Jacobian (the data generator); in Julia the released example's `trueODEfunc` with CVODE_BDF, and with the example's own data-generation solver AutoTsit5(Rosenbrock23) at default tolerances. No Cantera mechanism exists for biodiesel |
 
 Checks (all in the result files):
 - the Python reference reproduces the stored datasets (hydrogen max |ΔY| 3e-10, |ΔT| 6e-6 K;
@@ -47,7 +50,7 @@ Checks (all in the result files):
   rtol 1e-10, 8e-5 for hydrogen and 1.1e-4 for methane in float32 at rtol 1e-6; at rtol 1e-2 the two Tsit5 step
   controllers take different steps, so trajectories differ within that tolerance);
 - the PyTorch ChemKAN reproduces the earlier evaluations (hydrogen held-out 3.51e-4 = Fig. 7;
-  biodiesel 30-point test mean 3.1652e-4 = the 7b value at rtol 1e-10).
+  biodiesel 30-point test mean 3.1652e-4 = the Fig. 5 value at rtol 1e-10).
 
 Not usable: the registered Arrhenius.jl release 0.1.0 returns zero reaction rates (its
 rate-of-progress function never stores its result); the GitHub master is used.
@@ -103,7 +106,7 @@ example's AutoTsit5(Rosenbrock23) at default tolerances 0.049 ms, MSE 5e-8)
 
 | ChemKAN | rtol / atol | latency | vs LSODA | vs Julia CVODE_BDF | MSE all / test |
 |---|---|---|---|---|---|
-| PyTorch | 1e-10 / 1e-12 (7b evaluation) | 67.2 ms | 0.018x | 0.003x | 7.98e-5 / 1.61e-4 |
+| PyTorch | 1e-10 / 1e-12 (Fig. 5 evaluation) | 67.2 ms | 0.018x | 0.003x | 7.98e-5 / 1.61e-4 |
 | PyTorch | 1e-2 / 1e-6 (trained) | 8.50 ms | 0.14x | 0.024x | 8.68e-5 / 1.62e-4 |
 | Julia | 1e-10 / 1e-12 | 0.69 ms | 1.7x | 0.29x | 7.98e-5 / 1.61e-4 |
 | Julia | 1e-2 / 1e-6 | 0.114 ms | 10.5x | 1.8x | 7.98e-5 / 1.61e-4 |

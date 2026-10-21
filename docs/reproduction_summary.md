@@ -1,9 +1,10 @@
 # ChemKAN reproduction: summary
 
-What this repository reproduced from Koenig, Kim & Deng, *ChemKANs for combustion chemistry
-modeling and acceleration*, PCCP 27, 17313 (2025) ([local copy](paper/d5cp02009c.pdf)), what it
-did not, and what it added. Every number below is read from a committed artifact, linked in
-the text. All runs are single-seed (seed 0).
+Configurations, numerical results and comparisons for the PyTorch reproduction of
+Koenig, Kim & Deng, *ChemKANs for combustion chemistry modeling and acceleration*,
+PCCP 27, 17313 (2025) ([local copy](paper/d5cp02009c.pdf)), plus the methane extension.
+The sections below link to saved artifacts and display existing release figures.
+The main ChemKAN runs use a single seed (seed 0).
 
 **Conventions.** Losses are **time-averaged MSE** in normalized coordinates: the mean over
 states and observation times, then over trajectories, as in the authors' released code. The
@@ -12,33 +13,29 @@ paper's Eq. 18 sums over the time points instead, so Eq. 18 = N_t × the values 
 its plotted losses use, so absolute values are compared as magnitudes only. "Test" is the
 noise-free (clean) test MSE unless stated.
 
-**Verdicts.** *Matched*: the same number. *Reproduced*: the paper's stated quantity or ratio,
-within the precision the paper gives. *Qualitative*: the same behaviour without a number to
-match. *Discrepancy*: a stated claim our runs do not show.
+## 1. Paper and project results
 
-## 1. Scoreboard
+| Published claim or configuration | Recorded project result |
+|---|---|
+| Biodiesel model: 156 parameters (7 → 4 → 6, three-point grids, n_μ = 2) | 156 |
+| Hydrogen model: 344 parameters, one network, 9 species + T | 344 |
+| Fig. 3: ChemKAN reconstructs the unseen condition at 0–15 % noise | clean MSE 8.1e-5 (0 %), 7.0e-5 (5 %), 1.5e-4 (10 %), 3.4e-4 (15 %) |
+| Fig. 4: ChemKAN scaling order 1.0 (train) / 0.6 (test) | 1.49 / 0.37 |
+| Fig. 4: DeepONet test loss rises past 308 parameters; ChemKAN's plateaus | DeepONet 2.97e-4 at 308, 4.39e-4 / 3.70e-4 at 384 / 456; ChemKAN 3.8–4.7e-4 from 117 to 429 |
+| Fig. 5A: training-MSE increase 0 → 1 % noise 3.78e-5; 0 → 5 % 9.64e-4 | 4.19e-5; 1.05e-3 (noise floor 4.46e-5; 1.08e-3) |
+| Fig. 5A: noise-free test MSE, 15 % / 0 %: ChemKAN ~2×, DeepONet ~5× | 1.84×, 6.90× |
+| Fig. 5A: at 15 %, DeepONet's noise-free test MSE 4.4× ChemKAN's | 2.73× |
+| Fig. 5A: ChemKAN has the lower test error at every noise level | lower at 5, 10, 15 %; higher at 0, 1, 2, 3, 7 % (noisy test) |
+| Fig. 5A: ChemKAN has the lower training error at 7 % noise and above | DeepONet slightly lower at 7, 10, 15 % |
+| Fig. 6: at 15 % noise, ChemKAN tracks the hidden truth more smoothly than DeepONet | noise-free MSE at the Fig. 3 condition: ChemKAN 3.4e-4, DeepONet 7.3e-4 |
+| Fig. 7: accurate reconstruction at 1050 K / φ 0.9 (training) and 1150 K / φ 1.3 (held out) | MSE 4.5e-4 and 3.5e-4 |
+| Fig. 8A: errors in the 1e-4 range at the 1000 K training points, 1e-3 at the unseen 987.5 K points; weaker below 1000 K | median 4.9e-4 over 441 conditions; 2.1e-3 at 1000 K, 3.5e-2 at 987.5 K |
+| Fig. 8B: accurate ignition delays on the 30 igniting conditions | median relative error 1.4 %, max 8.7 % |
+| Table I: 2.0× faster than detailed chemistry (Arrhenius.jl) | Julia port 6.3× vs Arrhenius.jl, 2.5× vs Cantera; PyTorch ChemKAN slower than both; different benchmark settings (see §6) |
 
-| Paper claim | Ours | Verdict |
-|---|---|---|
-| Biodiesel model: 156 parameters (7 → 4 → 6, three-point grids, n_μ = 2) | 156 | matched |
-| Hydrogen model: 344 parameters, one network, 9 species + T | 344 | matched |
-| Fig. 3: ChemKAN reconstructs the unseen condition at 0–15 % noise | clean MSE 8.1e-5 (0 %), 7.0e-5 (5 %), 1.5e-4 (10 %), 3.4e-4 (15 %) | qualitative |
-| Fig. 4: ChemKAN scaling order 1.0 (train) / 0.6 (test) | 1.49 / 0.37 | discrepancy |
-| Fig. 4: DeepONet test loss rises past 308 parameters; ChemKAN's plateaus | DeepONet 2.97e-4 at 308, 4.39e-4 / 3.70e-4 at 384 / 456; ChemKAN 3.8–4.7e-4 from 117 to 429 | qualitative |
-| Fig. 5A: training-MSE increase 0 → 1 % noise 3.78e-5; 0 → 5 % 9.64e-4 | 4.19e-5; 1.05e-3 (noise floor 4.46e-5; 1.08e-3) | reproduced |
-| Fig. 5A: noise-free test MSE, 15 % / 0 %: ChemKAN ~2×, DeepONet ~5× | 1.84×, 6.90× | reproduced |
-| Fig. 5A: at 15 %, DeepONet's noise-free test MSE 4.4× ChemKAN's | 2.73× | qualitative (same direction, smaller gap) |
-| Fig. 5A: ChemKAN has the lower test error at every noise level | lower at 5, 10, 15 %; higher at 0, 1, 2, 3, 7 % (noisy test) | discrepancy |
-| Fig. 5A: ChemKAN has the lower training error at 7 % noise and above | DeepONet slightly lower at 7, 10, 15 % | discrepancy |
-| Fig. 6: at 15 % noise, ChemKAN tracks the hidden truth more smoothly than DeepONet | noise-free MSE at the Fig. 3 condition: ChemKAN 3.4e-4, DeepONet 7.3e-4 | qualitative |
-| Fig. 7: accurate reconstruction at 1050 K / φ 0.9 (training) and 1150 K / φ 1.3 (held out) | MSE 4.5e-4 and 3.5e-4 | qualitative |
-| Fig. 8A: errors in the 1e-4 range at the 1000 K training points, 1e-3 at the unseen 987.5 K points; weaker below 1000 K | median 4.9e-4 over 441 conditions; 2.1e-3 at 1000 K, 3.5e-2 at 987.5 K | qualitative (same pattern; the stated cold-region values are not reached) |
-| Fig. 8B: accurate ignition delays on the 30 igniting conditions | median relative error 1.4 %, max 8.7 % | qualitative |
-| Table I: 2.0× faster than detailed chemistry (Arrhenius.jl) | Julia port 6.3× vs Arrhenius.jl, 2.5× vs Cantera; PyTorch ChemKAN slower than both | not comparable (see §6) |
+## 2. Implementation and numerical checks
 
-## 2. Is the implementation correct?
-
-Independent of the paper's numbers:
+Checks recorded separately from the paper comparisons:
 
 | Check | Result | Artifact |
 |---|---|---|
@@ -49,7 +46,7 @@ Independent of the paper's numbers:
 | Datasets | `biodiesel_v2.npz` and `hydrogen.npz` regenerate with every array identical | [`data_generation_walkthrough.ipynb`](../chemkan/scripts/data_gen/data_generation_walkthrough.ipynb) |
 | Resume | a killed and resumed run is bit-identical to an uninterrupted one | release audit |
 | Rerunning the recorded runs | the first 5 epochs of all 31 main runs match their histories: exactly for the runs trained on the Mac, to 1e-12 – 1e-16 (float64) for those trained on the JupyterHub | release audit |
-| Test suite | 260 tests pass | `chemkan/tests/` |
+| Test suite | recorded release audit: 260 tests passed | `chemkan/tests/` |
 
 ## 3. Biodiesel (paper Sec. III A)
 
@@ -66,6 +63,8 @@ figures: [`results/biodiesel/figures/`](../results/biodiesel/figures), compariso
 
 **Fig. 4, neural scaling (noise-free).** Final-checkpoint MSE:
 
+![Biodiesel neural scaling: training and test MSE versus parameter count](../results/biodiesel/figures/fig04_scaling.png)
+
 | Parameters | ChemKAN train | ChemKAN test | DeepONet train | DeepONet test |
 |---|---|---|---|---|
 | 78 | 4.79e-4 | 7.68e-4 | 3.45e-3 | 3.55e-3 |
@@ -78,7 +77,9 @@ The fitted orders (log-log least squares, H = 2–9) are 1.49 (train) and 0.37 (
 paper's 1.0 and 0.6. The paper's statement that the ChemKAN error is about 1e-4 already at the
 smallest size compares with our 4.8e-4 (train) and 7.7e-4 (test) at 78 parameters.
 
-**Fig. 5A, noise robustness.** Converged losses after 10,000 epochs:
+**Fig. 5A, noise robustness.** Final-checkpoint losses after 10,000 epochs:
+
+![Biodiesel ChemKAN and DeepONet losses across training-noise levels](../results/biodiesel/figures/fig05a_noise.png)
 
 | Noise | ChemKAN train | ChemKAN noisy test | ChemKAN clean test | DeepONet train | DeepONet noisy test | DeepONet clean test |
 |---|---|---|---|---|---|---|
@@ -158,6 +159,8 @@ paper's printed multipliers for O₂ (×10²) and H (×10⁴) do not match its d
 correspond to ×10¹ and ×10³; our figure uses the printed labels and says so
 ([`fig07_hydrogen_trajectories.py`](../chemkan/scripts/figures/fig07_hydrogen_trajectories.py)).
 
+![Hydrogen temperature and species trajectories for the 200k Stage-2 model](../results/hydrogen/figures/fig07_hydrogen_trajectories_main_S2_seed0_200k_float64_rtol1e-10_time_averaged.png)
+
 **Fig. 8A** (200k, 441 conditions on a 21 × 21 grid, `hydrogen_fine.npz`): median MSE 4.9e-4,
 no integration failures. By initial temperature, the median is 3e-4 to 1e-3 from 1012.5 K up,
 2.1e-3 at 1000 K, 3–5e-2 at 975 and 987.5 K and 5e-5 at 950 K (no ignition in the window). The
@@ -165,6 +168,8 @@ paper shows the same weakness below 1000 K, with values in the 1e-4 range at the
 training points and 1e-3 at 987.5 K; ours are higher there. Since the paper does not state its
 loss convention for this figure, this is a magnitude comparison.
 Tables: [`results/hydrogen/tables/`](../results/hydrogen/tables).
+
+![Hydrogen generalization over the reconstructed 441-condition grid, full MSE range](../results/hydrogen/figures/fig08a_hydrogen_generalization_441_full_range_time_averaged.png)
 
 **Fig. 8B** (200k): on the paper's 30 igniting conditions, median relative ignition-delay error
 1.4 % (max 8.7 %), median temperature rise 1605 K against the reference's 1581 K. At 950 K, where
@@ -186,6 +191,8 @@ The paper's 2.0× (Arrhenius.jl, its own hardware and tolerances) is not directl
 the result depends on the implementation, the tolerances and the timing scope. For biodiesel
 (three reactions), the released kinetics in Julia are faster than ChemKAN at matched tolerance.
 
+![Recorded inference runtime and accuracy under the benchmark settings](../results/inference_benchmark/runtime_vs_accuracy.png)
+
 ## 7. Methane extension (project proposal)
 
 Not in the paper. `chemkan/data/generated/methane.npz`: GRI-Mech 3.0 (52 species + T), 36
@@ -205,6 +212,10 @@ epoch-50,000 Stage-1 archive to 200,000 epochs ([`results/methane/`](../results/
 - At the held-out condition the model predicts slightly negative CH₄ and O₂ after ignition
   (about −3e-3 and −2e-3; reference ~0 and 6e-3):
   [`results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.png`](../results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.png).
+
+![Methane main-species trajectories at the held-out 1550 K and phi 1.3 condition; actual mass fractions on linear and logarithmic axes](../results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.png)
+
+![Methane generalization over the 441-condition grid, full MSE range](../results/methane/generalization/methane_generalization_441_full_range_log.png)
 
 ## 8. Forward sensitivity analysis
 
@@ -238,8 +249,9 @@ not rerun here.
   convention for that figure is not stated.
 - **Biodiesel gradients**: at the released example's tolerance the FSA training gradients are
   far from converged (§8).
-- **Speed**: the paper's 2× is reproduced in kind only by the Julia port; the PyTorch ChemKAN is
-  slower than the references.
+- **Speed**: the Julia port has lower latency than the detailed-chemistry references under the
+  measured settings; the PyTorch ChemKAN has higher latency. These timings use different
+  tolerances from the paper's reported 2× comparison.
 - **Methane**: not converged; slightly negative CH₄ and O₂ after ignition at the held-out
   condition.
 - **Single seed** for every ChemKAN run; the DeepONet configuration was chosen over 10 seeds.

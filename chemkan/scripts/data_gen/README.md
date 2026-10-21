@@ -32,28 +32,31 @@ Run from this directory (`chemkan/scripts/data_gen`):
 ```bash
 pip install -r ../../requirements.txt
 
-# generate the two reproduction datasets (biodiesel + hydrogen)
-python generate_all.py --out-dir ../../data/generated
-
-# also generate the hydrogen fine grid (hydrogen_fine.npz, Fig. 8A)
-python generate_all.py --out-dir ../../data/generated --include-fine
+# regenerate biodiesel, hydrogen and the optional hydrogen fine grid in a fresh directory
+python generate_all.py --out-dir ../../../runs/data_regeneration --include-fine
 
 # check them
-python verify_data.py ../../data/generated/hydrogen.npz
-python verify_data.py ../../data/generated/biodiesel_v2.npz --system biodiesel
+python verify_data.py ../../../runs/data_regeneration/hydrogen.npz
+python verify_data.py ../../../runs/data_regeneration/biodiesel_v2.npz --system biodiesel
 ```
+
+Omit `--include-fine` to generate only biodiesel and hydrogen. These commands use
+the Git-ignored `runs/` directory and leave the supplied datasets intact. Choose
+a fresh output directory on subsequent runs: the biodiesel generator refuses an
+existing output unless explicitly passed `--force`. `generate_all.py` does not
+forward a `--force` option.
 
 Individual generators accept CLI arguments (e.g. `--out`, `--seed`, `--n-train`,
 `--n-test`, `--phis`) for reproducibility and quick experiments:
 
 ```bash
-python generate_biodiesel.py --seed 0            # -> biodiesel_v2.npz (released-code order, authors' ICs, additive noise)
+python generate_biodiesel.py --out ../../../runs/data_examples/biodiesel_v2.npz --seed 0  # released-code order, authors' ICs, additive noise
 # paper-text recipe (the first biodiesel archive, before the authors' clarification):
 # python generate_biodiesel.py --reaction-order paper_text --ic-source sampled \
 #     --noise-mode multiplicative --no-per-level-stats --out <new file> --seed 0
-python generate_hydrogen.py  --out ../../data/generated/hydrogen.npz
-python generate_hydrogen.py  --out ../../data/generated/hydrogen_fine.npz --grid fine # Fig. 8A: 441 conditions, 35 of them the training conditions
-python generate_biodiesel.py --reaction-order paper_text --out ../../data/generated/biodiesel_v2_paper_order.npz  # paper-text reaction order, for the reaction-order comparison
+python generate_hydrogen.py --out ../../../runs/data_examples/hydrogen.npz
+python generate_hydrogen.py --out ../../../runs/data_examples/hydrogen_fine.npz --grid fine # Fig. 8A: 441 conditions, 35 of them the training conditions
+python generate_biodiesel.py --reaction-order paper_text --out ../../../runs/data_examples/biodiesel_v2_paper_order.npz # paper-text Arrhenius ordering for the comparison
 ```
 
 ### Dense Stage-1 temperature cache
@@ -61,7 +64,7 @@ python generate_biodiesel.py --reaction-order paper_text --out ../../data/genera
 Hydrogen Stage 1 integrates species only, with temperature supplied externally as
 `T(t)`. The paper reads Stage-1 temperature from the training data but does not
 specify how it is evaluated at the adaptive ODE solver's internal times. The
-original reproduction used the sparse 50-point trajectory through the linear
+initial project implementation used the sparse 50-point trajectory through the linear
 `ObservedTemperature` provider (`src/chemkan/temperature.py`); the
 final implementation instead precomputes a **dense** Cantera
 temperature trajectory and reads it through the *same* linear `ObservedTemperature`.
@@ -125,7 +128,7 @@ uses the NumPy 1.x ABI.
 | `methane_temperature_20000.npz` *(extension)* | 35 train + 1 test | `(20000, cases, 1)` | `temperature_only` |
 
 For hydrogen the last axis is `10 = 9 species + temperature`; the default
-`n_points=100` follows ChemNODE-style saved trajectories, and `--n-points 601`
+`n_points=100` follows the authors' clarification, and `--n-points 601`
 gives the 1 µs high-resolution grid. `methane_fine.npz` is only read by
 `combustion/evaluate_methane_grid.py`, which ignores its own train/test split.
 
@@ -168,10 +171,16 @@ Explanations of the modelling choices live in this README, not in the `.npz`.
 ## Biodiesel setup
 
 Three-reaction transesterification (ChemKAN Eqs. 19–21), integrated with LSODA
-and an analytic Jacobian. `Ea = [14.54, 6.47, 14.42]` kcal/mol,
-`ln A = [18.60, 7.93, 19.13]`, isothermal at `T ~ U(323, 343)` K,
-`[TG]_0, [ROH]_0 ~ U(0.5, 2)`, other species starting at zero, 30 s window,
-30 samples.
+and an analytic Jacobian. The canonical defaults use the released-code ordering:
+`Ea = [14.54, 14.42, 6.47]` kcal/mol and `ln A = [18.60, 19.13, 7.93]`.
+Initial conditions come from the supplied `diesel_u0_samples.txt`: rows 1–20 train,
+21–30 test, with TG and ROH scaled to 0.5–2 mol/L and temperature to 323–343 K;
+other species start at zero. The observation window is 30 s with 30 samples.
+
+`--reaction-order paper_text` instead uses `Ea = [14.54, 6.47, 14.42]` and
+`ln A = [18.60, 7.93, 19.13]`. Despite the option name, it changes the assignment
+of Arrhenius constants, not the concentration powers. `--ic-source sampled`
+draws TG, ROH and temperature uniformly over the ranges above.
 
 The ChemKAN paper gives the three biodiesel reactions and Arrhenius rate
 constants, but it does not explicitly write the full ODE system. This
@@ -202,7 +211,7 @@ themselves prove that the rate order is correct.)
 Adiabatic constant-pressure 0-D reactors at 1 atm. Cantera's `h2o2.yaml` is the
 H₂/O₂ submechanism of GRI-Mech 3.0; dropping Ar (inert, absent from air) gives
 the 9 species and 29 reactions the paper quotes:
-`[H2, H, O, O2, OH, H2O, HO2, H2O2, N2]`, plus temperature. 0.6 ms window with 50
+`[H2, H, O, O2, OH, H2O, HO2, H2O2, N2]`, plus temperature. 0.6 ms window with 100
 saved time points by default (see the sample-count note below; `--n-points 601`
 gives the 1 µs high-resolution grid). The initial conditions are a grid of six temperatures
 (950–1200 K) and six equivalence ratios; `(1150 K, phi = 1.3)` is withheld as
@@ -215,7 +224,7 @@ ratios contains only five values (0.7, 0.9, 1.1, 1.3, 1.5).
 - Those counts require six equivalence-ratio values, and Fig. 8 shows the range starting at 0.5, so this implementation uses `phi = {0.5, 0.7, 0.9, 1.1, 1.3, 1.5}`. The omitted value appears to be `phi = 0.5`.
 - Use `--phis 0.7 0.9 1.1 1.3 1.5` to take the printed list literally instead.
 
-Saved hydrogen trajectories use 50 time points by default. Ignition delay is
+Saved hydrogen trajectories use 100 time points by default. Ignition delay is
 computed on a denser diagnostic grid, controlled by `--ignition-points`
 defaulting to 601, to avoid quantizing the ignition-delay diagnostic.
 
@@ -247,14 +256,14 @@ python verify_data.py ../../data/generated/biodiesel_v2.npz --system biodiesel
 Where the paper is explicit, the code follows it. Where it is silent or
 ambiguous, the choice is labelled below in plain wording.
 
-- **Noise model — implementation choice.**
+- **Noise model — authors' clarification.**
   ChemKAN reports experiments with synthetic noise up to 15%, but the exact
-  noise distribution is not explicitly specified. This implementation uses
-  multiplicative Gaussian noise as a documented implementation choice. This is
-  consistent with the plotted scatter in the ChemKAN noise figures and with
-  related LeanKAN/KAN-ODE work, where multiplicative noise was used in a
-  noisy-data experiment. A range-scaled alternative is available via
-  `--noise-mode range` for sensitivity checks.
+  noise distribution is not explicitly specified in the paper. The canonical
+  generator uses additive Gaussian noise scaled by each trajectory's species
+  maximum, clipped at zero (`--noise-mode additive_species_max`), following the
+  authors' clarification. Multiplicative noise belongs to the earlier paper-only
+  project recipe and remains available with `--noise-mode multiplicative`;
+  `--noise-mode range` is another optional alternative.
 
 - **Hydrogen equivalence-ratio grid — resolved from the paper.**
   Section II.D.2 reports 36 hydrogen initial-condition combinations and 35

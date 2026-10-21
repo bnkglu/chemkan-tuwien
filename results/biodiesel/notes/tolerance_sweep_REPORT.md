@@ -1,5 +1,10 @@
 # Evaluation-tolerance sweep, biodiesel_v2 Fig. 3 runs (read-only diagnostic)
 
+Historical diagnostic at commit 379d92c. The sweep script and supporting sweep files
+are retained in the development archive, not this release. The current figure route
+uses `biodiesel_runs.py` and evaluates at rtol 1e-10 / atol 1e-12; the setup below
+describes the earlier training-tolerance route that motivated that change.
+
 Same checkpoints, data, initial conditions, model and normalization; only the evaluation
 `rtol`/`atol` change. Script: `tolerance_sweep.py` (CPU, 1 thread, `torch.no_grad`, no
 backward, nothing written outside this directory). Repository at commit 379d92c.

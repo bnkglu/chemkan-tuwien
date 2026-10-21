@@ -1,380 +1,362 @@
-# ChemKAN: reproduction and extension
+# ChemKAN — Reproduction and Extension
 
-A PyTorch implementation of **ChemKAN** (Koenig, Kim & Deng, *ChemKANs for combustion chemistry
-modeling and acceleration*, PCCP 2025): Kolmogorov–Arnold networks used as neural ODEs for
-chemical kinetics. The repository reproduces the paper's biodiesel and hydrogen results,
-extends ChemKAN to methane oxidation, and contains the DeepONet comparison baseline and a
-validated forward sensitivity analysis (FSA).
+A PyTorch reproduction and extension of **ChemKAN** (*ChemKANs for combustion chemistry modeling and acceleration*, Koenig, Kim & Deng, *Physical Chemistry Chemical Physics*, 2025). ChemKAN represents chemical reaction dynamics with a physics-informed Kolmogorov–Arnold network (KAN) inside an ordinary differential equation (ODE) solver.
 
-Interdisciplinary project at TU Wien, course
-[194.147 Interdisciplinary Project in Data Science](https://tiss.tuwien.ac.at/course/courseDetails.xhtml?dswid=6763&dsrid=17&semester=2026S&courseNr=194147),
-summer semester 2026.
+This repository studies **biodiesel model inference**, **hydrogen–air combustion**, and a **methane–air combustion extension**. It also includes a DeepONet baseline, forward sensitivity analysis (FSA), recorded experiments, and notebooks that explain **how to build and train the model from scratch**.
 
-| | |
+| Project information | Details |
 |---|---|
-| Author | Hasan Berke Bankoglu (MSc Data Science, TU Wien) |
+| Institution | TU Wien — MSc Data Science |
+| Course | [194.147 Interdisciplinary Project in Data Science](https://tiss.tuwien.ac.at/course/courseDetails.xhtml?semester=2026S&courseNr=194147) |
+| Semester | Summer semester 2026 |
+| Student | Hasan Berke Bankoglu |
 | Main supervisor | Ass. Prof. DI Dr. Markus Bösenhofer |
 | Co-supervisor | Univ.-Prof. Dr. Thomas Gärtner |
+| Original paper | [Koenig, Kim & Deng (2025)](https://doi.org/10.1039/D5CP02009C) · [PDF](docs/paper/d5cp02009c.pdf) |
 
-**Contents:** [Overview](#overview) · [Main results](#main-results) ·
-[Repository structure](#repository-structure) · [Installation](#installation) ·
-[Quick start](#quick-start) · [Training](#training) ·
-[Reproducing the experiments](#reproducing-the-experiments) ·
-[Evaluation and figures](#evaluation-and-figures) · [Notebooks](#notebooks) ·
-[Documentation and resources](#documentation-and-resources) ·
-[Custom datasets](#custom-datasets) · [Reproducibility](#reproducibility) ·
-[Limitations](#limitations) · [References](#references)
+> **Scope.** This is a reproduction study, not an official implementation by the paper's authors. Some qualitative behaviors reproduce well, but several quantitative claims differ. The [reproduction summary](docs/reproduction_summary.md) records both agreement and discrepancies.
 
-## Overview
+## Contents
 
-| Part | What it is | Status |
+- [What is included](#what-is-included)
+- [Where to start](#where-to-start)
+- [Installation](#installation)
+- [Learn ChemKAN from scratch](#learn-chemkan-from-scratch)
+- [Quick start](#quick-start)
+- [Training and experiment settings](#training-and-experiment-settings)
+- [Reproduce the recorded experiments](#reproduce-the-recorded-experiments)
+- [Evaluation, figures and interpretability](#evaluation-figures-and-interpretability)
+- [Main results](#main-results)
+- [Use your own data](#use-your-own-data)
+- [Reproducibility and limitations](#reproducibility-and-limitations)
+- [Repository layout](#repository-layout)
+- [Documentation and references](#documentation-and-references)
+
+## What is included
+
+| Component | System or purpose | Status |
 |---|---|---|
-| Biodiesel (paper Sec. III A) | isothermal transesterification, 6 species; kinetic core only; noise robustness (Figs. 3, 5, 6) and neural scaling (Fig. 4) | reproduced, 13 ChemKAN runs |
-| Hydrogen (paper Sec. III B) | H₂/air autoignition, 9 species + temperature, 344-parameter ChemKAN; two-stage training; Figs. 7, 8A, 8B | reproduced, main run to 200,000 Stage-2 epochs |
-| Methane (project extension) | CH₄/air, GRI-Mech 3.0, 52 species + temperature; the hydrogen procedure on a larger mechanism | trained to 200,000 Stage-2 epochs; not converged |
-| DeepONet baseline | the paper's comparison model for biodiesel, a self-contained PyTorch implementation | 14 runs |
-| Forward sensitivity analysis | the paper's training method: sensitivity equations solved with the ODE, no backpropagation through the solver | implemented and validated; used by the biodiesel runs |
-| Inference benchmark | ChemKAN (PyTorch and a Julia port) against detailed chemistry (Cantera, Arrhenius.jl) | hydrogen, methane, biodiesel |
+| **Biodiesel** — paper Section 3.1 | Six species; kinetic-only ChemKAN, robustness to noise (Figs. 3, 5, 6), neural scaling (Fig. 4) | 13 recorded ChemKAN figure runs; results partially reproduce paper claims |
+| **Hydrogen** — paper Section 3.2 | Nine species + temperature; two-stage combustion training; Figs. 7–8 | 344-parameter model; Stage 2 trained to 200,000 epochs |
+| **Methane** — project extension | GRI-Mech 3.0; 52 species + temperature | Stage 2 trained to 200,000 epochs; **180,000-epoch checkpoint selected**, model not converged |
+| **DeepONet** | Independent PyTorch biodiesel baseline for the paper's comparison | 14 recorded figure runs |
+| **Forward sensitivity analysis (FSA)** | Forward state-parameter sensitivities for neural-ODE gradients | Implemented, tested and explained; used by the recorded biodiesel ChemKAN runs |
+| **Inference benchmarks** | ChemKAN PyTorch/Julia vs. Cantera and Arrhenius.jl | Recorded for biodiesel, hydrogen and methane |
+| **Learning material** | From-scratch KAN/ChemKAN notebooks, source-code walkthrough, FSA and data generation | Runnable notebooks and a companion learning guide |
 
-The ChemKAN runs are single-seed (seed 0). Losses are time-averaged MSE in normalized
-coordinates (the paper's Eq. 18 divided by the number of time points) unless stated otherwise.
+**Training backend matters:** the recorded **biodiesel** ChemKAN figure runs use **FSA**, whereas the recorded **hydrogen and methane** runs use **direct autograd**. The availability of FSA in the code does not mean every recorded experiment used it.
 
-## Main results
+## Where to start
 
-Each row gives the paper's claim and ours; the record behind each number is linked.
+Choose the route that matches your goal:
 
-**Biodiesel** ([`biodiesel_reproduction.ipynb`](chemkan/notebooks/biodiesel_reproduction.ipynb), comparison table at its end)
-
-| Quantity | Paper | Ours | |
-|---|---|---|---|
-| ChemKAN noise-free test MSE, 15 % / 0 % training noise | ~2× | 1.84× | reproduced |
-| DeepONet noise-free test MSE, 15 % / 0 % | ~5× | 6.90× | reproduced |
-| noise-free test MSE at 15 %, DeepONet / ChemKAN | 4.4× | 2.73× | same direction, smaller gap |
-| ChemKAN training-MSE increase, 0 → 1 % / 0 → 5 % noise | 3.78e-5 / 9.64e-4 | 4.19e-5 / 1.05e-3 | reproduced, close to the noise floor (4.46e-5 / 1.08e-3) |
-| ChemKAN neural-scaling order, training / testing | 1.0 / 0.6 | 1.49 / 0.37 | not reproduced numerically |
-| DeepONet training loss below ChemKAN's above ~200 parameters | yes | mixed (see the notebook's table) | partly |
-
-**Hydrogen**, 200,000-epoch Stage-2 model ([`hydrogen_reproduction.ipynb`](chemkan/notebooks/hydrogen_reproduction.ipynb), [`results/hydrogen/`](results/hydrogen/README.md))
-
-| Quantity | Paper | Ours |
+| Goal | Start here | What you will learn or do |
 |---|---|---|
-| model size | 344 parameters | 344 parameters |
-| Fig. 7 conditions: training 1050 K / φ 0.9, held-out 1150 K / φ 1.3 | accurate reconstructions | MSE 4.5e-4, 3.5e-4 |
-| Fig. 8A, 441 conditions | MSE mostly in the 1e-4 range, worse below 1000 K | median 4.9e-4; 3e-4 to 1e-3 from 1012.5 K up, 3–5e-2 at 975–987.5 K |
-| Fig. 8B, ignition delay on the 30 igniting conditions | accurate | median relative error 1.4 %, max 8.7 % |
-| speed-up over detailed chemistry | 2× (Arrhenius.jl) | the Julia port of ChemKAN at its training tolerance: 6.3× vs Arrhenius.jl and 2.5× vs Cantera at the data's tolerance; the PyTorch ChemKAN is slower than both ([`results/inference_benchmark/`](results/inference_benchmark/README.md)) |
-
-**Methane** (extension; the paper has no methane case), selected Stage-2 snapshot at epoch 180,000
-([`methane_extension.ipynb`](chemkan/notebooks/methane_extension.ipynb), [`results/methane/`](results/methane/README.md)):
-training-condition MSE median 9.7e-4; held-out 1550 K / φ 1.3: 1.16e-3; 406 unseen grid conditions:
-median 9.2e-4, ignition-delay error median 1.4 %. The training loss was still falling at 200,000
-epochs. The Julia ChemKAN was 4.0× faster than Cantera and 13.5× faster than Arrhenius.jl.
-
-**Not done:** the ChemNODE baseline named in the project proposal; repeated seeds of the
-ChemKAN runs; hydrogen or methane runs trained with FSA (their recorded runs use direct
-autograd).
-
-## Repository structure
-
-```text
-chemkan/
-├── src/chemkan/            the library: KAN layers (kan/), ChemKAN model, ODE dynamics, solver,
-│                           losses, normalization, temperature providers, FSA (fsa.py)
-├── scripts/
-│   ├── train.py            one-file kinetic-only training example, read top to bottom
-│   ├── train_biodiesel.py  biodiesel trainer, one run per call
-│   ├── train_hydrogen.py   hydrogen entry point, one stage per call
-│   ├── train_methane.py    methane entry point, one stage per call
-│   ├── reference_components.py   model pieces matching the authors' released code
-│   ├── biodiesel/          figure-run launcher, released-example datasets, equivalence check
-│   ├── combustion/         shared hydrogen/methane trainer, predictor, evaluations, launchers
-│   ├── data_gen/           dataset generators (SciPy, Cantera) and their README
-│   ├── figures/            one script per figure, plot_all.py
-│   ├── interpretability/   analyses of the trained models' learned functions
-│   └── benchmark/          launcher of the inference benchmark
-├── notebooks/              reproduction and FSA notebooks; extra/: explanation notebooks
-├── data/generated/         the datasets the scripts read (tracked; regenerable)
-├── tests/                  pytest suite
-└── third_party/torchdiffeq the pinned ODE-solver source, for installation without GitHub
-docs/                       reproduction summary, sources, the paper (PDF), the architecture
-                            visualization, the from-scratch guide of notebook extra/01
-deeponet/                   the DeepONet baseline (separate from ChemKAN, see its README)
-└── upstream_reference/     unmodified copy of the original DeepONet code, for reference only
-results/                    the recorded experiments: biodiesel/, hydrogen/, methane/,
-                            inference_benchmark/; PATHS.md maps original record paths
-```
-
-**Where to start reading the code**
-
-| Order | File | Why |
-|---|---|---|
-| 1 | [`chemkan/scripts/train.py`](chemkan/scripts/train.py) | the whole workflow in one file: data, model, dynamics, solver, loss, optimization |
-| 2 | [`chemkan/src/chemkan/model.py`](chemkan/src/chemkan/model.py), [`kan/`](chemkan/src/chemkan/kan) | the kinetic core (AddKAN → LeanKAN) and the thermodynamic superstructure |
-| 3 | [`chemkan/scripts/reference_components.py`](chemkan/scripts/reference_components.py) | how the final runs configure the library like the authors' released example |
-| 4 | [`chemkan/scripts/combustion/train_combustion.py`](chemkan/scripts/combustion/train_combustion.py) | the two-stage hydrogen/methane trainer |
-| 5 | [`chemkan/src/chemkan/fsa.py`](chemkan/src/chemkan/fsa.py), [`forward_sensitivity_analysis.ipynb`](chemkan/notebooks/forward_sensitivity_analysis.ipynb) | forward sensitivity analysis and its validation |
+| **Understand and build ChemKAN step by step** | [`extra/03_chemkan_from_scratch_paper_aligned.ipynb`](chemkan/notebooks/extra/03_chemkan_from_scratch_paper_aligned.ipynb) | Construct the RBF edge functions, AddKAN/LeanKAN layers and biodiesel kinetic core, then train it as a neural ODE |
+| **Practice implementing a KAN yourself** | [`extra/01_implement_kan.ipynb`](chemkan/notebooks/extra/01_implement_kan.ipynb) + [answer/learning guide](docs/implementing_chemkan_from_scratch_guide.md) | Guided exercises, milestones and reference explanations |
+| **Understand the actual codebase** | [`extra/04_chemkan_actual_solution_walkthrough.ipynb`](chemkan/notebooks/extra/04_chemkan_actual_solution_walkthrough.ipynb) | Trace state preparation → normalization → KAN → ODE solve → loss → optimizer |
+| **Understand the edge-function math** | [`extra/02_einsum_edge_functions_paper_aligned.ipynb`](chemkan/notebooks/extra/02_einsum_edge_functions_paper_aligned.ipynb) | Connect the paper's indexed functions with `torch.einsum` and equivalent implementations |
+| **Read a complete, small training example** | [`chemkan/scripts/train.py`](chemkan/scripts/train.py) | Kinetic-only training from data loading to saved checkpoint, without a large training framework |
+| **Understand FSA** | [`forward_sensitivity_analysis.ipynb`](chemkan/notebooks/forward_sensitivity_analysis.ipynb) | Sensitivity equations, analytic tests, gradient comparisons, solver tolerances and implementation |
+| **Inspect recorded experiments** | [Reproduction summary](docs/reproduction_summary.md) · [Results](results/PATHS.md) | Results, checkpoints, differences from the paper and reproduction commands |
 
 ## Installation
 
-Python 3.11, PyTorch 2.13.0, Cantera 3.0.0, NumPy 1.26.4, SciPy 1.17.1 and torchdiffeq at
-GitHub commit `657943a` (the PyPI release lacks the Tsit5 method). The results were produced
-with these versions on macOS arm64 (Python 3.11.3) and on a Linux CPU JupyterHub
-(Python 3.11.16).
+Use **Python 3.11**. The pinned experiment environment includes PyTorch 2.13.0, Cantera 3.0.0, NumPy 1.26.4, SciPy 1.17.1, and `torchdiffeq` at commit `657943a` (including Tsit5, unavailable in the standard PyPI release used for this project).
+
+Run from the repository root:
 
 ```bash
-python3.11 -m venv .venv && source .venv/bin/activate
-pip install -r chemkan/requirements.txt      # the exact environment of the results
-pip install -e chemkan --no-deps             # the chemkan package itself
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r chemkan/requirements.txt
+pip install -e chemkan --no-deps
 ```
 
-`chemkan/requirements.txt` is the `pip freeze` of that environment (it includes Jupyter, pytest
-and ruff); `chemkan/pyproject.toml` declares the runtime dependencies, with extras `[dev]` and
-`[notebooks]`. Without GitHub access, install torchdiffeq from `chemkan/third_party/torchdiffeq/`
-(see its README). The inference benchmark also needs Julia 1.12
-(`results/inference_benchmark/julia/Project.toml`, `Manifest.toml`).
+`chemkan/requirements.txt` is the recorded environment, including notebook and testing tools. `chemkan/pyproject.toml` declares the Python package and its runtime dependencies. An offline solver-source fallback is provided in [`chemkan/third_party/torchdiffeq/`](chemkan/third_party/torchdiffeq/README.md).
+
+The Julia inference benchmark additionally requires **Julia 1.12**; see [`results/inference_benchmark/julia/`](results/inference_benchmark/julia/).
+
+## Learn ChemKAN from scratch
+
+The notebook sequence is intended to explain not just *what* each module does, but **how its mathematical expressions turn into code**:
+
+1. **Implement the basics:** [`01_implement_kan.ipynb`](chemkan/notebooks/extra/01_implement_kan.ipynb) introduces a learnable Gaussian RBF, AddKAN, LeanKAN and a small KAN-ODE through guided exercises. Use the [companion guide](docs/implementing_chemkan_from_scratch_guide.md) for explanations and reference solutions.
+2. **Understand every learned edge:** [`02_einsum_edge_functions_paper_aligned.ipynb`](chemkan/notebooks/extra/02_einsum_edge_functions_paper_aligned.ipynb) derives the edge-function tensor operations from the paper's notation and checks them against loops and other vectorized forms.
+3. **Build and train biodiesel ChemKAN:** [`03_chemkan_from_scratch_paper_aligned.ipynb`](chemkan/notebooks/extra/03_chemkan_from_scratch_paper_aligned.ipynb) builds the model inline: **Gaussian RBF → edge functions → AddKAN → LeanKAN → 156-parameter kinetic core → normalization → ODE right-hand side → numerical integration → loss → gradient update → trajectory predictions**.
+4. **Connect the notebook to the repository:** [`04_chemkan_actual_solution_walkthrough.ipynb`](chemkan/notebooks/extra/04_chemkan_actual_solution_walkthrough.ipynb) follows the library's implementation and checks shapes, numerical integration, loss and optimization step by step.
+5. **Continue to combustion and gradients:** Study the [two-stage trainer](chemkan/scripts/combustion/train_combustion.py), the [hydrogen reproduction notebook](chemkan/notebooks/hydrogen_reproduction.ipynb), and the [FSA validation notebook](chemkan/notebooks/forward_sensitivity_analysis.ipynb).
+
+**Important distinction:** the from-scratch `03` notebook implements and trains the **biodiesel kinetic-only ChemKAN**. It explains the thermodynamic extension but **does not rebuild the complete hydrogen/methane Stage-1/Stage-2 trainer inline**. Notebook `04` illustrates the library's educational kinetic path; the final reproduction scripts use the author-matched configurations described below.
+
+Open the notebooks using Jupyter Lab after installation:
+
+```bash
+jupyter lab chemkan/notebooks/extra/03_chemkan_from_scratch_paper_aligned.ipynb
+```
+
+For a non-notebook overview, open the [interactive ChemKAN architecture visualization](docs/visualization/chemkan_architecture.html) in a browser. Its trajectories are **schematic**, not predictions from a trained checkpoint. The [data-generation walkthrough](chemkan/scripts/data_gen/data_generation_walkthrough.ipynb) explains how the committed biodiesel and hydrogen arrays were generated.
 
 ## Quick start
 
+The commands below use the installed environment and save outputs to Git-ignored directories: `train_example/` for the simple kinetic-only example and `runs/` for the combustion smoke tests. They do not overwrite the recorded experimental results.
+
 ```bash
-cd chemkan && python -m pytest tests -q && cd ..        # about 1 minute
-python chemkan/scripts/train.py                         # 1,000 epochs of biodiesel, about 20 s
+# Run the tests
+cd chemkan && python -m pytest tests -q && cd ..
+
+# Train the small kinetic-only biodiesel example (1,000 epochs)
+python chemkan/scripts/train.py
+
+# Check the full two-stage hydrogen pipeline with two epochs per stage
 python chemkan/scripts/train_hydrogen.py stage1 --run-dir runs/check/S1 --epochs 2
 python chemkan/scripts/train_hydrogen.py stage2 --run-dir runs/check/S2 --epochs 2 \
-    --stage1-archive runs/check/S1/archive/stage1_S1_epoch2.pt
+  --stage1-archive runs/check/S1/archive/stage1_S1_epoch2.pt
 ```
 
-New runs write to `runs/` (ignored by Git); nothing above touches `results/`.
+The short combustion runs are **smoke tests**, not meaningful reproduced models. Neither these commands nor the from-scratch notebook overwrite committed experiment records by default; **figure/evaluation scripts may write to `results/`**, as described below.
 
-## Training
+## Training and experiment settings
 
-| Script | Use | System |
+### Choose the right entry point
+
+| Entry point | Purpose | Model |
 |---|---|---|
-| `chemkan/scripts/train.py` | simple, editable example of the full workflow; any constant-temperature `.npz` (`--data`) | kinetic-only |
-| `chemkan/scripts/train_biodiesel.py` | final biodiesel trainer: noise levels, model sizes, FSA, resume, run records | kinetic-only |
-| `chemkan/scripts/train_hydrogen.py`, `train_methane.py` | final two-stage trainers: entry points to the shared `combustion/train_combustion.py` | combustion |
-| `deeponet/train_deeponet.py` | the DeepONet baseline ([`deeponet/README.md`](deeponet/README.md)) | biodiesel |
+| [`scripts/train.py`](chemkan/scripts/train.py) | Short, editable example; accepts a simple custom `.npz` | Kinetic core only, constant temperature |
+| [`scripts/train_biodiesel.py`](chemkan/scripts/train_biodiesel.py) | Full biodiesel figure configurations, FSA, noise levels, checkpointing and resume | Kinetic core only |
+| [`scripts/train_hydrogen.py`](chemkan/scripts/train_hydrogen.py) | Hydrogen Stage 1 or Stage 2 | Full combustion ChemKAN |
+| [`scripts/train_methane.py`](chemkan/scripts/train_methane.py) | Methane Stage 1 or Stage 2 | Full combustion ChemKAN |
+| [`deeponet/train_deeponet.py`](deeponet/train_deeponet.py) | Biodiesel DeepONet baseline | Direct operator prediction |
 
-The final scripts configure the library like the authors' released example
-(`reference_components.py`). The explanation notebooks and `chemkan.training` use the
-library's generic configuration instead: they teach the building blocks, not the recorded runs.
+The hydrogen and methane files are system-specific **entry points** to the shared [`combustion/train_combustion.py`](chemkan/scripts/combustion/train_combustion.py). The shared trainer implements loading, the stages, solving, gradients, losses, logging and checkpoints; the selected system determines the chemical mechanism and configuration.
 
-### Kinetic-only systems (biodiesel)
+### Kinetic-only training: biodiesel
 
-The species are integrated and temperature is a constant model input:
-`dz/dt = [KAN_kin(z), 0] / 50 s` on normalized `z = [Ŷ, T̂]`. `train.py` keeps every setting in a
-dictionary at its top and, on the biodiesel data, computes exactly what `train_biodiesel.py`
-computes (tested in `tests/test_train_example.py`). A paper-figure configuration (Fig. 5, 5 % noise):
+Temperature is a constant model input for each trajectory; it is **not predicted as a changing state**. For the recorded biodiesel runs, the kinetic right-hand side is divided by a **time-scale parameter of 50 seconds**. This RHS divisor is **not the loss normalization**.
+
+Example: a 156-parameter model trained on the 5% noise dataset for Figure 5:
 
 ```bash
-python chemkan/scripts/train_biodiesel.py --data canonical --noise-percent 5 --hidden 4 \
-    --solve-mode batched --sensitivity fsa --rhs-divisor 50 --epochs 10000 \
-    --run-dir runs/biodiesel/noise05
+python chemkan/scripts/train_biodiesel.py --data canonical \
+  --noise-percent 5 --hidden 4 --solve-mode batched \
+  --sensitivity fsa --rhs-divisor 50 --epochs 10000 \
+  --run-dir runs/biodiesel/noise05
 ```
 
-| `train_biodiesel.py` option | Default | Figure runs | Meaning |
+| Option | Default | Recorded figure-run choice | Purpose |
 |---|---|---|---|
-| `--data` | `author_repo` | `canonical` | `canonical`: `biodiesel_v2.npz` (or `--data-file`); `author_repo`: the released example's arrays, built by `biodiesel/build_released_dataset.py` |
-| `--noise-percent` | 0 | 0, 1, 2, 3, 5, 7, 10, 15 | stored noise level of the training targets |
-| `--hidden` | 4 | 2, 3, 4, 9, 11 | hidden width H; 39·H parameters (156 at H = 4) |
-| `--sensitivity` | `direct_autograd` | `fsa` | gradient backend: FSA (the paper's method) or backpropagation through the solver |
-| `--solve-mode` | `per_trajectory` | `batched` | one solve per trajectory (as the released Julia code) or one for all |
-| `--rhs-divisor` | 50 | 50 | time scale [s] dividing the right-hand side (the data window is 30 s) |
-| `--epochs` | 10000 | 10,000 (Fig. 5), 5,000 (Fig. 4) | |
-| `--seed`, `--threads`, `--checkpoint-every` | 0, 1, 500 | | `--resume`, `--init-from`: see `--help` |
+| `--data` | `author_repo` | `canonical` | Authors' released example arrays or the canonical `.npz` dataset |
+| `--data-file` | Depends on data mode | `chemkan/data/generated/biodiesel_v2.npz` | Dataset path |
+| `--noise-percent` | `0` | 0, 1, 2, 3, 5, 7, 10, 15 | Stored synthetic noise level (canonical mode) |
+| `--hidden` | `4` | 2, 3, 4, 9, 11 | Hidden width; the main model has 156 parameters |
+| `--sensitivity` | `direct_autograd` | `fsa` | Differentiate through the solver or integrate forward sensitivities |
+| `--solve-mode` | `per_trajectory` | `batched` | Independent solve per trajectory or one batched solve |
+| `--rhs-divisor` | `50` | `50` | Divisor applied to the ODE right-hand side, in seconds |
+| `--epochs` | `10000` | 5,000 (Fig. 4); 10,000 (Fig. 5) | Total training epochs |
+| `--seed` | `0` | `0` | Random seed |
 
-### Two-stage combustion models (hydrogen, methane)
+For less frequently used options (initializing from a checkpoint, checkpoint frequency, threads and resuming), use `python chemkan/scripts/train_biodiesel.py --help`.
 
-1. **Stage 1** trains the kinetic core on the species, with the observed temperature `T(t)`
-   (a dense Cantera trajectory, 20,000 points) as an input:
-   `dŶ/dt = KAN_kin([Ŷ, T̂_obs(t)]) / t_ref`. It writes permanent archives
-   `archive/stage1_<run>_epoch<N>.pt`.
-2. **Stage 2** starts from one Stage-1 archive, adds the thermodynamic superstructure and
-   trains the whole model on the full state, temperature included:
-   `dû/dt = [r, Linear(r) + KAN_cor(û)] / t_ref` with `r = KAN_kin(û)`. The kinetic core is
-   not frozen. The loss adds an element-conservation term (weight 1e-4).
+### Two-stage combustion: hydrogen and methane
+
+**Stage 1 — kinetic core.** Integrate the species while providing the observed temperature trajectory as an input. The training temperature provider uses dense Cantera temperature histories. **Stage 2 — kinetics + thermodynamics.** Initialize from a Stage-1 archive, add the thermodynamic linear branch and KAN correction, then optimize species and temperature together. **The kinetic core is not frozen in Stage 2.** The full loss includes an element-conservation penalty of weight `1e-4`.
 
 ```bash
-python chemkan/scripts/train_hydrogen.py stage1 --run-dir runs/hydrogen/S1_seed0 --epochs 100000
-python chemkan/scripts/train_hydrogen.py stage2 --run-dir runs/hydrogen/S2_seed0 --epochs 100000 \
-    --stage1-archive runs/hydrogen/S1_seed0/archive/stage1_S1_seed0_epoch100000.pt
+# Example: hydrogen, full recorded Stage-1 training budget
+python chemkan/scripts/train_hydrogen.py stage1 \
+  --run-dir runs/hydrogen/S1_seed0 --epochs 100000
+
+# Stage 2 begins from the saved Stage-1 archive
+python chemkan/scripts/train_hydrogen.py stage2 \
+  --run-dir runs/hydrogen/S2_seed0 --epochs 100000 \
+  --stage1-archive runs/hydrogen/S1_seed0/archive/stage1_S1_seed0_epoch100000.pt
 ```
 
-`train_methane.py` takes the same commands. The defaults are the settings of the recorded runs:
+Use `train_methane.py` with the corresponding methane archive and run directory. The two systems share the training procedure but use different species, datasets and reference times.
 
-| Option | Default | Meaning |
+| Option | Hydrogen default | Methane default | Meaning |
+|---|---|---|---|
+| `--epochs` | `100000` | `100000` | Total number of epochs in the selected stage |
+| `--t-ref` | `6e-4` s | `5e-3` s | Right-hand-side time divisor (the system's observation window) |
+| `--lr` | `2e-3` | `2e-3` | Adam learning rate |
+| `--rtol`, `--atol` | `1e-6`, `1e-8` | Same | Tsit5 solver tolerances |
+| `--dtype` | `float32` | Same | Arithmetic precision |
+| `--solve-mode` | `batched` | Same | Batched or per-trajectory ODE solves |
+| `--sensitivity` | `direct_autograd` | Same | Gradient backend; the recorded runs used direct autograd |
+| `--checkpoint-every` | `500` | Same | Working checkpoint interval |
+| `--archive-every` | `5000` | Same | Permanent snapshot interval |
+| `--stage1-archive` (Stage 2) | Required | Required | Initial Stage-1 checkpoint |
+| `--warmup-epochs` (Stage 2) | `0` | Same | Optional thermodynamic-linear warm-up |
+
+To resume an interrupted run, use `--resume` with the same run directory. Set a larger `--epochs` value to extend a completed stage. For the complete multi-stage experiment commands, use the launchers in the next section.
+
+## Reproduce the recorded experiments
+
+Run these from the repository root. **Figure-run launchers may skip completed checkpoints** already provided in `results/`; use separate output directories for fresh training.
+
+| Experiment | Launcher | Existing records |
 |---|---|---|
-| `--epochs` | 100000 | total epochs of the stage (`--resume --epochs N` extends it) |
-| `--t-ref` | the time window: 6e-4 s (H₂), 5e-3 s (CH₄) | time scale dividing the right-hand side |
-| `--lr` | 2e-3 | Adam learning rate (the paper's) |
-| `--rtol`, `--atol` | 1e-6, 1e-8 | Tsit5 tolerances |
-| `--dtype` | `float32` | |
-| `--solve-mode` | `batched` | one solve for all 35 training conditions |
-| `--sensitivity` | `direct_autograd` | or `fsa` |
-| `--checkpoint-every`, `--archive-every` | 500, 5000 | resume checkpoints and permanent archives |
-| `--stage1-archive` (stage 2) | — | the Stage-1 archive to branch from |
-| `--warmup-epochs` (stage 2) | 0 | optional epochs that train only the thermodynamic linear layer first |
+| Biodiesel ChemKAN (13 runs; Figs. 3–6) | `python chemkan/scripts/biodiesel/run_figure_runs.py` | [`results/biodiesel/`](results/biodiesel/README.md) |
+| Biodiesel DeepONet (14 runs) | `bash deeponet/run_figure_runs.sh` | [`results/biodiesel/`](results/biodiesel/README.md) |
+| Hydrogen Stage 1 → Stage 2 | `bash chemkan/scripts/combustion/run_hydrogen.sh` | [`results/hydrogen/`](results/hydrogen/README.md) |
+| Methane Stage 1 → Stage 2 | `bash chemkan/scripts/combustion/run_methane.sh` | [`results/methane/`](results/methane/README.md) |
+| Inference benchmark | `bash chemkan/scripts/benchmark/run_inference_benchmark.sh` | [`results/inference_benchmark/`](results/inference_benchmark/README.md) |
 
-### Resuming
-
-Biodiesel: rerun an interrupted run with the same command plus `--resume`. Hydrogen and
-methane: `--resume`, with a larger `--epochs` to extend a stage. To continue a committed run,
-copy its folder, copy `stage2_final.pt` to `stage2_working.pt` (identical for a finished run)
-and resume in the copy:
-
-```bash
-cp -Rp results/hydrogen/S2_seed0_200k runs/hydrogen/S2_more
-cp runs/hydrogen/S2_more/stage2_final.pt runs/hydrogen/S2_more/stage2_working.pt
-python chemkan/scripts/train_hydrogen.py stage2 --run-dir runs/hydrogen/S2_more --resume --epochs 250000
-```
-
-## Reproducing the experiments
-
-| Experiment | Command | Records and checkpoints |
-|---|---|---|
-| biodiesel ChemKAN figure runs (Figs. 3–6), 13 runs | `python chemkan/scripts/biodiesel/run_figure_runs.py` (`--list`, `--dry-run`, `--only`, `--shard K/N`) | `results/biodiesel/chemkan_figure_runs/fig04/`, `fig05/`, one folder per run with `checkpoint_final.pt` |
-| biodiesel DeepONet figure runs, 14 runs | `bash deeponet/run_figure_runs.sh` | `results/biodiesel/deeponet_figure_runs/fig04/`, `fig05/` |
-| hydrogen main run (S1 100k; S2 100k → 150k → 200k) | `bash chemkan/scripts/combustion/run_hydrogen.sh` | `results/hydrogen/S1_seed0/archive/stage1_S1_seed0_epoch100000.pt`; `S2_seed0*/stage2_final.pt`, 5,000-epoch snapshots in `archive/` |
-| methane main run (S1; S2 to 200k from the 50k Stage-1 archive) | `bash chemkan/scripts/combustion/run_methane.sh` | `results/methane/S1_seed0/archive/`; `S2_seed0/stage2_final.pt`, `archive/` (selected: `stage2_S2_seed0_epoch180000.pt`) |
-| inference benchmark | `bash chemkan/scripts/benchmark/run_inference_benchmark.sh` | `results/inference_benchmark/` |
-
-The biodiesel launchers write into `results/` and skip every run whose `checkpoint_final.pt`
-exists, so on a fresh clone they report everything as done. `BIODIESEL_RESULTS=<dir>`
-redirects both launchers and the biodiesel figures to `<dir>`, so an independent rerun leaves
-the recorded results untouched:
+For an independent biodiesel/DeepONet rerun without overwriting committed model runs:
 
 ```bash
 export BIODIESEL_RESULTS=runs/biodiesel_rerun
-python chemkan/scripts/biodiesel/run_figure_runs.py && bash deeponet/run_figure_runs.sh
+python chemkan/scripts/biodiesel/run_figure_runs.py
+bash deeponet/run_figure_runs.sh
 python chemkan/scripts/figures/plot_all.py --only fig03 fig04 fig05a fig05b fig06
 ```
 
-The combustion launchers write to `runs/<system>/` (`OUT=<dir>` to change). The inference
-benchmark overwrites its folder's timings.
+The combustion launchers use `runs/<system>/` by default; set `OUT=<directory>` to redirect them. The inference benchmark writes timing outputs to its designated directory: check its README before rerunning it. Historic launch scripts under `results/` are retained as records and may use obsolete development paths; use the **current launchers** above.
 
-## Evaluation and figures
+## Evaluation, figures and interpretability
 
-| Task | Command | Output |
+Figures can be regenerated from saved checkpoints and evaluation records without retraining. **Some plotting/evaluation commands write into `results/`**, potentially changing timestamps or machine-specific paths. Use alternate outputs where supported if you want a clean working tree.
+
+| Output | Script or command | Notes |
 |---|---|---|
-| a hydrogen checkpoint on the 36 conditions | `python chemkan/scripts/combustion/evaluate_checkpoint.py --checkpoint <pt> --out <json>` | losses; Stage 2 also temperature rise and ignition delay |
-| hydrogen 441-condition grid (Fig. 8A) | `python chemkan/scripts/combustion/evaluate_hydrogen_grid.py --run-dir results/hydrogen/S2_seed0_200k --out runs/eval --label main_S2_seed0_200k` | per-condition table |
-| hydrogen ignition delays (Fig. 8B) | `python chemkan/scripts/combustion/evaluate_hydrogen_ignition.py` with the same arguments | ignition-delay table |
-| methane 441-condition grid | `python chemkan/scripts/combustion/evaluate_methane_grid.py` | `results/methane/generalization/` |
-| trajectory plots of any checkpoint | `python chemkan/scripts/combustion/plot_trajectory.py --checkpoint <pt> --out-dir runs/plots` | one figure per condition |
-| paper Figs. 3–8 | `python chemkan/scripts/figures/plot_all.py` | `results/biodiesel/figures/`, `results/hydrogen/figures/` |
-| methane main species (extension figure) | `python chemkan/scripts/figures/methane_species.py` | `results/methane/figures/methane_main_species_S2_epoch180000_T1550_phi1p3.{png,pdf}` |
-| interpretability analyses | `python chemkan/scripts/interpretability/biodiesel.py`; `combustion.py --system hydrogen` (or `methane`) | `results/<system>/interpretability/` |
+| Original-paper Figs. 3–8 | `python chemkan/scripts/figures/plot_all.py` | Reads biodiesel and hydrogen recorded runs; see [figure guide](chemkan/scripts/figures/README.md) |
+| Hydrogen checkpoint metrics | `python chemkan/scripts/combustion/evaluate_checkpoint.py --checkpoint <pt> --out <json>` | Losses; Stage-2 temperature and ignition metrics |
+| Hydrogen 441-condition evaluation | `python chemkan/scripts/combustion/evaluate_hydrogen_grid.py --run-dir results/hydrogen/S2_seed0_200k --out runs/eval --label main_S2_seed0_200k` | Paper Fig. 8A analogue |
+| Hydrogen ignition delays | `python chemkan/scripts/combustion/evaluate_hydrogen_ignition.py` | See `--help` for its table/output arguments |
+| Methane generalization | `python chemkan/scripts/combustion/evaluate_methane_grid.py` | 441-condition extension grid |
+| Individual trajectory plots | `python chemkan/scripts/combustion/plot_trajectory.py --checkpoint <pt> --out-dir runs/plots` | Inspect saved Stage-2 model |
+| **Methane key-species figure** | `python chemkan/scripts/figures/methane_species.py` | CH₄, O₂, CO₂, H₂O and CO, comparing prediction and reference at 1550 K / φ 1.3 |
+| Interpretability | `python chemkan/scripts/interpretability/biodiesel.py`; `python chemkan/scripts/interpretability/combustion.py --system hydrogen` (or `methane`) | See recorded per-system interpretability READMEs |
 
-Biodiesel runs evaluate themselves at the end of training (`metrics.json`: training solver and a
-near-exact rtol 1e-10 solve). `plot_all.py` reproduces the committed figures (PNG identical, PDF
-apart from its creation date) and rewrites `results/hydrogen/tables/fig07_per_state_mse_200k.csv`
-with the same numbers and the checkpoint's current path.
-[`chemkan/scripts/figures/README.md`](chemkan/scripts/figures/README.md) lists each figure's
-script and options.
+The methane figure is a **project extension, not a figure from the ChemKAN paper**. Its selected model is `results/methane/S2_seed0/archive/stage2_S2_seed0_epoch180000.pt`, and the output is [`results/methane/figures/`](results/methane/figures/).
 
-## Notebooks
+## Main results
 
-| Notebook | Contents |
+The tables below are a concise overview, **not claims of exact reproduction**. Unless stated otherwise, reported MSE is averaged over time and states in training-set min–max-normalized coordinates. For figure-by-figure evidence, evaluation definitions and discrepancies, see [`docs/reproduction_summary.md`](docs/reproduction_summary.md).
+
+### Biodiesel — model inference and noise
+
+The DeepONet comparison uses project-specific tanh activation and Adam at a learning rate of `1e-2`; the paper does not specify these settings. See [DeepONet details](deeponet/README.md).
+
+| Comparison | Published paper | This reproduction |
+|---|---|---|
+| ChemKAN noise-free test MSE ratio, 15% vs. 0% training noise | About 2× | 1.84× |
+| DeepONet noise-free test MSE ratio, 15% vs. 0% | About 5× | 6.90× |
+| DeepONet / ChemKAN noise-free test MSE at 15% noise | 4.4× | 2.73× (same ordering, smaller difference) |
+| ChemKAN noise-free neural scaling: training / test slopes | 1.0 / 0.6 | 1.49 / 0.37 (**does not match numerically**) |
+| Figure 5A comparison across noise levels | ChemKAN has lower test MSE throughout | **Not reproduced at every noise level**; see the detailed comparison |
+
+### Hydrogen — two-stage combustion
+
+| Comparison | Published paper | This reproduction |
+|---|---|---|
+| Model size | 344 parameters | 344 parameters |
+| Figure 7 train/held-out profiles | Accurate reconstructions | MSE about `4.5e-4` / `3.5e-4` |
+| Figure 8A, 441-condition grid | Errors mainly near `1e-4`, with weaker cold-region performance | Median MSE about `4.9e-4`; substantially higher in the coldest region |
+| Figure 8B ignition delays | Good agreement | Median absolute relative error about **1.4%** across 30 igniting conditions |
+| Speed-up vs. detailed chemistry | **2×** vs. Arrhenius.jl | Julia ChemKAN port: **6.3×** vs. Arrhenius.jl at the training tolerance, and **2.5×** vs. Cantera at its dataset tolerance; PyTorch version slower |
+
+### Methane — new project extension
+
+The paper does not contain a methane experiment. We used GRI-Mech 3.0 with Ar excluded from the modeled state, leaving 52 species. We selected the 180,000-epoch Stage-2 snapshot because the 200,000-epoch model lies on a training-loss spike and training had not converged.
+
+| Metric | Recorded result |
 |---|---|
-| [`biodiesel_reproduction.ipynb`](chemkan/notebooks/biodiesel_reproduction.ipynb) | biodiesel Figs. 3–6 and the paper-vs-ours table, with the DeepONet baseline |
-| [`hydrogen_reproduction.ipynb`](chemkan/notebooks/hydrogen_reproduction.ipynb) | hydrogen Stage 1 and 2, evaluation, Figs. 7, 8A, 8B |
-| [`methane_extension.ipynb`](chemkan/notebooks/methane_extension.ipynb) | methane training, snapshot selection, errors, trajectories, ignition delay |
-| [`forward_sensitivity_analysis.ipynb`](chemkan/notebooks/forward_sensitivity_analysis.ipynb) | the sensitivity equations and their implementation; an analytic check; FSA vs direct-autograd gradients on the final models over solver tolerances; trajectory independence; the FSA unit tests |
-| [`extra/01`–`04`](chemkan/notebooks/extra) | explanations: a KAN from scratch, the edge-function `einsum`, ChemKAN from the paper's equations, the library's kinetic path |
-| [`data_generation_walkthrough.ipynb`](chemkan/scripts/data_gen/data_generation_walkthrough.ipynb) | dataset generation step by step, checked against the committed files |
+| Training-condition median MSE | About `9.7e-4` |
+| Held-out 1550 K / φ 1.3 MSE | About `1.16e-3` |
+| Median MSE across 406 unseen grid conditions | About `9.2e-4` |
+| Median ignition-delay relative error | About **1.4%** |
+| Julia ChemKAN inference speed | **4.0×** vs. Cantera; **13.5×** vs. Arrhenius.jl (under the benchmark settings) |
 
-[`chemkan/notebooks/README.md`](chemkan/notebooks/README.md) describes each one.
+Links: [biodiesel notebook](chemkan/notebooks/biodiesel_reproduction.ipynb) · [hydrogen notebook](chemkan/notebooks/hydrogen_reproduction.ipynb) · [methane notebook](chemkan/notebooks/methane_extension.ipynb) · [inference benchmark](results/inference_benchmark/README.md).
 
-**Forward sensitivity analysis.** `--sensitivity fsa` integrates the state and its parameter
-sensitivities `S = ∂x/∂θ` (`dS/dt = (∂F/∂x) S + ∂F/∂θ`, `S(t₀) = 0`) in one Tsit5 solve and
-assembles `dL/dθ = Σ_j S(t_j)ᵀ ∂L/∂x(t_j)`, differentiating the trainers' own right-hand side
-with `torch.func`. In the FSA notebook, its gradients converge to the direct-autograd ones as
-the tolerance tightens (agreement 2e-7 to 4e-6 at rtol 1e-10 on the final models). At the
-biodiesel training tolerance (rtol 1e-2, the released example's) the gradients of both
-backends are far from converged, while the loss is accurate.
+## Use your own data
 
-## Documentation and resources
+The simple kinetic-only [`train.py`](chemkan/scripts/train.py) accepts one NumPy `.npz` file:
 
-| Resource | What it is |
+| Key | Shape | Description |
+|---|---|---|
+| `t` | `(n_times,)` | Shared, increasing observation times |
+| `train_states` | `(n_train, n_times, m)` | Training species trajectories |
+| `test_states` | `(n_test, n_times, m)` | Held-out species trajectories |
+| `train_T` | `(n_train,)` | Constant temperature of each training trajectory |
+| `test_T` | `(n_test,)` | Constant temperature of each held-out trajectory |
+
+```bash
+python chemkan/scripts/train.py --data my_system.npz
+```
+
+The example derives its normalization from the training data and constructs a kinetic core for `m` species. It assumes **one common time grid and constant temperature per trajectory**. Its `rhs_divisor` must be chosen for the new system's timescale; the biodiesel value **50 s** is not a universal constant.
+
+For systems with evolving temperature, study [`train_hydrogen.py`](chemkan/scripts/train_hydrogen.py), [`train_methane.py`](chemkan/scripts/train_methane.py) and [`combustion/train_combustion.py`](chemkan/scripts/combustion/train_combustion.py). The existing combustion scripts are **system-specific**, not a plug-and-play trainer for any mechanism. See the [data-generation documentation](chemkan/scripts/data_gen/README.md) for the supplied datasets.
+
+## Reproducibility and limitations
+
+- **Fixed configurations, single seeds.** The recorded main ChemKAN experiments use seed 0; cross-seed variability was not systematically evaluated. The unimplemented ChemNODE baseline from the original project proposal is not included.
+- **Reproduction checks.** Short five-epoch reruns of the 31 principal ChemKAN/DeepONet configurations agreed with the recorded histories exactly or within cross-platform floating-point differences. This does **not** prove full 200,000-epoch runs would be bit-identical on another machine.
+- **Platform differences.** Parts of biodiesel and methane Stage 1 were run on a Linux x86 JupyterHub, while other runs used an ARM Mac. Matching random seeds does not guarantee identical last-bit numerical results across those environments, particularly with an adaptive ODE solver.
+- **Saved runs.** Historical experiments were interrupted/resumed; the repository includes selected checkpoints, histories, figures, metrics and configuration files. [Results path mappings](results/PATHS.md) describe moved records. The selected 33 histories retain all epoch rows but only analysis-essential columns; the full diagnostic histories remain in the development archive.
+- **Scientific discrepancies.** Biodiesel neural-scaling slopes and several DeepONet/ChemKAN comparisons differ from the paper; hydrogen generalization deteriorates around 975–987.5 K. The methane training is not converged and can predict slightly negative CH₄/O₂ after ignition at the designated held-out condition. See the [reproduction summary](docs/reproduction_summary.md).
+- **Performance scope.** Reported Julia speed-ups depend on solver tolerances and the measured environment. They must not be attributed to the PyTorch implementation.
+- **FSA validation.** FSA gradient checks are documented in the [validation notebook](chemkan/notebooks/forward_sensitivity_analysis.ipynb) and tested in [`test_fsa.py`](chemkan/tests/test_fsa.py). The hydrogen/methane **recorded runs do not use FSA**.
+- **Provenance.** Some data-generation and implementation conventions followed direct clarification from the original ChemKAN authors. The public code, dataset metadata and [reproduction summary](docs/reproduction_summary.md) document the applied conventions; the private correspondence is not included.
+
+## Repository layout
+
+```text
+chemkan/
+├── src/chemkan/              reusable KAN layers, ChemKAN model, dynamics, FSA and losses
+├── scripts/
+│   ├── train.py              simple kinetic-only training example
+│   ├── train_biodiesel.py    final biodiesel reproduction trainer
+│   ├── train_hydrogen.py     hydrogen two-stage training entry point
+│   ├── train_methane.py      methane two-stage training entry point
+│   ├── combustion/           shared combustion trainer, evaluation and launchers
+│   ├── data_gen/             SciPy/Cantera datasets and generation walkthrough
+│   ├── figures/              paper figures and methane extension figure
+│   ├── interpretability/     learned-function analysis
+│   ├── benchmark/            inference performance experiments
+│   └── biodiesel/            biodiesel reproduction launcher and checks
+├── notebooks/
+│   ├── extra/                **from-scratch and source-code explanation notebooks**
+│   ├── forward_sensitivity_analysis.ipynb
+│   └── ...                   biodiesel, hydrogen and methane reproduction notebooks
+├── data/generated/           included, regenerable datasets
+├── tests/                    automated tests
+└── third_party/torchdiffeq/  pinned solver source and license
+deeponet/                     PyTorch DeepONet baseline and upstream_reference/
+docs/                        original paper, sources, interactive visualization, learning guide,
+                             detailed reproduction summary
+results/                     selected experimental artifacts; PATHS.md documents provenance
+```
+
+## Documentation and references
+
+| Resource | Description |
 |---|---|
-| [`docs/reproduction_summary.md`](docs/reproduction_summary.md) | paper-versus-ours for every reproduced result, with verdicts, numbers and links to the records; DeepONet, FSA, methane and inference speed |
-| [`docs/sources.md`](docs/sources.md) | the references used in the project, and further reading |
-| [`docs/paper/d5cp02009c.pdf`](docs/paper/d5cp02009c.pdf) | the published ChemKAN paper, CC BY-NC 4.0 ([licence and attribution](docs/paper/README.md); separate from the code's licence) |
-| [`docs/visualization/chemkan_architecture.html`](docs/visualization/chemkan_architecture.html) | interactive walk through the hydrogen ChemKAN as the paper describes it (open the file in a browser); its trajectories are schematic, not model predictions |
-| [`docs/implementing_chemkan_from_scratch_guide.md`](docs/implementing_chemkan_from_scratch_guide.md) | a step-by-step guide to building ChemKAN, with notebook [`extra/01`](chemkan/notebooks/extra/01_implement_kan.ipynb) |
-| [`chemkan/notebooks/extra/`](chemkan/notebooks/extra) | explanation notebooks: KAN layers, the edge-function `einsum`, ChemKAN from the paper's equations, the library's kinetic path |
-| [`forward_sensitivity_analysis.ipynb`](chemkan/notebooks/forward_sensitivity_analysis.ipynb) | the FSA formulation and its validation on the final models |
+| [Reproduction summary](docs/reproduction_summary.md) | Figure-by-figure paper-versus-ours findings, numerical evidence and limitations |
+| [Learning guide](docs/implementing_chemkan_from_scratch_guide.md) | Detailed reference explanations and solutions for the guided KAN workbook |
+| [Notebook index](chemkan/notebooks/README.md) | What each reproduction, FSA and from-scratch notebook contains |
+| [Interactive architecture visualization](docs/visualization/chemkan_architecture.html) | Browser-based schematic of the ChemKAN architecture (illustrative trajectories) |
+| [Published ChemKAN paper](docs/paper/d5cp02009c.pdf) | The original article; [paper attribution/license](docs/paper/README.md) |
+| [Sources and further reading](docs/sources.md) | Related literature, tools and code references |
+| [DeepONet details](deeponet/README.md) | Baseline implementation, reproduction choices and upstream relationship |
+| [Result mappings](results/PATHS.md) | Historical experiment paths, retained artifacts and diagnostics |
 
-## Custom datasets
+**Primary reference**
 
-For a system at constant temperature, write one `.npz` with `t` (n_t,), `train_states` and
-`test_states` (cases, n_t, m species), `train_T` and `test_T` (one temperature per trajectory),
-then run `python chemkan/scripts/train.py --data my_system.npz`. The script checks the file,
-normalizes with the training statistics and builds the kinetic core for m species. Its
-docstring states the format and the limits (kinetic core only, constant temperature, one shared
-time grid); `rhs_divisor` should be of the order of the time window. A system whose temperature
-evolves needs the two-stage trainer; `configure_system` in `combustion/train_combustion.py`
-shows how methane was added next to hydrogen.
-
-The eight datasets in `chemkan/data/generated/` are regenerable; each command in
-[`chemkan/scripts/data_gen/README.md`](chemkan/scripts/data_gen/README.md) reproduces its
-file's arrays exactly.
-
-## Reproducibility
-
-- **Short reruns:** all 31 recorded main runs, rerun for 5 epochs with their recorded
-  settings, matched their histories exactly for hydrogen Stage 1 and 2, methane Stage 2 and the
-  14 DeepONet runs.
-- **Across platforms:** the biodiesel ChemKAN runs and methane Stage 1 (to epoch 28,000) were
-  trained on a Linux JupyterHub. A rerun on the Mac starts from the same weights and agrees to
-  rounding (1e-12 to 1e-16 relative in float64; one float32 rounding step in methane Stage 1).
-  Over long training, the adaptive solver and Adam amplify these differences: a 5,000-epoch
-  rerun of one biodiesel run ended within 7e-4 relative of its record.
-- **Resumed runs:** the recorded runs were interrupted and resumed several times (their
-  `run.log`); on the same platform, a resumed run is bit-identical to an uninterrupted one.
-- **Records:** `results/` holds the configs, metrics, logs, checkpoints, figures, tables,
-  historical launch scripts and READMEs as produced on the development branch, where they name
-  its paths; [`results/PATHS.md`](results/PATHS.md) maps them to the current ones. The
-  training histories keep every row but only the columns used here; the complete files are on
-  the development branch, and `PATHS.md` lists the dropped columns. Labels recorded in run
-  configs (for example `"experiment": "hydrogen/author_matched"`) are kept in new runs so that
-  the recorded runs stay resumable.
-
-## Limitations
-
-- One seed per ChemKAN run; differences between models are single-run observations.
-- The biodiesel neural-scaling orders differ from the paper's (1.49 / 0.37 vs 1.0 / 0.6).
-- The methane model is not converged, and its final 200k model sits on a loss spike, so the
-  epoch-180,000 snapshot is reported. After ignition it predicts slightly negative CH₄ and O₂
-  at the held-out condition (`methane_species.py`).
-- Hydrogen generalization is weak at 975–987.5 K.
-- The PyTorch ChemKAN is slower at inference than the detailed-chemistry references; the
-  speed-up comes from the Julia port of the same weights, measured on one machine and one thread.
-- The paper states neither the DeepONet activation nor its learning rate; the figure runs use
-  tanh and Adam lr 1e-2, chosen by a 10-seed comparison ([`deeponet/README.md`](deeponet/README.md)).
-- The authors' clarifications by email, cited in configs and docstrings as items G*, B*, H*, are
-  summarized in `docs/authors_materials.md` on the development branch.
-
-## References
-
-- B. C. Koenig, S. Kim, S. Deng. *ChemKANs for combustion chemistry modeling and acceleration.*
-  Phys. Chem. Chem. Phys. 27, 17313–17330 (2025); [arXiv:2504.12580](https://arxiv.org/abs/2504.12580).
-  Released code: DENG-MIT/ChemKAN.
-- L. Lu, P. Jin, G. Pang, Z. Zhang, G. E. Karniadakis. *Learning nonlinear operators via DeepONet
-  based on the universal approximation theorem of operators.* Nat. Mach. Intell. 3, 218–229 (2021).
-- Cantera 3.0.0, <https://cantera.org>; GRI-Mech 3.0, <http://combustion.berkeley.edu/gri-mech/>.
-- torchdiffeq, <https://github.com/rtqichen/torchdiffeq> (vendored in `chemkan/third_party/`).
-- SciMLSensitivity.jl, "Sensitivity Math Details",
-  <https://docs.sciml.ai/SciMLSensitivity/stable/sensitivity_math/> (the FSA formulation).
+B. C. Koenig, S. Kim and S. Deng, *ChemKANs for combustion chemistry modeling and acceleration*, **Physical Chemistry Chemical Physics**, 27, 17313–17330 (2025). [DOI: 10.1039/D5CP02009C](https://doi.org/10.1039/D5CP02009C) · [arXiv](https://arxiv.org/abs/2504.12580).
 
 ```bibtex
 @article{koenig2025chemkans,
-  title={ChemKANs for combustion chemistry modeling and acceleration},
-  author={Koenig, Benjamin C and Kim, Suyong and Deng, Sili},
-  journal={Physical Chemistry Chemical Physics},
-  volume={27},
-  number={33},
-  pages={17313--17330},
-  year={2025},
-  publisher={Royal Society of Chemistry}
+  title   = {ChemKANs for combustion chemistry modeling and acceleration},
+  author  = {Koenig, Benjamin C. and Kim, Suyong and Deng, Sili},
+  journal = {Physical Chemistry Chemical Physics},
+  volume  = {27},
+  pages   = {17313--17330},
+  year    = {2025},
+  doi     = {10.1039/D5CP02009C}
 }
 ```
+
+The original paper PDF, vendored `torchdiffeq`, and upstream DeepONet source have **their own respective license terms**; see the license files and attribution within those directories.

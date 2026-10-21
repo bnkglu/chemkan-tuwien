@@ -1,13 +1,16 @@
-# Result locations: original → current
+# Result locations: development (`dev`) branch → release
 
-The results were produced under `results/experiments/` on the development branch and moved
-here. The run records (configs, metrics, histories, logs, checkpoints, READMEs, reports and
-the historical launch scripts) still name the **original** paths and script names; this
-table maps them to the current ones. Their content is unchanged, with these exceptions:
+The results were produced under `results/experiments/` during this project's development
+on the `dev` branch. The tables map those development locations and script names to the
+release layout. These are project-development paths, not locations in the ChemKAN authors'
+repository. Saved run records and historical launch scripts retain their development
+paths; reader-facing documentation uses the release paths. The numerical records retain
+their saved values, with these packaging changes:
 
 - **Training histories** (`history.csv`, `stage1_history.csv`, `stage2_history.csv`, 33 files)
   keep every row but only the columns the figures, notebooks and READMEs use; the complete
-  files are on the development branch. The kept columns are identical to the originals.
+  files are on the development (`dev`) branch. The kept values are identical to the
+  development records.
 
   | histories | kept columns | dropped (on the development branch) |
   |---|---|---|
@@ -21,7 +24,7 @@ table maps them to the current ones. Their content is unchanged, with these exce
 
 ## Result folders
 
-| Original | Current |
+| Development-branch location | Release location |
 |---|---|
 | `results/experiments/biodiesel/author_repo_match/README.md` | `results/biodiesel/README.md` |
 | `results/experiments/biodiesel/author_repo_match/figures/fig04/`, `fig05/` (ChemKAN runs), `run_log_*.txt` | `results/biodiesel/chemkan_figure_runs/` |
@@ -45,7 +48,7 @@ table maps them to the current ones. Their content is unchanged, with these exce
 
 ## Scripts named in the records
 
-| Original | Current |
+| Development-branch location | Release location |
 |---|---|
 | `chemkan/scripts/author_repo_match/train_author_repo_match.py` | `chemkan/scripts/train_biodiesel.py` |
 | `chemkan/scripts/author_repo_match/train_author_matched_hydrogen.py` | `chemkan/scripts/combustion/train_combustion.py` (entry points `train_hydrogen.py`, `train_methane.py`; `--system` becomes the choice of entry point) |
@@ -82,7 +85,7 @@ choice keeps its value `--data author_repo` (the released example's arrays).
 `results/hydrogen/run_main.sh`, `resume_main.sh`, `results/hydrogen/settings_screening/run_chain.sh`,
 `results/methane/run_main.sh`, `run_stage2_from_50k.sh`, `extend_stage2_to_{150k,200k}.sh` and
 `results/inference_benchmark/run_all.sh`, `run_methane.sh` are kept unchanged as the record of
-how the runs were launched (original paths). The working launchers are
+how the runs were launched (development-branch paths). The working launchers are
 `chemkan/scripts/combustion/run_hydrogen.sh`, `run_methane.sh`,
 `chemkan/scripts/benchmark/run_inference_benchmark.sh`, `chemkan/scripts/biodiesel/run_figure_runs.py`
 and `deeponet/run_figure_runs.sh`.

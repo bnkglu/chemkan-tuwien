@@ -1,17 +1,17 @@
 # Interpretability of the hydrogen ChemKAN (read-only analysis)
 
-`interpretability.py` reproduces everything here (figures as `.png` and `.pdf`, `summary.json`):
+Run from the repository root to regenerate the analysis figures (`.png` and `.pdf`) and `summary.json`. This README describes the edge, temperature-structure and rate-parity diagnostics:
 
-    ~/uni_projects/chemkan-venv/bin/python results/experiments/hydrogen/interpretability/interpretability.py
+    python chemkan/scripts/interpretability/combustion.py --system hydrogen
 
 Nothing was trained. The checkpoint parameters are identical before and after the analysis
 (`parameters_unchanged: true` in `summary.json`). The same script is used for methane
-(`results/experiments/methane/interpretability/`); the biodiesel analysis is in
-`results/experiments/biodiesel/interpretability/`.
+(`--system methane`; outputs in `results/methane/interpretability/`); the biodiesel analysis is in
+`chemkan/scripts/interpretability/biodiesel.py`.
 
 ## What was analysed
 
-- **Checkpoint:** `hydrogen/author_matched/main/S2_seed0_200k/stage2_final.pt`, 200,000 Stage-2 epochs.
+- **Checkpoint:** `results/hydrogen/S2_seed0_200k/stage2_final.pt`, 200,000 Stage-2 epochs.
 - **State:** 9 species + T (10 inputs).
 - **Data:** 36 conditions × 100 times: 35 training conditions, held-out 1150 K / φ 1.3.
 - **Model** (from the checkpoint config). z = [Y, T] is min-max normalized with the training statistics.
@@ -25,7 +25,7 @@ Nothing was trained. The checkpoint parameters are identical before and after th
 
   These agree with a short reactor step to 1e-4 relative.
 
-## Figures
+## Documented figures
 
 | figure | content |
 |---|---|
@@ -33,8 +33,6 @@ Nothing was trained. The checkpoint parameters are identical before and after th
 | `fig2_edges_layer2` | the three factors of each of the 9 species rates. (%) = factor's share of the spread of log\|rate\| |
 | `fig3_temperature_structure` | thermo coefficients w_i·span_T/span_i against Cantera's −h_i/c_p (median and range over the training states); the five largest KAN_cor edges |
 | `fig4_rate_parity` | ChemKAN against Cantera rates at every reference state (symlog axes). Titles: rank correlation, share within a factor 2, relative RMSE |
-| `fig5_perturbations` | T (±60 K), H2 and O2 (×0.8–1.2, N2 keeps ΣY = 1) varied around four states: induction, ignition and post-ignition of 1100 K / φ 1.1, and ignition of the held-out condition. Bold = within 3 median nearest-neighbour spacings of a training state |
-| `fig6_arrhenius_induction` | H2 consumption against 1/T at the induction state |
 
 ## Numerical summary
 
@@ -64,12 +62,6 @@ Nothing was trained. The checkpoint parameters are identical before and after th
 
 The conservation term in the loss is only a soft penalty.
 
-**Perturbations (fig. 5):**
-- ChemKAN's rate changes in the same direction as Cantera's in 11 of 15 sweeps at each training state, and 8 of 15 at the held-out state.
-- Changes in H2 or O2 at fixed everything else leave the training region almost at once (bold segments short or absent).
-
-**Apparent activation energy at the induction state (fig. 6):** ChemKAN's H2 rate changes sign within the ±60 K sweep, so no value can be fitted. Cantera gives 6.3 kcal/mol.
-
 **Hidden nodes (descriptive Pearson r over the training states):**
 - h1 rises with T (0.94) and H2O (0.89);
 - h2 falls with them (−0.80, −0.81).
@@ -90,4 +82,4 @@ The conservation term in the loss is only a soft penalty.
 
 **Hidden nodes:** they track temperature and reaction progress, as expected for any variable that follows the reaction progress. No hidden node is interpreted as a reaction.
 
-**Scope:** one model and seed; four reference states; one-at-a-time perturbations. Composition perturbations leave the trajectory manifold almost immediately (one-dimensional paths in a 10-dimensional space), so their non-bold parts are extrapolation.
+**Scope:** one model and seed, with rates evaluated over the reference trajectory states and the model's own trajectories. These diagnostics do not establish a reaction mechanism or guarantee accurate rates at other states.

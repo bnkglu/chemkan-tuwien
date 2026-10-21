@@ -3,7 +3,7 @@
 Run from this folder with the project environment (`jupyter lab` or `jupyter notebook`).
 The stored outputs are the record of the executions that produced the results; they were
 not re-executed when the repository was reorganized, so file paths printed in some outputs
-are the original ones (`results/PATHS.md` maps them).
+are the development-branch locations (`results/PATHS.md` maps them to the release).
 
 ## Reproduction and validation notebooks
 

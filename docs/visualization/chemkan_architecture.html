@@ -812,7 +812,7 @@ function renderAnat(){
   $("anatSub").textContent=TAB==="add"?"AddKAN Ψ₀ (Eq. 7) — the original KAN layer: a matrix of activations, summed"
     :TAB==="lean"?"LeanKAN Ψ₁ (Eqs. 8–10) — same activations, but nμ inputs get multiplied"
     :"Combined kinetic core (Eq. 13) — AddKAN → tanh → LeanKAN, end to end";
-  $("anatFoot").innerHTML='<b style="color:'+CMUT+'">What is the paper\'s and what is mine:</b> structure, nμ, node counts, grid sizes, tanh normalization, the RBF basis and the swish base are all the paper\'s. The <b>weights are seeded random</b>, so the φ values illustrate the arithmetic — the paper publishes no trained weight values. Switch to <b>Biodiesel</b> on the LeanKAN tab to see y<sup>add</sup> actually populated.';
+  $("anatFoot").innerHTML='<b style="color:'+CMUT+'">What is the paper\'s and what is mine:</b> structure, nμ, node counts, tanh normalization, the RBF basis and the swish base follow the paper. Biodiesel grid sizes are stated there; the hydrogen N=5 grid is inferred from the parameter count in this paper-focused explanation. The <b>weights are seeded random</b>, so the φ values illustrate the arithmetic — the paper publishes no trained weight values. Switch to <b>Biodiesel</b> on the LeanKAN tab to see y<sup>add</sup> actually populated.';
 }
 $("anatTab").onclick=e=>{const b=e.target.closest("button");if(!b)return;TAB=b.dataset.t;
   [...e.currentTarget.children].forEach(x=>x.classList.toggle("sel",x===b));renderAnat();};

@@ -194,7 +194,7 @@ def load_hydrogen_temperature(split: str = "train", n_points: int = 20000):
     ``generate_hydrogen.py --temperature-only``) and returns the dense temperature
     as ``(N, B, 1)`` for feeding ``ObservedTemperature``. This is ONLY the external
     Stage-1 temperature provider: it carries no species trajectories, targets, or
-    normalization -- the canonical 50-point ``hydrogen.npz`` remains the sole source
+    normalization -- the canonical 100-point ``hydrogen.npz`` remains the sole source
     of training targets and normalization statistics (never refit here).
 
     Validates against the canonical hydrogen archive and FAILS LOUDLY on any
@@ -227,7 +227,7 @@ def load_hydrogen_temperature(split: str = "train", n_points: int = 20000):
         raise ValueError(
             f"dense temperature: {split}_T must be (N, B, 1); got {tuple(T_dense.shape)}")
 
-    # --- cross-check against the canonical 50-point hydrogen archive ----------
+    # --- cross-check against the canonical 100-point hydrogen archive ----------
     canon = _load("hydrogen")
     t_canon = torch.as_tensor(canon["t"], dtype=torch.float32)
     if not (torch.isclose(t_dense[0], t_canon[0]) and torch.isclose(t_dense[-1], t_canon[-1])):

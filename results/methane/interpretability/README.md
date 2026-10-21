@@ -1,17 +1,17 @@
 # Interpretability of the methane ChemKAN (read-only analysis)
 
-`interpretability.py` reproduces everything here (figures as `.png` and `.pdf`, `summary.json`):
+Run from the repository root to regenerate the analysis figures (`.png` and `.pdf`) and `summary.json`. This README describes the edge, temperature-structure and rate-parity diagnostics:
 
-    ~/uni_projects/chemkan-venv/bin/python results/experiments/methane/interpretability/interpretability.py
+    python chemkan/scripts/interpretability/combustion.py --system methane
 
 Nothing was trained. The checkpoint parameters are identical before and after the analysis
 (`parameters_unchanged: true` in `summary.json`). The same script is used for hydrogen
-(`results/experiments/hydrogen/interpretability/`); the biodiesel analysis is in
-`results/experiments/biodiesel/interpretability/`.
+(`--system hydrogen`; outputs in `results/hydrogen/interpretability/`); the biodiesel analysis is in
+`chemkan/scripts/interpretability/biodiesel.py`.
 
 ## What was analysed
 
-- **Checkpoint:** `methane/author_matched/main/S2_seed0/archive/stage2_S2_seed0_epoch180000.pt`, the selected snapshot (best 5k snapshot by training loss; notebook 15).
+- **Checkpoint:** `results/methane/S2_seed0/archive/stage2_S2_seed0_epoch180000.pt`, the selected snapshot (best 5k snapshot by training loss; `chemkan/notebooks/methane_extension.ipynb`).
 - **State:** 52 species + T (53 inputs).
 - **Data:** 36 conditions × 100 times: 35 training conditions, held-out 1550 K / φ 1.3.
 - **Model** (from the checkpoint config). z = [Y, T] is min-max normalized with the training statistics.
@@ -25,7 +25,7 @@ Nothing was trained. The checkpoint parameters are identical before and after th
 
   These agree with a short reactor step to 4e-5 relative.
 
-## Figures
+## Documented figures
 
 | figure | content |
 |---|---|
@@ -33,8 +33,6 @@ Nothing was trained. The checkpoint parameters are identical before and after th
 | `fig2_edges_layer2` | the three factors of 9 main species rates (CH4, O2, H2O, CO2, CO, H2, OH, CH2O, HO2). (%) = factor's share of the spread of log\|rate\| |
 | `fig3_temperature_structure` | thermo coefficients w_i·span_T/span_i against Cantera's −h_i/c_p (the 6 lowest and 6 highest; median and range over the training states); the five largest KAN_cor edges |
 | `fig4_rate_parity` | ChemKAN against Cantera rates at every reference state (symlog axes). Titles: rank correlation, share within a factor 2, relative RMSE |
-| `fig5_perturbations` | T (±60 K), CH4 and O2 (×0.8–1.2, N2 keeps ΣY = 1) varied around four states: induction, ignition and post-ignition of 1550 K / φ 1.1, and ignition of the held-out condition. Bold = within 3 median nearest-neighbour spacings of a training state |
-| `fig6_arrhenius_induction` | CH4 consumption against 1/T at the induction state |
 
 ## Numerical summary
 
@@ -64,12 +62,6 @@ Nothing was trained. The checkpoint parameters are identical before and after th
 
 The conservation term in the loss is only a soft penalty.
 
-**Perturbations (fig. 5):**
-- ChemKAN's rate changes in the same direction as Cantera's in 8–12 of 16–18 sweeps per state.
-- Changes in CH4 or O2 at fixed everything else leave the training region quickly. Temperature changes at fixed composition stay near the data longer.
-
-**Apparent activation energy at the induction state (fig. 6):** CH4 consumption gives 68.8 kcal/mol for ChemKAN against 8.7 for Cantera. This is an apparent overall value at that state, not a single reaction's.
-
 **Hidden nodes:**
 - **Correlations** (descriptive Pearson r over the training states): h2 rises with T (0.89) and falls with CH4 (−0.90).
 - **Largest layer-1 edges:** they come from T, H2O, CH4, O2, but also from trace nitrogen species (N2O, HNO, NO2, N, NO). After min-max normalization these get the same [0, 1] range as the main species.
@@ -84,10 +76,10 @@ The conservation term in the loss is only a soft penalty.
 
 **Full network:**
 - The model reproduces the *time evolution* reasonably: along its own trajectory its rates agree with Cantera's at the same time far better than at fixed states (dT/dt within a factor 2 at 68 % vs 38 % of the points).
-- It does *not* reproduce the *rate law as a function of state*. Rank correlations at the reference states are 0.06–0.5, and the local temperature sensitivity is wrong (apparent Ea 69 vs 8.7 kcal/mol).
+- It does not accurately reproduce the rate law as a function of state. For the seven selected species reported above, Spearman rank correlations at the training reference states range from −0.15 (CH₄) to 0.49 (CO).
 - It is a trajectory surrogate, not a locally faithful chemical rate model. The gap is larger than for hydrogen (52 species, 325 reactions).
 - Most temperature coefficients are not physical, and element conservation is approximate.
 
 **Hidden nodes:** they track temperature and reaction progress. No hidden node is interpreted as a reaction.
 
-**Scope:** one model and seed (the 180k snapshot); four reference states; one-at-a-time perturbations. Composition perturbations leave the trajectory manifold quickly (one-dimensional paths in a 53-dimensional space), so their non-bold parts are extrapolation.
+**Scope:** one model and seed, with rates evaluated over the reference trajectory states and the model's own trajectories. These diagnostics do not establish a reaction mechanism or guarantee accurate rates at other states.

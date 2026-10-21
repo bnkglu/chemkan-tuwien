@@ -1,6 +1,8 @@
 # Author-matched hydrogen: smoke report
 
-Single runs (seed 0), 2,000 epochs per stage: a pipeline and settings check, not results. Everything below is read from the files in this directory.
+Single runs (seed 0), 2,000 epochs per stage: a pipeline and settings check, not results. This is a historical diagnostic. The release retains `selection.json` and
+`solve_mode_dtype.json`; individual screening-run histories and checkpoints remain
+in the development archive. The tables below record those original runs.
 
 ## 1. Solve mode and precision (`solve_mode_dtype.json`)
 

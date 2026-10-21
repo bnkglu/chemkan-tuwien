@@ -1,5 +1,8 @@
 # ChemKAN inference benchmark: results
 
+Archived measured results: checkpoint paths below retain their development-branch locations.
+See [the path mapping](../PATHS.md) for their current release locations.
+
 Speed-up = reference runtime / method runtime (< 1: slower than the reference). Two baselines: the Python reference at its data-generation tolerance (Cantera rtol 1e-9 or LSODA rtol 1e-10) and the Julia reference at the same tolerance (Arrhenius.jl CVODE_BDF rtol 1e-9, or the released kinetics with CVODE_BDF rtol 1e-10). Throughput speed-up uses the method's faster mode (sequential or batched) against the baseline solving the conditions sequentially. MSE: time-averaged, model-normalized, 100 output points, against the Python reference at its generation tolerance. Latency: one trajectory per call, median and IQR over conditions x repetitions.
 
 ## hydrogen

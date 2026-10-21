@@ -162,7 +162,7 @@ _BASE_CFG = {
     "solver": {"method": "tsit5", "rtol": 1e-6, "atol": 1e-8},
     "pinn": {"stage1": False, "stage2": True, "alpha_pinn": 1e-4},
     "normalization": {"input_scaling": "minmax", "stats": "train-only min-max"},
-    "dataset": "hydrogen.npz (train split, 50 points, 35 conditions)", "noise": None,
+    "dataset": "hydrogen.npz (train split, 100 points, 35 conditions)", "noise": None,
     "stage1_temperature": {"source": "dense_cantera", "n_points": 20000,
                            "provider": "ObservedTemperature", "interpolation": "linear",
                            "cache_file": "hydrogen_temperature_20000.npz"},
