@@ -60,7 +60,7 @@ Kolmogorov-Arnold Networks (ChemKANs) for
 learning chemical kinetics. An independent
 PyTorch implementation was developed to
 reproduce the original biodiesel-production
-and hydrogen-air-combustion benchmarks and
+and hydrogen-air combustion benchmarks and
 extend the architecture to methane-air oxidation.
 The workflow followed CRISP-DM adapted to
 scientific machine learning, emphasizing
@@ -118,7 +118,7 @@ The project remained a reproduction and extension study of ChemKAN, but the repr
 The first implementation was based on
 the original ChemKAN study and the related
 KAN, LeanKAN, and KAN-ODE literature \cite{Koenig_2025,ICLR2025_afaed896,
-LeanKAN2025,KANODE2024}. Considerable diagnostic work and controlled ablations were carried out after this initial implementation because important quantitative discrepancies remained: the species dynamics could often be captured, but the hydrogen thermodynamic stage did not reproduce ignition reliably and the loss levels remained substantially higher than the reported results.
+LeanKAN2025,KANODE2024}. Considerable diagnostic work and controlled ablations were carried out after this initial implementation because important quantitative discrepancies remained: the species dynamics could often be captured, but the hydrogen thermodynamic stage did not reproduce ignition reliably, and the loss levels remained substantially higher than the reported results.
 
 Written clarifications from the authors were later used to resolve methodological details that could not be determined reliably from the paper alone~\cite{ChemKANAuthors2026}. A released biodiesel Julia example also became available and was used as an additional source for implementation-level comparison~\cite{ChemKANRepo2026}. These sources are not treated as if they had been specified in the original paper. The report therefore distinguishes among (i) the printed paper, (ii) author clarification and released source code, and (iii) implementation choices made in this project. Earlier paper-only results are retained in the development(\texttt{dev}) branch to document how the reproduction evolved as additional methodological details became available. The release repository contains the selected final runs, their checkpoints and evaluation artifacts; it does not include every exploratory run.
 
@@ -139,10 +139,10 @@ The project is designed as a \textbf{reproducibility and extension} study of Che
 \midrule
 Problem understanding & Study the ChemKAN paper and related KAN, LeanKAN, KAN-ODE, Neural ODE, and chemical-kinetics literature; review homogeneous-reactor kinetics, Arrhenius rates, stiff ODEs, and numerical integration; formalize the architecture, training procedure, benchmark claims, and reproduction targets; record ambiguous or under-specified methodological details; define the reproducibility, baseline-comparison, and transfer questions. \\
 Data understanding & Inspect biodiesel and combustion trajectories, stiffness, state ranges, ignition behavior, initial-condition coverage, and noise construction. \\
-Data preparation & Generate/reference trajectories; define train/test initial conditions; apply normalization; construct controlled noise levels; generate dense temperature caches for staged training. \\
+Data preparation & Generate or reference trajectories; define train/test initial conditions; apply normalization; construct controlled noise levels; generate dense temperature caches for staged training. \\
 Modeling & Implement ChemKAN, DeepONet reference models, direct-autograd and FSA backends, staged hydrogen training, and the methane extension. \\
 Evaluation & Use trajectory MSE, clean/noisy test error, dense-grid generalization, ignition-delay error, integration failures, parameter counts, and runtime. \\
-Deployment / communication & Maintain a version-controlled repository with configurations, checkpoints, hashes, experiment logs, reproducible plotting scripts, the final report, and poster. \\
+Deployment/communication & Maintain a version-controlled repository with configurations, checkpoints, hashes, experiment logs, reproducible plotting scripts, the final report, and poster. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -177,7 +177,7 @@ weights with fixed node activation functions
 \psi(r)&=\exp\!\left(-\frac{r^2}{2h^2}\right),
 \end{align}
 
-where $c_i$ are RBF centers, $h$ is the grid spacing/spreading parameter, and $b(x)$ is the base activation. The paper states a Swish base activation, while the authors later clarified that the final ChemKAN models used no base activation and that the base term remained from an earlier revision~\cite{ChemKANAuthors2026}. The released biodiesel implementation also disables the base term~\cite{ChemKANRepo2026}. Its RBF is implemented as $\exp[-((x-c)/h)^2]$; the PyTorch author-match uses the equivalent Gaussian width by setting the library width to $h/\sqrt{2}$.
+where $c_i$ are RBF centers, $h$ is the grid spacing or RBF spreading parameter, and $b(x)$ is the base activation. The paper states a Swish base activation, while the authors later clarified that the final ChemKAN models used no base activation and that the base term remained from an earlier revision~\cite{ChemKANAuthors2026}. The released biodiesel implementation also disables the base term~\cite{ChemKANRepo2026}. Its RBF is implemented as $\exp[-((x-c)/h)^2]$; the PyTorch author-match uses the equivalent Gaussian width by setting the library width to $h/\sqrt{2}$.
 
 LeanKAN introduces multiplication without the extra subnodes of MultKAN~\cite{LeanKAN2025}. For layer $l$, the paper writes
 
@@ -186,7 +186,7 @@ LeanKAN introduces multiplication without the extra subnodes of MultKAN~\cite{Le
 y^{\mathrm{mult}}_{l,i}&=\prod_{j=1}^{n_l^{\mathrm{mu}}}\phi_{l,i,j}(x_{l,j}) && \text{for } i \in \set{1,2,\dots, n_{l+1}} \subset \mathbb{N}, \\
 y^{\mathrm{add}}_{l,i}&=\sum_{j=n_l^{\mathrm{mu}}+1}^{n_l}\phi_{l,i,j}(x_{l,j}) && \text{for } i \in \set{1,2,\dots, n_{l+1}} \subset \mathbb{N},
 \end{align}
-Thus $n_l^{\mathrm{mu}}$ controls how many input activations enter multiplicatively. When $n_l^{\mathrm{mu}}=0$, the multiplicative branch is
+Thus, $n_l^{\mathrm{mu}}$ controls how many input activations enter multiplicatively. When $n_l^{\mathrm{mu}}=0$, the multiplicative branch is
 disabled and the layer reduces to the ordinary additive KAN.
 
 
@@ -225,7 +225,7 @@ The paper further defines the kinetic core and correction layer as
 \label{fig:chemkan_architecture}
 \end{figure}
 
-The two-stage training process changes which state is integrated, not Eqs.~(13)--(17). In Stage~1, only $\widetilde{\mathbf{u}}$ is integrated and temperature is supplied externally: it is constant for biodiesel and read from a dense observed/reference interpolant for hydrogen and methane. In Stage~2, the complete state $\mathbf{u}=[\widetilde{\mathbf{u}},T]$ is integrated and the kinetic and thermodynamic parameter groups are optimized together.
+The two-stage training process changes which state is integrated, not Eqs.~(13)--(17). In Stage~1, only $\widetilde{\mathbf{u}}$ is integrated, and temperature is supplied externally: it is constant for biodiesel and read from a dense interpolant of observed or reference temperatures for hydrogen and methane. In Stage~2, the complete state $\mathbf{u}=[\widetilde{\mathbf{u}},T]$ is integrated and the kinetic and thermodynamic parameter groups are optimized together.
 
 \paragraph{Loss.}
 The printed ChemKAN objective is~\cite{Koenig_2025}
@@ -250,7 +250,7 @@ where
 \end{equation}
 The conservation term is evaluated at every time point for every conserved element and weighted by $\alpha_{\mathrm{PINN}}=10^{-4}$. The paper uses only the MSE term for biodiesel, while hydrogen uses the MSE plus the element-conservation term~\cite{Koenig_2025}. The methane extension follows the hydrogen-style loss. The printed MSE averages over modeled states but sums over time. For reporting, this project also uses
 \begin{equation}
-    \mathrm{MSE}_{\mathrm{time\text{-}avg}}=\frac{\mathcal{L}_{\mathrm{MSE}}}{N_t},
+    \mathrm{MSE}_{\mathrm{time\text{-}avg}}=\frac{\mathcal{L}_{\mathrm{MSE}}}{N_t}
 \end{equation}
 
 
@@ -270,7 +270,7 @@ loss convention used for its results.
 
 The biodiesel benchmark is an isothermal six-species kinetic system. The paper uses activation energies $E_a=[14.54,6.47,14.42]$~kcal~mol$^{-1}$ and $\ln A=[18.60,7.93,19.13]$ for reactions 1--3, respectively~\cite{Koenig_2025}. Temperatures are randomly sampled from 323--343~K, initial TG and ROH concentrations are sampled uniformly from 0.5--2, all other species start at zero, and 20 training plus 10 test trajectories are generated over 30~s with 30 sampled times~\cite{Koenig_2025}.
 
-A source-level discrepancy exists between the printed reaction ordering and the released biodiesel example. The released code uses $E_a [\cdot, \mathbf{14.42}, \mathbf{6.47}]$~kcal~mol$^{-1}$ and $\ln A=[\cdot,\mathbf{19.13},\mathbf{7.93}]$. Controlled datasets and training runs were produced for both orderings. The released-code ordering more closely reproduces the species levels shown in the paper's Figure 3: DG reaches about 0.47 and MG about 0.17, consistent with the figure's 0–0.6 and 0–0.2 axes, whereas the paper-text ordering gives about 0.29 and 0.325, so the MG curve would exceed its axis. The main author-matched biodiesel reproduction therefore uses the released-code ordering and keeps the paper-order experiment separate~\cite{ChemKANRepo2026}.
+A source-level discrepancy exists between the printed reaction ordering and the released biodiesel example. The released code uses $E_a = [\cdot, \mathbf{14.42}, \mathbf{6.47}]$~kcal~mol$^{-1}$ and $\ln A=[\cdot,\mathbf{19.13},\mathbf{7.93}]$. Controlled datasets and training runs were produced for both orderings. The released-code ordering more closely reproduces the species levels shown in the paper's Figure 3: DG reaches about 0.47 and MG about 0.17, consistent with the figure's 0–0.6 and 0–0.2 axes, whereas the paper-text ordering gives about 0.29 and 0.325, so the MG curve would exceed its axis. The main author-matched biodiesel reproduction therefore uses the released-code ordering and keeps the paper-order experiment separate~\cite{ChemKANRepo2026}.
 
 The paper's Figure~3 and Figure~6 unseen condition is
 \begin{equation}
@@ -321,7 +321,7 @@ $
 $
 35 are used for training, while \((T_0=1150\,\mathrm{K},\phi=1.3)\) is held out. The printed paper omits \(\phi=0.5\) from its list despite stating that 36 combinations were used; the authors later clarified that \(0.5\) belongs to the grid~\cite{Koenig_2025,ChemKANAuthors2026}. The local training dataset contains 100 uniformly spaced output times over the \(0.6\)-ms trajectory, and a separately generated 20,000-point Cantera temperature cache supplies the linear temperature interpolant used during Stage~1. The authors clarified that their original trajectories were instead generated with Arrhenius.jl using CVODE\_BDF and checked against Cantera; direct Cantera generation is therefore a choice of this reproduction rather than a claim about the authors' original pipeline~\cite{ChemKANAuthors2026}.
 
-The final author-matched architecture has hidden width \(3\), five RBF basis functions per edge, \(n_{\mathrm{mu}}=3\), no base activation, and 344 trainable parameters. Both training stages use Adam with learning rate \(2\times10^{-3}\) and Tsit5 with \(\texttt{rtol}=10^{-6}\) and \(\texttt{atol}=10^{-8}\). 
+The final author-matched architecture has a hidden layer width of \(3\), five RBF basis functions per edge, \(n_{\mathrm{mu}}=3\), no base activation, and 344 trainable parameters. Both training stages use Adam with learning rate \(2\times10^{-3}\) and Tsit5 with \(\texttt{rtol}=10^{-6}\) and \(\texttt{atol}=10^{-8}\). 
 The PyTorch implementation integrates
 min--max-normalized states while the ODE solver
 advances physical time $t$ in seconds.
@@ -350,7 +350,7 @@ as author-specified settings.
 
 \subsubsection{Methane-air oxidation extension}
 
-Methane is not part of the original ChemKAN paper and is treated as a transfer experiment rather than a reproduction target. The extension uses the GRI-Mech~3.0
+Methane oxidation was not investigated in the original ChemKAN paper and is treated as a transfer experiment rather than a reproduction target. The extension uses the GRI-Mech~3.0
 chemical mechanism~\cite{GRIMech30}. Argon is omitted because it remains a constant-zero inert species in the selected setup, leaving 52 species plus temperature and a 1,892-parameter ChemKAN. The initial-condition grid mirrors the hydrogen design: $T_0\in\{1400,1450,1500,1550,1600,1650\}$~K and $\phi\in\{0.5,0.7,0.9,1.1,1.3,1.5\}$, with $(T_0=1550\,\mathrm{K},\phi=1.3)$ held out. Each trajectory contains 100 observation times over 5~ms, and a 20,000-point temperature cache is used in Stage~1. Reference trajectories were generated with Cantera using an adiabatic constant-pressure reactor at an initial pressure of 1~atm.
 
 The model uses the same author-matched architecture pattern and loss as hydrogen. The normalized trajectory coordinate uses $t_{\mathrm{ref}}=5$~ms $=5\times10^{-3}$~s, equal to the full methane trajectory horizon, with the normalized right-hand side divided by $t_{\mathrm{ref}}$ while the solver advances physical time in seconds. This follows the same PyTorch normalized-time formulation as the hydrogen reproduction.
@@ -390,7 +390,7 @@ The following controls were used throughout the project:
     \item Numerical sensitivity backends are validated independently before being used in long training runs.
 \end{itemize}
 
-The implementation, experiment configurations, selected checkpoints, evaluation artifacts, and computational environment are documented in the accompanying ChemKAN release repository. The repository also preserves the pinned `torchdiffeq` source distribution, including its license and provenance information.
+The implementation, experiment configurations, selected checkpoints, evaluation artifacts, and computational environment are documented in the accompanying ChemKAN release repository. The repository also preserves the pinned \texttt{torchdiffeq} source distribution, including its license and provenance information.
 
 The main PyTorch reproduction uses the explicit Tsit5 integrator from `torchdiffeq` \cite{torchdiffeq}. It does not automatically switch to a stiff solver. This differs from the released Julia biodiesel example, which uses `AutoTsit5(Rosenbrock23)` and can switch from Tsit5 to Rosenbrock23 when stiffness is detected \cite{ChemKANRepo2026}. The printed ChemKAN paper states Tsit5 for the ChemKAN/FSA solve \cite{Koenig_2025}.
 
@@ -424,7 +424,7 @@ with
     \frac{\dd\mathbf{z}}{\dd t}
     =\left(F(\mathbf{x},t,\boldsymbol{\theta}),\;J_xS+J_{\boldsymbol{\theta}}\right).
 \end{equation}
-Here $\dd\mathbf{z}/\dd t$ is only the time derivative of the augmented state. It is not a derivative of $\mathbf{z}$ with respect to $\mathbf{x}$. In code, the physical state and sensitivity matrix are combined into a single augmented tensor for ODE integration; mathematically, \(S\) remains the state-by-parameter sensitivity matrix.
+Here $\dd\mathbf{z}/\dd t$ is only the time derivative of the augmented state. It is not a derivative of $\mathbf{z}$ with respect to $\mathbf{x}$. In the implementation, the physical state and sensitivity matrix are combined into a single augmented tensor for ODE integration; mathematically, \(S\) remains the state-by-parameter sensitivity matrix.
 
 In PyTorch, the existing \texttt{KineticDynamics}/\texttt{ChemKANDynamics} right-hand side is called through \texttt{torch.func.functional\_call}; the model dynamics are therefore not reimplemented for FSA. \texttt{torch.\allowbreak  func.jacrev} forms the state and parameter Jacobians, and \texttt{torch.func.vmap} applies the calculation independently over trajectories in a batch. The augmented system is integrated with the same run-level solver and tolerances. After integration, the parameter gradient is assembled as
 \begin{equation}
@@ -461,7 +461,7 @@ The proposal defined training/test MSE, generalization to held-out initial condi
 \toprule
 \textbf{Metric} & \textbf{Purpose} \\
 \midrule
-Trajectory MSE & Primary normalized prediction error. The printed Eq.~(18) averages over state variables and sums over time. For cross-plot reporting, $\mathrm{MSE}_{\mathrm{time\text{-}avg}}=\mathcal{L}_{\mathrm{MSE}}/N_t$ is also reported. The released biodiesel Julia example uses this time-averaged form through \texttt{Flux.mse}; hydrogen training retains Eq.~(18). \\
+Trajectory MSE & Primary normalized prediction error. The printed Eq.~(18) averages over state variables and sums over time. For comparisons across figures, $\mathrm{MSE}_{\mathrm{time\text{-}avg}}=\mathcal{L}_{\mathrm{MSE}}/N_t$ is also reported. The released biodiesel Julia example uses this time-averaged form through \texttt{Flux.mse}; hydrogen training retains Eq.~(18). \\
 Generalization & Held-out initial-condition error; for hydrogen, a reconstructed $21\times21$ grid (441 conditions) is also evaluated. \\
 Noise robustness & Clean-ground-truth test MSE after training on noisy observations; train-loss increase is compared with the irreducible noise floor. \\
 Ignition behavior & Temperature rise, ignition delay defined as $\operatorname*{arg\,max}_t \dd T/\dd t$, and integration failures. \\
@@ -532,7 +532,7 @@ The initial biodiesel reproduction was based on the paper alone and required a s
 
 A controlled reaction-order experiment used the same initial conditions, training settings, and seed while changing only the reaction-2/reaction-3 Arrhenius ordering. Aggregate losses were of similar scale, but the released-code ground truth produced DG and MG levels that match the y-axis ranges and trajectories of the published Figure~3 more closely. Because the authors did not explicitly confirm which ordering generated the published figure, this is reported as evidence rather than as a correction of the paper.
 
-The strongest quantitative reproduction is the noise-floor behavior. Under the authors' released-example time-averaged loss, the 0$\rightarrow$1\% and 0$\rightarrow$5\% training-loss increments are close to the values stated in the paper, and the 15\% clean-test degradation is close to the reported approximately two-fold increase. Neural-scaling exponents are less stable across the reconstructed model-size set and the single training seed.
+The strongest quantitative reproduction is the noise-robustness experiment. The increases in training loss from 0\% to 1\% and from 0\% to 5\% noise are close to the values reported in the original paper. Similarly, the degradation in clean-test performance at 15\% noise is close to the reported approximately twofold increase in error. Neural-scaling exponents are less stable across the reconstructed set of model sizes, particularly given the use of a single training seed.
 
 \begin{table}[htbp]
 \centering
@@ -580,8 +580,7 @@ Consequently, additional controlled ablations were
 conducted to investigate activation functions and
 optimization settings. The selected reconstruction uses
 tanh activations, raw physical time as the trunk input,
-and an Adam learning rate of $10^{-2}$. This configuration is reported as the selected
-behavior-matching reconstruction rather than an
+and an Adam learning rate of $10^{-2}$. This configuration is reported as a reconstruction selected to match the reported behavior rather than an
 exactly recovered author implementation.
 The original ReLU experiments are retained as
 diagnostic evidence.
@@ -681,7 +680,7 @@ $7.3175\times10^{-4}$ for DeepONet.}
 
 \subsection{Hydrogen-air combustion reproduction}
 
-Hydrogen was the most difficult reproduction target. Under the initial paper-only protocol, the species trajectories could be learned to a useful qualitative level, but the Stage-2 temperature dynamics often failed to ignite and the loss remained high. Diagnostics showed that the thermodynamic linear layer initially produced a temperature derivative with insufficient magnitude. The author clarification supplied several missing settings, including no base activation, five RBF basis functions, min--max-normalized inputs, thermodynamic linear weights initialized to $10^{-5}$, a 100-point training grid, a separate dense temperature interpolant, and a $10^5$--$2\times10^5$ epoch range per stage~\cite{ChemKANAuthors2026}.
+Hydrogen was the most difficult reproduction target. Under the initial paper-only protocol, the principal species trajectories could be reproduced qualitatively, but the Stage-2 temperature dynamics often failed to ignite, and the loss remained high. Diagnostics showed that the thermodynamic linear layer initially produced a temperature derivative with insufficient magnitude. The author clarification supplied several missing settings, including no base activation, five RBF basis functions, min--max-normalized inputs, thermodynamic linear weights initialized to $10^{-5}$, a 100-point training grid, a separate dense temperature interpolant, and a $10^5$--$2\times10^5$ epoch range per stage~\cite{ChemKANAuthors2026}.
 
 The normalized-state formulation also changes the scale of the ODE right-hand side: dividing the complete normalized RHS by the 0.6~ms trajectory horizon increases its physical-time magnitude by $1/t_{\mathrm{ref}}$. Together with the clarified architecture and initialization, this removed the earlier temperature-rate magnitude mismatch and allowed the model to learn ignition. The individual causal contribution of the time scaling versus the other clarified changes was not isolated in a single-factor ablation, so the report does not attribute the recovery to one change alone.
 
@@ -691,7 +690,7 @@ epochs followed by 200,000 Stage-2 epochs.
 Stage~1 exhibited non-monotonic optimization
 behavior, with its lowest logged time-averaged MSE
 of $5.334\times10^{-4}$ at epoch 60,037.
-The fixed 100k checkpoint was retained as the
+The fixed epoch-100,000 checkpoint was retained as the
 starting point for Stage~2. In Stage~2, the lowest logged time-averaged MSE
 was $4.548\times10^{-4}$ at epoch 199,954,
 while the epoch-200,000 value was
@@ -720,11 +719,11 @@ Figure~8B initial conditions.
 \textbf{Held-out MSE} &
 \textbf{Ignition-delay error} \\
 \midrule
-100k & $1.388\times10^{-3}$ &
+100,000 & $1.388\times10^{-3}$ &
        $8.170\times10^{-4}$ & 3.69\% \\
-150k & $7.425\times10^{-4}$ &
+150,000 & $7.425\times10^{-4}$ &
        $4.526\times10^{-4}$ & 1.64\% \\
-200k & $6.360\times10^{-4}$ &
+200,000 & $6.360\times10^{-4}$ &
        $3.507\times10^{-4}$ & 1.36\% \\
 \bottomrule
 \end{tabular}
@@ -740,7 +739,7 @@ ignition-delay error are reported alongside
 those of the earlier archived checkpoints
 to illustrate training progression.
 
-A reconstructed $21\times21$ grid (441 conditions) was evaluated in float64 with Tsit5 at \texttt{rtol}$=10^{-10}$ and \texttt{atol}$=10^{-12}$. The time-averaged normalized trajectory MSE has median $4.91\times10^{-4}$, minimum $3.83\times10^{-5}$, and maximum $6.12\times10^{-2}$. Across the 30 Figure 8B, the median predicted temperature rise is 1604.90~K and the median Cantera reference rise is 1580.73~K. The difference between these two medians is 24.17~K (1.53\% of the reference median); this is not the median of the paired temperature-rise errors. The median absolute ignition-delay relative error is 1.36\%.
+A reconstructed $21\times21$ grid (441 conditions) was evaluated in float64 with Tsit5 at \texttt{rtol}$=10^{-10}$ and \texttt{atol}$=10^{-12}$. The time-averaged normalized trajectory MSE has median $4.91\times10^{-4}$, minimum $3.83\times10^{-5}$, and maximum $6.12\times10^{-2}$. Across the 30 initial conditions in Figure~8B, the median predicted temperature rise is 1604.90~K and the median Cantera reference rise is 1580.73~K. The difference between these two medians is 24.17~K (1.53\% of the reference median); this is not the median of the paired temperature-rise errors. The median absolute ignition-delay relative error is 1.36\%.
 
 Figure~\ref{fig:hydrogen_fig07} compares
 the reproduced trajectories at a training
@@ -755,21 +754,21 @@ compares ignition-delay behavior.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{ChemKAN_report_assets/hydrogen_fig07_200k_tight.png}
-\caption{Hydrogen trajectories from the 200k Stage-2 checkpoint, re-evaluated in float64 with Tsit5 at \texttt{rtol}$=10^{-10}$ and \texttt{atol}$=10^{-12}$. The left column is the training condition $\phi=0.9$, $T_0=1050$~K; the right column is the held-out condition $\phi=1.3$, $T_0=1150$~K, corresponding to the paper's Figure~7.}
+\caption{Hydrogen trajectories from the epoch-200,000 Stage-2 checkpoint, re-evaluated in float64 with Tsit5 at \texttt{rtol}$=10^{-10}$ and \texttt{atol}$=10^{-12}$. The left column is the training condition $\phi=0.9$, $T_0=1050$~K; the right column is the held-out condition $\phi=1.3$, $T_0=1150$~K, corresponding to the paper's Figure~7.}
 \label{fig:hydrogen_fig07}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.72\textwidth]{ChemKAN_report_assets/hydrogen_fig08a_200k_tight.png}
-\caption{Dense 441-condition generalization map for the 200k Stage-2 checkpoint, evaluated in float64 with Tsit5 at \texttt{rtol}$=10^{-10}$ and \texttt{atol}$=10^{-12}$. The plotted value is the normalized trajectory Eq.~(18) MSE divided by the 100 observation times.}
+\caption{Dense 441-condition generalization map for the epoch-200,000 Stage-2 checkpoint, evaluated in float64 with Tsit5 at \texttt{rtol}$=10^{-10}$ and \texttt{atol}$=10^{-12}$. The plotted value is the normalized trajectory Eq.~(18) MSE divided by the 100 observation times.}
 \label{fig:hydrogen_fig08a}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{ChemKAN_report_assets/hydrogen_fig08b_200k.png}
-\caption{Ignition-delay comparison for the 200k Stage-2 checkpoint on the 30 conditions of the paper's Figure~8B ($T_0=1000,1050,1100,1150,1200$~K and all six equivalence ratios). Ignition delay is the time of maximum $\dd T/\dd t$.}
+\caption{Ignition-delay comparison for the epoch-200,000 Stage-2 checkpoint on the 30 conditions of the paper's Figure~8B ($T_0=1000,1050,1100,1150,1200$~K and all six equivalence ratios). Ignition delay is the time of maximum $\dd T/\dd t$.}
 \label{fig:hydrogen_fig08b}
 \end{figure}
 
@@ -797,7 +796,7 @@ in temperature and species dynamics.
 
 \subsection{FSA validation and sensitivity-backend findings}
 
-FSA was validated before it was used for scientific training. The validation suite covers: (i) the analytic scalar problem $\dd y/\dd t=\theta y$, whose sensitivity is known in closed form; (ii) biodiesel at initialized and trained parameters; (iii) hydrogen Stage~1 at initialized and trained parameters; and (iv) hydrogen Stage~2 at initialized and trained checkpoints under the tested thermodynamic initializations. It checks functional equivalence, FSA-versus-direct-autograd gradients under tolerance refinement, physical-state consistency, trajectory independence, production dtype, restart behavior, and selected finite-difference probes. The forward-sensitivity equation follows the standard formulation documented by SciMLSensitivity~\cite{SciMLSensitivityMath}.
+FSA was validated before it was used for scientific training. The validation suite covers (i) the analytic scalar problem $\dd y/\dd t=\theta y$, whose sensitivity is known in closed form; (ii) biodiesel at initialized and trained parameters; (iii) hydrogen Stage~1 at initialized and trained parameters; and (iv) hydrogen Stage~2 at initialized and trained checkpoints under the tested thermodynamic initializations. It checks functional equivalence, FSA-versus-direct-autograd gradients under tolerance refinement, physical-state consistency, trajectory independence, production dtype, restart behavior, and selected finite-difference probes. The forward-sensitivity equation follows the standard formulation documented by SciMLSensitivity~\cite{SciMLSensitivityMath}.
 
 \begin{table}[H]
 \centering
@@ -810,9 +809,9 @@ FSA was validated before it was used for scientific training. The validation sui
 \midrule
 Analytic ODE test & PASS & At tight tolerances, state/sensitivity and loss-gradient relative errors reach approximately $10^{-9}$. \\
 Functional equivalence & PASS & The functional dynamics used for Jacobians reproduce the existing dynamics wrapper to numerical precision. \\
-Gradient comparison & PASS under extended tolerance refinement & One hydrogen Stage-1 initial case required extending the tolerance ladder from $10^{-10}/10^{-12}$ to $10^{-12}/10^{-14}$; at the finer level both FSA and direct autograd converged and agreed under the same pre-defined thresholds. \\
-State consistency / independence &
-PASS after refinement amendment &
+Gradient comparison & PASS under extended tolerance refinement & One hydrogen Stage-1 initial case required extending the tolerance ladder from $10^{-10}/10^{-12}$ to $10^{-12}/10^{-14}$; at the finer level both FSA and direct autograd converged and agreed under the same predefined thresholds. \\
+State consistency/independence &
+PASS after tolerance refinement &
 The augmented solve reproduces the
 physical state, while batch-independence
 checks passed at the amended finer
@@ -834,7 +833,7 @@ The pre-defined gradient-error acceptance thresholds were unchanged.
 
 A controlled biodiesel experiment provides an additional implementation-level comparison with the authors' released Julia example. Starting from the exact Julia initialization and using the same released-example data/settings, PyTorch FSA gives Julia-relative training-loss ratios of approximately 1.0001, 0.9999, and 0.997 at epochs 500, 2,000, and 5,000; the late training median is 0.94$\times$ Julia and the late validation median is 1.19$\times$ Julia. Direct differentiation through the PyTorch state-only solve remains about 1.5$\times$ above the Julia training loss in the same controlled comparison.
 
-The released Julia biodiesel example uses \texttt{ForwardDiff.gradient} through \texttt{AutoTsit5(Rosenbro\\ck23)}, so derivative information participates in the differentiated solver computation. PyTorch FSA likewise integrates the sensitivity components with the physical state, whereas direct autograd integrates only the physical state and differentiates the solver computation graph afterwards. This offers a plausible numerical explanation for the closer PyTorch-FSA/Julia trajectory, but the project treats it as a hypothesis rather than a demonstrated causal mechanism.
+The released Julia biodiesel example uses \texttt{ForwardDiff.gradient} through \texttt{AutoTsit5(Rosenbro\\ck23)}, so derivative information participates in the differentiated solver computation. PyTorch FSA likewise integrates the sensitivity components with the physical state, whereas direct autograd integrates only the physical state and differentiates the solver computation graph afterwards. This offers a plausible numerical explanation for the closer agreement between PyTorch FSA and Julia training-loss histories, but the project treats it as a hypothesis rather than a demonstrated causal mechanism.
 
 The main hydrogen reproduction used direct
 automatic differentiation, while the FSA
@@ -967,7 +966,7 @@ over epochs 190,001--200,000. Further optimization or alternative Stage-1
 checkpoint selection might affect the final
 accuracy. These possibilities were not
 investigated systematically, and the
-200k training budget was retained for
+200,000 epoch training budget was retained for
 consistency with the hydrogen experiments. 
 The complete methane training history is
 provided in Appendix~\ref{app:training_histories}.
@@ -987,7 +986,7 @@ Legacy local benchmarks were informative but are not used as the final efficienc
 Computational efficiency was measured for complete
 trajectory integration, including per-trajectory
 initialization and output conversion, while excluding
-model loading, mechanism loading, compilation and file
+model loading, mechanism loading, compilation, and file
 I/O. The benchmark used one CPU thread on an Apple M1,
 three warm-up calls, and 25 timed repetitions.
 Single-trajectory latency and multi-condition
@@ -1102,7 +1101,7 @@ normalized trajectory MSE for the three chemical
 systems, comparing PyTorch and Julia ChemKAN
 with their numerical reference methods under
 different solver tolerances. Markers indicate
-median measurements and error bars the
+median measurements, and error bars indicate the
 interquartile ranges.}
 \label{fig:runtime_accuracy}
 \end{figure}
@@ -1254,7 +1253,7 @@ autograd, and a validated continuous-FSA backend. \\
 Reproduction &
 Biodiesel reproduces several reported noise
 robustness trends under the clarified protocol.
-The 200k hydrogen model predicts the designated
+The epoch-200,000 hydrogen model predicts the designated
 held-out condition with time-averaged MSE
 $3.507\times10^{-4}$ and has a median absolute
 ignition-delay error of 1.36\% on the Figure~8B
@@ -1269,7 +1268,7 @@ initial-condition grid.\\
 Extension &
 ChemKAN was extended to methane-air oxidation
 using GRI-Mech~3.0. Stage~2 training reached
-200,000 epochs, with the 180k checkpoint selected
+200,000 epochs, with the epoch-180,000 checkpoint selected
 for evaluation. The held-out time-averaged MSE
 was $1.163\times10^{-3}$.
 The Julia inference port achieved approximately
@@ -1303,9 +1302,9 @@ identified with specific chemical reactions.\\
 
 \subsection{RQ1: Reproducibility of ChemKAN}
 
-The independent PyTorch implementation reproduces the central behavior of both original case studies, but exact quantitative reproduction could not be obtained from the paper text alone. In the first paper-only implementation, extensive ablations reduced some discrepancies but the hydrogen thermodynamic stage still failed to reproduce temperature ignition reliably and biodiesel losses remained above the reported levels. The later author clarification and released biodiesel source resolved several settings that materially changed the reproduction~\cite{ChemKANAuthors2026,ChemKANRepo2026}.
+The independent PyTorch implementation reproduces the central behavior of both original case studies, but exact quantitative reproduction could not be obtained from the paper text alone. In the first paper-only implementation, extensive ablations reduced some discrepancies, but the hydrogen thermodynamic stage still failed to reproduce temperature ignition reliably, and biodiesel losses remained above the reported levels. The later author clarification and released biodiesel source resolved several settings that materially changed the reproduction~\cite{ChemKANAuthors2026,ChemKANRepo2026}.
 
-For biodiesel, the revised setup closely reproduces the reported noise-floor behavior and approximately two-fold clean-test degradation at 15\% noise, while the reconstructed neural-scaling and DeepONet results remain more sensitive. For hydrogen, the 200k Stage-2 checkpoint reproduces ignition timing and the main trajectory behavior with a dense-grid median time-averaged MSE of $4.91\times10^{-4}$ and 1.36\% median absolute ignition-delay error on the Figure~8B conditions. The reproduction is therefore best described claim by claim rather than as a single binary success/failure result.
+For biodiesel, the revised setup closely reproduces the reported noise-floor behavior and approximately two-fold clean-test degradation at 15\% noise, while the reconstructed neural-scaling and DeepONet results remain more sensitive. For hydrogen, the epoch-200,000 Stage-2 checkpoint reproduces ignition timing and the main trajectory behavior with a dense-grid median time-averaged MSE of $4.91\times10^{-4}$ and 1.36\% median absolute ignition-delay error on the Figure~8B conditions. The reproduction is therefore best described claim by claim rather than as a single binary success/failure result.
 
 
 \subsection{RQ2: Transfer to methane-air oxidation}
@@ -1529,7 +1528,7 @@ on neural-network parameter count alone.
 
 The project shows that scientific machine-learning reproduction requires source-level provenance in addition to architectural similarity. Several examples materially affected the experiments: the printed biodiesel reaction ordering differs from the released code; printed Eq.~(18) sums over time while the released Julia example uses time-averaged \texttt{Flux.mse}; the paper describes a Swish base activation while the authors clarified that the final models did not use it; the paper text omits $\phi=0.5$ from the hydrogen list although the 36-condition design includes it; and the released biodiesel example uses \texttt{AutoTsit5(Rosenbrock23)} rather than only Tsit5. The hydrogen clarification additionally supplied the 100-point grid, dense Stage-1 temperature interpolation, $10^{-5}$ thermodynamic initialization, and the $10^5$--$2\times10^5$ training budget.
 
-Where later source material or author clarification resolves a discrepancy, the final reproduction adopts the directly supported setting and states its provenance instead of treating it as a convention introduced by this project. Earlier paper-only results are retained because they show which details were necessary to obtain the later reproduction.
+Where later source material or author clarification resolves a discrepancy, the final reproduction adopts the directly supported setting and states its provenance instead of treating it as a convention introduced by this project. Earlier results based solely on the published paper are retained because they show which details were necessary to obtain the later reproduction.
 
 The FSA comparison provides a second numerical lesson. Matching architecture, data, initialization, optimizer, and nominal tolerances does not by itself guarantee an identical optimization trajectory when the sensitivity method changes the variables included in the adaptive solve. The close PyTorch-FSA/Julia training trajectory is therefore reported as evidence about numerical implementation sensitivity, while the proposed error-control explanation remains explicitly a hypothesis.
 
@@ -1541,11 +1540,11 @@ of a small learned surrogate.
 \subsection{Limitations}
 
 \begin{itemize}
-    \item Most expensive final comparisons use one random seed, so reported ratios are single-run measurements rather than uncertainty estimates. For methane, checkpoint selection was based on training-condition accuracy, with the 180k checkpoint outperforming the final 200k checkpoint. These results do not establish convergence or consistency across different random initializations.
+    \item Most expensive final comparisons use one random seed, so reported ratios are single-run measurements rather than uncertainty estimates. For methane, checkpoint selection was based on training-condition accuracy, with the epoch-180,000 checkpoint outperforming the final epoch-200,000 checkpoint. These results do not establish convergence or consistency across different random initializations.
     \item The released biodiesel example differs from the printed paper in several implementation details; every adopted source-code setting is attributed to the released source rather than to the paper.
     \item Which biodiesel reaction ordering generated the published Figure~3 trajectories was not explicitly confirmed by the authors; controlled trajectory evidence points to the released-code ordering.
     \item Hydrogen reference trajectories are generated with Cantera rather than the authors' Arrhenius.jl CVODE\_BDF workflow, although the authors reported cross-checking their data against Cantera.
-    \item The 441-condition Figure~8A grid is reconstructed from the figure/count because the exact grid is not tabulated in the paper.
+    \item The 441-condition Figure~8A grid is reconstructed from the figure and the reported condition count because the exact grid is not tabulated in the paper.
     \item The exact hydrogen/methane normalized-time implementation with $t_{\mathrm{ref}}$ equal to the full trajectory horizon is documented from the PyTorch reproduction itself; no released hydrogen implementation is available for source-level confirmation.
     \item Learned KAN edge functions are inspectable but are not automatically identifiable with individual chemical reactions.
     \item Agreement between predicted and reference
@@ -1592,7 +1591,7 @@ from their released biodiesel implementation.
 
 For biodiesel, the experiments reproduced
 several reported noise-robustness trends.
-For hydrogen, the 200k Stage-2 checkpoint
+For hydrogen, the epoch-200,000 Stage-2 checkpoint
 achieved a held-out time-averaged normalized
 MSE of $3.507\times10^{-4}$ and a median
 absolute ignition-delay error of 1.36\%
@@ -1606,7 +1605,7 @@ the released Julia training behavior.
 
 The methane extension demonstrated the
 applicability of ChemKAN to a larger
-chemical system. The selected 180k
+chemical system. The selected epoch-180,000
 Stage-2 checkpoint achieved a held-out
 time-averaged normalized MSE of
 $1.163\times10^{-3}$ and generalized
@@ -1631,9 +1630,8 @@ inference was slower under the measured
 configurations.
 
 Finally, the biodiesel interpretability
-analysis demonstrated the inspectability
-of learned KAN functions and identified
-discrepancies in some instantaneous species
+analysis demonstrated the ability to inspect learned KAN functions
+and identified discrepancies in some instantaneous species
 production rates despite agreement with
 reference trajectories. Overall, the
 results emphasize that reproducibility,
@@ -1702,7 +1700,7 @@ Training solver
 Final evaluation
 & Tsit5, $10^{-10}/10^{-12}$
 & float64 Tsit5, $10^{-10}/10^{-12}$
-& Selected Stage-2 180k checkpoint;
+& Selected Stage-2 epoch-180,000 checkpoint;
   Tsit5, $10^{-6}/10^{-8}$ \\
 
 Sensitivity backend
@@ -1711,12 +1709,12 @@ Sensitivity backend
 & Direct autograd \\
 
 Training budget
-& 10k (main noise runs)
-& 100k Stage~1 + 200k Stage~2
-& Stage~1 trained to 54.8k; archived 50k checkpoint used + 200k Stage~2 \\
+& 10,000 epochs (main noise runs)
+& 100,000 epochs Stage~1 + 200,000 epochs Stage~2
+& Stage~1 trained to epoch 54,800; archived epoch-50,000 checkpoint used + 200,000 Stage~2 epochs \\
 
 Selected evaluation checkpoint
-& Final 10k checkpoint
+& Final epoch-10,000 checkpoint
 & Stage~2 epoch 200,000
 & Stage~2 epoch 180,000 \\
 \bottomrule
@@ -1771,10 +1769,10 @@ histories (seed 0). Grey curves show the logged
 time-averaged MSE at each epoch, while blue
 curves show the median over the preceding
 1,000 epochs. Dashed vertical lines indicate
-the archived Stage-1 checkpoint used to initialize Stage~2 (50k) and Stage-2 evaluation checkpoint (180k).
-Stage~2 training continued to 200k.
+the archived Stage-1 checkpoint at epoch 50,000 used to initialize Stage-2, and the Stage-2 evaluation checkpoint (epoch 180,000).
+Stage~2 training continued to epoch 200,000.
 The two stages have different prediction
-targets and their loss magnitudes are not
+targets, and their loss magnitudes are not
 directly comparable.}
 \label{fig:methane_training_history}
 \end{figure}

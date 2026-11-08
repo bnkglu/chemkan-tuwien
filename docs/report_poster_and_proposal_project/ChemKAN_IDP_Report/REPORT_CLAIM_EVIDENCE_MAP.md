@@ -2,7 +2,7 @@
 
 The mapping is done between project report, repo, and the [paper](https://doi.org/10.1039/d5cp02009c).
 
-Package status checked on 21 October 2026. Section F describes the current report
+Package status checked on 8 November 2026. Section F describes the current report
 package in `docs/report_poster_and_proposal_project/ChemKAN_IDP_Report/`.
 The repository copy of this map is `docs/REPORT_CLAIM_EVIDENCE_MAP.md`; an identical
 copy is included beside `main.tex` so the report package is self-contained.

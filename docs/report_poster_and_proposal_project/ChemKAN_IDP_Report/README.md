@@ -1,4 +1,4 @@
-# ChemKAN IDP report — source package (21 October 2026)
+# ChemKAN IDP report — source package (8 November 2026)
 
 This package contains the LaTeX source, bibliography, included figures, and the supplied 30-page `Bankoglu_Project_Report.pdf`.
 
