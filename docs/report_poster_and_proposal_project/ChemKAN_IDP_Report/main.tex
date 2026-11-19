@@ -21,7 +21,7 @@
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{siunitx}
-\usepackage[backend=biber,style=numeric,natbib=true,sorting=nyt,maxbibnames=6,doi=false,isbn=false,url=true]{biblatex}
+\usepackage[backend=biber,style=numeric,natbib=true,sorting=nyt,maxbibnames=10,minbibnames=10,doi=false,isbn=false,url=true]{biblatex}
 \usepackage{commath}
 \addbibresource{references.bib}
 
@@ -392,7 +392,7 @@ The following controls were used throughout the project:
 
 The implementation, experiment configurations, selected checkpoints, evaluation artifacts, and computational environment are documented in the accompanying ChemKAN release repository. The repository also preserves the pinned \texttt{torchdiffeq} source distribution, including its license and provenance information.
 
-The main PyTorch reproduction uses the explicit Tsit5 integrator from `torchdiffeq` \cite{torchdiffeq}. It does not automatically switch to a stiff solver. This differs from the released Julia biodiesel example, which uses `AutoTsit5(Rosenbrock23)` and can switch from Tsit5 to Rosenbrock23 when stiffness is detected \cite{ChemKANRepo2026}. The printed ChemKAN paper states Tsit5 for the ChemKAN/FSA solve \cite{Koenig_2025}.
+The main PyTorch reproduction uses the explicit Tsit5 integrator from \texttt{torchdiffeq} \cite{torchdiffeq}. It does not automatically switch to a stiff solver. This differs from the released Julia biodiesel example, which uses \texttt{AutoTsit5(Rosenbrock23)} and can switch from Tsit5 to Rosenbrock23 when stiffness is detected \cite{ChemKANRepo2026}. The printed ChemKAN paper states Tsit5 for the ChemKAN/FSA solve \cite{Koenig_2025}.
 
 
 
